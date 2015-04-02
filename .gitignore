@@ -1,0 +1,9 @@
+# prevent object and archive files
+*.[oa]
+
+# the tilde operator are often used by editors for tmp files
+*~
+
+# mac os x spotligt program generates these files,
+# we do not want them in our git repo
+.DS_Store
