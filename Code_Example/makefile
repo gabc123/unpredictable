@@ -5,5 +5,5 @@ CFLAGS=-I$(IDIR) -F$(FDIR)
 
 objects = main.o
 
-glTestapp : $(objects)
+gltestapp : $(objects)
 	gcc -o glTestapp $(CFLAGS) -framework SDL2 -framework opengl $(objects)

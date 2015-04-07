@@ -1,3 +1,6 @@
+# all the runable bin files will end in testapp 
+*testapp
+
 # prevent object and archive files
 *.[oa]
 
