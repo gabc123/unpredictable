@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "up_opengl_redirect.h"
-
+#include "up_shader_module.h"
 #include <SDL2/SDL.h>
 
 static SDL_Window * g_openglWindow = NULL;
@@ -94,15 +94,21 @@ int main(int argc, char const *argv[])
 	UP_openGLwindowSetup(400,400,"Det fungerar !!!");
 	printf("opengl window setup done\n");
 
+	struct shader_module *shaderprog;
+
+	shaderprog = UP_Shader_new("shadertest");
+
 	while(status)
 	{
 		UP_renderBackground();
+		UP_shader_bind(*shaderprog);
 		UP_openGLupdate();
 		status = UP_eventHandler();
 	}
 	printf("Ended main loop\n");
 
 	//cleanup and release all data (notice the reverse order of setup)
+	UP_Shader_delete();
 	UP_openGLwindowCleanup();
 	UP_sdlCleanup();
 	printf("All cleanup completed\n");
