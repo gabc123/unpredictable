@@ -12,6 +12,7 @@ void UP_sdlSetup()
 	SDL_Init(SDL_INIT_EVERYTHING);
 }
 
+//heja heja
 
 void UP_openGLwindowSetup(int width,int height, const char *title)
 {
