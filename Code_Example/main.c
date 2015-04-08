@@ -2,6 +2,7 @@
 
 #include "up_opengl_redirect.h"
 #include "up_shader_module.h"
+#include "up_vertex.h"
 #include <SDL2/SDL.h>
 
 static SDL_Window * g_openglWindow = NULL;
@@ -94,14 +95,27 @@ int main(int argc, char const *argv[])
 	UP_openGLwindowSetup(400,400,"Det fungerar !!!");
 	printf("opengl window setup done\n");
 
-	struct shader_module *shaderprog;
+	up_mesh_start_setup(4);
 
+	struct up_vertex vertex[] = {
+		{-0.5f, 0.0f, 0.0f},
+		{-0.5f, 0.5f, 0.0f},
+		{0.5f, 0.0f, 0.0f}
+	};
+
+	struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]));
+	struct shader_module *shaderprog;
 	shaderprog = UP_Shader_new("shadertest");
+
+
 
 	while(status)
 	{
 		UP_renderBackground();
-		UP_shader_bind(*shaderprog);
+		UP_shader_bind(shaderprog);
+
+		up_draw_mesh(mesh);
+
 		UP_openGLupdate();
 		status = UP_eventHandler();
 	}
@@ -109,6 +123,9 @@ int main(int argc, char const *argv[])
 
 	//cleanup and release all data (notice the reverse order of setup)
 	UP_Shader_delete();
+
+	up_mesh_shutdown_deinit();
+	
 	UP_openGLwindowCleanup();
 	UP_sdlCleanup();
 	printf("All cleanup completed\n");
