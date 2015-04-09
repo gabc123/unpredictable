@@ -38,6 +38,13 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 	// so this only renders inside the correct context
 	g_openglContext = SDL_GL_CreateContext(g_openglWindow);
 
+	GLenum res = glewInit();
+	if(res != GLEW_OK)
+	{
+		printf("glew init error \n");
+	}
+
+
 }
 
 void UP_openGLupdate()
@@ -103,10 +110,13 @@ int main(int argc, char const *argv[])
 		{0.5f, 0.0f, 0.0f}
 	};
 
+	printf("vertex start\n");
 	struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]));
+	printf("Mesh finnished\n");
+	
 	struct shader_module *shaderprog;
 	shaderprog = UP_Shader_new("shadertest");
-
+	printf("Shader finnished\n");
 
 
 	while(status)

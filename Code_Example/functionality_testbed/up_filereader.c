@@ -13,16 +13,17 @@ long int filesize(const char * filename)
 {
 	long int size = 0;
 
-	// we open the file att the end,  
-	FILE *fp = fopen(filename,"a+");
+	// we open the file att the end,
+	FILE *fp = fopen(filename,"a");
 	// the file pointer is at the end, read the position
 	size = ftell(fp);
-
-	//rewind the file so fp 
+    printf("\nfile loader: end: %ld",size);
+	//rewind the file so fp
 	rewind(fp);
 	size = size - ftell(fp);
+    printf("file loader: start - end: %ld\n",size);
 	fclose(fp);
-	return size;	
+	return size;
 }
 
 
@@ -38,6 +39,7 @@ struct UP_textHandler up_loadShaderFile(const char * filename)
 
 	text.text = data;
 	text.length = (int)size;
+	printf("Shader code for: %s and lenght: %d\n %s",filename,text.length,text.text);
 	return text;
 }
 

@@ -41,6 +41,9 @@ void up_mesh_shutdown_deinit()
 
 struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count)
 {
+	printf("Vertex count %d\n", vertex_count);
+    printf("Internal internal_state.mesh_count :%d \n",internal_state.mesh_count);
+    printf("Internal internal_state.mesh_size :%d \n",internal_state.mesh_size);
 	if(internal_state.mesh_count >= internal_state.mesh_size)
 	{
 		fprintf(stderr, "Full mesh in %s line %d , mesh  \n",__FILE__,__LINE__ );
@@ -48,22 +51,27 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count)
 	struct up_mesh *mesh = &(internal_state.mesh[internal_state.mesh_count]);
 	mesh->vertex_count = vertex_count;
 
+    printf("mesh->vertex_count:%d \n",mesh->vertex_count);
+
 	glGenVertexArrays(1, &(mesh->vertexArrayObj));
+	printf("after genvertex \n");
 	glBindVertexArray(mesh->vertexArrayObj);
 
 	glGenBuffers(MESH_BUFFER_COUNT, mesh->vertexArrayBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexArrayBuffer[MESH_BUFFER_VB]);
 
+    printf("before glbuffer bind \n");
 	glBufferData(GL_ARRAY_BUFFER, mesh->vertex_count * sizeof(vertex[0]), vertex,GL_STATIC_DRAW);
-
+    printf("after glbuffer bind \n");
 	glEnableVertexAttribArray(0);
 	//vilken attribuit array, hurmånga element, vad för typ, hur mycket som ska skippas mellan varje
 	// och vilken offset från starten
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 
-	glBindVertexArray(0); 
+	glBindVertexArray(0);
 	internal_state.mesh_count++;
+	printf("Internal internal_state.mesh_count :%d \n",internal_state.mesh_count);
     return mesh;
 }
 

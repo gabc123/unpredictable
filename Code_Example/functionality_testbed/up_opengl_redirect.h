@@ -11,8 +11,8 @@
 
 #else
 
-#include <GL/gl3.h>
 #include <GL/glew.h>
+#include <GL/gl.h>
 
 #define TAL 22
 
