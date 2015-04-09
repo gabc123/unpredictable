@@ -2,12 +2,44 @@
 # all the runable bin files will end in testapp 
 *testapp
 
-# prevent object and archive files
-*.[oa]
-
 # the tilde operator are often used by editors for tmp files
 *~
 
 # mac os x spotligt program generates these files,
 # we do not want them in our git repo
 .DS_Store
+
+# this is from githubs own gitignore examples for good ignore files
+# I have included it here from the c example 
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/ 
