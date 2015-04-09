@@ -18,7 +18,7 @@ void UP_sdlSetup()
 void UP_openGLwindowSetup(int width,int height, const char *title)
 {
 	//We want to have 32 bit color per pixel, RGBA (red,grean,blue,alpha)
-	// and set 8bit per color 
+	// and set 8bit per color
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,8);
@@ -38,12 +38,14 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 	// so this only renders inside the correct context
 	g_openglContext = SDL_GL_CreateContext(g_openglWindow);
 
+//on linux and windows glew needs to be installed
+#ifndef __APPLE__
 	GLenum res = glewInit();
 	if(res != GLEW_OK)
 	{
 		printf("glew init error \n");
 	}
-
+#endif
 
 }
 
@@ -71,7 +73,7 @@ int UP_eventHandler()
 {
 	int flag = 1;
 	SDL_Event event;
-	
+
 	while(SDL_PollEvent(&event))
 	{
 		if (event.type == SDL_QUIT)
@@ -113,7 +115,7 @@ int main(int argc, char const *argv[])
 	printf("vertex start\n");
 	struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]));
 	printf("Mesh finnished\n");
-	
+
 	struct shader_module *shaderprog;
 	shaderprog = UP_Shader_new("shadertest");
 	printf("Shader finnished\n");
@@ -135,7 +137,7 @@ int main(int argc, char const *argv[])
 	UP_Shader_delete();
 
 	up_mesh_shutdown_deinit();
-	
+
 	UP_openGLwindowCleanup();
 	UP_sdlCleanup();
 	printf("All cleanup completed\n");
