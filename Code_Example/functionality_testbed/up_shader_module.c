@@ -11,6 +11,8 @@ static struct shader_module shader_program;
 static GLuint shaderCreate(const char * filename,GLenum type);
 
 void Opengl_error_check(GLuint shader,GLuint flag,int isProgram,const char* str);
+static void Opengl_error_shader_check(GLuint shader,GLuint flag,const char* str);
+static void Opengl_error_program_check(GLuint shader,GLuint flag,const char* str);
 
 struct shader_module *UP_Shader_new(const char * filename)
 {
@@ -33,10 +35,10 @@ struct shader_module *UP_Shader_new(const char * filename)
 	glBindAttribLocation(shader_program.program,0,"position");
 
 	glLinkProgram(shader_program.program);
-    Opengl_error_check(shader_program.program,GL_LINK_STATUS,1,"link error : ");
+    Opengl_error_program_check(shader_program.program,GL_LINK_STATUS,"link error : ");
 
 	glValidateProgram(shader_program.program);
-        Opengl_error_check(shader_program.program,GL_LINK_STATUS,1,"Validate, invalid shader program: ");
+    Opengl_error_program_check(shader_program.program,GL_LINK_STATUS,"Validate, invalid shader program: ");
 	return &shader_program;
 }
 
@@ -57,7 +59,7 @@ static GLuint shaderCreate(const char * filename,GLenum type)
 	glShaderSource(shader,1,sourceText,sourceLength);
 	glCompileShader(shader);
     
-    Opengl_error_check(shader,GL_COMPILE_STATUS,0,"ERROR, compiling shader program: ");
+    Opengl_error_shader_check(shader,GL_COMPILE_STATUS,"ERROR, compiling shader program: ");
     up_textHandler_free(&shaderSourcetext);
     return shader;
 }
@@ -103,18 +105,7 @@ static void Opengl_error_shader_check(GLuint shader,GLuint flag,const char* str)
     }
 }
 
-void Opengl_error_check(GLuint shader,GLuint flag,int isProgram,const char* str)
-{
-   
-    
-    if (isProgram) {
-        Opengl_error_program_check(shader,flag,str);
-    }else
-    {
-        Opengl_error_shader_check(shader, flag, str);
-    }
-    
-}
+
 
 
 

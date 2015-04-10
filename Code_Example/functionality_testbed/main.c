@@ -2,6 +2,7 @@
 
 #include "up_opengl_redirect.h"
 #include "up_shader_module.h"
+#include "up_texture_module.h"
 #include "up_vertex.h"
 #include <SDL2/SDL.h>
 
@@ -91,6 +92,8 @@ void UP_renderBackground()
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
+
+
 int main(int argc, char const *argv[])
 {
 	int status = 1;
@@ -104,14 +107,20 @@ int main(int argc, char const *argv[])
 	UP_openGLwindowSetup(400,400,"Det fungerar !!!");
 	printf("opengl window setup done\n");
 
+    
+    
 	up_mesh_start_setup(4);
-
+    up_texture_start_setup();
+    
+    
 	struct up_vertex vertex[] = {
 		{-0.5f, 0.0f, 0.0f},
 		{-0.5f, 0.5f, 0.0f},
 		{0.5f, 0.0f, 0.0f}
 	};
 
+    
+    
 	printf("vertex start\n");
 	struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]));
 	printf("Mesh finnished\n");
@@ -119,12 +128,13 @@ int main(int argc, char const *argv[])
 	struct shader_module *shaderprog;
 	shaderprog = UP_Shader_new("shadertest");
 	printf("Shader finnished\n");
-
+    struct up_texture_data *texture = up_load_texture("lala.png");
 
 	while(status)
 	{
 		UP_renderBackground();
 		UP_shader_bind(shaderprog);
+        up_texture_bind(texture, 0);
 
 		up_draw_mesh(mesh);
 
@@ -138,6 +148,7 @@ int main(int argc, char const *argv[])
 
 	up_mesh_shutdown_deinit();
 
+    up_texture_shutdown_deinit();
 	UP_openGLwindowCleanup();
 	UP_sdlCleanup();
 	printf("All cleanup completed\n");

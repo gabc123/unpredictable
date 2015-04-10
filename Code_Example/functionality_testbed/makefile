@@ -1,4 +1,5 @@
-IDIR =/Library/Frameworks/SDL2.framework/Header
+IDIR_SDL2 =/Library/Frameworks/SDL2.framework/Headers
+IDIR_IMAGE =/Library/Frameworks/SDL2_image.framework/Headers
 FDIR =/Library/Frameworks
 CC=gcc
 ifeq ($(OS),Windows_NT)
@@ -9,11 +10,11 @@ else
 		CFLAGS=-lSDL2 -lGLEW -lGL
 	endif
 	ifeq ($(UNAME_S),Darwin)
-		CFLAGS=-I$(IDIR) -F$(FDIR) -framework SDL2 -framework opengl
+		CFLAGS=-I$(IDIR_SDL2) -I$(IDIR_IMAGE) -F$(FDIR) -framework SDL2 -framework SDL2_image -framework opengl
 	endif
 endif
 
-objects = main.o up_shader_module.o up_vertex.o up_filereader.o
+objects = main.o up_shader_module.o up_vertex.o up_filereader.o up_texture_module.o
 
 gltestapp : $(objects)
 	gcc -o gltest.out $(CFLAGS) $(objects)
