@@ -1,6 +1,7 @@
 #include "up_texture_module.h"
 #include <SDL2/SDL.h>
 #include <SDL2_image/SDL_image.h>
+#include "up_error.h"
 
 #define UP_MAX_TEXTURE 10
 

@@ -18,7 +18,10 @@ struct up_vertex
 };
 
 #define MESH_BUFFER_VB  0
-#define MESH_BUFFER_COUNT  1
+#define MESH_BUFFER_TXB  1
+//#define MESH_BUFFER_FB  0
+#define MESH_BUFFER_COUNT  2
+
 struct up_mesh
 {
 	GLuint vertexArrayObj;

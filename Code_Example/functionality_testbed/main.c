@@ -5,6 +5,7 @@
 #include "up_texture_module.h"
 #include "up_vertex.h"
 #include <SDL2/SDL.h>
+#include "up_error.h"
 
 static SDL_Window * g_openglWindow = NULL;
 static SDL_Window * g_openglContext = NULL;
@@ -44,7 +45,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 	GLenum res = glewInit();
 	if(res != GLEW_OK)
 	{
-		printf("glew init error \n");
+        UP_ERROR_MSG("glew init error");
 	}
 #endif
 

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "filereader/up_filereader.h"
-
+#include "up_error.h"
 
 /*
 	This function will open a file and check its size

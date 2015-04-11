@@ -1,7 +1,7 @@
 #include "up_vertex.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "up_error.h"
 
 struct internal_object_tracker
 {
@@ -18,7 +18,7 @@ void up_mesh_start_setup(int maximum_meshes)
 	struct up_mesh *mesh = malloc(sizeof(struct up_mesh) * maximum_meshes);
 	if(mesh == NULL)
 	{
-		fprintf(stderr, "malloc fail in %s line %d , when allocating mesh \n",__FILE__,__LINE__ );
+		UP_ERROR_MSG("malloc failwhen allocating mesh \n");
 	}
 	internal_state.mesh = mesh;
 	internal_state.mesh_count = 0;
@@ -46,7 +46,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count)
     printf("Internal internal_state.mesh_size :%d \n",internal_state.mesh_size);
 	if(internal_state.mesh_count >= internal_state.mesh_size)
 	{
-		fprintf(stderr, "Full mesh in %s line %d , mesh  \n",__FILE__,__LINE__ );
+		UP_ERROR_MSG("Full mesh \n");
 	}
 	struct up_mesh *mesh = &(internal_state.mesh[internal_state.mesh_count]);
 	mesh->vertex_count = vertex_count;

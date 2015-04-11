@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "up_error.h"
 
 // have all the data nessesary for a complete shader  program
 static struct shader_module shader_program;
