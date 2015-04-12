@@ -33,6 +33,7 @@ struct shader_module *UP_Shader_new(const char * filename)
 	glAttachShader(shader_program.program, shader_program.shader[1]);
 
 	glBindAttribLocation(shader_program.program,0,"position");
+   	glBindAttribLocation(shader_program.program,1,"texCoord");
 
 	glLinkProgram(shader_program.program);
     Opengl_error_program_check(shader_program.program,GL_LINK_STATUS,"link error : ");

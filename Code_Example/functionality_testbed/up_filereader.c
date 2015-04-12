@@ -16,6 +16,9 @@ long int filesize(const char * filename)
 	// we open the file att the end,
 	FILE *fp = fopen(filename,"a");
 	// the file pointer is at the end, read the position
+    if (fp == NULL) {
+        UP_ERROR_MSG_STR("fopen failed, file:",filename);
+    }
 	size = ftell(fp);
     printf("\nfile loader: end: %ld",size);
 	//rewind the file so fp
@@ -32,6 +35,11 @@ struct UP_textHandler up_loadShaderFile(const char * filename)
 	long int size = filesize(filename) + 1;
 	char *data = malloc(sizeof(char)*size);
 	FILE *fp = fopen(filename,"r");
+    if (fp == NULL) {
+        UP_ERROR_MSG_STR("fopen failed, file:",filename);
+        struct UP_textHandler zero = {.text = NULL,.length = 0};
+        return zero;
+    }
 
 	fread(data,size,sizeof(char),fp);
 	data[size - 1] = '\0';

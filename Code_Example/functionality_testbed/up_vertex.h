@@ -15,6 +15,7 @@ struct up_vec2
 struct up_vertex
 {
 	struct up_vec3 pos;
+    struct up_vec2 texCoord;
 };
 
 #define MESH_BUFFER_VB  0

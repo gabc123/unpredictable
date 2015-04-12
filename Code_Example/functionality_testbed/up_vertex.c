@@ -54,23 +54,59 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count)
     printf("mesh->vertex_count:%d \n",mesh->vertex_count);
 
 	glGenVertexArrays(1, &(mesh->vertexArrayObj));
-	printf("after genvertex \n");
+	//printf("after genvertex \n");
 	glBindVertexArray(mesh->vertexArrayObj);
 
+    struct up_vec3 *positions = malloc(sizeof(struct up_vec3) * vertex_count);
+    if (positions == NULL) {
+        UP_ERROR_MSG("malloc failed, positions");
+        return NULL;
+    }
+    
+    struct up_vec2 *textureCoord = malloc(sizeof(struct up_vec2) * vertex_count);
+    if (textureCoord == NULL) {
+        UP_ERROR_MSG("malloc failed, textureCoord");
+        return NULL;
+    }
+    
+    int i = 0;
+    for (i = 0; i< vertex_count; i++) {
+        positions[i] = vertex[i].pos;
+        // Thx to SDL_image, the texture will appeare upsidedown
+        // this correct that problem
+        textureCoord[i].x = vertex[i].texCoord.x;
+        textureCoord[i].y = 1 - vertex[i].texCoord.y;
+    }
+    
+    
 	glGenBuffers(MESH_BUFFER_COUNT, mesh->vertexArrayBuffer);
+    
+    // binding the position
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexArrayBuffer[MESH_BUFFER_VB]);
-
-    printf("before glbuffer bind \n");
-	glBufferData(GL_ARRAY_BUFFER, mesh->vertex_count * sizeof(vertex[0]), vertex,GL_STATIC_DRAW);
-    printf("after glbuffer bind \n");
+	glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(positions[0]), &positions[0],GL_STATIC_DRAW);
+    
+    //vilken attribuit array, hurmånga element, vad för typ, hur mycket som ska skippas mellan varje
+    // och vilken offset från starten
 	glEnableVertexAttribArray(0);
-	//vilken attribuit array, hurmånga element, vad för typ, hur mycket som ska skippas mellan varje
-	// och vilken offset från starten
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-
-	glBindVertexArray(0);
+    
+    // binding the texture coordenates
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexArrayBuffer[MESH_BUFFER_TXB]);
+    glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(textureCoord[0]), &textureCoord[0],GL_STATIC_DRAW);
+    
+    //vilken attribuit array, hurmånga element, vad för typ, hur mycket som ska skippas mellan varje
+    // och vilken offset från starten
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    
+    
+    glBindVertexArray(0);
+    
+    
 	internal_state.mesh_count++;
+    free(positions);
+    free(textureCoord);
 	printf("Internal internal_state.mesh_count :%d \n",internal_state.mesh_count);
     return mesh;
 }

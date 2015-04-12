@@ -12,7 +12,10 @@ static SDL_Window * g_openglContext = NULL;
 
 void UP_sdlSetup()
 {
-	SDL_Init(SDL_INIT_EVERYTHING);
+	if(SDL_Init(SDL_INIT_EVERYTHING)!=0)
+    {
+        UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
+    }
 }
 
 //heja heja
@@ -113,14 +116,28 @@ int main(int argc, char const *argv[])
 	up_mesh_start_setup(4);
     up_texture_start_setup();
     
+    /// setup the vertexs and the tex coords, this is done like this for debbuing resons
+    // texture coordinates, 0,0 is bottom left, 1,1 is top right
+    struct up_vec2 tex[] = {{0.0f, 0.0f},
+                            {0.2f, 1.0f},
+                            {1.0f, 0.0f}
+    };
     
-	struct up_vertex vertex[] = {
-		{-0.5f, 0.0f, 0.0f},
-		{-0.5f, 0.5f, 0.0f},
-		{0.5f, 0.0f, 0.0f}
-	};
+    // this is the posisions of the vertexes
+    struct up_vec3 pos[] = {{-0.5f, -0.5f, 0.0f},
+                            {0.0f, 0.5f, 0.0f},
+                            {0.5f, -0.5f, 0.0f}
+    };
 
-    
+
+    // left over from debugging. fills the vertex array with pos and tex
+    struct up_vertex vertex[3];
+    int i = 0;
+    for (i = 0; i < 3; i++) {
+        vertex[i].pos = pos[i];
+        vertex[i].texCoord = tex[i];
+    }
+    /////////////
     
 	printf("vertex start\n");
 	struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]));
