@@ -40,6 +40,8 @@ struct shader_module *UP_Shader_new(const char * filename)
 
 	glValidateProgram(shader_program.program);
     Opengl_error_program_check(shader_program.program,GL_LINK_STATUS,"Validate, invalid shader program: ");
+    
+    shader_program.uniforms[UNIFORM_TRANSFORM] = glGetUniformLocation(shader_program.program, "transform");
 	return &shader_program;
 }
 
@@ -69,6 +71,11 @@ static GLuint shaderCreate(const char * filename,GLenum type)
 void UP_shader_bind(struct shader_module *prog)
 {
 	glUseProgram(prog->program);
+}
+
+void UP_shader_update(struct shader_module *prog,up_matrix4_t *transform)
+{
+    glUniformMatrix4fv(prog->uniforms[UNIFORM_TRANSFORM], 1, GL_FALSE, transform->data);
 }
 
 void UP_Shader_delete()

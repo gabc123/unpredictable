@@ -4,8 +4,11 @@
 #include "up_shader_module.h"
 #include "up_texture_module.h"
 #include "up_vertex.h"
+#include "up_matrixTransforms.h"
 #include <SDL2/SDL.h>
 #include "up_error.h"
+
+#include <math.h>
 
 static SDL_Window * g_openglWindow = NULL;
 static SDL_Window * g_openglContext = NULL;
@@ -108,7 +111,7 @@ int main(int argc, char const *argv[])
 	UP_sdlSetup();
 	printf("Sdl setup done\n");
 
-	UP_openGLwindowSetup(400,400,"Det fungerar !!!");
+	UP_openGLwindowSetup(1280,800,"Det fungerar !!!");
 	printf("opengl window setup done\n");
 
     
@@ -147,13 +150,20 @@ int main(int argc, char const *argv[])
 	shaderprog = UP_Shader_new("shadertest");
 	printf("Shader finnished\n");
     struct up_texture_data *texture = up_load_texture("lala.png");
-
+    
+    struct up_vec3 model_pos = {0,0,0};
+    struct up_vec3 model_rot = {0,0,1.5};
+    struct up_vec3 model_scale = {1,1,1};
+    
+    up_matrix4_t transform = up_matrixModel(&model_pos, &model_rot, &model_scale);
+    
+    
 	while(status)
 	{
 		UP_renderBackground();
 		UP_shader_bind(shaderprog);
         up_texture_bind(texture, 0);
-
+        UP_shader_update(shaderprog,&transform);
 		up_draw_mesh(mesh);
 
 		UP_openGLupdate();

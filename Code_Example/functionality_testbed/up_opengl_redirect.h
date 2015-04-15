@@ -9,12 +9,14 @@
 #include <OpenGL/gl3.h>
 //#include <OpenGL/glew.h>  //Not needed on osx
 
-#else
+#elif __linux
 
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-#define TAL 22
+#else
+#include <GL/glew.h>
+#include <GL/gl.h>
 
 #endif	/* __MacOSX__  */
 
