@@ -1,10 +1,5 @@
 #include "up_texture_module.h"
-#include <SDL2/SDL.h>
-#ifdef __APPLE__
-#include <SDL2_image/SDL_image.h>
-#else
-#include <SDL2/SDL_image.h>
-#endif // __APPLE__
+#include "up_sdl_redirect.h"
 #include "up_error.h"
 #define UP_MAX_TEXTURE 10
 
