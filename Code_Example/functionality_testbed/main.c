@@ -216,8 +216,8 @@ int main(int argc, char const *argv[])
         UP_shader_update(shaderprog,&transform);
         up_draw_mesh(mesh);
 		UP_openGLupdate();
-		status = UP_eventHandler(&model.pos);
-        transform = up_matrixModel(&model, &model.rot, &model.scale);
+		status = UP_eventHandler(&model);
+        transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
 	}
 	printf("Ended main loop\n");
 
