@@ -6,9 +6,12 @@
 #include "up_vertex.h"
 #include "up_matrixTransforms.h"
 #include <SDL2/SDL.h>
+#include <SDL2_net/SDL_net.h>
+#include <SDL2_image/SDL_image.h>
 #include "up_error.h"
 
 #include <math.h>
+
 
 static SDL_Window * g_openglWindow = NULL;
 static SDL_Window * g_openglContext = NULL;
@@ -77,7 +80,7 @@ void UP_sdlCleanup()
 
 
 
-int UP_eventHandler()
+int UP_eventHandler(struct up_vec3 *position)
 {
 	int flag = 1;
 	SDL_Event event;
@@ -88,6 +91,28 @@ int UP_eventHandler()
 		{
 			flag = 0;
 		}
+        else if(event.type == SDL_KEYDOWN){             //gubben rör sig
+            
+            switch (event.key.keysym.sym) {
+                case SDLK_UP:
+                    
+                    position->y-=0.05;
+                    break;
+                    
+                case SDLK_DOWN:
+                    position->y +=0.05;
+                    break;
+                case SDLK_LEFT:
+                    position->x -=0.05;
+                    break;
+                case SDLK_RIGHT:
+                    position->x +=0.05;
+                    break;
+                default:
+                    break;
+            }
+        }
+
 	}
 	return flag;
 }
@@ -151,7 +176,7 @@ int main(int argc, char const *argv[])
 	printf("Shader finnished\n");
     struct up_texture_data *texture = up_load_texture("lala.png");
     
-    struct up_vec3 model_pos = {0,0,0};
+    struct up_vec3 model_pos = {0,0.5,0};
     struct up_vec3 model_rot = {0,0,1.5};
     struct up_vec3 model_scale = {1,1,1};
     
@@ -160,14 +185,15 @@ int main(int argc, char const *argv[])
     
 	while(status)
 	{
-		UP_renderBackground();
-		UP_shader_bind(shaderprog);
+		UP_renderBackground();                      //Clears the buffer and results an empty window.
+		UP_shader_bind(shaderprog);                 //
         up_texture_bind(texture, 0);
+        
         UP_shader_update(shaderprog,&transform);
-		up_draw_mesh(mesh);
-
+        up_draw_mesh(mesh);
 		UP_openGLupdate();
-		status = UP_eventHandler();
+		status = UP_eventHandler(&model_pos);
+        transform = up_matrixModel(&model_pos, &model_rot, &model_scale);
 	}
 	printf("Ended main loop\n");
 
@@ -182,6 +208,8 @@ int main(int argc, char const *argv[])
 	printf("All cleanup completed\n");
 	return 0;
 }
+
+
 
 
 
