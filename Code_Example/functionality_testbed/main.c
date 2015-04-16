@@ -7,6 +7,7 @@
 #include "up_vertex.h"
 #include "up_matrixTransforms.h"
 #include "up_error.h"
+#include "up_modelRepresentation.h"
 
 #include <math.h>
 
@@ -90,16 +91,17 @@ int UP_eventHandler(struct up_vec3 *position)
 		{
 			flag = 0;
 		}
+
         else if(event.type == SDL_KEYDOWN){             //gubben rör sig
 
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
 
-                    position->y-=0.05;
+                    position->y+=0.05;
                     break;
 
                 case SDLK_DOWN:
-                    position->y +=0.05;
+                    position->y -=0.05;
                     break;
                 case SDLK_LEFT:
                     position->x -=0.05;
@@ -107,6 +109,9 @@ int UP_eventHandler(struct up_vec3 *position)
                 case SDLK_RIGHT:
                     position->x +=0.05;
                     break;
+                case SDLK_SPACE:
+                    break;
+                
                 default:
                     break;
             }
@@ -174,12 +179,28 @@ int main(int argc, char const *argv[])
 	shaderprog = UP_Shader_new("shadertest");
 	printf("Shader finnished\n");
     struct up_texture_data *texture = up_load_texture("lala.png");
-
+    
+    /*
     struct up_vec3 model_pos = {0,0.5,0};
     struct up_vec3 model_rot = {0,0,1.5};
     struct up_vec3 model_scale = {1,1,1};
-
-    up_matrix4_t transform = up_matrixModel(&model_pos, &model_rot, &model_scale);
+    */
+    
+    struct up_modelRepresentation model;
+    
+    model.pos.x=0;
+    model.pos.y=0.5;
+    model.pos.z=0;
+    
+    model.rot.x=0;
+    model.rot.y=0;
+    model.rot.z=1.5;
+    
+    model.scale.x=1;
+    model.scale.y=1;
+    model.scale.z=1;
+    
+    up_matrix4_t transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
 
 
 	while(status)
@@ -191,8 +212,8 @@ int main(int argc, char const *argv[])
         UP_shader_update(shaderprog,&transform);
         up_draw_mesh(mesh);
 		UP_openGLupdate();
-		status = UP_eventHandler(&model_pos);
-        transform = up_matrixModel(&model_pos, &model_rot, &model_scale);
+		status = UP_eventHandler(&model.pos);
+        transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
 	}
 	printf("Ended main loop\n");
 
