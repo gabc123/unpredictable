@@ -1,16 +1,15 @@
 #include <stdio.h>
 
+#include "up_sdl_redirect.h"
 #include "up_opengl_redirect.h"
 #include "up_shader_module.h"
 #include "up_texture_module.h"
 #include "up_vertex.h"
 #include "up_matrixTransforms.h"
-#include <SDL2/SDL.h>
-#include <SDL2_net/SDL_net.h>
-#include <SDL2_image/SDL_image.h>
 #include "up_error.h"
 
 #include <math.h>
+
 
 
 static SDL_Window * g_openglWindow = NULL;
@@ -92,13 +91,13 @@ int UP_eventHandler(struct up_vec3 *position)
 			flag = 0;
 		}
         else if(event.type == SDL_KEYDOWN){             //gubben rör sig
-            
+
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
-                    
+
                     position->y-=0.05;
                     break;
-                    
+
                 case SDLK_DOWN:
                     position->y +=0.05;
                     break;
@@ -139,18 +138,18 @@ int main(int argc, char const *argv[])
 	UP_openGLwindowSetup(1280,800,"Det fungerar !!!");
 	printf("opengl window setup done\n");
 
-    
-    
+
+
 	up_mesh_start_setup(4);
     up_texture_start_setup();
-    
+
     /// setup the vertexs and the tex coords, this is done like this for debbuing resons
     // texture coordinates, 0,0 is bottom left, 1,1 is top right
     struct up_vec2 tex[] = {{0.0f, 0.0f},
                             {0.2f, 1.0f},
                             {1.0f, 0.0f}
     };
-    
+
     // this is the posisions of the vertexes
     struct up_vec3 pos[] = {{-0.5f, -0.5f, 0.0f},
                             {0.0f, 0.5f, 0.0f},
@@ -166,7 +165,7 @@ int main(int argc, char const *argv[])
         vertex[i].texCoord = tex[i];
     }
     /////////////
-    
+
 	printf("vertex start\n");
 	struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]));
 	printf("Mesh finnished\n");
@@ -175,20 +174,20 @@ int main(int argc, char const *argv[])
 	shaderprog = UP_Shader_new("shadertest");
 	printf("Shader finnished\n");
     struct up_texture_data *texture = up_load_texture("lala.png");
-    
+
     struct up_vec3 model_pos = {0,0.5,0};
     struct up_vec3 model_rot = {0,0,1.5};
     struct up_vec3 model_scale = {1,1,1};
-    
+
     up_matrix4_t transform = up_matrixModel(&model_pos, &model_rot, &model_scale);
-    
-    
+
+
 	while(status)
 	{
 		UP_renderBackground();                      //Clears the buffer and results an empty window.
 		UP_shader_bind(shaderprog);                 //
         up_texture_bind(texture, 0);
-        
+
         UP_shader_update(shaderprog,&transform);
         up_draw_mesh(mesh);
 		UP_openGLupdate();
@@ -208,16 +207,3 @@ int main(int argc, char const *argv[])
 	printf("All cleanup completed\n");
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
