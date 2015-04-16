@@ -24,20 +24,33 @@ void UP_sdlSetup()
 
 void UP_openGLwindowSetup(int width,int height, const char *title)
 {
+    int error;
 	//We want to have 32 bit color per pixel, RGBA (red,grean,blue,alpha)
 	// and set 8bit per color
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,8);
-	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,32);
+	if(error=SDL_GL_SetAttribute(SDL_GL_RED_SIZE,8)==-1){
+        UP_ERROR_MSG_STR("set attribute red fail :-C",SDL_GetError());
+	}
+	if(error=SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,8)==-1){
+        UP_ERROR_MSG_STR("set attribute green fail :-C",SDL_GetError());
+	}
+	if(error=SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,8)==-1){
+        UP_ERROR_MSG_STR("set attribute blue fail :-C",SDL_GetError());
+	}
+	if(error=SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,8)==-1){
+        UP_ERROR_MSG_STR("set attribute alpha fail :-C",SDL_GetError());
+	}
+	if(error=SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,32)==-1){
+        UP_ERROR_MSG_STR("set attribute buffer fail :-C",SDL_GetError());
+	}
 
 	// Doublebuffer lets us draw to a virtual window
 	// when opengl has finnished we can call SDL_GL_SwapWindow(...)
 	// and that will swap the buffer the window displayes to the virtual (now real)
 	// and now opengl can draw to the old window (now virtual)
 	// this prevents the users from seeing partialy rendered scences
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
+	if(error=SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1)==-1){
+        UP_ERROR_MSG_STR("SDL_GLDOUBLEBUFFER fail :-C",SDL_GetError());
+	}
 
 	// This creates a new window , and set it to be able to handle opengl
 	g_openglWindow = SDL_CreateWindow(title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_OPENGL);
@@ -130,7 +143,6 @@ void UP_renderBackground()
 	glClearColor(0.0f, 0.75f, 0.22f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
-
 
 
 int main(int argc, char const *argv[])
