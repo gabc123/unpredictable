@@ -96,11 +96,17 @@ int UP_eventHandler(struct up_vec3 *position)
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
                     
-                    position->y-=0.05;
-                    break;
+                    position->y+=0.05;
+                    if(position->y>=0.9){
+                        position->y=-1;
+                    }
+                    
+                        break;
+
+
                     
                 case SDLK_DOWN:
-                    position->y +=0.05;
+                    position->y -=0.05;
                     break;
                 case SDLK_LEFT:
                     position->x -=0.05;
