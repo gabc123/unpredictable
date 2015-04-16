@@ -23,6 +23,10 @@ void dispMat(up_matrix4_t *mat)
     }
 }
 
+/*
+    Rotation matrix, scaling matrix was based on :
+    http://www.gamedev.net/page/resources/_/technical/math-and-physics/matrix-math-r877
+ */
 
 up_matrix4_t up_matrix4Xrotation(float angle)
 {
