@@ -7,7 +7,7 @@ ifeq ($(OS),Windows_NT)
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
-		CFLAGS=-lSDL2 -lGLEW -lGL -lSDL_image
+		CFLAGS= -lSDL2 -lGLEW -lGL -lSDL2_image -lm
 	endif
 	ifeq ($(UNAME_S),Darwin)
 		CFLAGS=-I$(IDIR_SDL2) -I$(IDIR_IMAGE) -F$(FDIR) -framework SDL2 -framework SDL2_image -framework opengl

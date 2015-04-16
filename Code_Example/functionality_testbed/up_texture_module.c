@@ -1,10 +1,5 @@
 #include "up_texture_module.h"
-#include <SDL2/SDL.h>
-#ifdef __APPLE__
-#include <SDL2_image/SDL_image.h>
-#else
-#include <SDL2/SDL_image.h>
-#endif // __APPLE__
+#include "up_sdl_redirect.h"
 #include "up_error.h"
 #define UP_MAX_TEXTURE 10
 
@@ -53,11 +48,11 @@ struct up_texture_data *up_load_texture(const char  * filename)
 
     SDL_Surface *tex = IMG_Load(filename);
     if (tex == NULL) {
-        fprintf(stderr, "failed to load textuer: %s \n",filename);
+        fprintf(stderr, "failed to load texture: %s \n",filename);
         return NULL;
     }else
     {
-        fprintf(stderr, "loaded textuer: %s \n",filename);
+        fprintf(stderr, "loaded texture: %s \n",filename);
     }
 
     struct up_texture_data *tex_data = &(internal_texture.texture[internal_texture.count]);
