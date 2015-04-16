@@ -79,8 +79,7 @@ void UP_sdlCleanup()
 }
 
 
-
-int UP_eventHandler(struct up_vec3 *position)
+int UP_eventHandler(struct up_modelRepresentation *ship)
 {
 	int flag = 1;
 	SDL_Event event;
@@ -93,40 +92,30 @@ int UP_eventHandler(struct up_vec3 *position)
 		}
 
         else if(event.type == SDL_KEYDOWN){             //gubben rör sig
-
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
-
-
-                    
-                    position->y+=0.05;
-                    if(position->y>=0.9){
-                        position->y=-1;
-                    }
-                    
-                        break;
-
-
-                    
-
-
-                    position->y-=0.05;
-
+                    ship->pos.y+=0.05;
+                    if(ship->pos.y>=0.9)
+                        ship->pos.y=-1;
                     break;
-
-
                 case SDLK_DOWN:
-                    position->y -=0.05;
+                    ship->pos.y -=0.05;
+                    if(ship->pos.y<=-0.9)
+                        ship->pos.y=1;
                     break;
                 case SDLK_LEFT:
-                    position->x -=0.05;
+                    ship->pos.x -=0.05;
+                    if(ship->pos.x<=-0.9)
+                        ship->pos.x=1;
                     break;
                 case SDLK_RIGHT:
-                    position->x +=0.05;
+                    ship->pos.x +=0.05;
+                    if(ship->pos.x>=0.9)
+                        ship->pos.x=-1;
                     break;
                 case SDLK_SPACE:
                     break;
-                
+
                 default:
                     break;
             }
@@ -194,27 +183,27 @@ int main(int argc, char const *argv[])
 	shaderprog = UP_Shader_new("shadertest");
 	printf("Shader finnished\n");
     struct up_texture_data *texture = up_load_texture("lala.png");
-    
+
     /*
     struct up_vec3 model_pos = {0,0.5,0};
     struct up_vec3 model_rot = {0,0,1.5};
     struct up_vec3 model_scale = {1,1,1};
     */
-    
+
     struct up_modelRepresentation model;
-    
+
     model.pos.x=0;
     model.pos.y=0.5;
     model.pos.z=0;
-    
+
     model.rot.x=0;
     model.rot.y=0;
     model.rot.z=1.5;
-    
+
     model.scale.x=1;
     model.scale.y=1;
     model.scale.z=1;
-    
+
     up_matrix4_t transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
 
 
