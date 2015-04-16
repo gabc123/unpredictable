@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 #include "up_sdl_redirect.h"
 #include "up_opengl_redirect.h"
 #include "up_shader_module.h"
@@ -8,10 +7,9 @@
 #include "up_matrixTransforms.h"
 #include "up_error.h"
 #include "up_modelRepresentation.h"
-
 #include <math.h>
 
-
+#define M_PI 3.14159265358979323846
 
 static SDL_Window * g_openglWindow = NULL;
 static SDL_Window * g_openglContext = NULL;
@@ -23,8 +21,6 @@ void UP_sdlSetup()
         UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
     }
 }
-
-//heja heja
 
 void UP_openGLwindowSetup(int width,int height, const char *title)
 {
@@ -91,25 +87,29 @@ int UP_eventHandler(struct up_modelRepresentation *ship)
 			flag = 0;
 		}
 
-        else if(event.type == SDL_KEYDOWN){             //gubben rör sig
+        else if(event.type == SDL_KEYDOWN){
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
                     ship->pos.y+=0.05;
+                    ship->rot.z=0;
                     if(ship->pos.y>=0.9)
                         ship->pos.y=-1;
                     break;
                 case SDLK_DOWN:
                     ship->pos.y -=0.05;
+                    ship->rot.z=M_PI;
                     if(ship->pos.y<=-0.9)
                         ship->pos.y=1;
                     break;
                 case SDLK_LEFT:
                     ship->pos.x -=0.05;
+                    ship->rot.z=1.5*M_PI;
                     if(ship->pos.x<=-0.9)
                         ship->pos.x=1;
                     break;
                 case SDLK_RIGHT:
                     ship->pos.x +=0.05;
+                    ship->rot.z=M_PI/2;
                     if(ship->pos.x>=0.9)
                         ship->pos.x=-1;
                     break;
@@ -120,7 +120,6 @@ int UP_eventHandler(struct up_modelRepresentation *ship)
                     break;
             }
         }
-
 	}
 	return flag;
 }
