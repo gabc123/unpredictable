@@ -53,11 +53,11 @@ struct up_texture_data *up_load_texture(const char  * filename)
 
     SDL_Surface *tex = IMG_Load(filename);
     if (tex == NULL) {
-        fprintf(stderr, "failed to load textuer: %s \n",filename);
+        fprintf(stderr, "failed to load texture: %s \n",filename);
         return NULL;
     }else
     {
-        fprintf(stderr, "loaded textuer: %s \n",filename);
+        fprintf(stderr, "loaded texture: %s \n",filename);
     }
 
     struct up_texture_data *tex_data = &(internal_texture.texture[internal_texture.count]);
