@@ -105,26 +105,26 @@ int UP_eventHandler(struct up_modelRepresentation *ship)
                 case SDLK_UP:
                     ship->pos.y+=0.05;
                     ship->rot.z=0;
-                    if(ship->pos.y>=0.9)
-                        ship->pos.y=-1;
+                    if(ship->pos.y>=1+ship->scale.y/2)
+                        ship->pos.y=-1-ship->scale.y/2;
                     break;
                 case SDLK_DOWN:
                     ship->pos.y -=0.05;
                     ship->rot.z=M_PI;
-                    if(ship->pos.y<=-0.9)
-                        ship->pos.y=1;
+                    if(ship->pos.y<=-1-ship->scale.y/2)
+                        ship->pos.y=1+ship->scale.y/2;
                     break;
                 case SDLK_LEFT:
                     ship->pos.x -=0.05;
                     ship->rot.z=1.5*M_PI;
-                    if(ship->pos.x<=-0.9)
-                        ship->pos.x=1;
+                    if(ship->pos.x<=-1-ship->scale.x/2)
+                        ship->pos.x=1+ship->scale.x/2;
                     break;
                 case SDLK_RIGHT:
                     ship->pos.x +=0.05;
                     ship->rot.z=M_PI/2;
-                    if(ship->pos.x>=0.9)
-                        ship->pos.x=-1;
+                    if(ship->pos.x>=1+ship->scale.x/2)
+                        ship->pos.x=-1-ship->scale.x/2;
                     break;
                 case SDLK_SPACE:
                     break;
