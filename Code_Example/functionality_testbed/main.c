@@ -217,7 +217,7 @@ int main(int argc, char const *argv[])
         up_draw_mesh(mesh);
 		UP_openGLupdate();
 		status = UP_eventHandler(&model.pos);
-        transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
+        transform = up_matrixModel(&model, &model.rot, &model.scale);
 	}
 	printf("Ended main loop\n");
 
