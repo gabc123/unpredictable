@@ -157,7 +157,7 @@ void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec
 void up_cross(struct up_vec3 *result,struct up_vec3 *vec3B,struct up_vec3 *vec3A)
 {
     result->x = (vec3A->y*vec3B->z) - (vec3A->z*vec3B->y);
-    result->y = vec3A->x*vec3B->z - vec3A->z*vec3B->x;
+    result->y = -(vec3A->x*vec3B->z - vec3A->z*vec3B->x);
     result->z = vec3A->x*vec3B->y - vec3A->y*vec3B->x;
 }
 
@@ -169,22 +169,24 @@ float up_dot(struct up_vec3 *vec3A, struct up_vec3 *vec3B)
 
 //takes 2 vector pointers and puts their subtracted result into the result vector pointer
 static void viewdirection(struct up_vec3 *result,struct up_vec3 *center,struct up_vec3 *eye){
-    result->x=center->x-eye->x;
-    result->y=center->y-eye->y;
-    result->x=center->z-eye->z;
+    result->x = center->x - eye->x;
+    result->y = center->y - eye->y;
+    result->z = center->z - eye->z;
 }
 
 //the mathematic operation normalize
 void normalize(struct up_vec3 *result, struct up_vec3 *vec3A)
 {
  //   struct up_vec3 tmp;
-    float dot=up_dot(vec3A,vec3A);
+    float dot=sqrt(up_dot(vec3A,vec3A));
     result->x = vec3A->x/dot;
     result->y = vec3A->y/dot;
     result->z = vec3A->z/dot;
 }
 
-up_matrix4_t up_matrixView(struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP)
+
+// https://www.opengl.org/sdk/docs/man2/xhtml/gluLookAt.xml
+void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP)
 {
     struct up_vec3 result;
     struct up_vec3 U;
@@ -203,8 +205,40 @@ up_matrix4_t up_matrixView(struct up_vec3 *eye, struct up_vec3 *center,struct up
     normalize(&Sn,&S);
     up_cross(&U,&Sn, &fn);
 
-    up_matrix4_t dimensions={S.x,S.y,S.z,0, U.x,U.y,U.z,0, f.x,f.y,f.z,0, 0,0,0,1};
-    return dimensions;
+
+    float matTmp[16] = {S.x,S.y,S.z,0, U.x,U.y,U.z,0, f.x,f.y,f.z,0, 0,0,0,1};
+    int  i = 0;
+    for (i = 0; i< 16; i++) {
+        matrixView->data[i] = matTmp[i];
+    }
+}
+
+// based on https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
+void up_matrixPerspective(up_matrix4_t *perspective, GLdouble fov,GLdouble aspectRatio,GLdouble zNear,GLdouble zFar)
+{
+    double f = 1/tan(fov*0.5);
+    double invFrustrum = 1/(zFar - zNear);
+    
+    perspective->data[0] = f/aspectRatio;
+    perspective->data[5] = f;
+    perspective->data[10] = zFar*invFrustrum;
+    perspective->data[11] = 1;
+    perspective->data[14] = (-zFar*zNear)*invFrustrum;
+    //perspective->data[15] = 1;
+}
+
+void up_getModelViewPerspective(up_matrix4_t *mvp,
+                                up_matrix4_t *modelMatrix,
+                                up_matrix4_t *matrixView,
+                                up_matrix4_t *perspective)
+{
+    up_matrix4_t mv = {0};
+    up_matrix4Multiply(&mv,modelMatrix,matrixView);
+    up_matrix4Multiply(mvp, &mv, perspective);
+    
+    /*up_matrix4_t pv = {0};
+    up_matrix4Multiply(&pv,perspective,matrixView);
+    up_matrix4Multiply(mvp, &pv, modelMatrix);*/
 }
 
 /*

@@ -43,7 +43,8 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 	if(SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,32)==-1){
         UP_ERROR_MSG_STR("set attribute buffer fail :-C",SDL_GetError());
 	}
-    
+    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
+
 
 	// Doublebuffer lets us draw to a virtual window
 	// when opengl has finnished we can call SDL_GL_SwapWindow(...)
@@ -68,6 +69,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
         UP_ERROR_MSG("glew init error");
 	}
 #endif
+    //glEnable(GL_DEPTH_TEST);
 
 }
 
@@ -241,8 +243,9 @@ int main(int argc, char const *argv[])
 	// setup , sdl and the opengl window
 	UP_sdlSetup();
 	printf("Sdl setup done\n");
-
-	UP_openGLwindowSetup(1280,800,"Det fungerar !!!");
+    int screen_width = 1280;
+    int screen_hight = 800;
+	UP_openGLwindowSetup(screen_width,screen_hight,"Det fungerar !!!");
 	printf("opengl window setup done\n");
 
 
@@ -263,7 +266,7 @@ int main(int argc, char const *argv[])
                             {0.5f, -0.5f, 0.0f}
     };
 
-    unsigned int indexArray[] = {0,1,2};
+    unsigned int indexArray[] = {0,2,1};
 
     // left over from debugging. fills the vertex array with pos and tex
     struct up_vertex vertex[3];
@@ -292,23 +295,59 @@ int main(int argc, char const *argv[])
     struct up_modelRepresentation model;
 
     model.pos.x=0;
-    model.pos.y=0.5;
-    model.pos.z=0;
+    model.pos.y=0;
+    model.pos.z=1;
 
     model.rot.x=0;
     model.rot.y=0;
-    model.rot.z=1.5;
+    model.rot.z=0;
 
     model.scale.x=1;
     model.scale.y=1;
     model.scale.z=1;
 
-    up_matrix4_t transform ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
+    /*
+     void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
+     void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP);
+     
+     void up_matrixPerspective(up_matrix4_t *perspective, GLdouble fov,GLdouble aspectRatio,GLdouble zNear,GLdouble zFar);
+     
+     
+     void up_getModelViewPerspective(up_matrix4_t *mvp,
+     up_matrix4_t *modelMatrix,
+     up_matrix4_t *matrixView,
+     up_matrix4_t *perspective);
+     */
     
+    up_matrix4_t transform ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
+    up_matrix4_t modelMatrix;
+    up_matrix4_t viewMatrix;
+    up_matrix4_t perspectiveMatrix;
+    
+    struct camera {
+        struct up_vec3 eye;
+        struct up_vec3 center;
+        struct up_vec3 up;
+    };
+    struct camera cam = {{0,0,-3},{0,0,1},{0,1,0}};
+    
+    up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
+    
+    struct perspective {
+        float fov ;
+        float aspectRatio;
+        float zNear;
+        float zFar;
+    };
+    struct perspective pers = {70.0f,screen_width/screen_hight,0.01f,1000.0f};
+    
+    
+    up_matrixPerspective(&perspectiveMatrix, pers.fov, pers.aspectRatio, pers.zNear, pers.zFar);
+    dispMat(&perspectiveMatrix);
     struct up_ship ship;
     ship.pos.x = 0;
     ship.pos.y = 0;
-    ship.pos.z = 0;
+    ship.pos.z = 10;
 
     ship.dir.x = 0;
     ship.dir.y = 0;
@@ -316,6 +355,7 @@ int main(int argc, char const *argv[])
     
     ship.speed = 0;
     
+    //up_matrix4_t identity = up_matrix4identity();
     
 	while(status)
 	{
@@ -327,8 +367,13 @@ int main(int argc, char const *argv[])
         up_texture_bind(texture, 0);
 
         up_updateShipMovment(&ship);
-        up_updatShipMatrixModel(&transform,&model,&ship);
+        up_updatShipMatrixModel(&modelMatrix,&model,&ship);
         
+        up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
+        
+        up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &perspectiveMatrix);
+        //up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &identity);
+        //dispMat(&transform);
         UP_shader_update(shaderprog,&transform);
         up_draw_mesh(mesh);
 		UP_openGLupdate();

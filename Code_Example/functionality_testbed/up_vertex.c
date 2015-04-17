@@ -53,9 +53,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
     mesh->index_count = index_count;
     printf("mesh->vertex_count:%d \n",mesh->vertex_count);
 
-	glGenVertexArrays(1, &(mesh->vertexArrayObj));
-	//printf("after genvertex \n");
-	glBindVertexArray(mesh->vertexArrayObj);
+	
 
     struct up_vec3 *positions = malloc(sizeof(struct up_vec3) * mesh->vertex_count);
     if (positions == NULL) {
@@ -78,6 +76,9 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
         textureCoord[i].y = 1 - vertex[i].texCoord.y;
     }
     
+    glGenVertexArrays(1, &(mesh->vertexArrayObj));
+    //printf("after genvertex \n");
+    glBindVertexArray(mesh->vertexArrayObj);
     
 	glGenBuffers(MESH_BUFFER_COUNT, mesh->vertexArrayBuffer);
     
