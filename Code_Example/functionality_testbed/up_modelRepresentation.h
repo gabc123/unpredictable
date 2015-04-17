@@ -11,6 +11,15 @@
 
 #include "up_vertex.h"
 
+struct up_ship
+{
+    struct up_vec3 pos;
+    struct up_vec3 dir;
+    float angle;
+    float speed;
+};
+
+
 struct up_modelRepresentation
 {
     struct up_vec3 pos;

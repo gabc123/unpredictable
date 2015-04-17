@@ -126,7 +126,7 @@ void up_matrix4Multiply(up_matrix4_t *result, up_matrix4_t *matA, up_matrix4_t *
 
 }
 
-up_matrix4_t up_matrixModel(struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale)
+void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale)
 {
 
 
@@ -144,16 +144,14 @@ up_matrix4_t up_matrixModel(struct up_vec3 *pos,struct up_vec3 *rotation,struct 
 
     up_matrix4_t posMatrix4 = up_matrix4translation(pos);
 
-    up_matrix4_t modelMatrix = {0};
+    //up_matrix4_t modelMatrix = {0};
 
     // To calculate the model transform we need to first calculate
     // the scale then rotation then translation
     // this is becouse rotation is around origo and if we translate the coordinates before
     // then the rotation will look wrong
     up_matrix4Multiply(&tmpResult, &mat4scale, &rotationMatrix);
-    up_matrix4Multiply(&modelMatrix, &tmpResult, &posMatrix4);
-
-    return modelMatrix;
+    up_matrix4Multiply(modelMatrix, &tmpResult, &posMatrix4);
 }
 
 void up_cross(struct up_vec3 *result,struct up_vec3 *vec3B,struct up_vec3 *vec3A)
@@ -179,7 +177,7 @@ static void viewdirection(struct up_vec3 *result,struct up_vec3 *center,struct u
 //the mathematic operation normalize
 void normalize(struct up_vec3 *result, struct up_vec3 *vec3A)
 {
-    struct up_vec3 tmp;
+ //   struct up_vec3 tmp;
     float dot=up_dot(vec3A,vec3A);
     result->x = vec3A->x/dot;
     result->y = vec3A->y/dot;

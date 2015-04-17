@@ -90,7 +90,7 @@ void UP_sdlCleanup()
 }
 
 
-int UP_eventHandler(struct up_modelRepresentation *ship)
+int UP_eventHandler(struct up_ship *ship)
 {
 	int flag = 1;
 	SDL_Event event;
@@ -105,40 +105,71 @@ int UP_eventHandler(struct up_modelRepresentation *ship)
         else if(event.type == SDL_KEYDOWN){
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
-                    ship->pos.y+=0.05;
-                    ship->rot.z=0;
-                    if(ship->pos.y>=1+ship->scale.y/2)
-                        ship->pos.y=-1-ship->scale.y/2;
+                    ship->speed += 0.005f;
                     break;
                 case SDLK_DOWN:
-                    ship->pos.y -=0.05;
-                    ship->rot.z=M_PI;
-                    if(ship->pos.y<=-1-ship->scale.y/2)
-                        ship->pos.y=1+ship->scale.y/2;
+                    ship->speed -= 0.005f;
                     break;
                 case SDLK_LEFT:
-                    ship->pos.x -=0.05;
-                    ship->rot.z=1.5*M_PI;
-                    if(ship->pos.x<=-1-ship->scale.x/2)
-                        ship->pos.x=1+ship->scale.x/2;
+                    ship->angle -= 0.1f;
                     break;
                 case SDLK_RIGHT:
-                    ship->pos.x +=0.05;
-                    ship->rot.z=M_PI/2;
-                    if(ship->pos.x>=1+ship->scale.x/2)
-                        ship->pos.x=-1-ship->scale.x/2;
+                    ship->angle += 0.1f;
                     break;
                 case SDLK_SPACE:
+                    ship->pos.x += ship->dir.x*0.5;
+                    ship->pos.y += ship->dir.y*0.5;
+                    ship->pos.z += ship->dir.z*0.5;
                     break;
 
                 default:
                     break;
             }
+            
+        }else if(event.type == SDL_KEYUP){
+            switch (event.key.keysym.sym) {
+                case SDLK_UP:
+                    ship->speed = 0;
+                    break;
+                case SDLK_DOWN:
+                    ship->speed = 0;
+                    break;
+                case SDLK_LEFT:
+                    ship->angle -= 0;
+                    break;
+                case SDLK_RIGHT:
+                    ship->angle += 0;
+                    break;
+                case SDLK_SPACE:
+                    /*ship->pos.x += ship->dir.x*0.5;
+                    ship->pos.y += ship->dir.y*0.5;
+                    ship->pos.z += ship->dir.z*0.5;*/
+                    break;
+                    
+                default:
+                    break;
+            }
+            
         }
 	}
 	return flag;
 }
 
+
+/*
+ 
+ ship->rot.z=1.5*M_PI;
+ if(ship->pos.x<=-1-ship->scale.x/2)
+ ship->pos.x=1+ship->scale.x/2;
+ break;
+ case SDLK_RIGHT:
+ ship->pos.x +=0.05;
+ ship->rot.z=M_PI/2;
+ if(ship->pos.x>=1+ship->scale.x/2)
+ ship->pos.x=-1-ship->scale.x/2;
+
+ 
+ */
 
 void UP_renderBackground()
 {
@@ -146,6 +177,60 @@ void UP_renderBackground()
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
+unsigned int up_gFrameTickRate = 0;
+unsigned int up_gFrameRate = 0;
+
+unsigned int up_getFrameRate()
+{
+    return up_gFrameRate;
+}
+
+void up_updateFrameTickRate()
+{
+    up_gFrameTickRate++;
+    static unsigned int lastTick = 0;
+    
+    unsigned int diffTick = SDL_GetTicks() - lastTick;
+    if (diffTick > 1000) {
+        lastTick =  SDL_GetTicks();
+        up_gFrameRate = up_gFrameTickRate;
+        printf("FPS: %d\n",up_gFrameRate);
+        up_gFrameTickRate = 0;
+    }
+}
+
+void up_updateShipMovment(struct up_ship *ship)
+{
+    ship->dir.x = sinf(ship->angle);
+    ship->dir.y = cosf(ship->angle);
+    ship->dir.z = 0;
+    
+    if (ship->speed > 0.1f) {
+        ship->speed = 0.1f;
+    }
+    float delta = (float)up_getFrameRate()/100;
+    ship->pos.x += ship->dir.x * ship->speed*delta;
+    ship->pos.y += ship->dir.y * ship->speed*delta;
+    ship->pos.z += ship->dir.z * ship->speed*delta;
+    
+}
+
+void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_ship *ship)
+{
+    model->pos.x = ship->pos.x;
+    model->pos.y = ship->pos.y;
+    model->pos.z = ship->pos.z;
+    
+    model->rot.x = 0;
+    model->rot.y = 0;
+    model->rot.z = ship->angle;
+    
+    model->scale.x = 1;
+    model->scale.y = 1;
+    model->scale.z = 1;
+    
+    up_matrixModel(matrixModel,&model->pos, &model->rot, &model->scale);
+}
 
 int main(int argc, char const *argv[])
 {
@@ -218,20 +303,37 @@ int main(int argc, char const *argv[])
     model.scale.y=1;
     model.scale.z=1;
 
-    up_matrix4_t transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
+    up_matrix4_t transform ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
+    
+    struct up_ship ship;
+    ship.pos.x = 0;
+    ship.pos.y = 0;
+    ship.pos.z = 0;
 
-
+    ship.dir.x = 0;
+    ship.dir.y = 0;
+    ship.dir.z = 0;
+    
+    ship.speed = 0;
+    
+    
 	while(status)
 	{
+        up_updateFrameTickRate();
+        status = UP_eventHandler(&ship);
+        
 		UP_renderBackground();                      //Clears the buffer and results an empty window.
 		UP_shader_bind(shaderprog);                 //
         up_texture_bind(texture, 0);
 
+        up_updateShipMovment(&ship);
+        up_updatShipMatrixModel(&transform,&model,&ship);
+        
         UP_shader_update(shaderprog,&transform);
         up_draw_mesh(mesh);
 		UP_openGLupdate();
-		status = UP_eventHandler(&model);
-        transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
+		
+        //transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
 	}
 	printf("Ended main loop\n");
 

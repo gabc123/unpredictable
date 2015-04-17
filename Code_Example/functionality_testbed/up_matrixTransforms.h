@@ -26,6 +26,6 @@ void dispMat(up_matrix4_t *mat);
 /*
     this function returns the model matrix transform for the given position , rotation and scaling 
  */
-up_matrix4_t up_matrixModel(struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
+void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
 
 #endif //UP_MATRIXTRANSFORMS_H
