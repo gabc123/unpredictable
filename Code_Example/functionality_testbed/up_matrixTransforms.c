@@ -106,65 +106,75 @@ void up_matrix4Multiply(up_matrix4_t *result, up_matrix4_t *matA, up_matrix4_t *
     {
         result->data[i] = A[0]*B[0 + i] + A[1]*B[4 + i] + A[2]*B[8 + i] + A[3]*B[12 + i];
     }
-    
+
     // Top middle row of the 4by4 matrix
     for (i = 0; i < 4; i++)
     {
         result->data[4 + i] = A[4]*B[0 + i] + A[5]*B[4 + i] + A[6]*B[8 + i] + A[7]*B[12 + i];
     }
-    
+
     //  Bottom middle of the 4by4 matrix
     for (i = 0; i < 4; i++)
     {
         result->data[8 + i] = A[8]*B[0 + i] + A[9]*B[4 + i] + A[10]*B[8 + i] + A[11]*B[12 + i];
     }
-    
+
     // Bottom row of the 4by4 matrix
     for (i = 0; i < 4; i++)
     {
         result->data[12 + i] = A[12]*B[0 + i] + A[13]*B[4 + i] + A[14]*B[8 + i] + A[15]*B[12 + i];
     }
-    
+
 }
 
 up_matrix4_t up_matrixModel(struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale)
 {
-    
-    
+
+
     up_matrix4_t mat4scale = up_matrix4scaling(scale);
-    
+
     up_matrix4_t rotXmatrix4 = up_matrix4Xrotation(rotation->x);
     up_matrix4_t rotYmatrix4 = up_matrix4Yrotation(rotation->y);
     up_matrix4_t rotZmatrix4 = up_matrix4Zrotation(rotation->z);
-    
+
     up_matrix4_t tmpResult = {0};
     up_matrix4_t rotationMatrix = {0};
-    
+
     up_matrix4Multiply(&tmpResult, &rotXmatrix4, &rotYmatrix4);
     up_matrix4Multiply(&rotationMatrix, &tmpResult, &rotZmatrix4);
-    
+
     up_matrix4_t posMatrix4 = up_matrix4translation(pos);
-    
+
     up_matrix4_t modelMatrix = {0};
-    
+
     // To calculate the model transform we need to first calculate
     // the scale then rotation then translation
     // this is becouse rotation is around origo and if we translate the coordinates before
     // then the rotation will look wrong
     up_matrix4Multiply(&tmpResult, &mat4scale, &rotationMatrix);
     up_matrix4Multiply(&modelMatrix, &tmpResult, &posMatrix4);
-    
+
     return modelMatrix;
 }
 
+void up_cross(struct up_vec3 *result,struct up_vec3 *f,struct up_vec3 *up){
+    result->x = (f->y*up->z) - (f->z*up->y);
+    result->y = f->x*up->z - f->z*up->x;
+    result->z = f->x*up->y - f->y*up->x;
+}
 
+void up_dot(struct up_vec3 *result,struct up_vec3 *f,struct up_vec3 *up){
+    result->x=f->y*up->z - f->z*up->y;
+    result->y=f->x*up->z - f->z*up->x;
+    result->z=f->x*up->y - f->y*up->x;
+}
 /*
 int main(int argc, char const *argv[])
 {
     up_matrix4_t A = {1,2,3,4,2,2,2,2,4,4,4,4,6,7,8,9};
     up_matrix4_t B = {1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6};
     up_matrix4_t result = {0};
-    
+
     printf("hello\n");
     dispMat(&A);
     printf("\n");
@@ -174,13 +184,13 @@ int main(int argc, char const *argv[])
     printf("After multi\n");
     up_matrix4Multiply(&result, &A, &B);
     dispMat(&result);
-    
+
     struct up_vec3 pos = {1, 1, 1};
     struct up_vec3 rot = {0, 1, 1};
     struct up_vec3 scale = {1, 1, 1};
-    
+
     up_matrix4_t modal = up_matrixModel(&pos, &rot, &scale);
-    
+
     printf("modal\n");
     dispMat(&modal);
     return 0;
