@@ -94,23 +94,22 @@ void UP_sdlCleanup()
 
 int UP_eventHandler(struct up_ship *ship)
 {
-	int flag = 1;
-	SDL_Event event;
-
-	while(SDL_PollEvent(&event))
-	{
-		if (event.type == SDL_QUIT)
-		{
-			flag = 0;
-		}
-
-        else if(event.type == SDL_KEYDOWN){
+    int flag = 1;
+    SDL_Event event;
+    
+    while(SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT)
+        {
+            flag = 0;
+        }
+        if(event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
-                    ship->speed += 0.005f;
+                    ship->speed += 0.5f;
                     break;
                 case SDLK_DOWN:
-                    ship->speed -= 0.005f;
+                    ship->speed -= 0.5f;
                     break;
                 case SDLK_LEFT:
                     ship->angle -= 0.1f;
@@ -123,12 +122,14 @@ int UP_eventHandler(struct up_ship *ship)
                     ship->pos.y += ship->dir.y*0.5;
                     ship->pos.z += ship->dir.z*0.5;
                     break;
-
+                    
                 default:
                     break;
             }
-            
-        }else if(event.type == SDL_KEYUP){
+        }
+        
+        if(event.type == SDL_KEYUP)
+        {
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
                     ship->speed = 0;
@@ -136,25 +137,12 @@ int UP_eventHandler(struct up_ship *ship)
                 case SDLK_DOWN:
                     ship->speed = 0;
                     break;
-                case SDLK_LEFT:
-                    ship->angle -= 0;
-                    break;
-                case SDLK_RIGHT:
-                    ship->angle += 0;
-                    break;
-                case SDLK_SPACE:
-                    /*ship->pos.x += ship->dir.x*0.5;
-                    ship->pos.y += ship->dir.y*0.5;
-                    ship->pos.z += ship->dir.z*0.5;*/
-                    break;
-                    
                 default:
                     break;
             }
-            
         }
-	}
-	return flag;
+    }
+    return flag;
 }
 
 
@@ -179,26 +167,44 @@ void UP_renderBackground()
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-unsigned int up_gFrameTickRate = 0;
-unsigned int up_gFrameRate = 0;
+double up_gFrameTickRate = 0;
+unsigned int up_gFramePerSeconde = 0;
 
 unsigned int up_getFrameRate()
 {
-    return up_gFrameRate;
+    return up_gFramePerSeconde;
+}
+
+double up_getFrameTimeDelta()
+{
+    return up_gFrameTickRate;
 }
 
 void up_updateFrameTickRate()
 {
-    up_gFrameTickRate++;
+    static unsigned int fps_counter = 0;
     static unsigned int lastTick = 0;
+    static unsigned int startTick = 0;
     
-    unsigned int diffTick = SDL_GetTicks() - lastTick;
-    if (diffTick > 1000) {
-        lastTick =  SDL_GetTicks();
-        up_gFrameRate = up_gFrameTickRate;
-        printf("FPS: %d\n",up_gFrameRate);
-        up_gFrameTickRate = 0;
+    //how many milliseconds have pased between frames
+    double diffTick = SDL_GetTicks() - lastTick;
+    
+    // this results in fraction of a seconde that passed between frames
+    // used to give smooth movment regardless of fps
+    up_gFrameTickRate = diffTick/1000.0;
+    
+    
+    //When a entire seconde have elapsed print the frame per seconds
+    if ((SDL_GetTicks() - startTick) > 1000) {
+        startTick =  SDL_GetTicks();
+        up_gFramePerSeconde = fps_counter;
+        printf("FPS: %d , diffTick: %f globalTickRate: %f\n",up_gFramePerSeconde,diffTick,up_gFrameTickRate);
+        fps_counter = 0;
+        
     }
+    
+    fps_counter++;
+    lastTick = SDL_GetTicks();
 }
 
 void up_updateShipMovment(struct up_ship *ship)
@@ -207,14 +213,15 @@ void up_updateShipMovment(struct up_ship *ship)
     ship->dir.y = cosf(ship->angle);
     ship->dir.z = 0;
     
-    if (ship->speed > 0.1f) {
-        ship->speed = 0.1f;
-    }
-    float delta = (float)up_getFrameRate()/100;
-    ship->pos.x += ship->dir.x * ship->speed*delta;
-    ship->pos.y += ship->dir.y * ship->speed*delta;
-    ship->pos.z += ship->dir.z * ship->speed*delta;
+    ship->speed = (ship->speed > 10.0f) ? 10.0f : ship->speed;
     
+    if ((ship->speed < 1.0f ) && (ship->speed > 0.0f )) {
+        ship->speed = 1.0f;
+    }
+    float deltaTime = (float)up_getFrameTimeDelta();
+    ship->pos.x += ship->dir.x * ship->speed * deltaTime;
+    ship->pos.y += ship->dir.y * ship->speed * deltaTime;
+    ship->pos.z += ship->dir.z * ship->speed * deltaTime;    
 }
 
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_ship *ship)
