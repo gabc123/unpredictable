@@ -118,6 +118,51 @@ static void up_generic_list_setElement(struct up_generic_list *list,void *data,u
 static int generic_list_resize(struct up_generic_list *list);
 static void generic_copyElement(unsigned int element_size,char *destination,char *source);
 
+/*
+ wrapper function for program specific types.
+ */
+
+// all list functions for vec3
+struct up_generic_list *up_vec3_list_new(unsigned int start_capacity)
+{
+    unsigned int element_size = sizeof(struct up_vec3);
+    return up_generic_list_new(element_size,start_capacity);
+}
+
+void up_vec3_list_delete(struct up_generic_list *list)
+{
+    up_generic_list_delete(list);
+}
+
+struct up_vec3 *up_vec3_list_transferOwnership(struct up_generic_list **list)
+{
+    return (struct up_vec3 *)up_generic_list_transferOwnership(list);
+}
+
+// information
+
+unsigned int up_vec3_list_count(struct up_generic_list *list)
+{
+    return up_generic_list_count(list);
+}
+
+
+// add,set,get
+int up_vec3_list_add(struct up_generic_list *list,struct up_vec3 *data)
+{
+    return up_generic_list_add(list,data);
+}
+
+void up_vec3_list_getAtIndex(struct up_generic_list *list,struct up_vec3 *data,unsigned int atIndex)
+{
+    up_generic_list_getElement(list,data,atIndex);
+}
+
+void up_vec3_list_setAtIndex(struct up_generic_list *list,struct up_vec3 *data,unsigned int atIndex)
+{
+    up_generic_list_setElement(list,data,atIndex);
+}
+
 
 /*
  generic list , implementation

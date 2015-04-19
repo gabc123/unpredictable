@@ -257,7 +257,6 @@ int main(int argc, char const *argv[])
 	printf("opengl window setup done\n");
 
 
-
 	up_mesh_start_setup(4);
     up_texture_start_setup();
 
