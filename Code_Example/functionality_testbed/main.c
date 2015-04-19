@@ -7,6 +7,7 @@
 #include "up_matrixTransforms.h"
 #include "up_error.h"
 #include "up_modelRepresentation.h"
+#include "up_utilities.h"
 #include <math.h>
 
 #ifndef M_PI
