@@ -59,7 +59,7 @@ struct up_generic_list;
     for most types
  */
 
-
+///////////////////////////////////////////////
 /*
     wrapper function for up_vec3 specific types.
  */
@@ -76,6 +76,7 @@ int up_vec3_list_add(struct up_generic_list *list,struct up_vec3 *data);
 void up_vec3_list_getAtIndex(struct up_generic_list *list,struct up_vec3 *data,unsigned int atIndex);
 void up_vec3_list_setAtIndex(struct up_generic_list *list,struct up_vec3 *data,unsigned int atIndex);
 
+///////////////////////////////////////////////
 /*
  wrapper function for up_vec2 specific types.
  */
@@ -92,6 +93,7 @@ int up_vec2_list_add(struct up_generic_list *list,struct up_vec2 *data);
 void up_vec2_list_getAtIndex(struct up_generic_list *list,struct up_vec2 *data,unsigned int atIndex);
 void up_vec2_list_setAtIndex(struct up_generic_list *list,struct up_vec2 *data,unsigned int atIndex);
 
+///////////////////////////////////////////////
 /*
  wrapper function for up_vertex specific types.
  */
@@ -107,5 +109,7 @@ unsigned int up_vertex_list_count(struct up_generic_list *list);
 int up_vertex_list_add(struct up_generic_list *list,struct up_vertex *data);
 void up_vertex_list_getAtIndex(struct up_generic_list *list,struct up_vertex *data,unsigned int atIndex);
 void up_vertex_list_setAtIndex(struct up_generic_list *list,struct up_vertex *data,unsigned int atIndex);
+
+///////////////////////////////////////////////
 
 #endif /* UP_UTILITIES_H */
