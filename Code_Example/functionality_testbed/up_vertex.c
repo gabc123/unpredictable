@@ -77,7 +77,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
         textureCoord[i].x = vertex[i].texCoord.x;
         textureCoord[i].y = 1 - vertex[i].texCoord.y;
     }
-    
+    printf("after vertex segmetion malloc\n");
     glGenVertexArrays(1, &(mesh->vertexArrayObj));
     printf("after genvertex \n");
     glBindVertexArray(mesh->vertexArrayObj);
