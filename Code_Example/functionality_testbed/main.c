@@ -32,7 +32,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    
+
 	//We want to have 32 bit color per pixel, RGBA (red,grean,blue,alpha)
 	// and set 8bit per color
 	if(SDL_GL_SetAttribute(SDL_GL_RED_SIZE,8)==-1){
@@ -70,6 +70,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 
 //on linux and windows glew needs to be installed
 #ifndef __APPLE__
+	glewExperimental = GL_TRUE;
 	GLenum res = glewInit();
 	if(res != GLEW_OK)
 	{
@@ -77,7 +78,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 	}
 #endif
     //glEnable(GL_DEPTH_TEST);
-    
+
     /// print opengl information
     printf("\n\n\n\n");
     printf("\n\nGL_VENDOR: %s",glGetString(GL_VENDOR));
@@ -112,7 +113,7 @@ int UP_eventHandler(struct up_ship *ship)
 {
     int flag = 1;
     SDL_Event event;
-    
+
     while(SDL_PollEvent(&event))
     {
         if (event.type == SDL_QUIT)
@@ -138,12 +139,12 @@ int UP_eventHandler(struct up_ship *ship)
                     ship->pos.y += ship->dir.y*0.5;
                     ship->pos.z += ship->dir.z*0.5;
                     break;
-                    
+
                 default:
                     break;
             }
         }
-        
+
         if(event.type == SDL_KEYUP)
         {
             switch (event.key.keysym.sym) {
@@ -163,7 +164,7 @@ int UP_eventHandler(struct up_ship *ship)
 
 
 /*
- 
+
  ship->rot.z=1.5*M_PI;
  if(ship->pos.x<=-1-ship->scale.x/2)
  ship->pos.x=1+ship->scale.x/2;
@@ -174,7 +175,7 @@ int UP_eventHandler(struct up_ship *ship)
  if(ship->pos.x>=1+ship->scale.x/2)
  ship->pos.x=-1-ship->scale.x/2;
 
- 
+
  */
 
 void UP_renderBackground()
@@ -201,24 +202,24 @@ void up_updateFrameTickRate()
     static unsigned int fps_counter = 0;
     static unsigned int lastTick = 0;
     static unsigned int startTick = 0;
-    
+
     //how many milliseconds have pased between frames
     double diffTick = SDL_GetTicks() - lastTick;
-    
+
     // this results in fraction of a seconde that passed between frames
     // used to give smooth movment regardless of fps
     up_gFrameTickRate = diffTick/1000.0;
-    
-    
+
+
     //When a entire seconde have elapsed print the frame per seconds
     if ((SDL_GetTicks() - startTick) > 1000) {
         startTick =  SDL_GetTicks();
         up_gFramePerSeconde = fps_counter;
         printf("FPS: %d , diffTick: %f globalTickRate: %f\n",up_gFramePerSeconde,diffTick,up_gFrameTickRate);
         fps_counter = 0;
-        
+
     }
-    
+
     fps_counter++;
     lastTick = SDL_GetTicks();
 }
@@ -228,16 +229,16 @@ void up_updateShipMovment(struct up_ship *ship)
     ship->dir.x = sinf(ship->angle);
     ship->dir.y = cosf(ship->angle);
     ship->dir.z = 0;
-    
+
     ship->speed = (ship->speed > 10.0f) ? 10.0f : ship->speed;
-    
+
     if ((ship->speed < 1.0f ) && (ship->speed > 0.0f )) {
         ship->speed = 1.0f;
     }
     float deltaTime = (float)up_getFrameTimeDelta();
     ship->pos.x += ship->dir.x * ship->speed * deltaTime;
     ship->pos.y += ship->dir.y * ship->speed * deltaTime;
-    ship->pos.z += ship->dir.z * ship->speed * deltaTime;    
+    ship->pos.z += ship->dir.z * ship->speed * deltaTime;
 }
 
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_ship *ship)
@@ -245,15 +246,15 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
     model->pos.x = ship->pos.x;
     model->pos.y = ship->pos.y;
     model->pos.z = ship->pos.z;
-    
+
     model->rot.x = 0;
     model->rot.y += 0.08f;
     model->rot.z = ship->angle;
-    
+
     model->scale.x = 1;
     model->scale.y = 1;
     model->scale.z = 1;
-    
+
     up_matrixModel(matrixModel,&model->pos, &model->rot, &model->scale);
 }
 
@@ -265,15 +266,15 @@ struct up_mesh *meshTriangleShip()
         {0.2f, 1.0f},
         {1.0f, 0.0f}
     };
-    
+
     // this is the posisions of the vertexes
     struct up_vec3 pos[] = {{-0.5f, -0.5f, 0.0f},
         {0.0f, 0.5f, 0.0f},
         {0.5f, -0.5f, 0.0f}
     };
-    
+
     unsigned int indexArray[] = {0,2,1};
-    
+
     // left over from debugging. fills the vertex array with pos and tex
     struct up_vertex vertex[3];
     int i = 0;
@@ -297,7 +298,7 @@ struct up_mesh *meshPyramidShip()
         {0.0f, -0.5f, 0.5f},
     };
     unsigned int pyramid_pos_size = sizeof(pyramid_pos)/sizeof(pyramid_pos[0]);
-    
+
     struct up_vec2 pyramid_tex[] = {
         {0.0f, 0.0f},
         {0.2f, 1.0f},
@@ -305,13 +306,13 @@ struct up_mesh *meshPyramidShip()
         {0.2f, 1.0f}
     };
    // unsigned int pyramid_tex_size = sizeof(pyramid_tex)/sizeof(pyramid_tex[0]);
-    
+
     unsigned int pyramid_indexArray[] = {0,1,2,3,2,4,4,2,1};
     unsigned int pyramid_index_size =sizeof(pyramid_indexArray)/sizeof(pyramid_indexArray[0]);
-    
+
     struct up_generic_list *list = up_vertex_list_new(pyramid_pos_size);
     int i = 0;
-    
+
     struct up_vertex tmp_vertex;
     for (i = 0; i < pyramid_pos_size; i++) {
         tmp_vertex.pos = pyramid_pos[i];
@@ -319,7 +320,7 @@ struct up_mesh *meshPyramidShip()
         up_vertex_list_add(list, &tmp_vertex);
     }
     struct up_vertex *vertex = up_vertex_list_transferOwnership(&list);
-    
+
     /////////////
     printf("vertex start\n");
     struct up_mesh *mesh = UP_mesh_new(vertex, pyramid_pos_size,pyramid_indexArray, pyramid_index_size);
@@ -348,8 +349,8 @@ int main(int argc, char const *argv[])
 
     struct up_mesh *mesh = meshTriangleShip();
     //struct up_mesh *mesh = meshPyramidShip();
-    
-    
+
+
 	struct shader_module *shaderprog;
 	shaderprog = UP_Shader_new("shadertest");
 	printf("Shader finnished\n");
@@ -373,30 +374,30 @@ int main(int argc, char const *argv[])
     /*
      void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
      void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP);
-     
+
      void up_matrixPerspective(up_matrix4_t *perspective, GLdouble fov,GLdouble aspectRatio,GLdouble zNear,GLdouble zFar);
-     
-     
+
+
      void up_getModelViewPerspective(up_matrix4_t *mvp,
      up_matrix4_t *modelMatrix,
      up_matrix4_t *matrixView,
      up_matrix4_t *perspective);
      */
-    
+
     up_matrix4_t transform ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
     up_matrix4_t modelMatrix;
     up_matrix4_t viewMatrix;
     up_matrix4_t perspectiveMatrix;
-    
+
     struct camera {
         struct up_vec3 eye;
         struct up_vec3 center;
         struct up_vec3 up;
     };
     struct camera cam = {{0,0,-3},{0,0,1},{0,1,0}};
-    
+
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
-    
+
     struct perspective {
         float fov ;
         float aspectRatio;
@@ -404,8 +405,8 @@ int main(int argc, char const *argv[])
         float zFar;
     };
     struct perspective pers = {70.0f,screen_width/screen_hight,0.01f,1000.0f};
-    
-    
+
+
     up_matrixPerspective(&perspectiveMatrix, pers.fov, pers.aspectRatio, pers.zNear, pers.zFar);
     dispMat(&perspectiveMatrix);
     struct up_ship ship;
@@ -416,32 +417,32 @@ int main(int argc, char const *argv[])
     ship.dir.x = 0;
     ship.dir.y = 0;
     ship.dir.z = 0;
-    
+
     ship.speed = 0;
-    
+
     //up_matrix4_t identity = up_matrix4identity();
-    
+
 	while(status)
 	{
         up_updateFrameTickRate();
         status = UP_eventHandler(&ship);
-        
+
 		UP_renderBackground();                      //Clears the buffer and results an empty window.
 		UP_shader_bind(shaderprog);                 //
         up_texture_bind(texture, 0);
 
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
-        
+
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
-        
+
         up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &perspectiveMatrix);
         //up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &identity);
         //dispMat(&transform);
         UP_shader_update(shaderprog,&transform);
         up_draw_mesh(mesh);
 		UP_openGLupdate();
-		
+
         //transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
 	}
 	printf("Ended main loop\n");

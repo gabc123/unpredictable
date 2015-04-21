@@ -27,7 +27,7 @@ struct up_mesh
 {
 	GLuint vertexArrayObj;
 	// for vertex, normals, text coord
-	GLuint vertexArrayBuffer[MESH_BUFFER_COUNT];	
+	GLuint vertexArrayBuffer[MESH_BUFFER_COUNT];
 	int vertex_count;
     int index_count;
 	int active;
