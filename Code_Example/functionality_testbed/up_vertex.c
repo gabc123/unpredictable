@@ -60,12 +60,14 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
         UP_ERROR_MSG("malloc failed, positions");
         return NULL;
     }
+    printf("after pos coord malloc\n");
     
     struct up_vec2 *textureCoord = malloc(sizeof(struct up_vec2) * mesh->vertex_count);
     if (textureCoord == NULL) {
         UP_ERROR_MSG("malloc failed, textureCoord");
         return NULL;
     }
+    printf("after text coord malloc\n");
     
     int i = 0;
     for (i = 0; i< mesh->vertex_count; i++) {
@@ -77,7 +79,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
     }
     
     glGenVertexArrays(1, &(mesh->vertexArrayObj));
-    //printf("after genvertex \n");
+    printf("after genvertex \n");
     glBindVertexArray(mesh->vertexArrayObj);
     
 	glGenBuffers(MESH_BUFFER_COUNT, mesh->vertexArrayBuffer);
