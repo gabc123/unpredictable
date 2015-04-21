@@ -7,18 +7,18 @@
 
 
 
-void get_port_number(UDPsocket udpSocket,int ticker){
+void get_port_number(UDPsocket *udpSocket,int ticker){
     
     
     if(ticker>0){
-        udpSocket= SDLNet_UDP_Open(0);
+        *udpSocket= SDLNet_UDP_Open(0);
     }
     
     else{
-        udpSocket= SDLNet_UDP_Open(5001);
+        *udpSocket= SDLNet_UDP_Open(5001);
     }
     
-    if(udpSocket==0){
+    if(*udpSocket==0){
         
         printf("SDLNet_UDP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -32,7 +32,7 @@ void recive(UDPpacket *packet,UDPsocket *udpSocket){
     
     int quit=1;
     
-    
+    printf("\nmain recv loop started");
     while (quit!=0){
         
         if(SDLNet_UDP_Recv(*udpSocket,packet)){
@@ -50,6 +50,7 @@ void recive(UDPpacket *packet,UDPsocket *udpSocket){
             }
         }
     }
+    printf("\nmain recv loop ended");
                                                             //success
 }
 
@@ -57,21 +58,24 @@ void send_data(UDPpacket *packet,UDPsocket *udpSocket,IPaddress addr){
     
     int quit=1;
 
-    
+    char msg[100];
     while(quit!=0){
-        
+        /* this is something wrong, i think, should read in the data then ? copy the msg to data ?? 
+            do not have time to fix this*/
         printf("Command >");
-        fgets((char*)packet->data,8,stdin);
-        
+        fgets(msg,8,stdin);
+        msg[8] = '\0';
+        packet->len = (int)strlen(msg) + 1;
+        packet->data = (unsigned char*)msg;
         packet->address.host=addr.host;
         packet->address.port=addr.port;
         
-        packet->len = strlen((char*)packet->data) + 1;
+        //packet->len = strlen(packet->data) + 1;
         SDLNet_UDP_Send(*udpSocket, -1, packet);
         
-        if(strcmp("quit",(char*)packet->data)==0){
+       /* if(strcmp("quit",(char*)packet->data)==0){
             quit=0;
-        }
+        }*/
         
     }
     
@@ -87,10 +91,10 @@ int init_sdl(){
     return 1;
 }
 
-int malloc_memory(UDPpacket *packet){
+int malloc_memory(UDPpacket **packet){
                                                         //ALLOCATE MEMORY, MALLOC
     
-    packet = SDLNet_AllocPacket(1024);
+    *packet = SDLNet_AllocPacket(1024);
     
     if(packet==0){
         return 0;

@@ -19,22 +19,22 @@ int main(){
     FILE *fp=fopen(file,"r");
     fscanf(fp,"%s",ip_address);
     printf("%s", ip_address);
-    
+    fclose(fp);
                                                         //initial of sdl_init
     if(init_sdl()==0){
         fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
     }
                                                         //OPEN random port socket
-    get_port_number(udpSocket,ticker);
-    
-                                                        //resolve socket name
+    get_port_number(&udpSocket,ticker);
+    printf("\nmain recv loop started");
+                                                       //resolve socket name
     if(SDLNet_ResolveHost(&addr, ip_address, 5001)==-1){
         printf("Could not fill out ip");
         exit(EXIT_FAILURE);
     }
     
                                                         //allocate memory malloc
-    if(malloc_memory(packet)==0){
+    if(malloc_memory(&packet)==0){
         fprintf(stderr,"SDLNet_AllocPacket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
