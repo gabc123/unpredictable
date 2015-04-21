@@ -48,7 +48,8 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
 	{
 		UP_ERROR_MSG("Full mesh \n");
 	}
-	struct up_mesh *mesh = malloc(sizeof(struct up_mesh));//&(internal_state.mesh[internal_state.mesh_count]);
+	//struct up_mesh *mesh = malloc(sizeof(struct up_mesh));
+	struct up_mesh *mesh =&(internal_state.mesh[internal_state.mesh_count]);
 	mesh->vertex_count = vertex_count;
     mesh->index_count = index_count;
     printf("mesh->vertex_count:%d \n",mesh->vertex_count);
