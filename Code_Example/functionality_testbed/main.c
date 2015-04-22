@@ -217,7 +217,7 @@ int UP_eventHandler(struct up_ship *ship)
 void UP_renderBackground()
 {
 	glClearColor(0.0f, 0.75f, 0.22f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 double up_gFrameTickRate = 0;
