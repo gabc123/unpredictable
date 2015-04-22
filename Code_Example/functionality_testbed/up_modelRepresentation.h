@@ -11,6 +11,14 @@
 
 #include "up_vertex.h"
 
+struct shipMovement
+{
+    int up;
+    int down;
+    int left;
+    int right;
+};
+
 struct up_ship
 {
     struct up_vec3 pos;
@@ -25,7 +33,7 @@ struct up_modelRepresentation
     struct up_vec3 pos;
     struct up_vec3 rot;
     struct up_vec3 scale;
-    
+
 };
 
 #endif

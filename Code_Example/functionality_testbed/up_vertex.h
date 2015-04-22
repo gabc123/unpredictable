@@ -15,19 +15,25 @@ struct up_vec2
 struct up_vertex
 {
 	struct up_vec3 pos;
+    struct up_vec3 normals;
     struct up_vec2 texCoord;
 };
 
 #define MESH_BUFFER_VB  0
 #define MESH_BUFFER_TXB  1
-#define MESH_BUFFER_INDEX  2
-#define MESH_BUFFER_COUNT  3
+#define MESH_BUFFER_NORM 2
+#define MESH_BUFFER_INDEX  3
+#define MESH_BUFFER_COUNT  4
 
 struct up_mesh
 {
 	GLuint vertexArrayObj;
 	// for vertex, normals, text coord
 	GLuint vertexArrayBuffer[MESH_BUFFER_COUNT];
+    GLuint positionId;
+    GLuint textureCoordId;
+    GLuint normalId;
+    GLuint indicesId;
 	int vertex_count;
     int index_count;
 	int active;

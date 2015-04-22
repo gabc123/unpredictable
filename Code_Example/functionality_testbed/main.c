@@ -9,10 +9,14 @@
 #include "up_modelRepresentation.h"
 #include "up_utilities.h"
 #include <math.h>
+#include "up_objectReader.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+
+double up_getFrameTimeDelta();
 
 static SDL_Window * g_openglWindow = NULL;
 static SDL_Window * g_openglContext = NULL;
@@ -23,7 +27,11 @@ void UP_sdlSetup()
     {
         UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
     }
+    struct up_objModel *testObj = up_loadObjModel("space_mats2.obj");
+    testObj = NULL;
 }
+
+
 
 void UP_openGLwindowSetup(int width,int height, const char *title)
 {
@@ -80,7 +88,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    
+
     /// print opengl information
     printf("\n\n\n\n");
     printf("\n\nGL_VENDOR: %s",glGetString(GL_VENDOR));
@@ -110,11 +118,20 @@ void UP_sdlCleanup()
 	SDL_Quit();
 }
 
+void shipMove(struct shipMovement *movement, struct up_ship *ship){
+    float deltaTime = (float)up_getFrameTimeDelta();
+    if(movement->up){ship->speed += 0.05f* deltaTime;}
+    if(movement->down){ship->speed -=0.05f* deltaTime;}
+    if(movement->right){ship->angle += 1.0f* deltaTime;}
+    if(movement->left){ship->angle -= 1.0f* deltaTime;}
+    if(!(movement->up+movement->down)){ship->speed=0;}
+}
 
 int UP_eventHandler(struct up_ship *ship)
 {
     int flag = 1;
     SDL_Event event;
+    static struct shipMovement movement = {0,0,0,0};
 
     while(SDL_PollEvent(&event))
     {
@@ -125,21 +142,29 @@ int UP_eventHandler(struct up_ship *ship)
         if(event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
-                    ship->speed += 0.5f;
+                    movement.up=1;
+                    printf("up\n");
+                    //ship->speed += 0.5f;
                     break;
                 case SDLK_DOWN:
-                    ship->speed -= 0.5f;
+                    movement.down=1;
+                    printf("down\n");
+                    //ship->speed -= 0.5f;
                     break;
                 case SDLK_LEFT:
-                    ship->angle -= 0.1f;
+                    movement.left=1;
+                    printf("left\n");
+                    //ship->angle -= 0.1f;
                     break;
                 case SDLK_RIGHT:
-                    ship->angle += 0.1f;
+                    movement.right=1;
+                    printf("right\n");
+                    //ship->angle += 0.1f;
                     break;
                 case SDLK_SPACE:
-                    ship->pos.x += ship->dir.x*0.5;
+                    /*ship->pos.x += ship->dir.x*0.5;
                     ship->pos.y += ship->dir.y*0.5;
-                    ship->pos.z += ship->dir.z*0.5;
+                    ship->pos.z += ship->dir.z*0.5;*/
                     break;
 
                 default:
@@ -151,16 +176,25 @@ int UP_eventHandler(struct up_ship *ship)
         {
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
-                    ship->speed = 0;
+                    movement.up=0;
+                    //ship->speed = 0;
                     break;
                 case SDLK_DOWN:
-                    ship->speed = 0;
+                    movement.down=0;
+                    //ship->speed = 0;
+                    break;
+                case SDLK_RIGHT:
+                    movement.right=0;
+                    break;
+                case SDLK_LEFT:
+                    movement.left=0;
                     break;
                 default:
                     break;
             }
         }
     }
+    shipMove(&movement, ship);
     return flag;
 }
 
@@ -183,7 +217,7 @@ int UP_eventHandler(struct up_ship *ship)
 void UP_renderBackground()
 {
 	glClearColor(0.0f, 0.75f, 0.22f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 double up_gFrameTickRate = 0;
@@ -228,6 +262,7 @@ void up_updateFrameTickRate()
 
 void up_updateShipMovment(struct up_ship *ship)
 {
+
     ship->dir.x = sinf(ship->angle);
     ship->dir.y = cosf(ship->angle);
     ship->dir.z = 0;
@@ -237,6 +272,7 @@ void up_updateShipMovment(struct up_ship *ship)
     if ((ship->speed < 1.0f ) && (ship->speed > 0.0f )) {
         ship->speed = 1.0f;
     }
+
     float deltaTime = (float)up_getFrameTimeDelta();
     ship->pos.x += ship->dir.x * ship->speed * deltaTime;
     ship->pos.y += ship->dir.y * ship->speed * deltaTime;
@@ -245,12 +281,14 @@ void up_updateShipMovment(struct up_ship *ship)
 
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_ship *ship)
 {
+
+    double frameDelta=up_getFrameTimeDelta();
     model->pos.x = ship->pos.x;
     model->pos.y = ship->pos.y;
     model->pos.z = ship->pos.z;
 
     model->rot.x = 0;
-    model->rot.y += 0.08f;
+    model->rot.y += 1.0f * frameDelta;
     model->rot.z = ship->angle;
 
     model->scale.x = 1;
