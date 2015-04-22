@@ -50,7 +50,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 	if(SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE,32)==-1){
         UP_ERROR_MSG_STR("set attribute buffer fail :-C",SDL_GetError());
 	}
-    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
 
 
 	// Doublebuffer lets us draw to a virtual window
@@ -77,8 +77,10 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
         UP_ERROR_MSG("glew init error");
 	}
 #endif
-    //glEnable(GL_DEPTH_TEST);
-
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    
     /// print opengl information
     printf("\n\n\n\n");
     printf("\n\nGL_VENDOR: %s",glGetString(GL_VENDOR));
@@ -181,7 +183,7 @@ int UP_eventHandler(struct up_ship *ship)
 void UP_renderBackground()
 {
 	glClearColor(0.0f, 0.75f, 0.22f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 double up_gFrameTickRate = 0;
