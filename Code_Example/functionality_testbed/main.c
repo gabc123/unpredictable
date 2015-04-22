@@ -122,8 +122,8 @@ void shipMove(struct shipMovement *movement, struct up_ship *ship){
     float deltaTime = (float)up_getFrameTimeDelta();
     if(movement->up){ship->speed += 0.05f* deltaTime;}
     if(movement->down){ship->speed -=0.05f* deltaTime;}
-    if(movement->right){ship->angle += 1.0f* deltaTime;}
-    if(movement->left){ship->angle -= 1.0f* deltaTime;}
+    if(movement->right){ship->angle +=1.0f* deltaTime;}
+    if(movement->left){ship->angle -=1.0f* deltaTime;}
     if(!(movement->up+movement->down)){ship->speed=0;}
 }
 
@@ -143,28 +143,19 @@ int UP_eventHandler(struct up_ship *ship)
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
                     movement.up=1;
-                    printf("up\n");
-                    //ship->speed += 0.5f;
                     break;
                 case SDLK_DOWN:
                     movement.down=1;
-                    printf("down\n");
-                    //ship->speed -= 0.5f;
                     break;
                 case SDLK_LEFT:
                     movement.left=1;
                     printf("left\n");
-                    //ship->angle -= 0.1f;
                     break;
                 case SDLK_RIGHT:
                     movement.right=1;
                     printf("right\n");
-                    //ship->angle += 0.1f;
                     break;
                 case SDLK_SPACE:
-                    /*ship->pos.x += ship->dir.x*0.5;
-                    ship->pos.y += ship->dir.y*0.5;
-                    ship->pos.z += ship->dir.z*0.5;*/
                     break;
 
                 default:
@@ -281,7 +272,6 @@ void up_updateShipMovment(struct up_ship *ship)
 
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_ship *ship)
 {
-
     double frameDelta=up_getFrameTimeDelta();
     model->pos.x = ship->pos.x;
     model->pos.y = ship->pos.y;
@@ -300,25 +290,29 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
 
 struct up_mesh *meshTriangleShip()
 {
-    /// setup the vertexs and the tex coords, this is done like this for debbuing resons
+    /// setup the vertexs and the tex coords, this is done like this for debbuging reasons
     // texture coordinates, 0,0 is bottom left, 1,1 is top right
-    struct up_vec2 tex[] = {{0.0f, 0.0f},
+    struct up_vec2 tex[] = {
+        {0.0f, 0.0f},
         {0.2f, 1.0f},
-        {1.0f, 0.0f}
+        {1.0f, 0.0f},
+        {0.5f, 0.5f}
     };
 
     // this is the posisions of the vertexes
-    struct up_vec3 pos[] = {{-0.5f, -0.5f, 0.0f},
+    struct up_vec3 pos[] = {
+        {-0.5f, -0.5f, 0.0f},
         {0.0f, 0.5f, 0.0f},
-        {0.5f, -0.5f, 0.0f}
+        {0.5f, -0.5f, 0.0f},
+        {0.0f, 0.0f, 1.0f}
     };
 
-    unsigned int indexArray[] = {0,2,1};
+    unsigned int indexArray[] = {0,2,1,2,3,1,0,3,2,3,0,1};
 
     // left over from debugging. fills the vertex array with pos and tex
-    struct up_vertex vertex[3];
+    struct up_vertex vertex[4];
     int i = 0;
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < 4; i++) {
         vertex[i].pos = pos[i];
         vertex[i].texCoord = tex[i];
     }
