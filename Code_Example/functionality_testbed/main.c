@@ -149,11 +149,9 @@ int UP_eventHandler(struct up_ship *ship)
                     break;
                 case SDLK_LEFT:
                     movement.left=1;
-                    printf("left\n");
                     break;
                 case SDLK_RIGHT:
                     movement.right=1;
-                    printf("right\n");
                     break;
                 case SDLK_SPACE:
                     break;
