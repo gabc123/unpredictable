@@ -20,16 +20,25 @@ int main(int argNum,char* argChar[]){
     }
                                                         //OPEN SOCKET
     
-    get_port_number(&udpSocket,ticker);
-                                                        //ALLOCATE MEMORY, MALLOC
-    printf("\nserver start ?");
-    if(malloc_memory(&packet)==0){
-        printf("could no allocate memory");
+    udpSocket=get_port_number(ticker);
+    
+    if(udpSocket==0){
+        
+        printf("SDLNet_UDP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
-    printf("\nserver start ?");
-    recive(packet,&udpSocket);
-    printf("\nserver start ?");
+    
+                                                        //ALLOCATE MEMORY, MALLOC
+
+    packet=memory_check();
+        
+    if(packet==0){
+        printf("could not allocate");
+    }
+        
+    
+    recive(packet,udpSocket);
+    
     terminate_process(packet);
     
     return EXIT_SUCCESS;
