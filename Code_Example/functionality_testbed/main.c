@@ -9,6 +9,7 @@
 #include "up_modelRepresentation.h"
 #include "up_utilities.h"
 #include <math.h>
+#include "up_objectReader.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -23,7 +24,10 @@ void UP_sdlSetup()
     {
         UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
     }
+    struct up_objModel *testObj = up_loadObjModel("space_mats2.obj");
 }
+
+
 
 void UP_openGLwindowSetup(int width,int height, const char *title)
 {
@@ -80,7 +84,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    
+
     /// print opengl information
     printf("\n\n\n\n");
     printf("\n\nGL_VENDOR: %s",glGetString(GL_VENDOR));

@@ -47,7 +47,7 @@ struct UP_textHandler up_loadShaderFile(const char * filename)
 
 	text.text = data;
 	text.length = (int)size;
-	printf("Shader code for: %s and lenght: %d\n %s",filename,text.length,text.text);
+	//printf("Shader code for: %s and lenght: %d\n %s",filename,text.length,text.text);
 	return text;
 }
 
