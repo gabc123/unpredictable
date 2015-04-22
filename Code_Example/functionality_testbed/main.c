@@ -25,6 +25,7 @@ void UP_sdlSetup()
         UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
     }
     struct up_objModel *testObj = up_loadObjModel("space_mats2.obj");
+    testObj = NULL;
 }
 
 

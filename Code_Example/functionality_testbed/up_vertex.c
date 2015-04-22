@@ -78,15 +78,22 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
         textureCoord[i].x = vertex[i].texCoord.x;
         textureCoord[i].y = 1 - vertex[i].texCoord.y;
     }
+    GLuint vertexBufferId[MESH_BUFFER_COUNT];
     printf("after vertex segmetion malloc\n");
-    glGenVertexArrays(1, &(mesh->vertexArrayObj));
+    glGenVertexArrays(1, &mesh->vertexArrayObj);
     printf("after genvertex \n");
     glBindVertexArray(mesh->vertexArrayObj);
 
-	glGenBuffers(MESH_BUFFER_COUNT, mesh->vertexArrayBuffer);
+    
+	glGenBuffers(MESH_BUFFER_COUNT, vertexBufferId);
 
+    mesh->positionId = vertexBufferId[0];
+    mesh->textureCoordId = vertexBufferId[1];
+    mesh->normalId = vertexBufferId[2];
+    mesh->indicesId = vertexBufferId[3];
+    
     // binding the position
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexArrayBuffer[MESH_BUFFER_VB]);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->positionId);
 	glBufferData(GL_ARRAY_BUFFER, mesh->vertex_count * sizeof(positions[0]), &positions[0],GL_STATIC_DRAW);
 
     //vilken attribuit array, hurmånga element, vad för typ, hur mycket som ska skippas mellan varje
@@ -96,7 +103,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
 
 
     // binding the texture coordenates
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexArrayBuffer[MESH_BUFFER_TXB]);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->textureCoordId);
     glBufferData(GL_ARRAY_BUFFER, mesh->vertex_count * sizeof(textureCoord[0]), &textureCoord[0],GL_STATIC_DRAW);
 
     //vilken attribuit array, hurmånga element, vad för typ, hur mycket som ska skippas mellan varje
@@ -105,7 +112,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     // binding the indecies
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->vertexArrayBuffer[MESH_BUFFER_INDEX]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indicesId);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->index_count * sizeof(indexArray[0]), &indexArray[0],GL_STATIC_DRAW);
 
     glBindVertexArray(0);
