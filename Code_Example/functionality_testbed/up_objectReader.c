@@ -14,8 +14,8 @@ struct up_objModel *up_loadObjModel(const char *filename)
     char *text;
     char *endLine = "\n";
     char *rad;
-    struct up_generic_list *vertexPosList;
-
+    struct up_generic_list *vertexPosList = up_vec3_list_new(20);
+    struct up_generic_list *texturePosList = up_vec2_list_new(20);
 
     struct UP_textHandler objFile = up_loadObjFile(filename);
     text=objFile.text;
@@ -39,7 +39,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
                     break;
                 case 't':
                     rad+=3;
-                    vertexPositionsData(rad, vertexPosList);
+                    texturePositionsData(rad, vertexPosList);
                     break;
                 default:
                     UP_ERROR_MSG_STR("Unknown identifier, look in obj file ", filename);
@@ -64,5 +64,13 @@ void vertexPositionsData(char *rad, struct up_generic_list *vertexPosList)
     struct up_vec3 vertexPositions;
 
     sscanf(rad,"%f %f %f",&vertexPositions.x,&vertexPositions.y, &vertexPositions.z);
-    fprintf(stderr, "X of obj: %f, Y of obj: %f, Z of obj: %f\n",vertexPositions.x,vertexPositions.y,vertexPositions.z);
+    fprintf(stderr, "Vertex. X of obj: %f, Y of obj: %f, Z of obj: %f\n",vertexPositions.x,vertexPositions.y,vertexPositions.z);
+}
+
+void texturePositionsData(char *rad, struct up_generic_list *texturePosList)
+{
+    struct up_vec2 texturePositions;
+
+    sscanf(rad,"%f %f",&texturePositions.x,&texturePositions.y);
+    fprintf(stderr, "Texture. X of obj: %f, Y of obj: %f\n",texturePositions.x,texturePositions.y);
 }
