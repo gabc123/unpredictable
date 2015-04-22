@@ -120,19 +120,16 @@ void UP_sdlCleanup()
 
 void shipMove(struct shipMovement *movement, struct up_ship *ship){
     float deltaTime = (float)up_getFrameTimeDelta();
-    if(movement->up){ship->speed += 0.05f* deltaTime;}
-    if(movement->down){ship->speed -=0.05f* deltaTime;}
-    if(movement->right){ship->angle +=1.0f* deltaTime;}
-    if(movement->left){ship->angle -=1.0f* deltaTime;}
-    if(!(movement->up+movement->down)){ship->speed=0;}
+    ship->speed += 1.0f *(movement->up - movement->down) * deltaTime;
+    ship->angle += 1.f *(movement->right - movement->left) * deltaTime;
+    if(!(movement->up + movement->down)){ship->speed=0;}
 }
 
-int UP_eventHandler(struct up_ship *ship)
+int UP_eventHandler(struct up_ship *ship,struct shipMovement *movement)
 {
     int flag = 1;
     SDL_Event event;
-    static struct shipMovement movement = {0,0,0,0};
-
+    
     while(SDL_PollEvent(&event))
     {
         if (event.type == SDL_QUIT)
@@ -142,16 +139,16 @@ int UP_eventHandler(struct up_ship *ship)
         if(event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
-                    movement.up=1;
+                    movement->up = 1;
                     break;
                 case SDLK_DOWN:
-                    movement.down=1;
+                    movement->down = 1;
                     break;
                 case SDLK_LEFT:
-                    movement.left=1;
+                    movement->left=1;
                     break;
                 case SDLK_RIGHT:
-                    movement.right=1;
+                    movement->right=1;
                     break;
                 case SDLK_SPACE:
                     break;
@@ -165,43 +162,29 @@ int UP_eventHandler(struct up_ship *ship)
         {
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
-                    movement.up=0;
+                    movement->up=0;
                     //ship->speed = 0;
                     break;
                 case SDLK_DOWN:
-                    movement.down=0;
+                    movement->down=0;
                     //ship->speed = 0;
                     break;
                 case SDLK_RIGHT:
-                    movement.right=0;
+                    movement->right=0;
                     break;
                 case SDLK_LEFT:
-                    movement.left=0;
+                    movement->left=0;
                     break;
                 default:
                     break;
             }
         }
     }
-    shipMove(&movement, ship);
+    shipMove(movement, ship);
     return flag;
 }
 
 
-/*
-
- ship->rot.z=1.5*M_PI;
- if(ship->pos.x<=-1-ship->scale.x/2)
- ship->pos.x=1+ship->scale.x/2;
- break;
- case SDLK_RIGHT:
- ship->pos.x +=0.05;
- ship->rot.z=M_PI/2;
- if(ship->pos.x>=1+ship->scale.x/2)
- ship->pos.x=-1-ship->scale.x/2;
-
-
- */
 
 void UP_renderBackground()
 {
@@ -256,12 +239,18 @@ void up_updateShipMovment(struct up_ship *ship)
     ship->dir.y = cosf(ship->angle);
     ship->dir.z = 0;
 
-    ship->speed = (ship->speed > 10.0f) ? 10.0f : ship->speed;
-
-    if ((ship->speed < 1.0f ) && (ship->speed > 0.0f )) {
-        ship->speed = 1.0f;
+    //set the max speed forward/backwards
+    float sign = (ship->speed < 0 ) ? -1 : 1;
+    float speedMagnitude = (ship->speed * sign);
+    if (speedMagnitude > 10.0f ) {
+        ship->speed = sign * 10.0f;
     }
-
+    // min speed
+    if ((1.0f > speedMagnitude) && (speedMagnitude > 0.0f))
+    {
+        ship->speed = sign * 1.0f;
+    }
+    
     float deltaTime = (float)up_getFrameTimeDelta();
     ship->pos.x += ship->dir.x * ship->speed * deltaTime;
     ship->pos.y += ship->dir.y * ship->speed * deltaTime;
@@ -452,12 +441,14 @@ int main(int argc, char const *argv[])
 
     ship.speed = 0;
 
+    struct shipMovement movement = {0,0,0,0};
+
     //up_matrix4_t identity = up_matrix4identity();
 
 	while(status)
 	{
         up_updateFrameTickRate();
-        status = UP_eventHandler(&ship);
+        status = UP_eventHandler(&ship,&movement);
 
 		UP_renderBackground();                      //Clears the buffer and results an empty window.
 		UP_shader_bind(shaderprog);                 //
