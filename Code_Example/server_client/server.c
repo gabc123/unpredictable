@@ -53,11 +53,8 @@ int main(int argNum,char* argChar[]){
     }
     
     
-    
-    while(1){
-        server_send_data(&listen_pipe);
-        SDL_Delay(500);
-    }
+    server_send_data(&listen_pipe);
+
 
     
     //SDL_WaitThread(thread,&thread_return_value);

@@ -4,7 +4,8 @@
 
 
 struct pthread_listen_datapipe{
-    UDPsocket udpSocket;                               //structure that contains two diffrent structures
+    UDPsocket udpSocket;                //structure that contains two diffrent structures
+    UDPsocket udp_client;
     UDPpacket *packet;
     SDLNet_SocketSet set;
 };

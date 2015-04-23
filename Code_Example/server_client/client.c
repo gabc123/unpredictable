@@ -54,6 +54,10 @@ int main(){
         exit(EXIT_FAILURE);
     }
     
+    listen_pipe.packet =packet;
+    listen_pipe.set = set;
+    listen_pipe.udpSocket =udpSocket;
+    
     thread=SDL_CreateThread(client_recive_data,"client_recive_data",&listen_pipe);
     if(thread==NULL){
         printf("create_thread faild: %s", SDL_GetError());

@@ -44,7 +44,7 @@ int recive_server_data(void *args){
     
     while (quit!=0){
     
-        if(SDLNet_SocketReady(p->udpSocket)==0){               //when the socket is rdy it returns
+        if(SDLNet_SocketReady(p->udpSocket)==ready){               //when the socket is rdy it returns
             
 
             if(SDLNet_UDP_Recv(p->udpSocket,p->packet)){
@@ -57,7 +57,7 @@ int recive_server_data(void *args){
             
                 printf("Data: %s", p->packet->data);
             }
-            SDL_Delay(1);
+            SDL_Delay(5);
         }
 
     }
@@ -82,10 +82,12 @@ int client_recive_data(void *parameters){
         error_messages();
         exit(EXIT_FAILURE);
     }
-    
+                                        // ifsatsen är fungerar itne!!! retunerar echo forever 
     while (quit!=0){
 
         if(SDLNet_SocketReady(p->udpSocket)==0){               //when the socket is rdy it returns
+            
+            SDL_Delay(1);
             
             if(SDLNet_UDP_Recv(p->udpSocket,p->packet)){
                 
@@ -93,11 +95,11 @@ int client_recive_data(void *parameters){
                     quit=0;                                    //did not recive
                 }
                 
-                printf("Data: %s", p->packet->data);
+                printf("Echo: %s", p->packet->data);
             }
-            SDL_Delay(1);
+
         }
-        
+
     }
 
     
@@ -122,7 +124,7 @@ void send_data(UDPpacket *packet,UDPsocket *udpSocket,IPaddress addr){
         if(strcmp("quit\n",(char*)packet->data)==0){
             quit=0;
         }
-        
+        SDL_Delay(5);
     }
     
 }
@@ -173,13 +175,14 @@ void server_send_data(Pthread_listen_datapipe *listen_pipe){
     
     while(quit!=0){
         
+        SDL_Delay(1);
         listen_pipe->packet->len = (int)strlen((char*)listen_pipe->packet->data);
         SDLNet_UDP_Send(listen_pipe->udpSocket,-1, listen_pipe->packet);
         
         if(strcmp("quit\n",(char*)listen_pipe->packet->data)==0){
             quit=0;
         }
-        
+
     }
     
 }
