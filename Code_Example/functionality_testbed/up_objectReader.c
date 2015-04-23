@@ -54,6 +54,15 @@ struct up_objModel *up_loadObjModel(const char *filename)
 
             }
 
+        }else if (rad[0] == 'f')
+        {
+            /**
+                TODO: parse the index array
+                It is posible to use up_token_parser(rad,...) and instead of looking for endline
+                look for // or /, there by dividing up the 3 v/vt/vn indexes
+                then use a  up_vertex_list and populate it so the v,vt,vn is inside the same one
+             
+             **/
         }
 
     }while(text <= objFile.text + objFile.length -1 );
