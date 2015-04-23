@@ -55,7 +55,7 @@ int recive_server_data(void *args){
                     quit=0;                                    //did not recive
                 }
             
-                printf("Data: %s", p->packet->data);
+                //printf("Data: %s", p->packet->data);
             }
             SDL_Delay(5);
         }
@@ -82,7 +82,7 @@ int client_recive_data(void *parameters){
         error_messages();
         exit(EXIT_FAILURE);
     }
-                                        // ifsatsen är fungerar itne!!! retunerar echo forever 
+                                        // ifsatsen är fungerar itne!!! retunerar echo forever
     while (quit!=0){
 
         if(SDLNet_SocketReady(p->udpSocket)==0){               //when the socket is rdy it returns
@@ -96,6 +96,7 @@ int client_recive_data(void *parameters){
                 }
                 
                 printf("Echo: %s", p->packet->data);
+                getchar();
             }
 
         }
