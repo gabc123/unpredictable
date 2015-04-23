@@ -71,7 +71,7 @@ void vertexPositionsData(char *rad, struct up_generic_list *vertexPosList)
     struct up_vec3 vertexPositions;
 
     sscanf(rad,"%f %f %f",&vertexPositions.x,&vertexPositions.y, &vertexPositions.z);
-    fprintf(stderr, "Vertex. X of obj: %f, Y of obj: %f, Z of obj: %f\n",vertexPositions.x,vertexPositions.y,vertexPositions.z);
+    //fprintf(stderr, "Vertex. X of obj: %f, Y of obj: %f, Z of obj: %f\n",vertexPositions.x,vertexPositions.y,vertexPositions.z);
 }
 
 void texturePositionsData(char *rad, struct up_generic_list *texturePosList)
@@ -79,7 +79,7 @@ void texturePositionsData(char *rad, struct up_generic_list *texturePosList)
     struct up_vec2 texturePositions;
 
     sscanf(rad,"%f %f",&texturePositions.x,&texturePositions.y);
-    fprintf(stderr, "Texture. X of obj: %f, Y of obj: %f\n",texturePositions.x,texturePositions.y);
+    //fprintf(stderr, "Texture. X of obj: %f, Y of obj: %f\n",texturePositions.x,texturePositions.y);
 }
 
 void normalPositionsData(char *rad, struct up_generic_list *normalPosList)
@@ -87,5 +87,5 @@ void normalPositionsData(char *rad, struct up_generic_list *normalPosList)
     struct up_vec3 normalPositions;
 
     sscanf(rad,"%f %f %f",&normalPositions.x,&normalPositions.y, &normalPositions.z);
-    fprintf(stderr, "normal. X of obj: %f, Y of obj: %f, Z of obj: %f\n",normalPositions.x,normalPositions.y,normalPositions.z);
+    //fprintf(stderr, "normal. X of obj: %f, Y of obj: %f, Z of obj: %f\n",normalPositions.x,normalPositions.y,normalPositions.z);
 }
