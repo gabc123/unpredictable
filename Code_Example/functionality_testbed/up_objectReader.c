@@ -17,11 +17,10 @@ struct up_objModel *up_loadObjModel(const char *filename)
     char *text;
     char *endLine = "\n";
     char *rad;
-    int tmp=0;
     struct up_generic_list *vertexPosList = up_vec3_list_new(20);
     struct up_generic_list *texturePosList = up_vec2_list_new(20);
     struct up_generic_list *normalPosList = up_vec3_list_new(20);
-    struct up_generic_list *facePosList = up_int_list_new(20);
+    struct up_generic_list *facePosList = up_uint_list_new(20);
     struct up_vertex *finalList = NULL;
 
     struct up_vec2 *tex = NULL;
@@ -95,14 +94,15 @@ struct up_objModel *up_loadObjModel(const char *filename)
            return NULL;
     }
 
-    objFaces(rad, facePosList, finalList,pos,tex,norm,count);
+    
     int i = 0;
 
     for(i = 0 ; i< count;i++)
     {
         finalList[i].pos = pos[i];
+        printf("%d: %f %f %f\n",i,pos[i].x, pos[i].y, pos[i].z);
     }
-
+    objFaces(rad, facePosList, finalList,pos,tex,norm,count);
     do
     {
         rad = up_token_parser(text, &text, endLine, strlen(endLine));
@@ -127,17 +127,37 @@ struct up_objModel *up_loadObjModel(const char *filename)
 
     }while(text <= objFile.text + objFile.length -1 );
 
-    int num_face = up_int_list_count(facePosList);
-    int *face_test = up_int_list_transferOwnership(&facePosList);
-    for (i =0; i<num_face - 2; i++) {
-       printf("%d Face: idx: %d %d %d\n",i,face_test[i],face_test[i+1],face_test[i+2]);
+    int num_face = up_uint_list_count(facePosList);
+    unsigned int *face_indexList = up_uint_list_transferOwnership(&facePosList);
+//    
+//    for (i =0; i<num_face; i+=3) {
+//       printf("%d Face: idx: %d %d %d\n",i,face_indexList[i],face_indexList[i+1],face_indexList[i+2]);
+//    }
+//    
+    struct up_objModel *result = malloc(sizeof(struct up_objModel));
+    if (result == NULL) {
+        UP_ERROR_MSG("malloc fail");
     }
-    return 0;
+    
+    result->index_length = num_face;
+    result->indexArray = face_indexList;
+    result->vertex_length = count;
+    result->vertex = finalList;
+    
+    free(pos);
+    free(tex);
+    free(norm);
+    up_textHandler_free(&objFile);
+    
+    return result;
 }
 
 void up_objModelFree(struct up_objModel *object)
 {
-
+    object->index_length = 0;
+    object->vertex_length = 0;
+    free(object->indexArray);
+    free(object->vertex);
 }
 
 
@@ -177,8 +197,8 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
 
     //int faceValue1,faceValue3 = 0;//reuse 1,3 with fourth face to create a new polygon
 
-    int vertexIdx[3];
-    int face[3];
+    unsigned int vertexIdx[3];
+    unsigned int face[3];
 
     char *text2 = rad;
     //char *endLine2 = "/";
@@ -208,18 +228,16 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
         vertexIdx[0]--;
         vertexIdx[1]--;
         vertexIdx[2]--;
-        fprintf(stderr, "%d ",vertexIdx[0]);
+
         finalList[vertexIdx[0]].texCoord = texturePos[vertexIdx[1]];
         finalList[vertexIdx[0]].normals = normalPos[vertexIdx[2]];
         
         face[k] = vertexIdx[0];
     }
-    if ((face[0] == 60) && (face[1] == 30) && (face[2] == 40)) {
-        printf("\n::mark::");
-    }
-    up_int_list_add(facePosList,&face[0]);
-    up_int_list_add(facePosList,&face[1]);
-    up_int_list_add(facePosList,&face[2]);
+    
+    up_uint_list_add(facePosList,&face[0]);
+    up_uint_list_add(facePosList,&face[1]);
+    up_uint_list_add(facePosList,&face[2]);
 
     if(tmp==3)
     {
@@ -229,25 +247,23 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
         vertexIdx[2]--;
         finalList[vertexIdx[0]].texCoord = texturePos[vertexIdx[1]];
         finalList[vertexIdx[0]].normals = normalPos[vertexIdx[2]];
-        if ((face[0] == 60) && (face[1] == 30) && (face[2] == 40)) {
-            printf("\n::mark::");
-        }
-        up_int_list_add(facePosList,&face[0]);
-        up_int_list_add(facePosList,&face[2]);
-        up_int_list_add(facePosList,&vertexIdx[0]);
-        fprintf(stderr, "\n%d %d %d", face[0],face[2],vertexIdx[0]);
+        
+        up_uint_list_add(facePosList,&face[0]);
+        up_uint_list_add(facePosList,&face[2]);
+        up_uint_list_add(facePosList,&vertexIdx[0]);
+        //fprintf(stderr, "\n%d %d %d", face[0],face[2],vertexIdx[0]);
         
 
     }
 
     fprintf(stderr, "\n");
         /**
-        up_int_list_add(facePosList, &faceValue1);
-        up_int_list_add(facePosList, &faceValue3);
+        up_uint_list_add(facePosList, &faceValue1);
+        up_uint_list_add(facePosList, &faceValue3);
         rad2 = up_token_parser(text2, &text2, endLine2, strlen(endLine2));
         sscanf(rad2,"%d", correctNumbers);
         correctNumbers - 1;
-        up_int_list_add(facePosList, &correctNumbers);
+        up_uint_list_add(facePosList, &correctNumbers);
         **/
 
 }

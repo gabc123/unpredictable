@@ -27,8 +27,7 @@ void UP_sdlSetup()
     {
         UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
     }
-    struct up_objModel *testObj = up_loadObjModel("space_mats2.obj");
-    testObj = NULL;
+    
 }
 
 
@@ -87,7 +86,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 #endif
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    glCullFace(GL_FRONT);   // we should change this, the model is in the wrong order
 
     /// print opengl information
     printf("\n\n\n\n");
@@ -268,9 +267,9 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
     model->rot.y += 1.0f * frameDelta;
     model->rot.z = ship->angle;
 
-    model->scale.x = 1;
-    model->scale.y = 1;
-    model->scale.z = 1;
+//    model->scale.x = 1;
+//    model->scale.y = 1;
+//    model->scale.z = 1;
 
     up_matrixModel(matrixModel,&model->pos, &model->rot, &model->scale);
 }
@@ -368,10 +367,15 @@ int main(int argc, char const *argv[])
 	up_mesh_start_setup(4);
     up_texture_start_setup();
 
-    struct up_mesh *mesh = meshTriangleShip();
+    //struct up_mesh *mesh = meshTriangleShip();
     //struct up_mesh *mesh = meshPyramidShip();
 
+    struct up_objModel *testObj = up_loadObjModel("space_mats2.obj");
+    
+    struct up_mesh *mesh = UP_mesh_new(testObj->vertex, testObj->vertex_length, testObj->indexArray, testObj->index_length);
 
+    up_objModelFree(testObj);
+    
 	struct shader_module *shaderprog;
 	shaderprog = UP_Shader_new("shadertest");
 	printf("Shader finnished\n");
@@ -388,9 +392,9 @@ int main(int argc, char const *argv[])
     model.rot.y=0;
     model.rot.z=0;
 
-    model.scale.x=1;
-    model.scale.y=1;
-    model.scale.z=1;
+    model.scale.x=0.1;
+    model.scale.y=0.1;
+    model.scale.z=0.1;
 
     /*
      void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
