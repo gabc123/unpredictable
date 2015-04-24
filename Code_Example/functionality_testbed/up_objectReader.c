@@ -151,7 +151,7 @@ void texturePositionsData(char *rad, struct up_generic_list *texturePosList)
 
     sscanf(rad,"%f %f",&texturePositions.x,&texturePositions.y);
     //fprintf(stderr, "Texture. X of obj: %f, Y of obj: %f\n",texturePositions.x,texturePositions.y);
-    up_vec3_list_add(texturePosList,&texturePositions);
+    up_vec2_list_add(texturePosList,&texturePositions);
 }
 
 void normalPositionsData(char *rad, struct up_generic_list *normalPosList)
@@ -170,17 +170,17 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
 
     int tmp=0;
 
-    int faceValue1,faceValue3 = 0;//reuse 1,3 with fourth face to create a new polygon
+    //int faceValue1,faceValue3 = 0;//reuse 1,3 with fourth face to create a new polygon
 
     int vertexIdx[3];
     int face[3];
 
-    char *text2;
-    char *endLine2 = "/";
+    char *text2 = rad;
+    //char *endLine2 = "/";
     char *space = " ";
-    char *rad2;
+    //char *rad2;
     char *facegroup;
-    int num=0;
+    //int num=0;
     int i = 0;
     for(i=0;rad[i]!='\0';i++)
     {
