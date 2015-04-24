@@ -127,6 +127,11 @@ struct up_objModel *up_loadObjModel(const char *filename)
 
     }while(text <= objFile.text + objFile.length -1 );
 
+    int num_face = up_int_list_count(facePosList);
+    int *face_test = up_int_list_transferOwnership(&facePosList);
+    for (i =0; i<num_face - 2; i++) {
+       printf("%d Face: idx: %d %d %d\n",i,face_test[i],face_test[i+1],face_test[i+2]);
+    }
     return 0;
 }
 
@@ -182,7 +187,7 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
     char *facegroup;
     //int num=0;
     int i = 0;
-    for(i=0;rad[i]!='\0';i++)
+    for(i=0;(rad[i]!='\0') && (rad[i] != '\n');i++)
     {
         if (rad[i]==' ')
         {
@@ -199,15 +204,19 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
             facegroup = text2;
         }
         sscanf(facegroup,"%d/%d/%d", &vertexIdx[0],&vertexIdx[1],&vertexIdx[2]);
+        
         vertexIdx[0]--;
         vertexIdx[1]--;
         vertexIdx[2]--;
+        fprintf(stderr, "%d ",vertexIdx[0]);
         finalList[vertexIdx[0]].texCoord = texturePos[vertexIdx[1]];
         finalList[vertexIdx[0]].normals = normalPos[vertexIdx[2]];
-
+        
         face[k] = vertexIdx[0];
     }
-
+    if ((face[0] == 60) && (face[1] == 30) && (face[2] == 40)) {
+        printf("\n::mark::");
+    }
     up_int_list_add(facePosList,&face[0]);
     up_int_list_add(facePosList,&face[1]);
     up_int_list_add(facePosList,&face[2]);
@@ -220,14 +229,18 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
         vertexIdx[2]--;
         finalList[vertexIdx[0]].texCoord = texturePos[vertexIdx[1]];
         finalList[vertexIdx[0]].normals = normalPos[vertexIdx[2]];
-
+        if ((face[0] == 60) && (face[1] == 30) && (face[2] == 40)) {
+            printf("\n::mark::");
+        }
         up_int_list_add(facePosList,&face[0]);
         up_int_list_add(facePosList,&face[2]);
         up_int_list_add(facePosList,&vertexIdx[0]);
+        fprintf(stderr, "\n%d %d %d", face[0],face[2],vertexIdx[0]);
+        
 
     }
 
-
+    fprintf(stderr, "\n");
         /**
         up_int_list_add(facePosList, &faceValue1);
         up_int_list_add(facePosList, &faceValue3);

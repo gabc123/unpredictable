@@ -5,8 +5,10 @@
 
 
 struct up_objModel{
+    int index_length;
 	unsigned int *indexArray; //index of vertex order, what vertex will be used in this polygon.
-	struct up_vec3 *vertex;
+	int vertex_length;
+    struct up_vertex *vertex;
 };
 
 struct up_objModel *up_loadObjModel(const char *filename);
