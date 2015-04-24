@@ -112,4 +112,22 @@ void up_vertex_list_setAtIndex(struct up_generic_list *list,struct up_vertex *da
 
 ///////////////////////////////////////////////
 
+///////////////////////////////////////////////
+/*
+ wrapper function for int specific types.
+ */
+
+struct up_generic_list *up_int_list_new(unsigned int start_capacity);
+void up_int_list_delete(struct up_generic_list *list);
+int *up_int_list_transferOwnership(struct up_generic_list **list);
+
+// information
+unsigned int up_int_list_count(struct up_generic_list *list);
+
+// add,set,get
+int up_int_list_add(struct up_generic_list *list,int *data);
+void up_int_list_getAtIndex(struct up_generic_list *list,int *data,unsigned int atIndex);
+void up_int_list_setAtIndex(struct up_generic_list *list,int *data,unsigned int atIndex);
+
+
 #endif /* UP_UTILITIES_H */

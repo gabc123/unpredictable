@@ -208,6 +208,50 @@ void up_vec2_list_setAtIndex(struct up_generic_list *list,struct up_vec2 *data,u
 }
 
 /*
+ wrapper function for up_int specific types.
+ */
+
+struct up_generic_list *up_int_list_new(unsigned int start_capacity)
+{
+    unsigned int element_size = sizeof(int);
+    return up_generic_list_new(element_size,start_capacity);
+}
+
+void up_int_list_delete(struct up_generic_list *list)
+{
+    up_generic_list_delete(list);
+}
+
+int *up_int_list_transferOwnership(struct up_generic_list **list)
+{
+    return (int *)up_generic_list_transferOwnership(list);
+}
+
+// information
+
+unsigned int up_int_list_count(struct up_generic_list *list)
+{
+    return up_generic_list_count(list);
+}
+
+
+// add,set,get
+int up_int_list_add(struct up_generic_list *list,int *data)
+{
+    return up_generic_list_add(list,data);
+}
+
+void up_int_list_getAtIndex(struct up_generic_list *list,int *data,unsigned int atIndex)
+{
+    up_generic_list_getElement(list,data,atIndex);
+}
+
+void up_int_list_setAtIndex(struct up_generic_list *list,int *data,unsigned int atIndex)
+{
+    up_generic_list_setElement(list,data,atIndex);
+}
+
+/*
  wrapper function for up_vertex specific types.
  */
 
