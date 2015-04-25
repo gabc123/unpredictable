@@ -17,6 +17,7 @@ int main(int argNum,char* argChar[]){
     Pthread_listen_datapipe listen_pipe;
     SDL_Thread *thread;
     int ticker=0;
+    char buffer[255];
     
                                                         //INITIAL OF SDL_NET
     if(init_sdl()==0){
@@ -33,7 +34,6 @@ int main(int argNum,char* argChar[]){
         exit(EXIT_FAILURE);
     }
     
-    
 
     packet=memory_check();                               //allocate memory 
     if(packet==0){
@@ -42,11 +42,11 @@ int main(int argNum,char* argChar[]){
     }
     
     listen_pipe.packet =packet;
-    listen_pipe.set = set;
+    //listen_pipe.set = set;
     listen_pipe.udpSocket =udpSocket;
+    //listen_pipe.buffer=buffer;
     
-    
-    thread=SDL_CreateThread(recive_server_data,"recive_server_data",&listen_pipe);
+    thread=SDL_CreateThread(server_recive_data,"server_recive_data",&listen_pipe);
     if(thread==NULL){
         printf("create_thread faild: %s", SDL_GetError());
         error_messages();
