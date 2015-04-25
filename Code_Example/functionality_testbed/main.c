@@ -27,10 +27,8 @@ void UP_sdlSetup()
     {
         UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
     }
-    
+
 }
-
-
 
 void UP_openGLwindowSetup(int width,int height, const char *title)
 {
@@ -128,7 +126,7 @@ int UP_eventHandler(struct up_ship *ship,struct shipMovement *movement)
 {
     int flag = 1;
     SDL_Event event;
-    
+
     while(SDL_PollEvent(&event))
     {
         if (event.type == SDL_QUIT)
@@ -249,7 +247,7 @@ void up_updateShipMovment(struct up_ship *ship)
     {
         ship->speed = sign * 1.0f;
     }
-    
+
     float deltaTime = (float)up_getFrameTimeDelta();
     ship->pos.x += ship->dir.x * ship->speed * deltaTime;
     ship->pos.y += ship->dir.y * ship->speed * deltaTime;
@@ -371,11 +369,11 @@ int main(int argc, char const *argv[])
     //struct up_mesh *mesh = meshPyramidShip();
 
     struct up_objModel *testObj = up_loadObjModel("space_mats2.obj");
-    
+
     struct up_mesh *mesh = UP_mesh_new(testObj->vertex, testObj->vertex_length, testObj->indexArray, testObj->index_length);
 
     up_objModelFree(testObj);
-    
+
 	struct shader_module *shaderprog;
 	shaderprog = UP_Shader_new("shadertest");
 	printf("Shader finnished\n");
