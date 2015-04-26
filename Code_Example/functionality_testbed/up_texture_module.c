@@ -1,5 +1,6 @@
 #include "up_texture_module.h"
 #include "up_sdl_redirect.h"
+#include "up_opengl_redirect.h"
 #include "up_error.h"
 #define UP_MAX_TEXTURE 10
 

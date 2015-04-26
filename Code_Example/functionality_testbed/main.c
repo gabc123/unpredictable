@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "up_initGraphics.h"
 #include "up_utilities.h"
+#include "up_texture_module.h"
 #include "up_ship.h"
 #include "up_objectReader.h"
 
