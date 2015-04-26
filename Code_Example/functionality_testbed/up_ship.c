@@ -1,5 +1,8 @@
 #include "up_ship.h"
 
+#include "up_sdl_redirect.h"
+#include "up_shader_module.h"
+
 double up_getFrameTimeDelta();
 
 double up_gFrameTickRate = 0;
