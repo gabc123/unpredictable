@@ -4,6 +4,7 @@
 #define UP_BUFFER_1 0
 #define UP_BUFFER_2 1
 
+#define UP_UNITTEST_PACKET_PADDING_SIZE 440
 //#define UP_CACHLINE_TEST
 #ifdef UP_CACHLINE_TEST
 struct up_linkElement
@@ -16,7 +17,8 @@ struct up_linkElement
 {
     struct up_linkElement *next;
     struct objUpdateInformation obj;
-};
+    char dummyObj[UP_UNITTEST_PACKET_PADDING_SIZE];
+};//__attribute__ ((aligned (768)));
 #endif
 
 //struct up_writer_head {
@@ -459,10 +461,11 @@ static void up_unitTest_concr_queue_result(struct up_unitTest_data *data)
     
     double gigOprReadPerSec = gigRead/UP_UNITTEST_TESTFOR_SECONDS;
     double gigOprWriterPerSec = gigWrite/UP_UNITTEST_TESTFOR_SECONDS;
-    printf("\nData (Gbyte/s):\n obj size:64              obj size:56\n Write: %f Gbyte/s  %f Gbyte/s\n",gigOprWriterPerSec*64,gigOprWriterPerSec*56);
-    
-    printf("  read: %f Gbyte/s  %f Gbyte/s\n",gigOprReadPerSec*64,gigOprReadPerSec*56);
-    printf(" total: %f Gbyte/s  %f Gbyte/s\n",(gigOprWriterPerSec + gigOprReadPerSec)*64,(gigOprWriterPerSec + gigOprReadPerSec)*56);
+    printf("\nData (Gbyte/s):\n");
+    printf("        obj size:%d        obj size:64        obj size:56\n",(int)bytePerObj);
+    printf(" Write: %f Gbyte/s  %f Gbyte/s  %f Gbyte/s\n",gigOprWriterPerSec * bytePerObj,gigOprWriterPerSec * 64,gigOprWriterPerSec*56);
+    printf("  read: %f Gbyte/s  %f Gbyte/s  %f Gbyte/s\n",gigOprReadPerSec * bytePerObj,gigOprReadPerSec*64,gigOprReadPerSec*56);
+    printf(" total: %f Gbyte/s  %f Gbyte/s  %f Gbyte/s\n",(gigOprWriterPerSec + gigOprReadPerSec)*bytePerObj,(gigOprWriterPerSec + gigOprReadPerSec)*64,(gigOprWriterPerSec + gigOprReadPerSec)*56);
 
 }
 
