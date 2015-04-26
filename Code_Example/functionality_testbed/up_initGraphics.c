@@ -1,5 +1,7 @@
 #include "up_initGraphics.h"
-
+#include "up_sdl_redirect.h"
+#include "up_error.h"
+#include "up_texture_module.h"
 
 static SDL_Window * g_openglWindow = NULL;
 static SDL_Window * g_openglContext = NULL;
