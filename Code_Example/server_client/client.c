@@ -3,14 +3,13 @@
 #include <string.h>
 #include <SDL2_net/SDL_net.h>
 #include "Header.h"
+#include <time.h>
 #define SIZE 100
-
 
 
 int main(){
     
     char file[SIZE]="ip_address";
-
     char ip_address[SIZE];
     UDPsocket udpSocket;                               //Variabel som hanterar sockets
     UDPpacket *packet;
@@ -18,6 +17,7 @@ int main(){
     SDL_Thread *thread;
     IPaddress addr;
     Pthread_listen_datapipe listen_pipe;
+    
     
     int ticker=1;
 
@@ -55,7 +55,6 @@ int main(){
     }
     
     listen_pipe.packet =packet;
-    listen_pipe.set = set;
     listen_pipe.udpSocket =udpSocket;
     
     thread=SDL_CreateThread(client_recive_data,"client_recive_data",&listen_pipe);
@@ -64,7 +63,7 @@ int main(){
         error_messages();
     }
                                                         //Not sure if this works
-    send_data(packet,&udpSocket,addr);
+    client_send_data(packet,&udpSocket,addr);
 
     
     terminate_process(packet,&set);                      //frees the allocated memory
