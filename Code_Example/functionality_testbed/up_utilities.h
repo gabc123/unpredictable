@@ -164,5 +164,22 @@ void up_mesh_list_getAtIndex(struct up_generic_list *list,struct up_mesh *data,u
 void up_mesh_list_setAtIndex(struct up_generic_list *list,struct up_mesh *data,unsigned int atIndex);
 
 ///////////////////////////////////////////////
+/*
+ wrapper function for up_texture specific types.
+ */
+
+struct up_generic_list *up_texture_list_new(unsigned int start_capacity);
+void up_texture_list_delete(struct up_generic_list *list);
+struct up_texture_data *up_texture_list_transferOwnership(struct up_generic_list **list);
+
+// information
+unsigned int up_texture_list_count(struct up_generic_list *list);
+
+// add,set,get
+int up_texture_list_add(struct up_generic_list *list,struct up_texture_data *data);
+void up_texture_list_getAtIndex(struct up_generic_list *list,struct up_texture_data *data,unsigned int atIndex);
+void up_texture_list_setAtIndex(struct up_generic_list *list,struct up_texture_data *data,unsigned int atIndex);
+
+///////////////////////////////////////////////
 
 #endif /* UP_UTILITIES_H */
