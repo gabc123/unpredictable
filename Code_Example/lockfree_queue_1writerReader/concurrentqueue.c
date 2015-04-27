@@ -71,12 +71,23 @@ still doing a full write, but only the id is read, the cpu has a max L2 read rat
 //#define UP_MIDDLEPADDING_TEST
 //#define UP_SMALLOBJ_TEST
 
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
 #ifdef UP_CACHLINE_TEST
 struct up_linkElement
 {
     struct up_linkElement *next;
     struct objUpdateInformation obj;
 }__attribute__ ((aligned (64)));
+<<<<<<< HEAD
+#else
+struct up_linkElement
+{
+    struct up_linkElement *next;
+    struct objUpdateInformation obj;
+};
+#endif
+
+=======
 #else //
 #ifdef UP_STANDARD_TEST
 struct up_linkElement
@@ -116,6 +127,7 @@ struct up_linkElement
 #endif
 #endif
 #endif
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
 //struct up_writer_head {
 //    struct up_linkElement *head;
 //    int buffer_loc;
@@ -197,11 +209,15 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
     // some one needs to be first/last to be able to connect to
     while ((current->next != NULL) && (count < length) ) {
         tmpLink = current;
+<<<<<<< HEAD
+        data[count] = tmpLink->obj;
+=======
 #ifdef UP_UNITTEST_FULL_COPY_READ
         data[count] = tmpLink->obj;
 #else
         data[count].id = tmpLink->obj.id;
 #endif
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
         count++;
         current = tmpLink->next;
         
@@ -215,11 +231,15 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
     count++; // walk to the last element
     //if the whole buffer gets consumed we need to set a new last link
     if (count < length) {
+<<<<<<< HEAD
+        data[count] = current->obj;
+=======
 #ifdef UP_UNITTEST_FULL_COPY_READ
         data[count] = current->obj;
 #else
         data[count].id = current->obj.id;
 #endif
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
         current->obj.id = 0; // id 0 is a dummy id for no data to be read
         //we set the new last link so we can attache the writer on the correct spot
         internal_concurrentQueue->last[reader] = current;
@@ -245,11 +265,15 @@ int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)
     if (newData == NULL) {
         return 0;
     }
+<<<<<<< HEAD
+    newData->obj = *data;
+=======
 #ifdef UP_UNITTEST_FULL_COPY_WRITE
     newData->obj = *data;
 #else
     newData->obj.id = data->id;
 #endif
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
     newData->next = NULL;
     struct up_linkElement *currentLast = NULL;
     int whatBuffer = -1;
@@ -284,6 +308,11 @@ int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)
 }
 
 
+<<<<<<< HEAD
+//    SDL_AtomicSetPtr(<#void **a#>, <#void *v#>)
+static struct up_linkElement *linkElement_alloc()
+{
+=======
 
 struct up_concurrentQueue_gabageRecycler
 {
@@ -300,6 +329,7 @@ static struct up_linkElement *linkElement_blockAlloc(int blockSize);
 static struct up_linkElement *linkElement_alloc()
 {
 #ifndef UP_BLOCKALLOC_TEST
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
     struct up_linkElement *link = malloc(sizeof(struct up_linkElement));
     if (link == NULL) {
         UP_ERROR_MSG("malloc failed");
@@ -308,6 +338,18 @@ static struct up_linkElement *linkElement_alloc()
     link->next = NULL;
     link->obj.id = 0;
     return link;
+<<<<<<< HEAD
+}
+
+
+struct up_concurrentQueue_gabageRecycler
+{
+    struct up_linkElement *start;
+    struct up_linkElement *end;
+};
+
+struct up_concurrentQueue_gabageRecycler internal_queueRecycler;
+=======
 #else
     struct up_linkElement *link = linkElement_blockAlloc(UP_UNITTEST_BLOCKALLOC_SIZE);
     //observ idx 1 and not 0, so we can use that element
@@ -320,6 +362,7 @@ static struct up_linkElement *linkElement_alloc()
 }
 
 
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
 
 // consume the recyled list if there is anyone
 // else it will allocate a new link
@@ -383,6 +426,8 @@ static void linkElement_recycle(struct up_linkElement * fromLink,struct up_linkE
     internal_queueRecycler.end = toLink;
 }
 
+<<<<<<< HEAD
+=======
 struct internal_linkBLock
 {
     struct internal_linkBLock *next;
@@ -432,6 +477,7 @@ struct up_linkElement *linkElement_blockAlloc(int blockSize)
     
     return link;
 }
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
 
 int up_concurrentQueue_start_setup()
 {
@@ -441,6 +487,10 @@ int up_concurrentQueue_start_setup()
         return 0;
     }
     
+<<<<<<< HEAD
+    //struct up_writer_head
+    
+=======
 #ifndef UP_BLOCKALLOC_TEST
     struct up_linkElement *garbage = linkElement_alloc();
     if (garbage == NULL) {
@@ -462,6 +512,7 @@ int up_concurrentQueue_start_setup()
 #endif
     
     //struct up_writer_head
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
     struct up_linkElement *link1 = linkElement_alloc();
     if (link1 == NULL) {
         UP_ERROR_MSG("malloc failed");
@@ -483,6 +534,16 @@ int up_concurrentQueue_start_setup()
     //SDL_AtomicSet(&internal_concurrentQueue->writer_head, UP_BUFFER_2);
     internal_concurrentQueue->writer_head = UP_BUFFER_2;
     
+<<<<<<< HEAD
+    struct up_linkElement *garbage = linkElement_alloc();
+    if (garbage == NULL) {
+        UP_ERROR_MSG("malloc failed");
+        return 0;
+    }
+    internal_queueRecycler.start = garbage;
+    internal_queueRecycler.end = garbage;
+=======
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
     return 1;
     
 }
@@ -490,7 +551,10 @@ int up_concurrentQueue_start_setup()
 
 void up_concurrentQueue_shutdown_deinit()
 {
+<<<<<<< HEAD
+=======
 #ifndef UP_BLOCKALLOC_TEST
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
     struct up_linkElement *tmpLink = NULL;
     struct up_linkElement *current = NULL;
     
@@ -525,6 +589,11 @@ void up_concurrentQueue_shutdown_deinit()
         tmpLink->next = NULL;   //break link
         free(tmpLink);
     }
+<<<<<<< HEAD
+    
+    free(internal_concurrentQueue);
+    internal_concurrentQueue = NULL;
+=======
 
     free(internal_concurrentQueue);
     internal_concurrentQueue = NULL;
@@ -548,6 +617,7 @@ void up_concurrentQueue_shutdown_deinit()
     internal_concurrentQueue = NULL;
     
 #endif
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
 }
 
 
@@ -581,7 +651,11 @@ static int up_unitTest_concurency_queue_producer(void *data)
     while (*bat_signal != 1)
     {
         //local_data.id = rand();
+<<<<<<< HEAD
+        
+=======
         local_data.id++;
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
         if(up_writeToNetworkDatabuffer(&local_data) == 0)
         {
             printf("\nsomething wierd is going on\n");
@@ -596,8 +670,11 @@ static int up_unitTest_concurency_queue_producer(void *data)
     return 0;
 }
 
+<<<<<<< HEAD
+=======
 
 
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
 static int up_unitTest_concurency_queue_consumer(void *data)
 {
     struct up_unitTest_data *data_ptr = (struct up_unitTest_data*)data;
@@ -619,7 +696,11 @@ static int up_unitTest_concurency_queue_consumer(void *data)
         
         if(data_read == 0)
         {
+<<<<<<< HEAD
+            SDL_Delay(5);
+=======
             SDL_Delay(UP_UNITTEST_READ_DELAY);
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
             failed_read++;
         }
         data_processed += data_read;
@@ -667,11 +748,18 @@ static void up_unitTest_concr_queue_result(struct up_unitTest_data *data)
     
     double gigOprReadPerSec = gigRead/UP_UNITTEST_TESTFOR_SECONDS;
     double gigOprWriterPerSec = gigWrite/UP_UNITTEST_TESTFOR_SECONDS;
+<<<<<<< HEAD
+    printf("\nData (Gbyte/s):\n obj size:64              obj size:56\n Write: %f Gbyte/s  %f Gbyte/s\n",gigOprWriterPerSec*64,gigOprWriterPerSec*56);
+    
+    printf("  read: %f Gbyte/s  %f Gbyte/s\n",gigOprReadPerSec*64,gigOprReadPerSec*56);
+    printf(" total: %f Gbyte/s  %f Gbyte/s\n",(gigOprWriterPerSec + gigOprReadPerSec)*64,(gigOprWriterPerSec + gigOprReadPerSec)*56);
+=======
     printf("\nData (Gbyte/s):\n");
     printf("        obj size:%d        obj size:64        obj size:56\n",(int)bytePerObj);
     printf(" Write: %f Gbyte/s  %f Gbyte/s  %f Gbyte/s\n",gigOprWriterPerSec * bytePerObj,gigOprWriterPerSec * 64,gigOprWriterPerSec*56);
     printf("  read: %f Gbyte/s  %f Gbyte/s  %f Gbyte/s\n",gigOprReadPerSec * bytePerObj,gigOprReadPerSec*64,gigOprReadPerSec*56);
     printf(" total: %f Gbyte/s  %f Gbyte/s  %f Gbyte/s\n",(gigOprWriterPerSec + gigOprReadPerSec)*bytePerObj,(gigOprWriterPerSec + gigOprReadPerSec)*64,(gigOprWriterPerSec + gigOprReadPerSec)*56);
+>>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
 
 }
 

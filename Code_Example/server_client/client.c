@@ -4,6 +4,7 @@
 #include <SDL2_net/SDL_net.h>
 #include "Header.h"
 #include <time.h>
+#include "client_header.h"
 #define SIZE 100
 
 
