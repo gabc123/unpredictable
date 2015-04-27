@@ -15,7 +15,7 @@ else
 	endif
 endif
 
-objects = server.o serverfunk.o 
+objects = server.o server_client_funk.o 
 
 gltestapp : $(objects)
 	gcc -o gltest.out $(CFLAGS) $(objects)

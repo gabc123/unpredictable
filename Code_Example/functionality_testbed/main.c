@@ -5,6 +5,7 @@
 #include "up_ship.h"
 #include "up_objectReader.h"
 #include "up_shader_module.h"
+#include "up_network_module.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -46,6 +47,9 @@ int main(int argc, char const *argv[])
 
     struct up_modelRepresentation model;
 
+    //up_network_start_setup();
+    
+    
     model.pos.x=0;
     model.pos.y=0;
     model.pos.z=1;
@@ -120,6 +124,8 @@ int main(int argc, char const *argv[])
 		UP_shader_bind(shaderprog);                 //
         up_texture_bind(texture, 0);
 
+        //up_newtwork_getNewMovement(&ship);
+        
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
 

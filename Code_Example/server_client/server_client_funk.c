@@ -89,16 +89,32 @@ int server_recive_data(void *args){
 }
 
 
+void readPassedLine()
+{
+    char ch;
+
+    scanf("%c",&ch);
+    while(ch!='\n')
+    {
+        scanf("%c",&ch);
+    }
+}
+
 void server_send_data(Pthread_listen_datapipe *listen_pipe){
     
     int quit=1;
-    
+    unsigned char buffer[10];
+
    // Pthread_listen_datapipe p=*listen_pipe;
-    
+    char ch;
+    char endline = '\0';
     while(quit!=0){
         
         SDL_Delay(1);
-        
+        scanf("%c",&ch);
+        readPassedLine();
+        buffer[0] = (unsigned char)ch;
+        buffer[0] = (unsigned char)endline;
         //listen_pipe->packet->len = (int)strlen((char*)listen_pipe->packet->data);
         
         //len = (int)strlen((char*)listen_pipe->buffer);
@@ -107,6 +123,8 @@ void server_send_data(Pthread_listen_datapipe *listen_pipe){
 //        strcpy((char*)p.packet->data,p.buffer);
        // printf("%d", len);
        // if(len>0){
+        //listen_pipe->packet->len = 1;
+        //listen_pipe->packet->data = buffer;
             SDLNet_UDP_Send(listen_pipe->udpSocket,-1, listen_pipe->packet);
        // }
         

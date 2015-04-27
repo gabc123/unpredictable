@@ -49,7 +49,8 @@ int client_recive_data(void *parameters){
 
 
 
-void client_send_data(UDPpacket *packet,UDPsocket *udpSocket,IPaddress addr){
+void client_send_data(UDPpacket *packet,UDPsocket *udpSocket,IPaddress addr)
+{
     
     int quit=1;
     char test1[200]="for";
