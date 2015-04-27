@@ -485,7 +485,7 @@ void up_unitTest_concurency_queue_spsc()
         
     }
     
-    consumer=SDL_CreateThread(up_unitTest_concurency_queue_consumer,"producer_queue_test",&data);
+    consumer=SDL_CreateThread(up_unitTest_concurency_queue_consumer,"consumer_queue_test",&data);
     if(consumer==NULL){
         UP_ERROR_MSG_STR("create_thread faild", SDL_GetError());
         

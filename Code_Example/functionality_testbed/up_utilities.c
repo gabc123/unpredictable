@@ -285,6 +285,8 @@ static void up_generic_list_setElement(struct up_generic_list *list,void *data,u
  *****************************************************/
 
 
+
+
 /*
  wrapper function for up_vec3 specific types.
  */
@@ -509,7 +511,60 @@ void up_uint_list_setAtIndex(struct up_generic_list *list,unsigned int *data,uns
     up_generic_list_setElement(list,data,atIndex);
 }
 
+/*
+ wrapper function for up_mesh specific types.
+ */
 
+struct up_generic_list *up_mesh_list_new(unsigned int start_capacity)
+{
+    unsigned int element_size = sizeof(struct up_mesh);
+    return up_generic_list_new(element_size,start_capacity);
+}
+
+void up_mesh_list_delete(struct up_generic_list *list)
+{
+    up_generic_list_delete(list);
+}
+
+struct up_mesh *up_mesh_list_transferOwnership(struct up_generic_list **list)
+{
+    return (struct up_mesh *)up_generic_list_transferOwnership(list);
+}
+
+// information
+
+unsigned int up_mesh_list_count(struct up_generic_list *list)
+{
+    return up_generic_list_count(list);
+}
+
+
+// add,set,get
+int up_mesh_list_add(struct up_generic_list *list,struct up_mesh *data)
+{
+    return up_generic_list_add(list,data);
+}
+
+void up_mesh_list_getAtIndex(struct up_generic_list *list,struct up_mesh *data,unsigned int atIndex)
+{
+    up_generic_list_getElement(list,data,atIndex);
+}
+
+void up_mesh_list_setAtIndex(struct up_generic_list *list,struct up_mesh *data,unsigned int atIndex)
+{
+    up_generic_list_setElement(list,data,atIndex);
+}
+
+
+
+
+
+
+
+//GENERATE_WRAPPER_FUNCTIONS(vertex,struct up_vertex)
+//GENERATE_WRAPPER_FUNCTIONS(mesh,struct up_mesh)
+//GENERATE_WRAPPER_FUNCTIONS(vec3,struct up_vec3)
+//GENERATE_WRAPPER_FUNCTIONS(vec3,struct up_vec2)
 
 
 

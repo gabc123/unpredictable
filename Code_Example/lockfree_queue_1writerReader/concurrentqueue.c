@@ -4,6 +4,32 @@
 #define UP_BUFFER_1 0
 #define UP_BUFFER_2 1
 
+#define UP_LIKELY_TEST
+
+
+//likely functions taken from linux kernel
+//https://github.com/torvalds/linux/blob/4f671fe2f9523a1ea206f63fe60a7c7b3a56d5c7/tools/include/linux/compiler.h
+//
+#ifdef UP_LIKELY_TEST
+#ifndef likely
+# define likely(x)		__builtin_expect(!!(x), 1)
+#endif
+
+#ifndef unlikely
+# define unlikely(x)		__builtin_expect(!!(x), 0)
+#endif
+#else
+ //we will not use them if they are not already there
+#ifndef likely
+# define likely(x)		(x)
+#endif
+
+#ifndef unlikely
+# define unlikely(x)		(x)
+#endif
+
+#endif
+
 /*
     
  It became obvious that the cpu only loaded the page that was going to be changed when read/write was
@@ -28,12 +54,15 @@ still doing a full write, but only the id is read, the cpu has a max L2 read rat
     other: blockalloc 8160, standard, fullcopy off: 5.0445 GB/s
     other:  blockalloc 8160, standard, fullcopy read off: 1.85 GB/s
  */
-#define UP_UNITTEST_BLOCKALLOC_SIZE 1024
-#define UP_UNITTEST_PACKET_PADDING_SIZE 440
+
+#define UP_UNITTEST_TESTFOR_SECONDS 10
+
+#define UP_UNITTEST_BLOCKALLOC_SIZE 8160
+#define UP_UNITTEST_PACKET_PADDING_SIZE 456
 #define UP_UNITTEST_READ_DELAY 5
 
 #define UP_UNITTEST_FULL_COPY_READ
-#define UP_UNITTEST_FULL_COPY_WRITE
+//#define UP_UNITTEST_FULL_COPY_WRITE
 
 
 #define UP_BLOCKALLOC_TEST
@@ -529,7 +558,7 @@ void up_concurrentQueue_shutdown_deinit()
  
  **/
 
-#define UP_UNITTEST_TESTFOR_SECONDS 10
+
 
 struct up_unitTest_data
 {
