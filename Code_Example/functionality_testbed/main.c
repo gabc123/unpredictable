@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include "up_initGraphics.h"
 #include "up_utilities.h"
-<<<<<<< HEAD
-=======
 #include "up_texture_module.h"
->>>>>>> c817d61bf20d6e2e3e3b971e327dd28e049f941b
 #include "up_ship.h"
 #include "up_objectReader.h"
 #include "up_shader_module.h"
