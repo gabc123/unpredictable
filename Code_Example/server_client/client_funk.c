@@ -57,11 +57,11 @@ void client_send_data(UDPpacket *packet,UDPsocket *udpSocket,IPaddress addr)
     int counter=0;
     char test2[200]="ever";
     char test3[200]="and never";
-    
+    printf("Command >");
     
     while(quit!=0){
         
-        printf("Command >");
+        //printf("Command >");
         //fgets(buffer,200,stdin);
         SDL_Delay(1);
         
@@ -85,7 +85,7 @@ void client_send_data(UDPpacket *packet,UDPsocket *udpSocket,IPaddress addr)
         //packet->data =(unsigned char*) buffer;
         packet->len = (int)strlen((char*)packet->data);
         
-        printf("%d", packet->len);
+        //printf("%d", packet->len);
         
         //len=(int)strlen(buffer);
         // if(len>0){

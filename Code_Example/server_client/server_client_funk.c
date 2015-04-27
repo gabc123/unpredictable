@@ -103,11 +103,14 @@ void readPassedLine()
 void server_send_data(Pthread_listen_datapipe *listen_pipe){
     
     int quit=1;
-    unsigned char buffer[10];
+    char buffer[10];
 
+    UDPpacket *p = listen_pipe->packet;
    // Pthread_listen_datapipe p=*listen_pipe;
     char ch;
     char endline = '\0';
+
+
     while(quit!=0){
         
         SDL_Delay(1);
@@ -125,10 +128,13 @@ void server_send_data(Pthread_listen_datapipe *listen_pipe){
        // if(len>0){
         //listen_pipe->packet->len = 1;
         //listen_pipe->packet->data = buffer;
-            SDLNet_UDP_Send(listen_pipe->udpSocket,-1, listen_pipe->packet);
+
+        strcpy((char *)p->data,buffer);
+        p->len = strlen(buffer);
+            SDLNet_UDP_Send(listen_pipe->udpSocket,-1, p);
        // }
         
-        if(strcmp("quit\n",(char*)listen_pipe->packet->data)==0){
+        if(strcmp("quit\n",(char*)p->data)==0){
             quit=0;
         }
         
