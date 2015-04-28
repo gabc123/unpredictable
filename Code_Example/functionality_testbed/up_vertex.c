@@ -70,6 +70,13 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
     }
     printf("after text coord malloc\n");
 
+    struct up_vec3 *normals = malloc(sizeof(struct up_vec3) * mesh->vertex_count);
+    if (normals == NULL) {
+        UP_ERROR_MSG("malloc failed, textureCoord");
+        return NULL;
+    }
+    printf("after normal coord malloc\n");
+    
     int i = 0;
     for (i = 0; i< mesh->vertex_count; i++) {
         positions[i] = vertex[i].pos;
@@ -77,6 +84,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
         // this correct that problem
         textureCoord[i].x = vertex[i].texCoord.x;
         textureCoord[i].y = 1 - vertex[i].texCoord.y;
+        normals[i] = vertex[i].normals;
     }
     GLuint vertexBufferId[MESH_BUFFER_COUNT];
     printf("after vertex segmetion malloc\n");
