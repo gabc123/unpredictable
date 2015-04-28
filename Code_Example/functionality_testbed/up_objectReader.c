@@ -101,7 +101,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
     for(i = 0 ; i< count;i++)
     {
         finalList[i].pos = pos[i];
-        printf("%d: %f %f %f\n",i,pos[i].x, pos[i].y, pos[i].z);
+        //printf("%d: %f %f %f\n",i,pos[i].x, pos[i].y, pos[i].z);
     }
     objFaces(rad, facePosList, finalList,pos,tex,norm,count);
     do

@@ -118,7 +118,16 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
     // och vilken offset från starten
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
+    
+    // binding the texture coordenates
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->normalId);
+    glBufferData(GL_ARRAY_BUFFER, mesh->vertex_count * sizeof(normals[0]), &normals[0],GL_STATIC_DRAW);
+    
+    //vilken attribuit array, hurmånga element, vad för typ, hur mycket som ska skippas mellan varje
+    // och vilken offset från starten
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    
     // binding the indecies
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indicesId);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->index_count * sizeof(indexArray[0]), &indexArray[0],GL_STATIC_DRAW);
@@ -129,6 +138,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
 	internal_state.mesh_count++;
     free(positions);
     free(textureCoord);
+    free(normals);
 	printf("Internal internal_state.mesh_count :%d \n",internal_state.mesh_count);
     return mesh;
 }

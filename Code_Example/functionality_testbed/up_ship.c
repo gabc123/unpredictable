@@ -151,3 +151,6 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
 
     up_matrixModel(matrixModel,&model->pos, &model->rot, &model->scale);
 }
+
+
+
