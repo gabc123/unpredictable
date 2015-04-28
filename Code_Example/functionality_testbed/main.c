@@ -6,6 +6,7 @@
 #include "up_objectReader.h"
 #include "up_shader_module.h"
 #include "up_network_module.h"
+#include "up_healthbar.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -123,14 +124,19 @@ int main(int argc, char const *argv[])
 		UP_renderBackground();                      //Clears the buffer and results an empty window.
 		UP_shader_bind(shaderprog);                 //
         up_texture_bind(texture, 0);
+        
+
 
         //up_newtwork_getNewMovement(&ship);
         
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
 
+
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
+        healthbar_creation(&modelMatrix,&cam,&ship);
+        
         up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &perspectiveMatrix);
         //up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &identity);
         //dispMat(&transform);
