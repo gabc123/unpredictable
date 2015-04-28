@@ -6,6 +6,7 @@
 #include "up_objectReader.h"
 #include "up_shader_module.h"
 #include "up_network_module.h"
+#include "up_menu.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -115,6 +116,8 @@ int main(int argc, char const *argv[])
 
     //up_matrix4_t identity = up_matrix4identity();
 
+    status=up_menu(shaderprog);
+    
 	while(status)
 	{
         up_updateFrameTickRate();
