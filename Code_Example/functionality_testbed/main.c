@@ -6,7 +6,7 @@
 #include "up_objectReader.h"
 #include "up_shader_module.h"
 #include "up_network_module.h"
-#include "up_healthbar.h"
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
