@@ -100,7 +100,7 @@ void up_updateFrameTickRate()
     if ((SDL_GetTicks() - startTick) > 1000) {
         startTick =  SDL_GetTicks();
         up_gFramePerSeconde = fps_counter;
-        printf("FPS: %d , diffTick: %f globalTickRate: %f\n",up_gFramePerSeconde,diffTick,up_gFrameTickRate);
+       // printf("FPS: %d , diffTick: %f globalTickRate: %f\n",up_gFramePerSeconde,diffTick,up_gFrameTickRate);
         fps_counter = 0;
 
     }
