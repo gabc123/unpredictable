@@ -7,6 +7,7 @@
 #include "up_shader_module.h"
 #include "up_network_module.h"
 #include "up_menu.h"
+#include "up_camera_module.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -81,22 +82,12 @@ int main(int argc, char const *argv[])
     up_matrix4_t viewMatrix;
     up_matrix4_t perspectiveMatrix;
 
-    struct camera {
-        struct up_vec3 eye;
-        struct up_vec3 center;
-        struct up_vec3 up;
-    };
-    struct camera cam = {{0,0,-3},{0,0,1},{0,1,0}};
+
+    struct up_camera cam = {{0,0,-3},{0,0,1},{0,1,0}};
 
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
-    struct perspective {
-        float fov ;
-        float aspectRatio;
-        float zNear;
-        float zFar;
-    };
-    struct perspective pers = {70.0f,screen_width/screen_hight,0.01f,1000.0f};
+    struct up_perspective pers = {70.0f,screen_width/screen_hight,0.01f,1000.0f};
 
 
     up_matrixPerspective(&perspectiveMatrix, pers.fov, pers.aspectRatio, pers.zNear, pers.zFar);
