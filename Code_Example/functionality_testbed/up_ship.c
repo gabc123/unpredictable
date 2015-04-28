@@ -28,16 +28,16 @@ int UP_eventHandler(struct up_ship *ship,struct shipMovement *movement)
         }
         if(event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
-                case SDLK_UP:
+                case SDLK_w:
                     movement->up = 1;
                     break;
-                case SDLK_DOWN:
+                case SDLK_s:
                     movement->down = 1;
                     break;
-                case SDLK_LEFT:
+                case SDLK_a:
                     movement->left=1;
                     break;
-                case SDLK_RIGHT:
+                case SDLK_d:
                     movement->right=1;
                     break;
                 case SDLK_SPACE:
@@ -51,16 +51,16 @@ int UP_eventHandler(struct up_ship *ship,struct shipMovement *movement)
         if(event.type == SDL_KEYUP)
         {
             switch (event.key.keysym.sym) {
-                case SDLK_UP:
+                case SDLK_w:
                     movement->up=0;
                     break;
-                case SDLK_DOWN:
+                case SDLK_s:
                     movement->down=0;
                     break;
-                case SDLK_RIGHT:
+                case SDLK_d:
                     movement->right=0;
                     break;
-                case SDLK_LEFT:
+                case SDLK_a:
                     movement->left=0;
                     break;
                 default:

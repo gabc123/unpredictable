@@ -29,6 +29,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
 
     int count = 0;
 
+    printf("%s\n", filename);
     struct UP_textHandler objFile = up_loadObjFile(filename);
     text=objFile.text;
     do

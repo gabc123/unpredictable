@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
     //struct up_mesh *mesh = meshTriangleShip();
     //struct up_mesh *mesh = meshPyramidShip();
 
-    struct up_objModel *testObj = up_loadObjModel("fighter.obj");
+    struct up_objModel *testObj = up_loadObjModel("space_mats2.obj");
 
     struct up_mesh *mesh = UP_mesh_new(testObj->vertex, testObj->vertex_length, testObj->indexArray, testObj->index_length);
 
@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
 	struct shader_module *shaderprog;
 	shaderprog = UP_Shader_new("shadertest");
 	printf("Shader finnished\n");
-    struct up_texture_data *texture = up_load_texture("fighter.png");
+    struct up_texture_data *texture = up_load_texture("lala.png");
 
 
     struct up_modelRepresentation model;
@@ -58,9 +58,9 @@ int main(int argc, char const *argv[])
     model.rot.y=0;
     model.rot.z=0;
 
-    model.scale.x=1.1;
-    model.scale.y=1.1;
-    model.scale.z=1.1;
+    model.scale.x=0.01;
+    model.scale.y=0.01;
+    model.scale.z=0.01;
 
     /*
      void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
