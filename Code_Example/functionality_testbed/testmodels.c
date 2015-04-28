@@ -2,6 +2,8 @@
 #include "up_utilities.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "up_modelRepresentation.h"
+#include "up_matrixTransforms.h"
 
 struct up_mesh *meshTriangleShip()
 {
@@ -91,11 +93,12 @@ struct up_mesh *up_meshMenuBackground()
     
     // this is the posisions of the vertexes
     struct up_vec3 pos[] = {
-        {-1.0f, -1.0f, 0.0f},   // bottomleft 0
-        {1.0f, -1.0f, 0.0f},   //bottom right 1
-        {-1.0f, 1.0f, 0.0f},  //topleft 2
-        {1.0f, 1.0f, 0.0f}   //topright 3
+        {-1.0f, -1.0f, 0.5f},   // bottomleft 0
+        {1.0f, -1.0f, 0.5f},   //bottom right 1
+        {-1.0f, 1.0f, 0.5f},  //topleft 2
+        {1.0f, 1.0f, 0.5f}   //topright 3
     };
+    
     
     unsigned int indexArray[] = {0,2,1,2,3,1};  //binds togheter two triangels into one square
     
@@ -113,24 +116,32 @@ struct up_mesh *up_meshMenuBackground()
     return mesh;
 }
 
-/*struct up_mesh *up_bottonOne()
+struct up_mesh *up_meshBotton(float imageX, float imageY, float screenPosX, float screenPosY)
 {
     /// setup the vertexs and the tex coords, this is done like this for debbuging reasons
     // texture coordinates, 0,0 is bottom left, 1,1 is top right
+  
+    imageX=imageX*0.5;
+    imageY=imageY*0.5;
+    
+   // screenPosX=screenPosX*0.01;
+    //screenPosY=screenPosY*0.01;
+    
     struct up_vec2 tex[] = {
-        {0.0f, 0.0f},
-        {1.0f, 0.0f},
-        {0.0f, 1.0f},
-        {1.0f, 1.0f}
+        {0.0f + imageX, 0.0f + imageY},
+        {1.0f + imageX, 0.0f + imageY},
+        {0.0f + imageX, 0.5f + imageY},
+        {1.0f + imageX, 0.5f + imageY}
     };
     
     // this is the posisions of the vertexes
     struct up_vec3 pos[] = {
-        {0.0f, 0.0f, 0.0f},   // bottomleft 0
-        {1.0f, 0.0f, 0.0f},   //bottom right 1
-        {0.0f, 1.0f, 0.0f},  //topleft 2
-        {1.0f, 1.0f, 0.0f}   //topright 3
+        {-0.28f + screenPosX, -0.1f + screenPosY, 0.1f},   // bottomleft 0
+        {0.28f + screenPosX, -0.1f + screenPosY, 0.1f},   //bottom right 1
+        {-0.28f + screenPosX, 0.1f + screenPosY, 0.1f},  //topleft 2
+        {0.28f + screenPosX, 0.1f + screenPosY, 0.1f}   //topright 3
     };
+    
     
     unsigned int indexArray[] = {0,2,1,2,3,1};  //binds togheter two triangels into one square
     
@@ -146,5 +157,5 @@ struct up_mesh *up_meshMenuBackground()
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
     printf("Mesh finnished\n");
     return mesh;
-}*/
+}
 

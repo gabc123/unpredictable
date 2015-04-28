@@ -90,6 +90,6 @@ struct up_texture_data *up_load_texture(const char  * filename)
 
 void up_texture_bind(struct up_texture_data *texture, unsigned int texUnit)
 {
-    glActiveTexture(GL_TEXTURE0 + texUnit);
+    //glActiveTexture(GL_TEXTURE0 + texUnit);
     glBindTexture(GL_TEXTURE_2D, texture->textureId);
 }
