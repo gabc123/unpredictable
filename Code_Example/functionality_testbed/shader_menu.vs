@@ -8,11 +8,10 @@ out vec2 texCoord0;
 out vec3 normalsFragment;
 
 uniform mat4 transform;
-uniform mat4 light_sun;
 
 void main()
 {
     gl_Position = transform * vec4(position,1.0);
     texCoord0 = texCoord;
-    normalsFragment = (light_sun * vec4(normals,0.0)).xyz;
+    normalsFragment = (transform * vec4(normals,0.1)).xyz;
 }

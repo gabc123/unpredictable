@@ -11,7 +11,15 @@ struct up_objModel {
     struct up_vertex *vertex;
 };
 
+
+/*
+reads a .obj file and
+
+Returns a list with usable position values for vertexes.
+Returns an index array
+*/
 struct up_objModel *up_loadObjModel(const char *filename);
+
 
 void up_objModelFree(struct up_objModel *object);
 

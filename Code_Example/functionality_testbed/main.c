@@ -37,15 +37,18 @@ int main(int argc, char const *argv[])
     //struct up_mesh *mesh = meshPyramidShip();
 
     struct up_objModel *testObj = up_loadObjModel("space_mats2.obj");
+    //struct up_objModel *testObj = up_loadObjModel("fighter.obj");
 
     struct up_mesh *mesh = UP_mesh_new(testObj->vertex, testObj->vertex_length, testObj->indexArray, testObj->index_length);
 
     up_objModelFree(testObj);
 
 	struct shader_module *shaderprog;
-	shaderprog = UP_Shader_new("shadertest");
+	shaderprog = UP_Shader_new("shadertest",0);
 	printf("Shader finnished\n");
     struct up_texture_data *texture = up_load_texture("lala.png");
+
+    //struct up_texture_data *texture = up_load_texture("fighter.png");
 
 
     struct up_modelRepresentation model;
@@ -61,9 +64,9 @@ int main(int argc, char const *argv[])
     model.rot.y=0;
     model.rot.z=0;
 
-    model.scale.x=0.01;
-    model.scale.y=0.01;
-    model.scale.z=0.01;
+    model.scale.x=0.1;
+    model.scale.y=0.1;
+    model.scale.z=0.1;
 
     /*
      void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
@@ -106,7 +109,17 @@ int main(int argc, char const *argv[])
 
     struct shipMovement movement = {0,0,0,0};
 
+
+    //up_matrix4_t sunModelMatrix;
+
+
     //up_matrix4_t identity = up_matrix4identity();
+    //up_network_start_setup();
+
+    // Load a shader just for the menu system
+    struct shader_module *shader_menu;
+    shader_menu = UP_Shader_new("shader_menu",1);
+    printf("Shader menu finnished\n");
 
     //status=up_menu(shaderprog);
     
@@ -134,6 +147,11 @@ int main(int argc, char const *argv[])
         //up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &identity);
         //dispMat(&transform);
         UP_shader_update(shaderprog,&transform);
+
+
+        //up_matrixView(&sunViewMatrix, &cam.center, &cam.eye, &cam.up);
+        //up_getModelViewPerspective(&sunMatrix, &identity, &identity, &identity);
+        up_shader_update_sunligth(shaderprog, &modelMatrix);
         up_draw_mesh(mesh);
 		UP_openGLupdate();
 
