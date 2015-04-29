@@ -50,7 +50,7 @@ int main(int argc, char const *argv[])
 
     struct up_modelRepresentation model;
 
-    //up_network_start_setup();
+    up_network_start_setup();
     
     
     model.pos.x=0;
@@ -108,7 +108,7 @@ int main(int argc, char const *argv[])
 
     //up_matrix4_t identity = up_matrix4identity();
 
-    status=up_menu(shaderprog);
+    //status=up_menu(shaderprog);
     
 	while(status)
 	{
@@ -121,7 +121,7 @@ int main(int argc, char const *argv[])
         
 
 
-        //up_newtwork_getNewMovement(&ship);
+        up_newtwork_getNewMovement(&ship);
         
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
@@ -129,7 +129,6 @@ int main(int argc, char const *argv[])
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
-        healthbar_creation(&modelMatrix,&cam,&ship);
         
         up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &perspectiveMatrix);
         //up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &identity);
