@@ -7,14 +7,14 @@ ifeq ($(OS),Windows_NT)
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
-		CFLAGS= -lSDL2 -lGLEW -lGL -lSDL2_image -lm
+		CFLAGS= -lSDL2 -lGLEW -lGL -lSDL2_image -lm -lSDL_net -lpthread
 	endif
 	ifeq ($(UNAME_S),Darwin)
 		CFLAGS=-I$(IDIR_SDL2) -I$(IDIR_IMAGE) -F$(FDIR) -framework SDL2 -framework SDL2_image -framework opengl
 	endif
 endif
 
-objects = main.o up_updateObjectMatrix.o up_menu.o testmodels.o up_camera_module.o up_shader_module.o up_vertex.o up_filereader.o up_texture_module.o up_matrixTransforms.o up_utilities.o up_objectReader.o up_initGraphics.o up_ship.o
+objects = main.o up_updateObjectMatrix.o up_menu.o testmodels.o up_camera_module.o up_shader_module.o up_vertex.o up_filereader.o up_texture_module.o up_matrixTransforms.o up_utilities.o up_objectReader.o up_initGraphics.o up_ship.o up_network_module.o up_thread_utilities.o
 
 gltestapp : $(objects)
 	gcc -o gltest.out $(CFLAGS) $(objects)
