@@ -107,7 +107,9 @@ int main(int argc, char const *argv[])
 
     struct shipMovement movement = {0,0,0,0};
 
-
+    struct shader_module *shaderprog;
+    shaderprog = UP_Shader_new("shadertest",0);
+    printf("Shader finnished\n");
     //up_matrix4_t sunModelMatrix;
 
 
@@ -123,9 +125,7 @@ int main(int argc, char const *argv[])
     
     
     
-    struct shader_module *shaderprog;
-    shaderprog = UP_Shader_new("shadertest",0);
-    printf("Shader finnished\n");
+   
 	while(status)
 	{
         up_updateFrameTickRate();
