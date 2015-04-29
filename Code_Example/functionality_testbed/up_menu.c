@@ -40,7 +40,7 @@ int up_menuEventHandler();
 
 
 int up_menu(struct shader_module *shaderprog){
-    
+
     int status=1;
     
     
@@ -50,7 +50,7 @@ int up_menu(struct shader_module *shaderprog){
     if (textureMenuBackground==NULL) {
             textureMenuBackground = up_load_texture("lala.png");
     }
-    
+
     struct up_texture_data *textureBottonLogin = up_load_texture("menuBottons.png");
     
     struct up_texture_data *textureLoginOverlay = up_load_texture("placeholder-login2.png");
@@ -104,16 +104,16 @@ int up_menu(struct shader_module *shaderprog){
         }
         UP_renderBackground();                      //Clears the buffer and results an empty window.
         UP_shader_bind(shaderprog);                 //
-        
-        
+
+
         //do menu stuff
-        
-        
-        
+
+
+
         //up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
-        
+
         //up_getModelViewPerspective(&transform, &translation, &identity, &identity);
-        
+
         //dispMat(&transform);
         UP_shader_update(shaderprog,&transformBackground);    //background
         up_texture_bind(textureMenuBackground, 1);
@@ -146,12 +146,12 @@ int up_menu(struct shader_module *shaderprog){
     
         
         UP_openGLupdate();
-        
+
         //transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
     }
 
-    
-    
+
+
     return status;
 }
 
@@ -165,7 +165,7 @@ int up_menuEventHandler(struct navigationState *navigation)
     float width = 1280;
     float height = 880;
     SDL_Event event;
-    
+
     while(SDL_PollEvent(&event))
     {
         if (event.type == SDL_QUIT)
@@ -177,9 +177,9 @@ int up_menuEventHandler(struct navigationState *navigation)
                 case SDLK_a:
                     flag=2;
                     break;
-                 
-                  
-                    
+
+
+
                     /*
                 case SDLK_s:
                     movement->down = 1;
@@ -192,12 +192,12 @@ int up_menuEventHandler(struct navigationState *navigation)
                     break;
                 case SDLK_SPACE:
                     break;*/
-                    
+
                 default:
                     break;
             }
         }
-        
+
         if(event.type == SDL_KEYUP)
         {
             switch (event.key.keysym.sym) {
@@ -225,23 +225,23 @@ int up_menuEventHandler(struct navigationState *navigation)
                     //aspect ratio
                     xf=(float)x/width*2-1;
                     yf=-(float)y/height*2+1;
-                    
-                    
+
+
                     if(xf > -0.137500 && xf < 0.140625){        //coordinates of login screen
                         if(yf > 0.047727 && yf < 0.131818){
                             
                             navigation->state = loginMenu;
                         }
                     }
-                    
+
                     if(xf > -0.137500 && xf < 0.140625){        //coordinates of registration screen
                         if(yf > -0.068182 && yf < 0.015909){
-                            
+
                             printf("Register botton clicked!\n");
                             flag=2;
                         }
                     }
-                    
+
                     break;
                     /*
                      case SDLK_s:
@@ -255,7 +255,7 @@ int up_menuEventHandler(struct navigationState *navigation)
                      break;
                      case SDLK_SPACE:
                      break;*/
-                    
+
                 default:
                     break;
             }
