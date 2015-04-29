@@ -48,7 +48,7 @@ static void linkElement_recycle(struct up_linkElement * fromLink,struct up_linkE
 int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
 {
     // move the writer to the other buffer
-    int reader = internal_concurrentQueue->reader;
+    int reader = internal_concurrentQueue->reader;  //if error then setup has not been called early enugh
     struct up_linkElement *first = NULL;
     struct up_linkElement *last = NULL;
     struct up_linkElement *tmpLink = NULL;

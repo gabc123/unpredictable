@@ -29,6 +29,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
 
     int count = 0;
 
+    printf("%s\n", filename);
     struct UP_textHandler objFile = up_loadObjFile(filename);
     text=objFile.text;
     do
@@ -94,13 +95,13 @@ struct up_objModel *up_loadObjModel(const char *filename)
            return NULL;
     }
 
-    
+
     int i = 0;
 
     for(i = 0 ; i< count;i++)
     {
         finalList[i].pos = pos[i];
-        printf("%d: %f %f %f\n",i,pos[i].x, pos[i].y, pos[i].z);
+        //printf("%d: %f %f %f\n",i,pos[i].x, pos[i].y, pos[i].z);
     }
     objFaces(rad, facePosList, finalList,pos,tex,norm,count);
     do
@@ -129,26 +130,26 @@ struct up_objModel *up_loadObjModel(const char *filename)
 
     int num_face = up_uint_list_count(facePosList);
     unsigned int *face_indexList = up_uint_list_transferOwnership(&facePosList);
-//    
+//
 //    for (i =0; i<num_face; i+=3) {
 //       printf("%d Face: idx: %d %d %d\n",i,face_indexList[i],face_indexList[i+1],face_indexList[i+2]);
 //    }
-//    
+//
     struct up_objModel *result = malloc(sizeof(struct up_objModel));
     if (result == NULL) {
         UP_ERROR_MSG("malloc fail");
     }
-    
+
     result->index_length = num_face;
     result->indexArray = face_indexList;
     result->vertex_length = count;
     result->vertex = finalList;
-    
+
     free(pos);
     free(tex);
     free(norm);
     up_textHandler_free(&objFile);
-    
+
     return result;
 }
 
@@ -224,17 +225,17 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
             facegroup = text2;
         }
         sscanf(facegroup,"%d/%d/%d", &vertexIdx[0],&vertexIdx[1],&vertexIdx[2]);
-        
+
         vertexIdx[0]--;
         vertexIdx[1]--;
         vertexIdx[2]--;
 
         finalList[vertexIdx[0]].texCoord = texturePos[vertexIdx[1]];
         finalList[vertexIdx[0]].normals = normalPos[vertexIdx[2]];
-        
+
         face[k] = vertexIdx[0];
     }
-    
+
     up_uint_list_add(facePosList,&face[0]);
     up_uint_list_add(facePosList,&face[1]);
     up_uint_list_add(facePosList,&face[2]);
@@ -247,16 +248,16 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
         vertexIdx[2]--;
         finalList[vertexIdx[0]].texCoord = texturePos[vertexIdx[1]];
         finalList[vertexIdx[0]].normals = normalPos[vertexIdx[2]];
-        
+
         up_uint_list_add(facePosList,&face[0]);
         up_uint_list_add(facePosList,&face[2]);
         up_uint_list_add(facePosList,&vertexIdx[0]);
         //fprintf(stderr, "\n%d %d %d", face[0],face[2],vertexIdx[0]);
-        
+
 
     }
 
-    fprintf(stderr, "\n");
+   // fprintf(stderr, "\n");
         /**
         up_uint_list_add(facePosList, &faceValue1);
         up_uint_list_add(facePosList, &faceValue3);

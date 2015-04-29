@@ -6,6 +6,8 @@
 #include "up_objectReader.h"
 #include "up_shader_module.h"
 #include "up_network_module.h"
+#include "up_menu.h"
+#include "up_camera_module.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -33,21 +35,24 @@ int main(int argc, char const *argv[])
     //struct up_mesh *mesh = meshTriangleShip();
     //struct up_mesh *mesh = meshPyramidShip();
 
-    struct up_objModel *testObj = up_loadObjModel("fighter.obj");
+    struct up_objModel *testObj = up_loadObjModel("space_mats2.obj");
+    //struct up_objModel *testObj = up_loadObjModel("fighter.obj");
 
     struct up_mesh *mesh = UP_mesh_new(testObj->vertex, testObj->vertex_length, testObj->indexArray, testObj->index_length);
 
     up_objModelFree(testObj);
 
 	struct shader_module *shaderprog;
-	shaderprog = UP_Shader_new("shadertest");
+	shaderprog = UP_Shader_new("shadertest",0);
 	printf("Shader finnished\n");
-    struct up_texture_data *texture = up_load_texture("fighter.png");
+    struct up_texture_data *texture = up_load_texture("lala.png");
+    
+    //struct up_texture_data *texture = up_load_texture("fighter.png");
 
 
     struct up_modelRepresentation model;
 
-    //up_network_start_setup();
+    
     
     
     model.pos.x=0;
@@ -58,10 +63,12 @@ int main(int argc, char const *argv[])
     model.rot.y=0;
     model.rot.z=0;
 
-    model.scale.x=1.1;
-    model.scale.y=1.1;
-    model.scale.z=1.1;
+    model.scale.x=0.1;
+    model.scale.y=0.1;
+    model.scale.z=0.1;
 
+    
+    
     /*
      void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
      void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP);
@@ -80,22 +87,12 @@ int main(int argc, char const *argv[])
     up_matrix4_t viewMatrix;
     up_matrix4_t perspectiveMatrix;
 
-    struct camera {
-        struct up_vec3 eye;
-        struct up_vec3 center;
-        struct up_vec3 up;
-    };
-    struct camera cam = {{0,0,-3},{0,0,1},{0,1,0}};
+
+    struct up_camera cam = {{0,0,-3},{0,0,1},{0,1,0}};
 
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
-    struct perspective {
-        float fov ;
-        float aspectRatio;
-        float zNear;
-        float zFar;
-    };
-    struct perspective pers = {70.0f,screen_width/screen_hight,0.01f,1000.0f};
+    struct up_perspective pers = {70.0f,screen_width/screen_hight,0.01f,1000.0f};
 
 
     up_matrixPerspective(&perspectiveMatrix, pers.fov, pers.aspectRatio, pers.zNear, pers.zFar);
@@ -113,9 +110,21 @@ int main(int argc, char const *argv[])
 
     struct shipMovement movement = {0,0,0,0};
 
-    //up_matrix4_t identity = up_matrix4identity();
 
-	while(status)
+    //up_matrix4_t sunModelMatrix;
+
+    
+    //up_matrix4_t identity = up_matrix4identity();
+    //up_network_start_setup();
+    
+    // Load a shader just for the menu system
+    struct shader_module *shader_menu;
+    shader_menu = UP_Shader_new("shader_menu",1);
+    printf("Shader menu finnished\n");
+    
+    status=up_menu(shader_menu);
+    
+    while(status)
 	{
         up_updateFrameTickRate();
         status = UP_eventHandler(&ship,&movement);
@@ -129,12 +138,20 @@ int main(int argc, char const *argv[])
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
 
+        
+        //up_matrixModel(&sunModelMatrix,&sun.pos, &sun.rot, &sun.scale);
+        
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
         up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &perspectiveMatrix);
         //up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &identity);
         //dispMat(&transform);
         UP_shader_update(shaderprog,&transform);
+        
+        
+        //up_matrixView(&sunViewMatrix, &cam.center, &cam.eye, &cam.up);
+        //up_getModelViewPerspective(&sunMatrix, &identity, &identity, &identity);
+        up_shader_update_sunligth(shaderprog, &modelMatrix);
         up_draw_mesh(mesh);
 		UP_openGLupdate();
 
