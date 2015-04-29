@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
 
     up_objModelFree(testObj);
 
-	
+
     //struct up_texture_data *texture = up_load_texture("lala.png");
 
     //struct up_texture_data *texture = up_load_texture("fighter.png");
@@ -52,14 +52,14 @@ int main(int argc, char const *argv[])
     struct up_modelRepresentation model;
 
     up_network_start_setup();
-    
-    
-    
+
+
+
     struct up_assets *assets = up_assets_start_setup();
     struct up_mesh *mesh = &assets->meshArray[0];
     struct up_texture_data *texture = &assets->textureArray[0];
-    
-    
+
+
     model.pos.x=0;
     model.pos.y=0;
     model.pos.z=1;
@@ -69,7 +69,7 @@ int main(int argc, char const *argv[])
     model.rot.z=0;
 
     model.scale=assets->scaleArray[0];
-    
+
     /*
      void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
      void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP);
@@ -126,10 +126,10 @@ int main(int argc, char const *argv[])
     printf("Shader menu finnished\n");
 
     status=up_menu(shader_menu);
-    
-    
-    
-   
+
+
+
+
 	while(status)
 	{
         up_updateFrameTickRate();
@@ -138,18 +138,18 @@ int main(int argc, char const *argv[])
 		UP_renderBackground();                      //Clears the buffer and results an empty window.
 		UP_shader_bind(shaderprog);                 //
         up_texture_bind(texture, 0);
-        
+
 
 
         up_newtwork_getNewMovement(&ship);
-        
+
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
 
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
-        
+
         up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &perspectiveMatrix);
         //up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &identity);
         //dispMat(&transform);

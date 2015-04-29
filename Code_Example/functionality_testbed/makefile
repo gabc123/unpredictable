@@ -14,7 +14,7 @@ else
 	endif
 endif
 
-objects = main.o up_updateObjectMatrix.o up_menu.o testmodels.o up_camera_module.o up_shader_module.o up_vertex.o up_filereader.o up_texture_module.o up_matrixTransforms.o up_utilities.o up_objectReader.o up_initGraphics.o up_ship.o up_network_module.o up_thread_utilities.o
+objects = main.o up_updateObjectMatrix.o up_menu.o testmodels.o up_camera_module.o up_shader_module.o up_vertex.o up_filereader.o up_texture_module.o up_matrixTransforms.o up_utilities.o up_objectReader.o up_initGraphics.o up_ship.o up_network_module.o up_thread_utilities.o up_assets.o
 
 gltestapp : $(objects)
 	gcc -o gltest.out $(CFLAGS) $(objects)
