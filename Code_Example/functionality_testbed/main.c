@@ -46,15 +46,12 @@ int main(int argc, char const *argv[])
 	shaderprog = UP_Shader_new("shadertest",0);
 	printf("Shader finnished\n");
     struct up_texture_data *texture = up_load_texture("lala.png");
-    
+
     //struct up_texture_data *texture = up_load_texture("fighter.png");
 
 
     struct up_modelRepresentation model;
 
-    
-    
-    
     model.pos.x=0;
     model.pos.y=0;
     model.pos.z=1;
@@ -67,8 +64,6 @@ int main(int argc, char const *argv[])
     model.scale.y=0.1;
     model.scale.z=0.1;
 
-    
-    
     /*
      void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
      void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP);
@@ -113,17 +108,17 @@ int main(int argc, char const *argv[])
 
     //up_matrix4_t sunModelMatrix;
 
-    
+
     //up_matrix4_t identity = up_matrix4identity();
     //up_network_start_setup();
-    
+
     // Load a shader just for the menu system
     struct shader_module *shader_menu;
     shader_menu = UP_Shader_new("shader_menu",1);
     printf("Shader menu finnished\n");
-    
+
     status=up_menu(shader_menu);
-    
+
     while(status)
 	{
         up_updateFrameTickRate();
@@ -134,21 +129,21 @@ int main(int argc, char const *argv[])
         up_texture_bind(texture, 0);
 
         //up_newtwork_getNewMovement(&ship);
-        
+
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
 
-        
+
         //up_matrixModel(&sunModelMatrix,&sun.pos, &sun.rot, &sun.scale);
-        
+
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
         up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &perspectiveMatrix);
         //up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &identity);
         //dispMat(&transform);
         UP_shader_update(shaderprog,&transform);
-        
-        
+
+
         //up_matrixView(&sunViewMatrix, &cam.center, &cam.eye, &cam.up);
         //up_getModelViewPerspective(&sunMatrix, &identity, &identity, &identity);
         up_shader_update_sunligth(shaderprog, &modelMatrix);

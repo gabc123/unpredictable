@@ -12,11 +12,24 @@ void texturePositionsData(char *rad, struct up_generic_list *texturePosList);
 void normalPositionsData(char *rad, struct up_generic_list *normalPosList);
 void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *finalList,struct up_vec3 *vertexPos,struct up_vec2 *texturePos, struct up_vec3 *normalPos, int count);
 
+
+
 struct up_objModel *up_loadObjModel(const char *filename)
 {
+    /*
+    Creates lists to save the different values in, one for coordinates, one for textures, one for the normals
+    and one for the faces that holds the combination keys. Later on this function sends the values in to a list
+    that matches the coordinates, textures and normals to make up a vertex. The function then determines wether
+    there are three or four vertex positions to combine into a polygon.
+
+    */
+
+    //Variables to be used by the token parser to determine what to read in.
     char *text;
-    char *endLine = "\n";
+    char *endLine = "\n";  //we need to take one line at a time. thus '\n'
     char *rad;
+
+    //These are the lists mentioned in the main description
     struct up_generic_list *vertexPosList = up_vec3_list_new(20);
     struct up_generic_list *texturePosList = up_vec2_list_new(20);
     struct up_generic_list *normalPosList = up_vec3_list_new(20);
@@ -47,7 +60,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
             switch (rad[1])
             {
                 case ' ':
-                    rad+=2; //To only read the vector positions.
+                    rad+=2; //To only read the vector positions. And removes the v and space.
                     vertexPositionsData(rad, vertexPosList);
                     break;
                 case 't':
@@ -59,6 +72,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
                     normalPositionsData(rad, normalPosList);
                     break;
                 default:
+                    //Unknown followup letter after the v on this specific line.
                     UP_ERROR_MSG_STR("Unknown identifier, look in obj file ", filename);
                     break;
 
@@ -66,6 +80,9 @@ struct up_objModel *up_loadObjModel(const char *filename)
 
         }else if (rad[0] == 'f')
         {
+            /*
+            Redoes all the lists into big arrays that's seperated by '\0'
+            */
             count = up_vec3_list_count(vertexPosList);
             tex = up_vec2_list_transferOwnership(&texturePosList);
             pos = up_vec3_list_transferOwnership(&vertexPosList);
@@ -73,13 +90,6 @@ struct up_objModel *up_loadObjModel(const char *filename)
             rad+=2;
             break;
 
-            /**
-                TODO: parse the index array
-                It is posible to use up_token_parser(rad,...) and instead of looking for endline
-                look for // or /, there by dividing up the 3 v/vt/vn indexes
-                then use a  up_vertex_list and populate it so the v,vt,vn is inside the same one
-
-             **/
         }
 
     }while(text <= objFile.text + objFile.length -1 );
@@ -117,24 +127,17 @@ struct up_objModel *up_loadObjModel(const char *filename)
         {
             rad+=2;
             objFaces(rad, facePosList, finalList,pos,tex,norm,count);
-            /**
-                TODO: parse the index array
-                It is posible to use up_token_parser(rad,...) and instead of looking for endline
-                look for // or /, there by dividing up the 3 v/vt/vn indexes
-                then use a  up_vertex_list and populate it so the v,vt,vn is inside the same one
-
-             **/
         }
 
     }while(text <= objFile.text + objFile.length -1 );
 
     int num_face = up_uint_list_count(facePosList);
     unsigned int *face_indexList = up_uint_list_transferOwnership(&facePosList);
-//
-//    for (i =0; i<num_face; i+=3) {
-//       printf("%d Face: idx: %d %d %d\n",i,face_indexList[i],face_indexList[i+1],face_indexList[i+2]);
-//    }
-//
+/*
+    for (i =0; i<num_face; i+=3) {
+       printf("%d Face: idx: %d %d %d\n",i,face_indexList[i],face_indexList[i+1],face_indexList[i+2]);
+    }
+*/
     struct up_objModel *result = malloc(sizeof(struct up_objModel));
     if (result == NULL) {
         UP_ERROR_MSG("malloc fail");
