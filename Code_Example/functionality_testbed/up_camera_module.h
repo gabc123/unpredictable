@@ -1,5 +1,4 @@
 #ifndef UP_CAMERA_MODULE_H
-
 #define UP_CAMERA_MODULE_H
 #include "up_vertex.h"
 

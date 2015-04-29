@@ -3,7 +3,7 @@
 #include "up_ship.h"
 
 
-
+/*
 
 void healthbar_creation(up_matrix4_t *modelMatrix,struct camera *cam,struct up_ship *ship){
     
@@ -16,4 +16,4 @@ void healthbar_creation(up_matrix4_t *modelMatrix,struct camera *cam,struct up_s
     
     
     
-}
+}*/

@@ -16,6 +16,6 @@
 //};
 //typedef struct up_healthbar Up_healthbar;
 
-void healthbar_creation(up_matrix4_t *modelMatrix,struct camera *cam,struct up_ship *ship);
+//void healthbar_creation(up_matrix4_t *modelMatrix,struct camera *cam,struct up_ship *ship);
 
 #endif /* defined(__up_game__up_healthbar__) */
