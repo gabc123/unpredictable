@@ -9,6 +9,7 @@
 #include "up_menu.h"
 #include "up_camera_module.h"
 
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -52,6 +53,9 @@ int main(int argc, char const *argv[])
 
     struct up_modelRepresentation model;
 
+    up_network_start_setup();
+    
+    
     model.pos.x=0;
     model.pos.y=0;
     model.pos.z=1;
@@ -117,9 +121,9 @@ int main(int argc, char const *argv[])
     shader_menu = UP_Shader_new("shader_menu",1);
     printf("Shader menu finnished\n");
 
-    status=up_menu(shader_menu);
-
-    while(status)
+    status=up_menu(shaderprog);
+    
+	while(status)
 	{
         up_updateFrameTickRate();
         status = UP_eventHandler(&ship,&movement);
@@ -127,17 +131,18 @@ int main(int argc, char const *argv[])
 		UP_renderBackground();                      //Clears the buffer and results an empty window.
 		UP_shader_bind(shaderprog);                 //
         up_texture_bind(texture, 0);
+        
 
-        //up_newtwork_getNewMovement(&ship);
 
+        up_newtwork_getNewMovement(&ship);
+        
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
 
 
-        //up_matrixModel(&sunModelMatrix,&sun.pos, &sun.rot, &sun.scale);
-
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
+        
         up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &perspectiveMatrix);
         //up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &identity);
         //dispMat(&transform);
