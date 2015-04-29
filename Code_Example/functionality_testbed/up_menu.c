@@ -50,7 +50,7 @@ int up_menu(struct shader_module *shaderprog){
     if (textureMenuBackground==NULL) {
             textureMenuBackground = up_load_texture("lala.png");
     }
-
+    
     struct up_texture_data *textureBottonLogin = up_load_texture("menuBottons.png");
     
     struct up_texture_data *textureLoginOverlay = up_load_texture("placeholder-login2.png");

@@ -5,7 +5,7 @@
 #include "up_ship.h"
 #include "up_objectReader.h"
 #include "up_shader_module.h"
-#include "up_network_module.h"
+//#include "up_network_module.h"
 #include "up_menu.h"
 #include "up_camera_module.h"
 
@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
 	printf("opengl window setup done\n");
 
 
-	up_mesh_start_setup(4);
+	up_mesh_start_setup(80);
     up_texture_start_setup();
 
     //struct up_mesh *mesh = meshTriangleShip();
@@ -55,7 +55,7 @@ int main(int argc, char const *argv[])
 
     struct up_modelRepresentation model;
 
-    up_network_start_setup();
+    //up_network_start_setup();
     
     
     model.pos.x=0;
@@ -136,7 +136,7 @@ int main(int argc, char const *argv[])
         
 
 
-        up_newtwork_getNewMovement(&ship);
+        //up_newtwork_getNewMovement(&ship);
         
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
