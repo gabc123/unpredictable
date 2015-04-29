@@ -43,9 +43,7 @@ int main(int argc, char const *argv[])
 
     up_objModelFree(testObj);
 
-	struct shader_module *shaderprog;
-	shaderprog = UP_Shader_new("shadertest",0);
-	printf("Shader finnished\n");
+	
     struct up_texture_data *texture = up_load_texture("lala.png");
 
     //struct up_texture_data *texture = up_load_texture("fighter.png");
@@ -53,7 +51,7 @@ int main(int argc, char const *argv[])
 
     struct up_modelRepresentation model;
 
-    up_network_start_setup();
+    //up_network_start_setup();
     
     
     model.pos.x=0;
@@ -121,8 +119,13 @@ int main(int argc, char const *argv[])
     shader_menu = UP_Shader_new("shader_menu",1);
     printf("Shader menu finnished\n");
 
-    status=up_menu(shaderprog);
+    status=up_menu(shader_menu);
     
+    
+    
+    struct shader_module *shaderprog;
+    shaderprog = UP_Shader_new("shadertest",0);
+    printf("Shader finnished\n");
 	while(status)
 	{
         up_updateFrameTickRate();
@@ -134,7 +137,7 @@ int main(int argc, char const *argv[])
         
 
 
-        up_newtwork_getNewMovement(&ship);
+        //up_newtwork_getNewMovement(&ship);
         
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
