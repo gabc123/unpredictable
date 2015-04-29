@@ -100,7 +100,7 @@ void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *text
             UP_ERROR_MSG("ERROR, obj String could not be found in loadObjects");
             break;
         }
-        sscanf(rad,"%f %f %f %s %s", item.scale.x, item.scale.y, item.scale.z, item.obj, item.tex);
+        sscanf(rad,"%f %f %f %s %s", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex);
         up_process_asset(meshArray,textureArray,&item);
 
       /*scale.x=item.scale.x;
