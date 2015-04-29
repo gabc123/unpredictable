@@ -2,7 +2,7 @@
 #include "up_sdl_redirect.h"
 #include "up_opengl_redirect.h"
 #include "up_error.h"
-#define UP_MAX_TEXTURE 10
+#define UP_MAX_TEXTURE 50
 
 
 struct internal_texture_handler

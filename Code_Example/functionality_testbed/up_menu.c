@@ -52,8 +52,15 @@ int up_menu(struct shader_module *shaderprog){
     }
     
     struct up_texture_data *textureBottonLogin = up_load_texture("menuBottons.png");
-    
+    if (textureBottonLogin==NULL) {
+        textureBottonLogin = up_load_texture("lala.png");
+    }
     struct up_texture_data *textureLoginOverlay = up_load_texture("placeholder-login2.png");
+    if (textureLoginOverlay==NULL) {
+        textureLoginOverlay = up_load_texture("lala.png");
+    }
+    
+    
     
     up_matrix4_t transformLoginRegisterBottons;
     up_matrix4_t transformBackground;
@@ -117,6 +124,7 @@ int up_menu(struct shader_module *shaderprog){
         //dispMat(&transform);
         UP_shader_update(shaderprog,&transformBackground);    //background
         up_texture_bind(textureMenuBackground, 1);
+        //up_shader_update_sunligth(shaderprog,&identity);
         up_draw_mesh(background);
         
         

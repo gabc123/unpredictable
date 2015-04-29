@@ -32,6 +32,9 @@ struct up_mesh *meshTriangleShip()
     for (i = 0; i < 4; i++) {
         vertex[i].pos = pos[i];
         vertex[i].texCoord = tex[i];
+        vertex[i].normals.x = 0;
+        vertex[i].normals.y = 0;
+        vertex[i].normals.z = 0;
     }
     /////////////
     printf("vertex start\n");
@@ -68,6 +71,11 @@ struct up_mesh *meshPyramidShip()
     for (i = 0; i < pyramid_pos_size; i++) {
         tmp_vertex.pos = pyramid_pos[i];
         tmp_vertex.texCoord = pyramid_tex[i];
+        
+        tmp_vertex.normals.x = 0;
+        tmp_vertex.normals.y = 0;
+        tmp_vertex.normals.z = 0;
+        
         up_vertex_list_add(list, &tmp_vertex);
     }
     struct up_vertex *vertex = up_vertex_list_transferOwnership(&list);
@@ -108,6 +116,9 @@ struct up_mesh *up_meshMenuBackground()
     for (i = 0; i < 4; i++) {
         vertex[i].pos = pos[i];
         vertex[i].texCoord = tex[i];
+        vertex[i].normals.x = 0;
+        vertex[i].normals.y = 0;
+        vertex[i].normals.z = 0;
     }
     /////////////
     printf("vertex start\n");
@@ -151,6 +162,9 @@ struct up_mesh *up_meshBotton(float imageX, float imageY, float screenPosX, floa
     for (i = 0; i < 4; i++) {
         vertex[i].pos = pos[i];
         vertex[i].texCoord = tex[i];
+        vertex[i].normals.x = 0;
+        vertex[i].normals.y = 0;
+        vertex[i].normals.z = 0;
     }
     /////////////
     printf("vertex start\n");
@@ -187,6 +201,9 @@ struct up_mesh *up_meshLoginOverlay()
     for (i = 0; i < 4; i++) {
         vertex[i].pos = pos[i];
         vertex[i].texCoord = tex[i];
+        vertex[i].normals.x = 0;
+        vertex[i].normals.y = 0;
+        vertex[i].normals.z = 0;
     }
     /////////////
     printf("vertex start\n");
