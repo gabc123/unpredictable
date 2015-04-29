@@ -159,3 +159,38 @@ struct up_mesh *up_meshBotton(float imageX, float imageY, float screenPosX, floa
     return mesh;
 }
 
+struct up_mesh *up_meshLoginOverlay()
+{
+    /// setup the vertexs and the tex coords, this is done like this for debbuging reasons
+    // texture coordinates, 0,0 is bottom left, 1,1 is top right
+    struct up_vec2 tex[] = {
+        {0.0f, 0.0f},
+        {1.0f, 0.0f},
+        {0.0f, 1.0f},
+        {1.0f, 1.0f}
+    };
+    
+    // this is the posisions of the vertexes
+    struct up_vec3 pos[] = {
+        {-0.28f, -0.3f, 0.2f},   // bottomleft 0
+        {0.28f, -0.3f, 0.2f},   //bottom right 1
+        {-0.28f, 0.2f, 0.2f},  //topleft 2
+        {0.28f, 0.2f, 0.2f}   //topright 3
+    };
+    
+    
+    unsigned int indexArray[] = {0,2,1,2,3,1};  //binds togheter two triangels into one square
+    
+    // left over from debugging. fills the vertex array with pos and tex
+    struct up_vertex vertex[4];
+    int i = 0;
+    for (i = 0; i < 4; i++) {
+        vertex[i].pos = pos[i];
+        vertex[i].texCoord = tex[i];
+    }
+    /////////////
+    printf("vertex start\n");
+    struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
+    printf("Mesh finnished\n");
+    return mesh;
+}
