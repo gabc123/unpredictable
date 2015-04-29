@@ -6,7 +6,7 @@ struct UP_textHandler
 	char * text;
 	int length;
 };
-
+struct UP_textHandler up_loadAssetFile(const char * filename);
 long int filesize(const char * filename);
 struct UP_textHandler up_loadShaderFile(const char * filename);
 struct UP_textHandler up_loadObjFile(const char * filename);
