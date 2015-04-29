@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
 
     struct up_modelRepresentation model;
 
-    //up_network_start_setup();
+    up_network_start_setup();
     
     
     
@@ -140,8 +140,7 @@ int main(int argc, char const *argv[])
         up_texture_bind(texture, 0);
 
 
-
-        //up_newtwork_getNewMovement(&ship);
+        up_newtwork_getNewMovement(&ship);
         
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
@@ -173,6 +172,7 @@ int main(int argc, char const *argv[])
 
     up_texture_shutdown_deinit();
     up_assets_shutdown_deinit(assets);
+    up_network_shutdown_deinit();
     UP_openGLwindowCleanup();
 	UP_sdlCleanup();
 	printf("All cleanup completed\n");
