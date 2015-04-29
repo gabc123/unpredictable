@@ -9,6 +9,12 @@
 # we do not want them in our git repo
 .DS_Store
 
+# to prevent img files from upload
+*.png
+*.jpg
+*.jpeg
+*.bmp
+
 # this is from githubs own gitignore examples for good ignore files
 # I have included it here from the c example 
 # Object files
