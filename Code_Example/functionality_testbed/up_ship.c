@@ -136,6 +136,8 @@ void up_updateShipMovment(struct up_ship *ship)
 
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_ship *ship)
 {
+
+
     double frameDelta=up_getFrameTimeDelta();
     model->pos.x = ship->pos.x;
     model->pos.y = ship->pos.y;

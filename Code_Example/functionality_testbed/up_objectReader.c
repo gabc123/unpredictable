@@ -80,9 +80,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
 
         }else if (rad[0] == 'f')
         {
-            /*
-            Redoes all the lists into big arrays that's seperated by '\0'
-            */
+
             count = up_vec3_list_count(vertexPosList);
             tex = up_vec2_list_transferOwnership(&texturePosList);
             pos = up_vec3_list_transferOwnership(&vertexPosList);
