@@ -8,7 +8,7 @@
 #include "up_network_module.h"
 #include "up_menu.h"
 #include "up_camera_module.h"
-
+#include "up_assets.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -30,7 +30,7 @@ int main(int argc, char const *argv[])
 	printf("opengl window setup done\n");
 
 
-	up_mesh_start_setup(4);
+	up_mesh_start_setup(40);
     up_texture_start_setup();
 
     //struct up_mesh *mesh = meshTriangleShip();
@@ -39,19 +39,25 @@ int main(int argc, char const *argv[])
     struct up_objModel *testObj = up_loadObjModel("space_mats2.obj");
     //struct up_objModel *testObj = up_loadObjModel("fighter.obj");
 
-    struct up_mesh *mesh = UP_mesh_new(testObj->vertex, testObj->vertex_length, testObj->indexArray, testObj->index_length);
+    //struct up_mesh *mesh = UP_mesh_new(testObj->vertex, testObj->vertex_length, testObj->indexArray, testObj->index_length);
 
     up_objModelFree(testObj);
 
 	
-    struct up_texture_data *texture = up_load_texture("lala.png");
+    //struct up_texture_data *texture = up_load_texture("lala.png");
 
     //struct up_texture_data *texture = up_load_texture("fighter.png");
 
 
     struct up_modelRepresentation model;
 
-    //up_network_start_setup();
+    up_network_start_setup();
+    
+    
+    
+    struct up_assets *assets = up_assets_start_setup();
+    struct up_mesh *mesh = &assets->meshArray[0];
+    struct up_texture_data *texture = &assets->textureArray[0];
     
     
     model.pos.x=0;
@@ -62,10 +68,8 @@ int main(int argc, char const *argv[])
     model.rot.y=0;
     model.rot.z=0;
 
-    model.scale.x=0.1;
-    model.scale.y=0.1;
-    model.scale.z=0.1;
-
+    model.scale=assets->scaleArray[0];
+    
     /*
      void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
      void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP);
@@ -137,7 +141,7 @@ int main(int argc, char const *argv[])
         
 
 
-        //up_newtwork_getNewMovement(&ship);
+        up_newtwork_getNewMovement(&ship);
         
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
@@ -168,7 +172,8 @@ int main(int argc, char const *argv[])
 	up_mesh_shutdown_deinit();
 
     up_texture_shutdown_deinit();
-	UP_openGLwindowCleanup();
+    up_assets_shutdown_deinit(assets);
+    UP_openGLwindowCleanup();
 	UP_sdlCleanup();
 	printf("All cleanup completed\n");
 	return 0;

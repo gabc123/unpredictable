@@ -59,39 +59,18 @@ void up_process_asset(struct up_generic_list *meshArray, struct up_generic_list 
     up_texture_list_add(textureArray, texture);
 }
 
-struct up_assets *up_assets_start_setup()
-{
-
-    struct up_generic_list *meshArray = up_mesh_list_new(10);
-    struct up_generic_list *textureArray = up_texture_list_new(10);
-    struct up_generic_list *scaleArray= up_vec3_list_new(10);
-
-    loadObjects(meshArray, textureArray, scaleArray);
-
-    struct up_assets *assets = malloc(sizeof(struct up_assets));
-    assets->meshArray = up_mesh_list_transferOwnership(&meshArray);
-    assets->textureArray = up_texture_list_transferOwnership(&textureArray);
-    assets->scale=up_vec3_list_transferOwnership(&scaleArray);
-
-    return assets;
-}
-
-/*
-    loadobject loads models listed in the objIndex file.
-*/
-
 void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray)
 {
-
+    
     struct UP_textHandler thafile = up_loadAssetFile("objIndex");
-
+    
     struct up_modelData item; //stores
     char *text = thafile.text;
     char *endLine = "\n";
     char *rad;;
-
-//    struct up_vec3 scale;
-
+    
+    //    struct up_vec3 scale;
+    
     /*reads from the file and stores read data*/
     do{
         rad = up_token_parser(text, &text, endLine, strlen(endLine));
@@ -102,13 +81,51 @@ void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *text
         }
         sscanf(rad,"%f %f %f %s %s", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex);
         up_process_asset(meshArray,textureArray,&item);
-
-      /*scale.x=item.scale.x;
-        scale.y=item.scale.y;
-        scale.z=item.scale.z;*/
-
+        up_vec3_list_add(scaleArray, &item.scale);
+        
+        /*scale.x=item.scale.x;
+         scale.y=item.scale.y;
+         scale.z=item.scale.z;*/
+        
     }while(text <= thafile.text + thafile.length -1);
+    
     up_textHandler_free(&thafile);
-    up_vec3_list_add(scaleArray, &item.scale);
-
+    
+    
 }
+
+
+struct up_assets *up_assets_start_setup()
+{
+
+    struct up_generic_list *meshArray = up_mesh_list_new(10);
+    struct up_generic_list *textureArray = up_texture_list_new(10);
+    struct up_generic_list *scaleArray= up_vec3_list_new(10);
+
+    loadObjects(meshArray, textureArray, scaleArray);
+
+    struct up_assets *assets = malloc(sizeof(struct up_assets));
+    if (assets == NULL) {
+        UP_ERROR_MSG("failure in assets");
+    }
+    assets->numobjects = up_mesh_list_count(meshArray);
+    
+    assets->meshArray = up_mesh_list_transferOwnership(&meshArray);
+    assets->textureArray = up_texture_list_transferOwnership(&textureArray);
+    assets->scaleArray =up_vec3_list_transferOwnership(&scaleArray);
+    
+    return assets;
+}
+
+void up_assets_shutdown_deinit(struct up_assets *assets)
+{
+    free(assets->meshArray);
+    free(assets->textureArray);
+    free(assets->scaleArray);
+    free(assets);
+}
+
+/*
+    loadobject loads models listed in the objIndex file.
+*/
+
