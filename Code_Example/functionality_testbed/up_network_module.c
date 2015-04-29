@@ -38,9 +38,18 @@ void up_network_start_setup()                               // used to be main
     char file[20]="ip_address";
     char ip_address[20];
     int success;
-    
+    //need to be started early to make sure that it is up and running before the main game loop begins
+    if(up_concurrentQueue_start_setup()==0)                 //recived queu buffert so that important coordinates does not rewrites
+    {
+        UP_ERROR_MSG("failed queue startup");
+        //error_messages();
+    }
     
     FILE *fp=fopen(file,"r");                               // open file, read the content, scans the file and push it into the array
+    if (fp == NULL) {
+        UP_ERROR_MSG("Missing file, ip_address,network failure");
+        return;
+    }
     fscanf(fp,"%s", ip_address);
     fclose(fp);
     printf("%s", ip_address);
@@ -95,11 +104,7 @@ void up_network_start_setup()                               // used to be main
     thread=SDL_CreateThread(up_network_recive,"up_network_recive",&p);
     
     
-    if(up_concurrentQueue_start_setup()==0)                 //recived queu buffert so that important coordinates does not rewrites
-    {
-        UP_ERROR_MSG("failed queue startup");
-        //error_messages();
-    }
+    
     
 }
 
@@ -186,7 +191,7 @@ int up_network_recive(void *arg)
 //            quit=0;
 //        }
         
-        memcpy(packet->data,zero,20);
+        //memcpy(packet->data,zero,20);
     }
     
 
