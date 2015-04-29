@@ -33,6 +33,7 @@ struct up_mesh *dummyobj()
     return mesh;
 }
 
+
 void up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_modelData *item)
 {
     struct up_objModel *testObj = NULL;
@@ -83,7 +84,8 @@ void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *text
 {
 
     struct UP_textHandler thafile = up_loadAssetFile("objIndex");
-    struct up_modelData item;
+
+    struct up_modelData item; //stores
     char *text = thafile.text;
     char *endLine = "\n";
     char *rad;;

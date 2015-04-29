@@ -64,4 +64,6 @@ void up_textHandler_free(struct UP_textHandler *text_handler)
 }
 
 
-
+struct UP_textHandler up_loadAssetFile(const char * filename){
+    return up_loadShaderFile(filename);
+}
