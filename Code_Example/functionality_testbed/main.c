@@ -121,7 +121,7 @@ int main(int argc, char const *argv[])
     shader_menu = UP_Shader_new("shader_menu",1);
     printf("Shader menu finnished\n");
 
-    //status=up_menu(shaderprog);
+    status=up_menu(shaderprog);
     
 	while(status)
 	{
