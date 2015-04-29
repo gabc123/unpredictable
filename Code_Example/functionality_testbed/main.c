@@ -51,13 +51,15 @@ int main(int argc, char const *argv[])
 
     struct up_modelRepresentation model;
 
-    //up_network_start_setup();
+    up_network_start_setup();
     
     
     
     struct up_assets *assets = up_assets_start_setup();
-    struct up_mesh *mesh = &assets->meshArray[1];
-    struct up_texture_data *texture = &assets->textureArray[1];
+    struct up_mesh *mesh = &assets->meshArray[0];
+    struct up_texture_data *texture = &assets->textureArray[0];
+    
+    
     model.pos.x=0;
     model.pos.y=0;
     model.pos.z=1;
@@ -66,7 +68,7 @@ int main(int argc, char const *argv[])
     model.rot.y=0;
     model.rot.z=0;
 
-    model.scale=assets->scaleArray[1];
+    model.scale=assets->scaleArray[0];
     
     /*
      void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
@@ -139,7 +141,7 @@ int main(int argc, char const *argv[])
         
 
 
-        //up_newtwork_getNewMovement(&ship);
+        up_newtwork_getNewMovement(&ship);
         
         up_updateShipMovment(&ship);
         up_updatShipMatrixModel(&modelMatrix,&model,&ship);
