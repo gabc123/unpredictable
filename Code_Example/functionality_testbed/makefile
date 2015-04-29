@@ -1,5 +1,6 @@
 IDIR_SDL2 =/Library/Frameworks/SDL2.framework/Headers
 IDIR_IMAGE =/Library/Frameworks/SDL2_image.framework/Headers
+IDIR_NET =/Library/Frameworks/SDL2_net.framework/Headers
 FDIR =/Library/Frameworks
 CC=gcc
 ifeq ($(OS),Windows_NT)
@@ -10,7 +11,7 @@ else
 		CFLAGS= -lSDL2 -lGLEW -lGL -lSDL2_image -lm -lSDL_net -lpthread
 	endif
 	ifeq ($(UNAME_S),Darwin)
-		CFLAGS=-I$(IDIR_SDL2) -I$(IDIR_IMAGE) -F$(FDIR) -framework SDL2 -framework SDL2_image -framework opengl
+		CFLAGS=-I$(IDIR_SDL2) -I$(IDIR_IMAGE) -I$(IDIR_NET) -F$(FDIR) -framework SDL2 -framework SDL2_image -framework SDL2_net -framework opengl
 	endif
 endif
 
