@@ -44,6 +44,11 @@ struct up_objModel *up_loadObjModel(const char *filename)
 
     printf("%s\n", filename);
     struct UP_textHandler objFile = up_loadObjFile(filename);
+    if (objFile.text == NULL) {
+        UP_ERROR_MSG_STR("Obj faild to load", filename);
+        return NULL;
+    }
+    
     text=objFile.text;
     do
     {

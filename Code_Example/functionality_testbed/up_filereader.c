@@ -18,6 +18,7 @@ long int filesize(const char * filename)
 	// the file pointer is at the end, read the position
     if (fp == NULL) {
         UP_ERROR_MSG_STR("fopen failed, file:",filename);
+        return 0;
     }
 	size = ftell(fp);
     printf("\nfile loader: end: %ld",size);
@@ -32,12 +33,26 @@ long int filesize(const char * filename)
 
 struct UP_textHandler up_loadShaderFile(const char * filename)
 {
+    struct UP_textHandler zero = {.text = NULL,.length = 0};
+    
 	long int size = filesize(filename) + 1;
-	char *data = malloc(sizeof(char)*size);
-	FILE *fp = fopen(filename,"r");
+    if (size == 1) {
+        //size= 0;
+        UP_ERROR_MSG_INT("bad file size:",0);
+        return zero;
+    }
+    
+    char *data = malloc(sizeof(char)*size);
+    if(data == NULL)
+    {
+        UP_ERROR_MSG("malloc failure");
+        return zero;
+    }
+    
+    FILE *fp = fopen(filename,"r");
     if (fp == NULL) {
         UP_ERROR_MSG_STR("fopen failed, file:",filename);
-        struct UP_textHandler zero = {.text = NULL,.length = 0};
+        
         return zero;
     }
 
