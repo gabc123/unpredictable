@@ -11,6 +11,7 @@
 #include "up_modelRepresentation.h"
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 #include "up_thread_utilities.h"
 #include "up_error.h"
 
@@ -47,11 +48,13 @@ void up_network_start_setup()                               // used to be main
     
     FILE *fp=fopen(file,"r");                               // open file, read the content, scans the file and push it into the array
     if (fp == NULL) {
-        UP_ERROR_MSG("Missing file, ip_address,network failure");
-        return;
+        UP_ERROR_MSG_STR("Missing file, ip_address,network failure",file);
+        strcpy(ip_address, "127.0.0.1");    // this make sure the we have a fallback address, the loopback
+    }else
+    {
+        fscanf(fp,"%s", ip_address);
+        fclose(fp);
     }
-    fscanf(fp,"%s", ip_address);
-    fclose(fp);
     printf("%s", ip_address);
 
                                                             // initialize of sdlnet_init, returns -1 if not success else success
