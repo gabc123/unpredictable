@@ -26,12 +26,15 @@ struct up_mesh *meshTriangleShip()
     
     unsigned int indexArray[] = {0,2,1,2,3,1,0,3,2,3,0,1};
     
-    // left over from debugging. fills the vertex array with pos and tex
+    // left over from debugging. fills the vertex array with pos and tex an normals
     struct up_vertex vertex[4];
     int i = 0;
     for (i = 0; i < 4; i++) {
         vertex[i].pos = pos[i];
         vertex[i].texCoord = tex[i];
+        vertex[i].normals.x = -pos[i].x;
+        vertex[i].normals.y = -pos[i].y;
+        vertex[i].normals.z = -pos[i].z;
     }
     /////////////
     printf("vertex start\n");
