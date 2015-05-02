@@ -19,9 +19,11 @@ struct up_assets
     unsigned int numobjects;
     struct up_mesh *meshArray;
     struct up_texture_data *textureArray;
-    struct up_vec3 *scale;
+    struct up_vec3 *scaleArray;
 };
 
 struct up_assets *up_assets_start_setup();
+void up_assets_shutdown_deinit(struct up_assets *assets);
+
 
 #endif /* defined(__testprojectshader__up_assets__) */
