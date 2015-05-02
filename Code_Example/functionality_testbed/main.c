@@ -9,6 +9,7 @@
 #include "up_menu.h"
 #include "up_camera_module.h"
 #include "up_assets.h"
+#include "up_camera_module.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -57,7 +58,7 @@ int main(int argc, char const *argv[])
     // first 3 values are the camera position,
     // the next 3 value is where it looking at
     // the last 3 values is what is up and what is down
-    struct up_camera cam = {{0,0,-3},{0,0,1},{0,1,0}};
+    struct up_camera cam = {{0,0,-30},{0,0,1},{0,1,0}};
     
     // generate the view matrix
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
@@ -105,11 +106,13 @@ int main(int argc, char const *argv[])
         UP_shader_bind(shaderprog);                 // tells the gpu what shader program to use
         up_texture_bind(texture, 0);
         
-        //up_newtwork_getNewMovement(&ship);          // retrive any updates from the network
+        //upnewtwork_getNewMovement(&ship);          // retrive any updates from the network
         
         up_updateShipMovment(&ship);
         
         up_updatShipMatrixModel(&modelMatrix,&model,&ship); // creates the modelMatrix for the ship
+        
+        up_update_camera(&cam, &ship);
         
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
         

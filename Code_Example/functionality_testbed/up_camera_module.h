@@ -16,6 +16,6 @@
         float zFar;
     };
 
-void up_update_camera(struct up_camera *cam,struct shipMovement *ship);
+void up_update_camera(struct up_camera *cam,struct up_ship *ship);
 
 #endif
