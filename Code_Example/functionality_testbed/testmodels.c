@@ -24,8 +24,8 @@ struct up_mesh *meshTriangleShip()
         {0.0f, 0.0f, 1.0f}
     };
     
-    unsigned int indexArray[] = {0,2,1,2,3,1,0,3,2,3,0,1};
-    
+//    unsigned int indexArray[] = {0,2,1,2,3,1,0,3,2,3,0,1};
+    unsigned int indexArray[] = {1,2,0,1,3,2,2,3,0,1,0,3};
     // left over from debugging. fills the vertex array with pos and tex an normals
     struct up_vertex vertex[4];
     int i = 0;
@@ -108,7 +108,8 @@ struct up_mesh *up_meshMenuBackground()
     };
     
     
-    unsigned int indexArray[] = {0,2,1,2,3,1};  //binds togheter two triangels into one square
+    //unsigned int indexArray[] = {0,2,1,2,3,1};  //binds togheter two triangels into one square
+    unsigned int indexArray[] = {1,2,0,1,3,2};  //binds togheter two triangels into one square
     
     // left over from debugging. fills the vertex array with pos and tex
     struct up_vertex vertex[4];
@@ -154,7 +155,7 @@ struct up_mesh *up_meshBotton(float imageX, float imageY, float screenPosX, floa
     };
     
     
-    unsigned int indexArray[] = {0,2,1,2,3,1};  //binds togheter two triangels into one square
+    unsigned int indexArray[] = {1,2,0,1,3,2};  //binds togheter two triangels into one square
     
     // left over from debugging. fills the vertex array with pos and tex
     struct up_vertex vertex[4];
@@ -193,7 +194,7 @@ struct up_mesh *up_meshLoginOverlay()
     };
     
     
-    unsigned int indexArray[] = {0,2,1,2,3,1};  //binds togheter two triangels into one square
+    unsigned int indexArray[] = {1,2,0,1,3,2};  //binds togheter two triangels into one square
     
     // left over from debugging. fills the vertex array with pos and tex
     struct up_vertex vertex[4];

@@ -70,7 +70,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 #endif
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);   // we should change this, the model is in the wrong order
+    glCullFace(GL_BACK);   // we should change this, the model is in the wrong order
 
     /// print opengl information
     printf("\n\n\n\n");

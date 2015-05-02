@@ -10,7 +10,8 @@ int main(int argNum,char* argChar[])
         UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
     }
 
-    up_unitTest_concurency_queue_spsc();
+   up_unitTest_concurency_queue_spsc();
+      
     
     SDL_Quit();
     return 0;

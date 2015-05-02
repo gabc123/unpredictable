@@ -2,6 +2,7 @@
 
 #include "up_sdl_redirect.h"
 #include "up_shader_module.h"
+#include "up_camera_module.h"
 
 double up_getFrameTimeDelta();
 
@@ -39,6 +40,12 @@ int UP_eventHandler(struct up_ship *ship,struct shipMovement *movement)
                     break;
                 case SDLK_d:
                     movement->right=1;
+                    break;
+                case SDLK_r:
+                    up_cam_zoom(1.0f);
+                    break;
+                case SDLK_f:
+                    up_cam_zoom(-1.0f);
                     break;
                 case SDLK_SPACE:
                     break;

@@ -68,7 +68,7 @@ int main(int argc, char const *argv[])
     stillObjModel.scale=assets->scaleArray[0];
     
     struct up_ship stillObj = {0};
-    stillObj.pos.z = 10;
+    stillObj.pos.z = 40;
 
     up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
     
@@ -82,14 +82,15 @@ int main(int argc, char const *argv[])
     // first 3 values are the camera position,
     // the next 3 value is where it looking at
     // the last 3 values is what is up and what is down
-    struct up_camera cam = {{0,0,-3},{0,0,1},{0,1,0}};
+    struct up_camera cam = {{0,0,30},{0,0,1},{0,1,0}};
     
     // generate the view matrix
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
     
     // this is the perspectiv configurations,
     // field of view(fov),aspect ratio,how close object can be(can not be 0!!!),and how far we can see
-    struct up_perspective pers = {70.0f,screen_width/screen_hight,0.01f,1000.0f};
+    // and not smalle then 1 , wierd results happens then
+    struct up_perspective pers = {70.0f,screen_width/screen_hight,1.0f,1000.0f};
     
     // generate the oersoective matrix
     up_matrixPerspective(&perspectiveMatrix, pers.fov, pers.aspectRatio, pers.zNear, pers.zFar);
@@ -98,7 +99,7 @@ int main(int argc, char const *argv[])
     
     // this is the start ship, initilazing the startin positions
     struct up_ship ship = {0};
-    ship.pos.z = 50;
+    ship.pos.z = 30;
     
     // the ship will stand stilll at the begining
     struct shipMovement movement = {0,0,0,0};
@@ -150,7 +151,7 @@ int main(int argc, char const *argv[])
         up_texture_bind(stillObjTexture, 0);
         UP_shader_update(shaderprog,&transform2);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
         
-        up_shader_update_sunligth(shaderprog, &modelMatrix);    // this uploads the sun angle to the gpu
+       // up_shader_update_sunligth(shaderprog, &modelMatrix);    // this uploads the sun angle to the gpu
         up_draw_mesh(stillObjMesh);
         
         UP_openGLupdate();  // this swaps the render and window buffer , displaying it on screen

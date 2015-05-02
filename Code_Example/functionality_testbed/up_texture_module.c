@@ -78,6 +78,7 @@ struct up_texture_data *up_load_texture(const char  * filename)
     int format_rgb = GL_RGB;
     if (tex->format->BytesPerPixel == 4) {
         format_rgb = GL_RGBA;
+        printf("\nImg : %s is RGBA\n",filename);
     }
 
 
