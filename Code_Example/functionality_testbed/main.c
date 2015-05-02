@@ -29,7 +29,7 @@ int main(int argc, char const *argv[])
     UP_openGLwindowSetup(screen_width,screen_hight,"Det fungerar !!!");
     printf("opengl window setup done\n");
     
-    up_network_start_setup();
+    //up_network_start_setup();
     
     int mesh_capacity = 40;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
@@ -105,7 +105,7 @@ int main(int argc, char const *argv[])
         UP_shader_bind(shaderprog);                 // tells the gpu what shader program to use
         up_texture_bind(texture, 0);
         
-        up_newtwork_getNewMovement(&ship);          // retrive any updates from the network
+        //up_newtwork_getNewMovement(&ship);          // retrive any updates from the network
         
         up_updateShipMovment(&ship);
         
@@ -134,7 +134,7 @@ int main(int argc, char const *argv[])
     
     up_texture_shutdown_deinit();
     up_assets_shutdown_deinit(assets);
-    up_network_shutdown_deinit();
+    //up_network_shutdown_deinit();
     UP_openGLwindowCleanup();
     UP_sdlCleanup();
     printf("All cleanup completed\n");
