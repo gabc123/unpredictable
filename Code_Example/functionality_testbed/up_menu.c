@@ -90,7 +90,7 @@ int up_menu(struct shader_module *shaderprog){
     //LOGIN OVERLAY
     struct up_modelRepresentation scale2 ={{0,0,0},     //no scale (yet)
                                            {0,0,0},
-                                           {1,1,1}};
+                                           {0.95,0.95,0.95}};
     
     
     up_matrixModel(&translationLoginOverlay, &scale2.pos, &scale2.rot, &scale2.scale);
