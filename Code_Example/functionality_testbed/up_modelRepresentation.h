@@ -46,5 +46,11 @@ struct up_objectInfo
     float speed;
 };
 
+int up_unit_start_setup(unsigned int max_unit_count);
+void up_unit_shutdown_deinit();
+void up_unit_add(struct up_objectInfo object);
+void up_unit_getAllObj(struct up_objectInfo *objectArray,int *count);
+
+
 #endif
 

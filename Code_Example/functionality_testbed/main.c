@@ -35,6 +35,9 @@ int main(int argc, char const *argv[])
     int mesh_capacity = 40;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
+    int max_unit_count = 100;
+    up_unit_start_setup(max_unit_count);
+    
     
     
     // Load a shader just for the menu system (location 0)
@@ -95,7 +98,7 @@ int main(int argc, char const *argv[])
     
     // this is the start ship, initilazing the startin positions
     struct up_ship ship = {0};
-    ship.pos.z = 100;
+    ship.pos.z = 50;
     
     // the ship will stand stilll at the begining
     struct shipMovement movement = {0,0,0,0};
@@ -157,9 +160,9 @@ int main(int argc, char const *argv[])
     
     //cleanup and release all data (notice the reverse order of setup)
     UP_Shader_delete();
-    
+    up_unit_shutdown_deinit();
     up_mesh_shutdown_deinit();
-    
+
     up_texture_shutdown_deinit();
     up_assets_shutdown_deinit(assets);
     //up_network_shutdown_deinit();

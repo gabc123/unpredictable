@@ -1,5 +1,6 @@
 #include "up_camera_module.h"
 #include "up_matrixTransforms.h"
+#include "up_objectReader.h"
 
 // skapad av waleed hassan 2 maj 2015.
 
@@ -15,4 +16,10 @@ void up_update_camera(struct up_camera *cam,struct up_ship *ship){
     cam->eye.z=ship->pos.z - 100;
 
     //cam->eye=ship->
+}
+
+void up_ObjectsInView(struct up_objectInfo *objectArray,int *count,struct up_camera *cam)
+{
+    up_unit_getAllObj(objectArray, count);
+    
 }
