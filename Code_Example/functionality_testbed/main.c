@@ -35,6 +35,15 @@ int main(int argc, char const *argv[])
 	up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
     
+    // Load a shader just for the menu system (location 0)
+    struct shader_module *shader_menu;
+    shader_menu = UP_Shader_new("shader_menu",0);
+    printf("Shader menu finnished\n");
+    
+    // start the menu, and display it
+    status=up_menu(shader_menu);
+    
+    
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
@@ -80,14 +89,6 @@ int main(int argc, char const *argv[])
 
     
     //up_matrix4_t identity = up_matrix4identity();
-    
-    // Load a shader just for the menu system (location 0)
-    struct shader_module *shader_menu;
-    shader_menu = UP_Shader_new("shader_menu",0);
-    printf("Shader menu finnished\n");
-
-    // start the menu, and display it
-    status=up_menu(shader_menu);
 
     // loads the shaders for the rendering loop (location 1)
     struct shader_module *shaderprog;
@@ -101,21 +102,22 @@ int main(int argc, char const *argv[])
         up_updateFrameTickRate();
         status = UP_eventHandler(&ship,&movement);
 
-		UP_renderBackground();                      //Clears the buffer and results an empty window.
-		UP_shader_bind(shaderprog);                 // tells the gpu what shader program to use
-        up_texture_bind(texture, 0);
-
         up_newtwork_getNewMovement(&ship);          // retrive any updates from the network
         
         up_updateShipMovment(&ship);
         
         up_updatShipMatrixModel(&modelMatrix,&model,&ship); // creates the modelMatrix for the ship
-
+        
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
-
+        
         // combinds the 3 matrix modelMatrix, viewMatrix, perspectiveMatrix, into a transformMatrix,
         // this is needed for the gpu to place the model at the right location on screen and get the right perspective
         up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &perspectiveMatrix);
+        
+		UP_renderBackground();                      //Clears the buffer and results an empty window.
+		UP_shader_bind(shaderprog);                 // tells the gpu what shader program to use
+        up_texture_bind(texture, 0);
+
 
         UP_shader_update(shaderprog,&transform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
 

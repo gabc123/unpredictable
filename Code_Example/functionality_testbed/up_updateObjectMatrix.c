@@ -4,7 +4,7 @@
 
 #include "up_matrixTransforms.h"
 
-void updateMatrix(up_matrix4_t *modelReturnData, up_matrix4_t *viewMatrix ,up_matrix4_t *perspectiveMatrix, struct up_objectInfo *objectArray, int count)
+void up_updateMatrix(up_matrix4_t *modelReturnData, up_matrix4_t *viewMatrix ,up_matrix4_t *perspectiveMatrix, struct up_objectInfo *objectArray, int count)
 {
     up_matrix4_t matrixModel;
     up_matrix4_t modelMatrix;

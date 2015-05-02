@@ -7,7 +7,7 @@
 #include "up_ship.h"
 
 
-void updateMatrix(up_matrix4_t *modelReturnData, up_matrix4_t *viewMatrix ,up_matrix4_t *perspectiveMatrix, struct up_objectInfo *objectArray, int count);
+void up_updateMatrix(up_matrix4_t *modelReturnData, up_matrix4_t *viewMatrix ,up_matrix4_t *perspectiveMatrix, struct up_objectInfo *objectArray, int count);
 
 
 #endif //UP_UPDATEOBJECTMATRIX_H
