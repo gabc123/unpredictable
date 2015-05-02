@@ -137,7 +137,7 @@ int up_network_recive(void *arg)
     Pthread_listen_datapipe_t *p=(Pthread_listen_datapipe_t *)arg;
     struct objUpdateInformation obj;
     char tmp[20];
-    char zero[20]={0};
+    //char zero[20]={0};
     int quit=1;
     UDPsocket socket =p->udpSocket;
     UDPpacket *packet =p->packet;
