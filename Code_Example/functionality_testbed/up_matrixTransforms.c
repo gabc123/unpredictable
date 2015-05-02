@@ -154,11 +154,11 @@ void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec
     up_matrix4Multiply(modelMatrix, &tmpResult, &posMatrix4);
 }
 
-void up_cross(struct up_vec3 *result,struct up_vec3 *vec3B,struct up_vec3 *vec3A)
+void up_cross(struct up_vec3 *result,struct up_vec3 *vec3A,struct up_vec3 *vec3B)
 {
-    result->x = (vec3A->y*vec3B->z) - (vec3A->z*vec3B->y);
-    result->y = -(vec3A->x*vec3B->z - vec3A->z*vec3B->x);
-    result->z = vec3A->x*vec3B->y - vec3A->y*vec3B->x;
+    result->x = vec3A->y * vec3B->z - vec3A->z * vec3B->y ;
+    result->y = -(vec3A->x * vec3B->z - vec3A->z * vec3B->x);
+    result->z = vec3A->x * vec3B->y - vec3A->y * vec3B->x;
 }
 
 
@@ -184,11 +184,37 @@ void normalize(struct up_vec3 *result, struct up_vec3 *vec3A)
     result->z = vec3A->z/dot;
 }
 
+void up_viewTest(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP)
+{
+    struct up_vec3 F;
+    viewdirection(&F, center, eye);
+    struct up_vec3 col3;
+    normalize(&col3, &F);
+    struct up_vec3 tmp;
+    up_cross(&tmp, UP, &col3);
+    struct up_vec3 col1;
+    normalize(&col1, &tmp);
+    struct up_vec3 col2;
+    up_cross(&col2, &col3, &col1);
+    float row4x = -up_dot(&col1, center);
+    float row4y = -up_dot(&col2, center);
+    float row4z = -up_dot(&col3, center);
+    float matTmp[16] = {
+        col1.x,col2.x,col3.x,0,
+        col1.y,col2.y,col3.y,0,
+        col1.z,col2.z,col3.z,0,
+        row4x,row4y,row4z,1};
+    int  i = 0;
+    for (i = 0; i< 16; i++) {
+        matrixView->data[i] = matTmp[i];
+    }
+}
 
 // https://www.opengl.org/sdk/docs/man2/xhtml/gluLookAt.xml
 void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP)
 {
-    struct up_vec3 result;
+    up_viewTest(matrixView,eye,center,UP);
+    /*struct up_vec3 result;
     struct up_vec3 U;
     viewdirection(&result,center,eye);
     struct up_vec3 F=result;
@@ -210,7 +236,7 @@ void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3
     int  i = 0;
     for (i = 0; i< 16; i++) {
         matrixView->data[i] = matTmp[i];
-    }
+    }*/
 }
 
 // based on https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml

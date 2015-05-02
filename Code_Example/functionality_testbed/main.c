@@ -36,6 +36,15 @@ int main(int argc, char const *argv[])
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
     
+    
+    // Load a shader just for the menu system (location 0)
+    struct shader_module *shader_menu;
+    shader_menu = UP_Shader_new("shader_menu",0);
+    printf("Shader menu finnished\n");
+    
+    // start the menu, and display it
+    status=up_menu(shader_menu);
+    
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
@@ -48,6 +57,18 @@ int main(int argc, char const *argv[])
     
     model.scale=assets->scaleArray[1];
     
+    
+    struct up_mesh *stillObjMesh = &assets->meshArray[0];
+    struct up_texture_data *stillObjTexture = &assets->textureArray[0];
+    
+    struct up_modelRepresentation stillObjModel = {0};
+    stillObjModel.scale=assets->scaleArray[0];
+    
+    struct up_ship stillObj = {0};
+    stillObj.pos.z = 10;
+
+    up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
+    
     // all the 4by4 matrix that are needed to place the model at the right location and with the right perspective
     up_matrix4_t transform ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
     up_matrix4_t modelMatrix;
@@ -58,7 +79,7 @@ int main(int argc, char const *argv[])
     // first 3 values are the camera position,
     // the next 3 value is where it looking at
     // the last 3 values is what is up and what is down
-    struct up_camera cam = {{0,0,-30},{0,0,1},{0,1,0}};
+    struct up_camera cam = {{0,0,-3},{0,0,1},{0,1,0}};
     
     // generate the view matrix
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
@@ -74,7 +95,7 @@ int main(int argc, char const *argv[])
     
     // this is the start ship, initilazing the startin positions
     struct up_ship ship = {0};
-    ship.pos.z = 10;
+    ship.pos.z = 100;
     
     // the ship will stand stilll at the begining
     struct shipMovement movement = {0,0,0,0};
@@ -82,13 +103,7 @@ int main(int argc, char const *argv[])
     
     //up_matrix4_t identity = up_matrix4identity();
     
-    // Load a shader just for the menu system (location 0)
-    struct shader_module *shader_menu;
-    shader_menu = UP_Shader_new("shader_menu",0);
-    printf("Shader menu finnished\n");
-    
-    // start the menu, and display it
-    status=up_menu(shader_menu);
+   
     
     // loads the shaders for the rendering loop (location 1)
     struct shader_module *shaderprog;
@@ -125,6 +140,16 @@ int main(int argc, char const *argv[])
         up_shader_update_sunligth(shaderprog, &modelMatrix);    // this uploads the sun angle to the gpu
         
         up_draw_mesh(mesh); // this draws the model onto the screen , at the location transform, and with the sunlight modelMatrix
+        
+        up_updatShipMatrixModel(&modelMatrix,&stillObjModel,&stillObj); // creates the modelMatrix for the ship
+        up_getModelViewPerspective(&transform2, &modelMatrix, &viewMatrix, &perspectiveMatrix);
+        
+        up_texture_bind(stillObjTexture, 0);
+        UP_shader_update(shaderprog,&transform2);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
+        
+        up_shader_update_sunligth(shaderprog, &modelMatrix);    // this uploads the sun angle to the gpu
+        up_draw_mesh(stillObjMesh);
+        
         UP_openGLupdate();  // this swaps the render and window buffer , displaying it on screen
         
     }
