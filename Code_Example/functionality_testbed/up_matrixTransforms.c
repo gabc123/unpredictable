@@ -362,6 +362,19 @@ void up_matrixPerspective(up_matrix4_t *perspective, GLdouble fov,GLdouble aspec
     //perspective->data[15] = 1;
 }
 
+void up_getViewPerspective(up_matrix4_t *vp,
+                                up_matrix4_t *matrixView,
+                                up_matrix4_t *perspective)
+{
+    //up_matrix4_t mv = {0};
+    //up_matrix4Multiply(&mv,modelMatrix,matrixView);
+    up_matrix4Multiply(vp, matrixView, perspective);
+    
+    /*up_matrix4_t pv = {0};
+     up_matrix4Multiply(&pv,perspective,matrixView);
+     up_matrix4Multiply(mvp, &pv, modelMatrix);*/
+}
+
 void up_getModelViewPerspective(up_matrix4_t *mvp,
                                 up_matrix4_t *modelMatrix,
                                 up_matrix4_t *matrixView,
