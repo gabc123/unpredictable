@@ -87,11 +87,11 @@ int main(int argc, char const *argv[])
     
     
 
-    up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
+    //up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
     
     // all the 4by4 matrix that are needed to place the model at the right location and with the right perspective
-    up_matrix4_t transform ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
-    up_matrix4_t modelMatrix;
+    //up_matrix4_t transform ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
+    //up_matrix4_t modelMatrix;
     up_matrix4_t viewMatrix;
     up_matrix4_t perspectiveMatrix;
     
@@ -141,6 +141,7 @@ int main(int argc, char const *argv[])
         //up_newtwork_getNewMovement(&ship);          // retrive any updates from the network
         
         //up_updatShipMatrixModel(&modelMatrix,&model,ship); // creates the modelMatrix for the ship
+        up_updateShipMovment(ship);
         
         up_update_camera(&cam, ship);
         
