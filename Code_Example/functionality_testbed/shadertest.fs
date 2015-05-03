@@ -13,7 +13,7 @@ out vec4 fragColor;
 void main()
 {
     // This is temporary untill mats model gets a propper scaling done to it
-    fragColor = texture(diffuse, texCoord0)*dot(vec3(0.0,0.0,1.0),normalsFragment);
+    fragColor = texture(diffuse, texCoord0)*2*dot(vec3(0.0,0.0,1.0),normalsFragment);
     
     //vec4 (1.0 , 0.0, 0.0, 1.0);
     //gl_FragColor = vec4 (1.0 , 0.0, 0.0, 1.0);

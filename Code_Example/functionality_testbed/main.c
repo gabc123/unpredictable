@@ -61,14 +61,14 @@ int main(int argc, char const *argv[])
     model.scale=assets->scaleArray[1];
     
     
-    struct up_mesh *stillObjMesh = &assets->meshArray[0];
-    struct up_texture_data *stillObjTexture = &assets->textureArray[0];
+    struct up_mesh *stillObjMesh = &assets->meshArray[2];
+    struct up_texture_data *stillObjTexture = &assets->textureArray[2];
     
     struct up_modelRepresentation stillObjModel = {0};
-    stillObjModel.scale=assets->scaleArray[0];
+    stillObjModel.scale=assets->scaleArray[2];
     
     struct up_ship stillObj = {0};
-    stillObj.pos.z = 40;
+    stillObj.pos.z = 30;
 
     up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
     
@@ -99,7 +99,7 @@ int main(int argc, char const *argv[])
     
     // this is the start ship, initilazing the startin positions
     struct up_ship ship = {0};
-    ship.pos.z = 30;
+    ship.pos.z = 40;
     
     // the ship will stand stilll at the begining
     struct shipMovement movement = {0,0,0,0};

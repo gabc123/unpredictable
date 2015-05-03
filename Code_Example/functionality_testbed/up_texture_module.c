@@ -43,7 +43,7 @@ void up_texture_shutdown_deinit()
 struct up_texture_data *up_load_texture(const char  * filename)
 {
     if (internal_texture.count >= internal_texture.size) {
-        fprintf(stderr, "Error , tried to load too many textures");
+        UP_ERROR_MSG("Error , tried to load too many textures");
         return NULL;
     }
 
@@ -75,15 +75,20 @@ struct up_texture_data *up_load_texture(const char  * filename)
 
 
     // set the RGB format to use in the glTexImage2d load function
-    int format_rgb = GL_RGB;
+    GLenum format_rgb = GL_RGB;
     if (tex->format->BytesPerPixel == 4) {
+        
         format_rgb = GL_RGBA;
-        printf("\nImg : %s is RGBA\n",filename);
+        printf("\nImg : %s have\n",filename);
+        printf("SDL imgFormat: %s",SDL_GetPixelFormatName(tex->format->format));
+        format_rgb = GL_BGRA;
     }
 
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->w, tex->h, 0, format_rgb, GL_UNSIGNED_BYTE, tex->pixels);
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->w, tex->h, 0, format_rgb, GL_UNSIGNED_BYTE, tex->pixels);
 
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex->w, tex->h, 0, format_rgb, GL_UNSIGNED_INT_8_8_8_8_REV, tex->pixels);
+    
     SDL_FreeSurface(tex);
     internal_texture.count++;
     return tex_data;

@@ -12,7 +12,7 @@ unsigned int up_gFramePerSeconde = 0;
 void shipMove(struct shipMovement *movement, struct up_ship *ship){
     float deltaTime = (float)up_getFrameTimeDelta();
     ship->speed += 1.0f *(movement->up - movement->down) * deltaTime;
-    ship->angle += 1.f *(movement->right - movement->left) * deltaTime;
+    ship->angle += 1.f *(movement->left - movement->right) * deltaTime;
     if(!(movement->up + movement->down)){ship->speed=0;}
 }
 
