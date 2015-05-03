@@ -13,6 +13,12 @@ void UP_sdlSetup()
     {
         UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
     }
+    printf("SDL init done\n");
+    
+    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
+        UP_ERROR_MSG("SDL image init failure (PNG)");
+    }
+    printf("SDL image init done\n");
 
 }
 
@@ -20,7 +26,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 {
     // we need to have atleast opengl 3.2 to use all the functions we need.
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 
@@ -59,6 +65,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 	// so this only renders inside the correct context
 	g_openglContext = SDL_GL_CreateContext(g_openglWindow);
 
+    SDL_Delay(100);
 //on linux and windows glew needs to be installed
 #ifndef __APPLE__
 	glewExperimental = GL_TRUE;
@@ -70,7 +77,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 #endif
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);   // we should change this, the model is in the wrong order
+    glCullFace(GL_BACK);   // we should change this, the model is in the wrong order
 
     /// print opengl information
     printf("\n\n\n\n");
@@ -104,5 +111,6 @@ void UP_sdlCleanup()
 void UP_renderBackground()
 {
 	glClearColor(0.0f, 0.15f, 0.42f, 1.0f);
+    //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

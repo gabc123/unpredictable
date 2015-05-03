@@ -19,13 +19,13 @@ struct shipMovement
     int right;
 };
 
-struct up_ship
-{
-    struct up_vec3 pos;
-    struct up_vec3 dir;
-    float angle;
-    float speed;
-};
+//struct up_objectInfo
+//{
+//    struct up_vec3 pos;
+//    struct up_vec3 dir;
+//    float angle;
+//    float speed;
+//};
 
 
 struct up_modelRepresentation
@@ -45,6 +45,13 @@ struct up_objectInfo
     float angle;
     float speed;
 };
+
+int up_unit_start_setup(unsigned int max_unit_count);
+void up_unit_shutdown_deinit();
+int up_unit_add(struct up_objectInfo object);
+struct up_objectInfo *up_unit_getAllObj(int *count);
+struct up_objectInfo *up_unit_objAtIndex(int index);
+
 
 #endif
 

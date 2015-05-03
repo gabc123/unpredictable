@@ -1,6 +1,7 @@
 #ifndef UP_CAMERA_MODULE_H
 #define UP_CAMERA_MODULE_H
 #include "up_vertex.h"
+#include "up_modelRepresentation.h"
 
     struct up_camera {
         struct up_vec3 eye;
@@ -14,5 +15,10 @@
         float zNear;
         float zFar;
     };
+
+void up_cam_zoom(float change);
+
+void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship);
+struct up_objectInfo *up_ObjectsInView(int *count,struct up_camera *cam);
 
 #endif

@@ -39,17 +39,20 @@ void up_network_start_setup()                               // used to be main
     char file[20]="ip_address";
     char ip_address[20];
     int success;
-    //need to be started early to make sure that it is up and running before the main game loop begins
+    
+                                                            //need to be started early to make sure that it is up and running before the main game loop begins
     if(up_concurrentQueue_start_setup()==0)                 //recived queu buffert so that important coordinates does not rewrites
     {
         UP_ERROR_MSG("failed queue startup");
-        //error_messages();
+    }
+    else{
+        printf("Success queue");
     }
     
     FILE *fp=fopen(file,"r");                               // open file, read the content, scans the file and push it into the array
     if (fp == NULL) {
         UP_ERROR_MSG_STR("Missing file, ip_address,network failure",file);
-        strcpy(ip_address, "127.0.0.1");    // this make sure the we have a fallback address, the loopback
+        strcpy(ip_address, "127.0.0.1");                    // this make sure the we have a fallback address, the loopback
     }else
     {
         fscanf(fp,"%s", ip_address);
@@ -69,7 +72,7 @@ void up_network_start_setup()                               // used to be main
     }
                                                             // randomize a port so that the client can communicate, returns 0 if not success else success
     
-    client_socket=SDLNet_UDP_Open(5001);
+    client_socket=SDLNet_UDP_Open(0);
     if(!client_socket){
         printf("Error: Could not open socket");
         exit(EXIT_FAILURE);
@@ -79,13 +82,13 @@ void up_network_start_setup()                               // used to be main
     }
                                                             // resolving conection between host and destination address, sending data throuh port 5001
     
-//    success=SDLNet_ResolveHost(&addr, ip_address, 5001);
-//    if(success==-1){
-//        printf("Error: Could not fill out ip address");
-//    }
-//    else{
-//        printf("Success filling out the ip address");
-//    }
+    success=SDLNet_ResolveHost(&addr, ip_address, 5001);
+    if(success==-1){
+        printf("Error: Could not fill out ip address");
+    }
+    else{
+        printf("Success filling out the ip address");
+    }
     
     
                                                             // allocate and resize a single udp packet
@@ -120,7 +123,7 @@ void up_network_shutdown_deinit()
 }
 
 
-void up_newtwork_getNewMovement(struct up_ship * ship)
+void up_newtwork_getNewMovement(struct up_objectInfo * ship)
 {
     struct objUpdateInformation obj[5];
     
@@ -137,19 +140,18 @@ int up_network_recive(void *arg)
     Pthread_listen_datapipe_t *p=(Pthread_listen_datapipe_t *)arg;
     struct objUpdateInformation obj;
     char tmp[20];
-    //char zero[20]={0};
     int quit=1;
     UDPsocket socket =p->udpSocket;
     UDPpacket *packet =p->packet;
-    //unsigned char kuk[20]="mamma knullare";
+    unsigned char kuk[20]="mamma knullare";
     
     while(quit!=0){
     SDL_Delay(10);
         
 
-        
-        packet->address.host=p->addr.host;
-        packet->address.port=p->addr.port;
+//        
+//        packet->address.host=p->addr.host;
+//        packet->address.port=p->addr.port;
         
         if (SDLNet_UDP_Recv(socket,packet)){
             
@@ -178,23 +180,18 @@ int up_network_recive(void *arg)
         
         
         
-        
         SDL_Delay(1);
        // fgets((char*)kuk,20,stdin);
 
         
-        //packet->data=kuk;
+        packet->data=kuk;
         
         packet->len = (int)strlen((char*)packet->data);
         
+        //printf("Leangth:  %d", packet->len);
+        
         SDLNet_UDP_Send(socket,-1, packet);
-        // }
-        
-//        if(strcmp("quit\n",(char*)p->packet->data)==0){
-//            quit=0;
-//        }
-        
-        //memcpy(packet->data,zero,20);
+
     }
     
 

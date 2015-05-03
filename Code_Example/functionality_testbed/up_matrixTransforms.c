@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <math.h>
 
+// created by magnus
+// modifyed by sebastian
+// modifyed by magnus
+
+
 up_matrix4_t up_matrix4Xrotation(float angle);
 up_matrix4_t up_matrix4Yrotation(float angle);
 up_matrix4_t up_matrix4Zrotation(float angle);
@@ -154,11 +159,11 @@ void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec
     up_matrix4Multiply(modelMatrix, &tmpResult, &posMatrix4);
 }
 
-void up_cross(struct up_vec3 *result,struct up_vec3 *vec3B,struct up_vec3 *vec3A)
+void up_cross(struct up_vec3 *result,struct up_vec3 *vec3A,struct up_vec3 *vec3B)
 {
-    result->x = (vec3A->y*vec3B->z) - (vec3A->z*vec3B->y);
-    result->y = -(vec3A->x*vec3B->z - vec3A->z*vec3B->x);
-    result->z = vec3A->x*vec3B->y - vec3A->y*vec3B->x;
+    result->x = vec3A->y * vec3B->z - vec3A->z * vec3B->y;
+    result->y = vec3A->z * vec3B->x - vec3A->x * vec3B->z;
+    result->z = vec3A->x * vec3B->y - vec3A->y * vec3B->x;
 }
 
 
@@ -175,20 +180,150 @@ static void viewdirection(struct up_vec3 *result,struct up_vec3 *center,struct u
 }
 
 //the mathematic operation normalize
-void normalize(struct up_vec3 *result, struct up_vec3 *vec3A)
+void up_normalize(struct up_vec3 *result, struct up_vec3 *vec3A)
 {
  //   struct up_vec3 tmp;
-    float dot=sqrt(up_dot(vec3A,vec3A));
+    float dot=sqrtf(up_dot(vec3A,vec3A));
     result->x = vec3A->x/dot;
     result->y = vec3A->y/dot;
     result->z = vec3A->z/dot;
 }
 
+void up_viewTest2(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP)
+{
+    struct up_vec3 dir;
+    viewdirection(&dir, center, eye);
+    struct up_vec3 f;
+    up_normalize(&f, &dir);
+    
+    struct up_vec3 un;
+    up_normalize(&un, UP);
+    
+    struct up_vec3 cross_fu;
+    up_cross(&cross_fu, &f, &un);
+    
+    struct up_vec3 s;
+    up_normalize(&s, &cross_fu);
+    
+    struct up_vec3 u ;
+    up_cross(&u, &s, &f);
+    
+    float row4x = -up_dot(&s, eye);
+    float row4y = -up_dot(&u, eye);
+    float row4z = -up_dot(&f, eye);
+    
+    up_matrix4_t matTmp = {
+        s.x, u.x, f.x, 0,
+        s.y, u.y, f.y, 0,
+        s.z, u.z, f.z, 0,
+        row4x, row4y, row4z,1};
+    
+    *matrixView = matTmp;
+    
+    //struct up_vec3 invEye = {eye->x,eye->y,eye->z};
+    //up_matrix4_t camTranslation = up_matrix4translation(&invEye);
+    
+    //up_matrix4Multiply(matrixView, &camTranslation, &matTmp);
+    
+}
+
+
+void up_viewTest(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP)
+{
+    struct up_vec3 dir;
+    viewdirection(&dir, center, eye);
+    struct up_vec3 N;;
+    up_normalize(&N, &dir);
+    struct up_vec3 un;
+    up_normalize(&un, UP);
+    struct up_vec3 U;
+    up_cross(&U, &un, center);
+    struct up_vec3 V;
+    
+    up_cross(&V, &N, &U);
+    
+    /*
+     
+     up_matrix4_t matTmp = {
+     U.x,V.x,N.x,0,
+     U.y,V.y,N.y,0,
+     U.z,V.z,N.z,0,
+     0,0,0,1};
+     
+     */
+    
+    up_matrix4_t matTmp = {
+        U.x,U.y,U.z,0,
+        V.x,V.y,V.z,0,
+        N.x,N.y,N.z,0,
+        0,0,0,1};
+    
+    struct up_vec3 invEye = {eye->x,eye->y,eye->z};
+    up_matrix4_t camTranslation = up_matrix4translation(&invEye);
+    
+    up_matrix4Multiply(matrixView, &camTranslation, &matTmp);
+    
+    /*struct up_vec3 F;
+    viewdirection(&F, center, eye);
+    struct up_vec3 col3;
+    normalize(&col3, &F);
+    struct up_vec3 tmp;
+    up_cross(&tmp, UP, &col3);
+    struct up_vec3 col1;
+    normalize(&col1, &tmp);
+    struct up_vec3 col2;
+    up_cross(&col2, &col3, &col1);
+    */
+   /* up_matrix4_t matTmp = {
+        col1.x,col2.x,col3.x,0,
+        col1.y,col2.y,col3.y,0,
+        col1.z,col2.z,col3.z,0,
+        0,0,0,1};
+    
+    up_matrix4_t mat4eye = {
+        1,0,0,0,
+        0,1,0,0,
+        0,0,1,0,
+        -eye->x,-eye->y,-eye->z,1
+    };
+    
+    up_matrix4Multiply(matrixView,&mat4eye,&matTmp);*/
+    
+    /*float row4x = -up_dot(&col1, center);
+    float row4y = -up_dot(&col2, center);
+    float row4z = -up_dot(&col3, center);
+    */
+    /*float matTmp[16] = {
+        col1.x,col2.x,col3.x,0,
+        col1.y,col2.y,col3.y,0,
+        col1.z,col2.z,col3.z,0,
+        0,0,0,1};*/
+    //transpose
+ /*   float matTmp[16] = {
+        col1.x,col1.y,col1.z,0,
+        col2.x,col2.y,col2.z,0,
+        col3.x,col3.y,col3.z,0,
+        0,0,0,1};
+   */
+    /*
+    float matTmp[16] = {
+        col1.x,col2.x,col3.x,0,
+        col1.y,col2.y,col3.y,0,
+        col1.z,col2.z,col3.z,0,
+        row4x,row4y,row4z,1};*/
+//    int  i = 0;
+//    for (i = 0; i< 16; i++) {
+//        //matrixView->data[i] = matTmp[i];
+//    }
+}
 
 // https://www.opengl.org/sdk/docs/man2/xhtml/gluLookAt.xml
 void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP)
 {
-    struct up_vec3 result;
+    up_viewTest2(matrixView,eye,center,UP);
+    //up_viewTest(matrixView,eye,center,UP);
+    
+    /*struct up_vec3 result;
     struct up_vec3 U;
     viewdirection(&result,center,eye);
     struct up_vec3 F=result;
@@ -210,7 +345,7 @@ void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3
     int  i = 0;
     for (i = 0; i< 16; i++) {
         matrixView->data[i] = matTmp[i];
-    }
+    }*/
 }
 
 // based on https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
@@ -225,6 +360,19 @@ void up_matrixPerspective(up_matrix4_t *perspective, GLdouble fov,GLdouble aspec
     perspective->data[11] = 1;
     perspective->data[14] = (-zFar*zNear)*invFrustrum;
     //perspective->data[15] = 1;
+}
+
+void up_getViewPerspective(up_matrix4_t *vp,
+                                up_matrix4_t *matrixView,
+                                up_matrix4_t *perspective)
+{
+    //up_matrix4_t mv = {0};
+    //up_matrix4Multiply(&mv,modelMatrix,matrixView);
+    up_matrix4Multiply(vp, matrixView, perspective);
+    
+    /*up_matrix4_t pv = {0};
+     up_matrix4Multiply(&pv,perspective,matrixView);
+     up_matrix4Multiply(mvp, &pv, modelMatrix);*/
 }
 
 void up_getModelViewPerspective(up_matrix4_t *mvp,

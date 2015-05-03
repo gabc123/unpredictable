@@ -33,6 +33,10 @@ void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3
 void up_matrixPerspective(up_matrix4_t *perspective, GLdouble fov,GLdouble aspectRatio,GLdouble zNear,GLdouble zFar);
 
 
+void up_getViewPerspective(up_matrix4_t *vp,
+                           up_matrix4_t *matrixView,
+                           up_matrix4_t *perspective);
+
 void up_getModelViewPerspective(up_matrix4_t *mvp,
                                 up_matrix4_t *modelMatrix,
                                 up_matrix4_t *matrixView,

@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include "up_error.h"
 #include "testmodels.h"
-#include "filereader/up_filereader.h"
+#include "up_filereader.h"
 #include "up_sdl_redirect.h"
 
 void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray);

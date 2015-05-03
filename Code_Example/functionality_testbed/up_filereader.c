@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "filereader/up_filereader.h"
+#include "up_filereader.h"
 #include "up_error.h"
 
 /*
