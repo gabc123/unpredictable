@@ -211,3 +211,44 @@ struct up_mesh *up_meshLoginOverlay()
     printf("Mesh finnished\n");
     return mesh;
 }
+
+
+struct up_mesh *up_meshLettersUsername(float moveY)
+{
+    /// setup the vertexs and the tex coords, this is done like this for debbuging reasons
+    // texture coordinates, 0,0 is bottom left, 1,1 is top right
+    struct up_vec2 tex[] = {
+        {0.0f, 0.0f},
+        {1.0f, 0.0f},
+        {0.0f, 1.0f},
+        {1.0f, 1.0f}
+    };
+    
+    // this is the posisions of the vertexes
+    struct up_vec3 pos[] = {
+        {-1.0f, -1.0f, 0.5f},   // bottomleft 0
+        {1.0f, -1.0f, 0.5f},   //bottom right 1
+        {-1.0f, 1.0f, 0.5f},  //topleft 2
+        {1.0f, 1.0f, 0.5f}   //topright 3
+    };
+    
+    
+    unsigned int indexArray[] = {0,2,1,2,3,1};  //binds togheter two triangels into one square
+    
+    // left over from debugging. fills the vertex array with pos and tex
+    struct up_vertex vertex[4];
+    int i = 0;
+    for (i = 0; i < 4; i++) {
+        vertex[i].pos = pos[i];
+        vertex[i].texCoord = tex[i];
+        vertex[i].normals.x = 0;
+        vertex[i].normals.y = 0;
+        vertex[i].normals.z = 0;
+    }
+    /////////////
+    printf("vertex start\n");
+    struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
+    printf("Mesh finnished\n");
+    return mesh;
+}
+

@@ -28,6 +28,8 @@ enum menu_states
 {
     mainMenu,
     loginMenu,
+    usernameBar
+    
     
 };
 
@@ -44,7 +46,7 @@ int up_menu(struct shader_module *shaderprog){
     int status=1;
     
     
-    
+    //IMAGE LOADING
     up_matrix4_t identity = up_matrix4identity();
     struct up_texture_data *textureMenuBackground = up_load_texture("1971687.png");
     if (textureMenuBackground==NULL) {
@@ -59,20 +61,28 @@ int up_menu(struct shader_module *shaderprog){
     if (textureLoginOverlay==NULL) {
         textureLoginOverlay = up_load_texture("lala.png");
     }
+    /*struct up_texture_data *textureLoginLetters = up_load_texture("letters.png");
+    if (textureLoginOverlay==NULL) {
+        textureLoginOverlay = up_load_texture("lala.png");
+    }*/
     
-    
-    
+    //TRANSFORMS
     up_matrix4_t transformLoginRegisterBottons;
     up_matrix4_t transformBackground;
     up_matrix4_t transformLoginOverlay;
+    //up_matrix4_t transformLoginLetters;
     
+    //TRANSLATION TRANSFORMS
     up_matrix4_t translationLoginRegisterButtons;
     up_matrix4_t translationLoginOverlay;
+    //up_matrix4_t translationLoginLetters;
 
+    //MESH LOADING
     struct up_mesh *background = up_meshMenuBackground();
     struct up_mesh *bottonLogin1 =up_meshBotton(0,0.95,0,0); //(float imageX, float imageY, float screenPosX, float screenPosY)
     struct up_mesh *bottonLogin2 =up_meshBotton(0,0.1,0,-0.25);
     struct up_mesh *overlay = up_meshLoginOverlay();
+    //struct up_mesh *letters = up_meshLettersUsername(0); //(float moveY)
     
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
@@ -97,6 +107,17 @@ int up_menu(struct shader_module *shaderprog){
     
     up_getModelViewPerspective(&transformLoginOverlay, &translationLoginOverlay, &identity, &identity);
     
+    //LOGIN LETTERS
+    
+  /*  struct up_modelRepresentation scale3 ={{0,0,0},     //no scale (yet)
+                                           {0,0,0},
+                                           {1,1,1}};
+    
+    up_matrixModel(&translationLoginLetters, &scale3.pos, &scale3.rot, &scale3.scale);
+
+    up_getModelViewPerspective(&transformLoginLetters, &translationLoginLetters, &identity, &identity); */
+    
+    //NAVIGATION
     struct navigationState navigation;
     
     navigation.state = mainMenu;
@@ -138,14 +159,21 @@ int up_menu(struct shader_module *shaderprog){
                 up_texture_bind(textureBottonLogin, 2);
                 up_draw_mesh(bottonLogin2);
                 
-                
                 break;
                 
             case loginMenu:
                 UP_shader_update(shaderprog, &transformLoginOverlay);
                 up_texture_bind(textureLoginOverlay, 3);
                 up_draw_mesh(overlay);
+                break;
                 
+           /* case usernameBar:
+                UP_shader_update(shaderprog, &transformLoginLetters);
+                up_texture_bind(textureLoginLetters, 4);
+                up_draw_mesh(letters);
+            
+                break;
+              */
             default:
                 break;
         }
@@ -181,28 +209,66 @@ int up_menuEventHandler(struct navigationState *navigation)
             flag = 0;
         }
         if(event.type == SDL_KEYDOWN) {
-            switch (event.key.keysym.sym) {
-                case SDLK_a:
-                    flag=2;
-                    break;
+            if (navigation->state == usernameBar) {
+            
+                switch (event.key.keysym.sym) {
+                    case SDLK_a:
+                        flag=2;
+                        break;
+                    case SDLK_b:
+                        break;
+                    case SDLK_c:
+                        break;
+                    case SDLK_d:
+                        break;
+                    case SDLK_e:
+                        break;
+                    case SDLK_f:
+                        break;
+                    case SDLK_g:
+                        break;
+                    case SDLK_h:
+                        break;
+                    case SDLK_i:
+                        break;
+                    case SDLK_j:
+                        break;
+                    case SDLK_k:
+                        break;
+                    case SDLK_l:
+                        break;
+                    case SDLK_m:
+                        break;
+                    case SDLK_n:
+                        break;
+                    case SDLK_o:
+                        break;
+                    case SDLK_p:
+                        break;
+                    case SDLK_q:
+                        break;
+                    case SDLK_r:
+                        break;
+                    case SDLK_s:
+                        break;
+                    case SDLK_t:
+                        break;
+                    case SDLK_u:
+                        break;
+                    case SDLK_v:
+                        break;
+                    case SDLK_w:
+                        break;
+                    case SDLK_x:
+                        break;
+                    case SDLK_y:
+                        break;
+                    case SDLK_z:
+                        break;
 
-
-
-                    /*
-                case SDLK_s:
-                    movement->down = 1;
-                    break;
-                case SDLK_a:
-                    movement->left=1;
-                    break;
-                case SDLK_d:
-                    movement->right=1;
-                    break;
-                case SDLK_SPACE:
-                    break;*/
-
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -234,14 +300,20 @@ int up_menuEventHandler(struct navigationState *navigation)
                     xf=(float)x/width*2-1;
                     yf=-(float)y/height*2+1;
 
-
+                    //printf("%f %f \n", xf, yf); //test print
+                    
+                    
+                    //LOGIN BOTTON
                     if(xf > -0.137500 && xf < 0.140625){        //coordinates of login screen
                         if(yf > 0.047727 && yf < 0.131818){
                             
-                            navigation->state = loginMenu;
+                            if(navigation->state == mainMenu){
+                                 navigation->state = loginMenu;
+                            }
                         }
                     }
-
+                    
+                    //REGISTER BOTTON
                     if(xf > -0.137500 && xf < 0.140625){        //coordinates of registration screen
                         if(yf > -0.068182 && yf < 0.015909){
 
@@ -249,6 +321,19 @@ int up_menuEventHandler(struct navigationState *navigation)
                             flag=2;
                         }
                     }
+                    
+                    //WRITE IN LOGIN BAR
+                    if(xf > -0.198438 && xf < 0.195312){
+                        if(yf > 0.093182 && yf < 0.175000){
+                            
+                            if (navigation->state == loginMenu){
+                             
+                                printf("inne i login \n");
+                                navigation->state=usernameBar;
+                            }
+                        }
+                    }
+
 
                     break;
                     /*

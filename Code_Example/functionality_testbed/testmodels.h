@@ -7,5 +7,6 @@ struct up_mesh *meshPyramidShip();
 struct up_mesh *up_meshMenuBackground();
 struct up_mesh *up_meshBotton(float imageX, float imageY, float screenPosX, float screenPosY);
 struct up_mesh *up_meshLoginOverlay();
+struct up_mesh *up_meshLettersUsername(float moveY);
 
 #endif
