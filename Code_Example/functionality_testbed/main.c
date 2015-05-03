@@ -10,6 +10,9 @@
 #include "up_camera_module.h"
 #include "up_assets.h"
 #include "up_camera_module.h"
+#include "up_updateObjectMatrix.h"
+#include "up_error.h"
+#include "up_render_engine.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -35,9 +38,15 @@ int main(int argc, char const *argv[])
     int mesh_capacity = 40;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
+    
     int max_unit_count = 100;
     up_unit_start_setup(max_unit_count);
     
+    up_matrix4_t *transformationArray = malloc(sizeof(up_matrix4_t)*max_unit_count);
+    if (transformationArray == NULL) {
+        UP_ERROR_MSG("transformation array malloc failure");
+    
+    }
     
     
     // Load a shader just for the menu system (location 0)
@@ -51,24 +60,14 @@ int main(int argc, char const *argv[])
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
-    
-    struct up_mesh *mesh = &assets->meshArray[1];
-    struct up_texture_data *texture = &assets->textureArray[1];
-    
-    
-    struct up_modelRepresentation model = {0};
-    
-    model.scale=assets->scaleArray[1];
-    
-    
-    struct up_mesh *stillObjMesh = &assets->meshArray[2];
-    struct up_texture_data *stillObjTexture = &assets->textureArray[2];
+
     
     struct up_modelRepresentation stillObjModel = {0};
-    stillObjModel.scale=assets->scaleArray[2];
     
-    struct up_ship stillObj = {0};
+    struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
+    stillObj.scale = assets->scaleArray[2];
+    stillObj.modelId = 2;
 
     up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
     
@@ -98,9 +97,15 @@ int main(int argc, char const *argv[])
     dispMat(&perspectiveMatrix);
     
     // this is the start ship, initilazing the startin positions
-    struct up_ship ship = {0};
-    ship.pos.z = 40;
+    struct up_objectInfo tmp_ship = {0};
+    tmp_ship.pos.z = 40;
+    tmp_ship.modelId = 1;
+    tmp_ship.scale = assets->scaleArray[1];
+    int shipIndex = up_unit_add(tmp_ship);
     
+    struct up_objectInfo *ship = up_unit_objAtIndex(shipIndex);
+    
+    up_unit_add(stillObj);
     // the ship will stand stilll at the begining
     struct shipMovement movement = {0,0,0,0};
     
@@ -114,47 +119,33 @@ int main(int argc, char const *argv[])
     shaderprog = UP_Shader_new("shadertest",1);
     printf("Shader finnished\n");
     
-    
+    struct up_objectInfo *objectArray = NULL;
+    int numObjects = 0;
     // starts the main game loop
     while(status)
     {
         up_updateFrameTickRate();
-        status = UP_eventHandler(&ship,&movement);
-        
-        UP_renderBackground();                      //Clears the buffer and results an empty window.
-        UP_shader_bind(shaderprog);                 // tells the gpu what shader program to use
-        up_texture_bind(texture, 0);
+        status = UP_eventHandler(ship,&movement);
         
         //upnewtwork_getNewMovement(&ship);          // retrive any updates from the network
         
-        up_updateShipMovment(&ship);
+        up_updateShipMovment(ship);
         
-        up_updatShipMatrixModel(&modelMatrix,&model,&ship); // creates the modelMatrix for the ship
+        //up_updatShipMatrixModel(&modelMatrix,&model,ship); // creates the modelMatrix for the ship
         
-        up_update_camera(&cam, &ship);
+        up_update_camera(&cam, ship);
         
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
         
-        // combinds the 3 matrix modelMatrix, viewMatrix, perspectiveMatrix, into a transformMatrix,
-        // this is needed for the gpu to place the model at the right location on screen and get the right perspective
-        up_getModelViewPerspective(&transform, &modelMatrix, &viewMatrix, &perspectiveMatrix);
+        objectArray = up_ObjectsInView(&numObjects, &cam);
+        //objectArray = up_unit_getAllObj(&numObjects);
         
-        UP_shader_update(shaderprog,&transform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
+        numObjects = (max_unit_count > numObjects) ? numObjects : max_unit_count;
         
-        up_shader_update_sunligth(shaderprog, &modelMatrix);    // this uploads the sun angle to the gpu
+        up_updateMatrix(transformationArray, &viewMatrix, &perspectiveMatrix, objectArray, numObjects);
         
-        up_draw_mesh(mesh); // this draws the model onto the screen , at the location transform, and with the sunlight modelMatrix
+        up_render_scene(transformationArray, objectArray, numObjects, shaderprog, assets);
         
-        up_updatShipMatrixModel(&modelMatrix,&stillObjModel,&stillObj); // creates the modelMatrix for the ship
-        up_getModelViewPerspective(&transform2, &modelMatrix, &viewMatrix, &perspectiveMatrix);
-        
-        up_texture_bind(stillObjTexture, 0);
-        UP_shader_update(shaderprog,&transform2);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
-        
-       // up_shader_update_sunligth(shaderprog, &modelMatrix);    // this uploads the sun angle to the gpu
-        up_draw_mesh(stillObjMesh);
-        
-        UP_openGLupdate();  // this swaps the render and window buffer , displaying it on screen
         
     }
     printf("Ended main loop\n");
