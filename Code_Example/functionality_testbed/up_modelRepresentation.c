@@ -57,6 +57,16 @@ void up_unit_add(struct up_objectInfo object)
     internal_tracker.count++;
 }
 
+struct up_objectInfo *up_unit_objAtIndex(int index){
+    
+    if(index>=internal_tracker.count){
+        UP_ERROR_MSG("try to access object out of bound");
+    }
+    
+    return &internal_tracker.objects[index];
+}
+
+
 void up_unit_getAllObj(struct up_objectInfo *objectArray,int *count)
 {
     objectArray = internal_tracker.objects;
