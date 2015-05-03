@@ -13,7 +13,7 @@
 #include "up_updateObjectMatrix.h"
 #include "up_error.h"
 #include "up_render_engine.h"
-
+#include "up_star_system.h"
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -39,7 +39,7 @@ int main(int argc, char const *argv[])
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
     
-    int max_unit_count = 100;
+    int max_unit_count = 500;
     up_unit_start_setup(max_unit_count);
     
     up_matrix4_t *transformationArray = malloc(sizeof(up_matrix4_t)*max_unit_count);
@@ -61,13 +61,31 @@ int main(int argc, char const *argv[])
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
 
+    //up_generate_asteroidBelt(idensity,maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight)
+
+    // this is the start ship, initilazing the startin positions
+    struct up_objectInfo tmp_ship = {0};
+    tmp_ship.pos.x = 440;
+    tmp_ship.pos.z = 40;
+    tmp_ship.modelId = 1;
+    tmp_ship.scale = assets->scaleArray[1];
+    int shipIndex = up_unit_add(tmp_ship);
     
-    struct up_modelRepresentation stillObjModel = {0};
     
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
     stillObj.scale = assets->scaleArray[2];
     stillObj.modelId = 2;
+    
+    struct up_objectInfo *ship = up_unit_objAtIndex(shipIndex);
+    
+    up_unit_add(stillObj);
+    
+    up_generate_sun();
+    
+    up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 60, 20);
+    
+    
 
     up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
     
@@ -96,16 +114,7 @@ int main(int argc, char const *argv[])
     
     dispMat(&perspectiveMatrix);
     
-    // this is the start ship, initilazing the startin positions
-    struct up_objectInfo tmp_ship = {0};
-    tmp_ship.pos.z = 40;
-    tmp_ship.modelId = 1;
-    tmp_ship.scale = assets->scaleArray[1];
-    int shipIndex = up_unit_add(tmp_ship);
     
-    struct up_objectInfo *ship = up_unit_objAtIndex(shipIndex);
-    
-    up_unit_add(stillObj);
     // the ship will stand stilll at the begining
     struct shipMovement movement = {0,0,0,0};
     

@@ -126,8 +126,8 @@ void up_updateShipMovment(struct up_objectInfo *ship)
     //set the max speed forward/backwards
     float sign = (ship->speed < 0 ) ? -1 : 1;
     float speedMagnitude = (ship->speed * sign);
-    if (speedMagnitude > 10.0f ) {
-        ship->speed = sign * 10.0f;
+    if (speedMagnitude > 40.0f ) {
+        ship->speed = sign * 40.0f;
     }
     // min speed
     if ((1.0f > speedMagnitude) && (speedMagnitude > 0.0f))
