@@ -5,7 +5,7 @@
 #include "up_error.h"
 #include "up_utilities.h"
 #include "up_objectReader.h"
-#include "filereader/up_filereader.h"
+#include "up_filereader.h"
 
 void vertexPositionsData(char *rad, struct up_generic_list *vertexPosList);
 void texturePositionsData(char *rad, struct up_generic_list *texturePosList);

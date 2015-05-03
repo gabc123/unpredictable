@@ -65,6 +65,7 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
 	// so this only renders inside the correct context
 	g_openglContext = SDL_GL_CreateContext(g_openglWindow);
 
+    SDL_Delay(100);
 //on linux and windows glew needs to be installed
 #ifndef __APPLE__
 	glewExperimental = GL_TRUE;
