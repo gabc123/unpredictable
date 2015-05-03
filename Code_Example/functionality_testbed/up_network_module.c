@@ -123,7 +123,7 @@ void up_network_shutdown_deinit()
 }
 
 
-void up_newtwork_getNewMovement(struct up_ship * ship)
+void up_newtwork_getNewMovement(struct up_objectInfo * ship)
 {
     struct objUpdateInformation obj[5];
     

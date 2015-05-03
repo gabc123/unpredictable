@@ -9,14 +9,14 @@ double up_getFrameTimeDelta();
 double up_gFrameTickRate = 0;
 unsigned int up_gFramePerSeconde = 0;
 
-void shipMove(struct shipMovement *movement, struct up_ship *ship){
+void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
     float deltaTime = (float)up_getFrameTimeDelta();
     ship->speed += 1.0f *(movement->up - movement->down) * deltaTime;
     ship->angle += 1.f *(movement->left - movement->right) * deltaTime;
     if(!(movement->up + movement->down)){ship->speed=0;}
 }
 
-int UP_eventHandler(struct up_ship *ship,struct shipMovement *movement)
+int UP_eventHandler(struct up_objectInfo *ship,struct shipMovement *movement)
 {
     int flag = 1;
     SDL_Event event;
@@ -116,7 +116,7 @@ void up_updateFrameTickRate()
     lastTick = SDL_GetTicks();
 }
 
-void up_updateShipMovment(struct up_ship *ship)
+void up_updateShipMovment(struct up_objectInfo *ship)
 {
 
     ship->dir.x = sinf(ship->angle);
@@ -141,7 +141,7 @@ void up_updateShipMovment(struct up_ship *ship)
     ship->pos.z += ship->dir.z * ship->speed * deltaTime;
 }
 
-void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_ship *ship)
+void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship)
 {
 
 

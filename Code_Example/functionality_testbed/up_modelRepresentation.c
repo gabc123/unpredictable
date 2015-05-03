@@ -43,18 +43,19 @@ int up_unit_start_setup(unsigned int max_unit_count)
     return 1;
 }
 
-void up_unit_add(struct up_objectInfo object)
+int up_unit_add(struct up_objectInfo object)
 {
     int count=internal_tracker.count;
     
     if(count>=internal_tracker.size){
         UP_ERROR_MSG("unit buffer is full\n");
-        return;
+        return 0;
     }
     
     internal_tracker.objects[count]=object;
     
     internal_tracker.count++;
+    return count;
 }
 
 struct up_objectInfo *up_unit_objAtIndex(int index){
@@ -67,11 +68,11 @@ struct up_objectInfo *up_unit_objAtIndex(int index){
 }
 
 
-void up_unit_getAllObj(struct up_objectInfo *objectArray,int *count)
+struct up_objectInfo *up_unit_getAllObj(int *count)
 {
-    objectArray = internal_tracker.objects;
-    *count=internal_tracker.count;
     
+    *count=internal_tracker.count;
+    return &internal_tracker.objects[0];
 }
 
 void up_unit_shutdown_deinit()

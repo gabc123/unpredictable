@@ -13,7 +13,7 @@ void up_cam_zoom(float change)
 }
 
 
-void up_update_camera(struct up_camera *cam,struct up_ship *ship){
+void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
     // TODO: move camera
     cam->center.x=ship->pos.x;
     cam->center.y=ship->pos.y;
@@ -25,8 +25,8 @@ void up_update_camera(struct up_camera *cam,struct up_ship *ship){
     //cam->eye=ship->
 }
 
-void up_ObjectsInView(struct up_objectInfo *objectArray,int *count,struct up_camera *cam)
+struct up_objectInfo *up_ObjectsInView(int *count,struct up_camera *cam)
 {
-    up_unit_getAllObj(objectArray, count);
+    return up_unit_getAllObj(count);
     
 }
