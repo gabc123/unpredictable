@@ -227,14 +227,14 @@ struct up_mesh *up_meshLettersUsername(float moveY)
     
     // this is the posisions of the vertexes
     struct up_vec3 pos[] = {
-        {-1.0f, -1.0f, 0.5f},   // bottomleft 0
-        {1.0f, -1.0f, 0.5f},   //bottom right 1
-        {-1.0f, 1.0f, 0.5f},  //topleft 2
-        {1.0f, 1.0f, 0.5f}   //topright 3
+        {-1.0f, -1.0f, 5.0f},   // bottomleft 0
+        {1.0f, -1.0f, 5.0f},   //bottom right 1
+        {-1.0f, 1.0f, 5.0f},  //topleft 2
+        {1.0f, 1.0f, 5.0f}   //topright 3
     };
     
     
-    unsigned int indexArray[] = {0,2,1,2,3,1};  //binds togheter two triangels into one square
+    unsigned int indexArray[] = {1,2,0,1,3,2};  //binds togheter two triangels into one square
     
     // left over from debugging. fills the vertex array with pos and tex
     struct up_vertex vertex[4];

@@ -19,6 +19,7 @@
 #include "up_modelRepresentation.h"
 #include "up_matrixTransforms.h"
 
+#define LIMIT 30
 
 
 #include "up_sdl_redirect.h"  //mouse event handlingr
@@ -33,8 +34,21 @@ enum menu_states
     
 };
 
+enum loginBar_state
+{
+    writeOn,
+    writeOff
+};
+
 struct navigationState{
     enum menu_states state;
+    enum loginBar_state status;
+};
+
+struct userData{
+    char username[LIMIT];
+    char password[LIMIT];
+    int keypress;
 };
 
 
@@ -61,28 +75,28 @@ int up_menu(struct shader_module *shaderprog){
     if (textureLoginOverlay==NULL) {
         textureLoginOverlay = up_load_texture("lala.png");
     }
-    /*struct up_texture_data *textureLoginLetters = up_load_texture("letters.png");
-    if (textureLoginOverlay==NULL) {
-        textureLoginOverlay = up_load_texture("lala.png");
-    }*/
+    struct up_texture_data *textureLoginLetters = up_load_texture("letters.png");
+    if (textureLoginLetters==NULL) {
+        textureLoginLetters = up_load_texture("lala.png");
+    }
     
     //TRANSFORMS
     up_matrix4_t transformLoginRegisterBottons;
     up_matrix4_t transformBackground;
     up_matrix4_t transformLoginOverlay;
-    //up_matrix4_t transformLoginLetters;
+    up_matrix4_t transformLoginLetters;
     
     //TRANSLATION TRANSFORMS
     up_matrix4_t translationLoginRegisterButtons;
     up_matrix4_t translationLoginOverlay;
-    //up_matrix4_t translationLoginLetters;
+    up_matrix4_t translationLoginLetters;
 
     //MESH LOADING
     struct up_mesh *background = up_meshMenuBackground();
     struct up_mesh *bottonLogin1 =up_meshBotton(0,0.95,0,0); //(float imageX, float imageY, float screenPosX, float screenPosY)
     struct up_mesh *bottonLogin2 =up_meshBotton(0,0.1,0,-0.25);
     struct up_mesh *overlay = up_meshLoginOverlay();
-    //struct up_mesh *letters = up_meshLettersUsername(0); //(float moveY)
+    struct up_mesh *letters = up_meshLettersUsername(0); //(float moveY)
     
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
@@ -109,24 +123,32 @@ int up_menu(struct shader_module *shaderprog){
     
     //LOGIN LETTERS
     
-  /*  struct up_modelRepresentation scale3 ={{0,0,0},     //no scale (yet)
+    struct up_modelRepresentation scale3 ={{0,0,0},     //no scale (yet)
                                            {0,0,0},
                                            {1,1,1}};
     
     up_matrixModel(&translationLoginLetters, &scale3.pos, &scale3.rot, &scale3.scale);
 
-    up_getModelViewPerspective(&transformLoginLetters, &translationLoginLetters, &identity, &identity); */
+    up_getModelViewPerspective(&transformLoginLetters, &translationLoginLetters, &identity, &identity);
     
     //NAVIGATION
     struct navigationState navigation;
+    struct navigationState loginBar;
     
     navigation.state = mainMenu;
+    loginBar.status = writeOff;
     
     
+    //USER DATA
+    struct userData user_data;
+    user_data.keypress=0;
+    
+    // MENU LOOP
     while(status)
     {
         up_updateFrameTickRate();
-        status = up_menuEventHandler(&navigation);
+        status = up_menuEventHandler(&navigation, &loginBar, &user_data);
+        
         if (status==2) {
             break;
         }
@@ -165,6 +187,15 @@ int up_menu(struct shader_module *shaderprog){
                 UP_shader_update(shaderprog, &transformLoginOverlay);
                 up_texture_bind(textureLoginOverlay, 3);
                 up_draw_mesh(overlay);
+                
+               // if (navigation.status==writeOn) {
+                    
+                
+                    UP_shader_update(shaderprog, &transformLoginLetters);
+                    up_texture_bind(textureLoginLetters, 4);
+                    up_draw_mesh(letters);
+                //}
+                
                 break;
                 
            /* case usernameBar:
@@ -172,8 +203,8 @@ int up_menu(struct shader_module *shaderprog){
                 up_texture_bind(textureLoginLetters, 4);
                 up_draw_mesh(letters);
             
-                break;
-              */
+                break; */
+              
             default:
                 break;
         }
@@ -192,7 +223,7 @@ int up_menu(struct shader_module *shaderprog){
 }
 
 
-int up_menuEventHandler(struct navigationState *navigation)
+int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar, struct userData *user_data)
 {
     
     int flag = 1;
@@ -209,19 +240,61 @@ int up_menuEventHandler(struct navigationState *navigation)
             flag = 0;
         }
         if(event.type == SDL_KEYDOWN) {
-            if (navigation->state == usernameBar) {
-            
+        
+            switch (event.key.keysym.sym) {
+                    /*case SDLK_w:
+                     movement->up=0;
+                     break;
+                     case SDLK_s:
+                     movement->down=0;
+                     break;
+                     case SDLK_d:
+                     movement->right=0;
+                     break;
+                     case SDLK_a:
+                     movement->left=0;
+                     break;*/
+                default:
+                    break;
+            }
+        
+        }
+
+        if(event.type == SDL_KEYUP)
+        {
+            if (navigation->status == writeOn) {
+                
+                user_data->keypress++;
+                
                 switch (event.key.keysym.sym) {
                     case SDLK_a:
-                        flag=2;
+                        
+                        user_data->username[user_data->keypress] = 'a';
+                        
+                        //printf("jag skriver a\n");
+                        
                         break;
                     case SDLK_b:
+                        
+                        user_data->username[user_data->keypress] = 'b';
+                        
+                        //printf("jag skriver b \n");
+                        
                         break;
                     case SDLK_c:
+                        
+                        user_data->username[user_data->keypress] = 'c';
+                        
                         break;
                     case SDLK_d:
+                        
+                        user_data->username[user_data->keypress] = 'd';
+                        
                         break;
                     case SDLK_e:
+                        
+                        
+                        
                         break;
                     case SDLK_f:
                         break;
@@ -265,31 +338,13 @@ int up_menuEventHandler(struct navigationState *navigation)
                         break;
                     case SDLK_z:
                         break;
-
+                        
                     default:
                         break;
                 }
             }
-        }
 
-        if(event.type == SDL_KEYUP)
-        {
-            switch (event.key.keysym.sym) {
-                /*case SDLK_w:
-                    movement->up=0;
-                    break;
-                case SDLK_s:
-                    movement->down=0;
-                    break;
-                case SDLK_d:
-                    movement->right=0;
-                    break;
-                case SDLK_a:
-                    movement->left=0;
-                    break;*/
-                default:
-                    break;
-            }
+        
         }
         if(event.type == SDL_MOUSEBUTTONDOWN) {
             switch (event.button.button) {
@@ -327,9 +382,7 @@ int up_menuEventHandler(struct navigationState *navigation)
                         if(yf > 0.093182 && yf < 0.175000){
                             
                             if (navigation->state == loginMenu){
-                             
-                                printf("inne i login \n");
-                                navigation->state=usernameBar;
+                                navigation->status=writeOn;
                             }
                         }
                     }
