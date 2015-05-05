@@ -68,6 +68,8 @@ int main(int argc, char const *argv[])
     tmp_ship.pos.x = 440;
     tmp_ship.pos.z = 40;
     tmp_ship.modelId = 1;
+    tmp_ship.turnSpeed = 1;
+    tmp_ship.acceleration = 5;
     tmp_ship.scale = assets->scaleArray[1];
     int shipIndex = up_unit_add(tmp_ship);
     
@@ -116,7 +118,7 @@ int main(int argc, char const *argv[])
     
     
     // the ship will stand stilll at the begining
-    struct shipMovement movement = {0,0,0,0};
+    //struct shipMovement movement = {0,0,0,0};
     
     
     //up_matrix4_t identity = up_matrix4identity();
@@ -130,18 +132,27 @@ int main(int argc, char const *argv[])
     
     struct up_objectInfo *objectArray = NULL;
     int numObjects = 0;
+    struct up_eventState currentEvent = {0};
+    struct up_actionState shipAction = {0};
+    shipAction.objectID = shipIndex;
+    up_weaponCoolDown_start_setup(&currentEvent);
+    
+    
     // starts the main game loop
     while(status)
     {
         up_updateFrameTickRate();
-        status = UP_eventHandler(ship,&movement);
+        status = UP_eventHandler(&currentEvent,&shipAction);
+        
         
         //upnewtwork_getNewMovement(&ship);          // retrive any updates from the network
         
         //up_newtwork_getNewMovement(&ship);          // retrive any updates from the network
         
         //up_updatShipMatrixModel(&modelMatrix,&model,ship); // creates the modelMatrix for the ship
-        up_updateShipMovment(ship);
+        //up_updateShipMovment(ship);
+        up_update_actions(&shipAction, NULL, 0);
+        up_updateMovements();
         
         up_update_camera(&cam, ship);
         

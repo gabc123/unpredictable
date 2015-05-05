@@ -10,13 +10,13 @@ enum up_none
 
 union shootingStates
 {
-    enum up_none state;
+    enum up_none none;
     enum
     {
         fireMissile = 1,
         fireBullet,
         fireLaser
-    };
+    }state;
 };
 
 //enum shootingStates
@@ -25,24 +25,31 @@ union shootingStates
 //     fireBullet,
 //     fireLaser
 // };
+union movement
+{
+    enum up_none none;
+    enum
+    {
+        fwd = 1,
+        bwd
+    }state;
+};
 
-enum movement
- {
-     fwd = 1,
-     bwd
- };
-
- enum turning
- {
-     left = 1,
-     right
- };
+union turning
+{
+    enum up_none none;
+    enum
+    {
+        left = 1,
+        right
+    }state;
+};
 
 struct up_actionState
 {
     union shootingStates fireWeapon;
-    enum movement engineState;
-    enum turning maneuver;
+    union movement engine;
+    union turning maneuver;
     int objectID;
 };
 
@@ -60,7 +67,15 @@ struct up_shootingFlag
     struct cooldownTimer laserFlag;
 };
 
+struct up_eventState
+{
+    struct up_shootingFlag flags;
+};
+
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
+
+
+void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj);
 
 //this funktion updates the global position of all objects in the world
 // only called in the main gameloop once
@@ -71,6 +86,9 @@ void up_updateShipMovment(struct up_objectInfo *ship);
 void up_updateFrameTickRate();
 double up_getFrameTimeDelta();
 unsigned int up_getFrameRate();
-int UP_eventHandler(struct up_objectInfo *ship,struct shipMovement *movement);
+
+void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent);
+int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction);
+
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship);
 #endif

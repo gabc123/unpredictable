@@ -13,7 +13,7 @@ double up_getFrameTimeDelta();
 double up_gFrameTickRate = 0;
 unsigned int up_gFramePerSeconde = 0;
 
-int checkFire(unsigned int startTime, unsigned int cooldown)
+int checkFire(unsigned int startTime, unsigned int cooldown);
 
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
     float deltaTime = (float)up_getFrameTimeDelta();
@@ -22,10 +22,7 @@ void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
     if(!(movement->up + movement->down)){ship->speed=0;}
 }
 
-struct up_eventState
-{
-    struct up_shootingFlag flags;
-};
+
 
 int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction)
 {
@@ -43,16 +40,16 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
         if(event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
                 case SDLK_w:
-                    objectAction.engineState = forwrd;
+                    objectAction->engine.state = fwd;
                     break;
                 case SDLK_s:
-                    objectAction.engineState = backwrd;
+                    objectAction->engine.state = bwd;
                     break;
                 case SDLK_a:
-                    objectAction.maneuver = left;
+                    objectAction->maneuver.state = left;
                     break;
                 case SDLK_d:
-                    objectAction.maneuver = right;
+                    objectAction->maneuver.state = right;
                     break;
 
 
@@ -65,14 +62,14 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
 
 
                 case SDLK_SPACE:
-                    tempFlag = checkFire(currentEvent.flags.bulletFlag);
-                    if(tempFlag=0)
+                    tempFlag = checkFire(currentEvent->flags.bulletFlag.startTime,currentEvent->flags.bulletFlag.coolDown);
+                    if(tempFlag==0)
                     {
-                        objectAction.fireWeapon = fireBullet;
-                        currentEvent.flags.bulletFlag.startTime = SDL_GetTicks();
+                        objectAction->fireWeapon.state = fireBullet;
+                        currentEvent->flags.bulletFlag.startTime = SDL_GetTicks();
                     }else
                     {
-                        objectAction.fireWeapon = none;
+                        objectAction->fireWeapon.state = none;
                     }
                     break;
 
@@ -88,25 +85,25 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
         {
             switch (event.key.keysym.sym) {
                 case SDLK_w:
-                    objectAction.engine=none;
+                    objectAction->engine.none=none;
                     break;
                 case SDLK_s:
-                    objectAction.engine=none;
+                    objectAction->engine.none=none;
                     break;
                 case SDLK_d:
-                    objectAction.maneuver=none;
+                    objectAction->maneuver.none=none;
                     break;
                 case SDLK_a:
-                    objectAction.maneuver=none;
+                    objectAction->maneuver.none=none;
                     break;
                 case SDLK_SPACE:
-                    objectAction.fireWeapon=none;
+                    objectAction->fireWeapon.none=none;
                 default:
                     break;
             }
         }
     }
-    shipMove(movement, ship);
+    //shipMove(movement, ship);
     return flag;
 }
 
@@ -221,15 +218,19 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
     up_matrixModel(matrixModel,&model->pos, &model->rot, &model->scale);
 }
 
-void up_weaponCoolDown_start_setup()
+void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
     FILE *fp;
-    fp = fopen("CoolDown.weapon", "r")
+    fp = fopen("CoolDown.weapon", "r");
     if(fp==NULL)
     {
         UP_ERROR_MSG("Failed to open the cooldown file.");
-        exit();
+        //exit(0);
     }
+    fclose(fp);
+    currentEvent->flags.bulletFlag.coolDown = 100;
+    currentEvent->flags.missileFlag.coolDown = 100;
+    currentEvent->flags.laserFlag.coolDown = 100;
 }
 /*
 struct up_actionState
@@ -245,39 +246,43 @@ struct up_actionState
 //turnspeed is a set value atm. It is to be stored for each obj
 void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
 {
-    float turnSpeed=2; //temporary. will be unique for each model
+    //float turnSpeed=1; //temporary. will be unique for each model
 
-    if(obj->engineState==fwd)
-        localObject->speed +=1;
-
-    if(obj->engineState==bwd)
-        localObject->speed -=1;
-
-    if(obj->maneuver == left){
+    if(obj->engine.state == fwd){
+        localObject->speed +=localObject->acceleration*frameDelta;
+    }
+    
+    if(obj->engine.state==bwd){
+        localObject->speed -=localObject->acceleration*frameDelta;
+    }
+    
+    if(obj->maneuver.state == left){
         //Determine where the object is facing
-        localObject->angle -= turnSpeed*frameDelta;
-        localObject->dir.x = -sinf(localObject->angle);
-        localObject->dir.y = -cosf(localObject->angle);
+        localObject->angle = localObject->angle + localObject->turnSpeed*frameDelta;
+        localObject->dir.x = sinf(localObject->angle);
+        localObject->dir.y = cosf(localObject->angle);
         localObject->dir.z = 0;
     }
-    if(obj->maneuver == right){
+    
+    if(obj->maneuver.state == right){
         //Determine where the object is facing
-        localObject->angle += turnSpeed*frameDelta;
+        localObject->angle = localObject->angle - localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
         localObject->dir.z = 0;
     }
 }
 
-void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *server){
+void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj){
+    if(obj->fireWeapon.state==fireBullet){
 
     }
 
-    if(obj->fireWeapon==fireLaser){
+    if(obj->fireWeapon.state==fireLaser){
 
     }
 
-    if(obj->fireWeapon==fireMissile){
+    if(obj->fireWeapon.state==fireMissile){
 
     }
 }

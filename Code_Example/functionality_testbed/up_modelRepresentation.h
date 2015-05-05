@@ -45,6 +45,7 @@ struct up_objectInfo
     float angle;
     float turnSpeed;
     float speed;
+    float acceleration;
 };
 
 int up_unit_start_setup(unsigned int max_unit_count);
