@@ -17,6 +17,10 @@
 #include "testmodels.h"
 #include "up_filereader.h"
 #include "up_sdl_redirect.h"
+#include "up_modelRepresentation.h"
+
+
+static struct up_assets *assets=NULL;
 
 void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray);
 
@@ -35,6 +39,38 @@ struct up_mesh *dummyobj()
 {
     struct up_mesh *mesh = meshTriangleShip();
     return mesh;
+}
+
+/*
+struct up_assets
+{
+    unsigned int numobjects;
+    struct up_mesh *meshArray;
+    struct up_texture_data *textureArray;
+    struct up_vec3 *scaleArray;
+};
+
+struct up_objectInfo
+{
+    int modelId;
+    struct up_vec3 scale;
+    struct up_vec3 pos;
+    struct up_vec3 dir;
+    float angle;
+    float turnSpeed;
+    float speed;
+    float acceleration;
+};
+*/
+/*Returns stored date of the model*/
+//Sebastian
+struct up_objectInfo up_asset_createObjFromId(int modelId)
+{
+    struct up_objectInfo obj;
+    obj.modelId = modelId;
+    obj.scale = *assets->scaleArray;
+
+    return obj;
 }
 
 //magnus
@@ -135,7 +171,7 @@ struct up_assets *up_assets_start_setup()
 
     loadObjects(meshArray, textureArray, scaleArray);
 
-    struct up_assets *assets = malloc(sizeof(struct up_assets));
+    assets = malloc(sizeof(struct up_assets));
     if (assets == NULL) {
         UP_ERROR_MSG("failure in assets");
     }
@@ -144,6 +180,7 @@ struct up_assets *up_assets_start_setup()
     assets->meshArray = up_mesh_list_transferOwnership(&meshArray);
     assets->textureArray = up_texture_list_transferOwnership(&textureArray);
     assets->scaleArray =up_vec3_list_transferOwnership(&scaleArray);
+
 
     return assets;
 }

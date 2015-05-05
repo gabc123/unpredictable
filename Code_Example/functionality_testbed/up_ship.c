@@ -66,7 +66,7 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
 
                 //fire main weapon for playership
                 case SDLK_SPACE:
-                    //Checks if it is ok to fire a projectile
+                    //Checks if its ok to fire a projectile
                     tempFlag = checkFire(currentEvent->flags.bulletFlag.startTime, currentEvent->flags.bulletFlag.coolDown);
 
                     if(tempFlag==0)
@@ -234,7 +234,6 @@ void up_updateShipMovment(struct up_objectInfo *ship)
 //Sebastian
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship)
 {
-
 
     double frameDelta=up_getFrameTimeDelta();
     model->pos.x = ship->pos.x;
