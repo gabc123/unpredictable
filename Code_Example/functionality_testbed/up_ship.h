@@ -17,8 +17,8 @@ enum shootingStates
 
 enum movement
  {
-     forwrd = 1,
-     backwrd
+     fwd = 1,
+     bwd
  };
 
  enum turning
