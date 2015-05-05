@@ -3,14 +3,17 @@
 #include "up_sdl_redirect.h"
 #include "up_shader_module.h"
 #include "up_camera_module.h"
+#include "up_modelRepresentation.h"
+
+
+// magnus , up_updateMovements , 5 maj
 
 double up_getFrameTimeDelta();
 
 double up_gFrameTickRate = 0;
 unsigned int up_gFramePerSeconde = 0;
 
-int checkFire(int shootFlag)
-
+int checkFire(unsigned int startTime, unsigned int cooldown)
 
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
     float deltaTime = (float)up_getFrameTimeDelta();
@@ -155,6 +158,24 @@ void up_updateFrameTickRate()
     lastTick = SDL_GetTicks();
 }
 
+//this funktion updates the global position of all objects in the world
+// only called in the main gameloop once
+void up_updateMovements()
+{
+    int numObjects = 0;
+    struct up_objectInfo *objectArray = up_unit_getAllObj(&numObjects);
+    struct up_objectInfo *objlocal = NULL;
+    float deltaTime = (float)up_getFrameTimeDelta();
+    int i = 0;
+    for (i = 0; i < numObjects; i++) {
+        objlocal = &objectArray[i];
+
+        objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
+        objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
+        objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
+    }
+}
+
 void up_updateShipMovment(struct up_objectInfo *ship)
 {
 
@@ -209,8 +230,77 @@ void up_weaponCoolDown_start_setup()
         UP_ERROR_MSG("Failed to open the cooldown file.");
         exit();
     }
+}
+/*
+struct up_actionState
+{
+    enum shootingStates fireWeapon;
+    enum movement engineState;
+    enum turning maneuver;
+    int objectID;
+};
+*/
 
+//struct up_objectInfo *up_unit_objAtIndex(int index);
+//turnspeed is a set value atm. It is to be stored for each obj
+void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
+{
+    float turnSpeed=2; //temporary. will be unique for each model
 
+    if(obj->engineState==fwd)
+        localObject->speed +=1;
+
+    if(obj->engineState==bwd)
+        localObject->speed -=1;
+
+    if(obj->maneuver == left){
+        //Determine where the object is facing
+        localObject->angle -= turnSpeed*frameDelta;
+        localObject->dir.x = -sinf(localObject->angle)*frameDelta;
+        localObject->dir.y = -cosf(localObject->angle)*frameDelta;
+        localObject->dir.z = 0;
+    }
+    if(obj->maneuver == right){
+        //Determine where the object is facing
+        localObject->angle += turnSpeed*frameDelta;
+        localObject->dir.x = sinf(localObject->angle)*frameDelta;
+        localObject->dir.y = cosf(localObject->angle)*frameDelta;
+        localObject->dir.z = 0;
+    }
+}
+void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj){
+    if(obj->fireWeapon==fireBullet){
+
+    }
+
+    if(obj->fireWeapon==fireLaser){
+
+    }
+
+    if(obj->fireWeapon==fireMissile){
+
+    }
 }
 
+//updates all action changes in the game.
+void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj)
+{
+    int i=0;
+    struct up_objectInfo *localObject = NULL;
+    struct up_actionState *tmp;
+    double frameDelta=up_getFrameTimeDelta();
+
+    //Updates from the server
+    for(i=0; i<nrObj; i++)
+    {
+        tmp=&server[i];
+        localObject = up_unit_objAtIndex(tmp->objectID);
+        up_moveObj(localObject, tmp,frameDelta);
+        up_createProjectile(localObject, tmp);
+    }
+    //local playership update
+    localObject = up_unit_objAtIndex(playerShip->objectID);
+    up_moveObj(localObject, playerShip, frameDelta);
+    up_createProjectile(localObject, playerShip);
+}
 
