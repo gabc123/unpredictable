@@ -46,6 +46,19 @@ struct up_actionState
     int objectID;
 };
 
+struct cooldownTimer
+{
+    unsigned int startTime;
+    unsigned int coolDown;
+};
+
+struct up_shootingFlag
+{
+
+    struct cooldownTimer bulletFlag;
+    struct cooldownTimer missileFlag;
+    struct cooldownTimer laserFlag;
+};
 
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
 
