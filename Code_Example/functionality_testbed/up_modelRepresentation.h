@@ -43,6 +43,7 @@ struct up_objectInfo
     struct up_vec3 pos;
     struct up_vec3 dir;
     float angle;
+    float turnSpeed;
     float speed;
 };
 
