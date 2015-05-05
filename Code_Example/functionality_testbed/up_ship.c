@@ -274,7 +274,15 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
 }
 
 void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj){
+    struct up_objectInfo projectile = *localobject;
+    
     if(obj->fireWeapon.state==fireBullet){
+        projectile.modelId = 4;
+        projectile.scale.x = 5;
+        projectile.scale.y = 5;
+        projectile.scale.z = 5;
+        up_unit_add(projectile);
+        obj->fireWeapon.none = none;
 
     }
 
