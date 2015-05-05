@@ -3,25 +3,27 @@
 #include "up_matrixTransforms.h"
 #include "up_modelRepresentation.h"
 
+enum up_none
+{
+    none = 0
+};
+
 enum shootingStates
  {
-     none,
-     fireMissile,
+     fireMissile = 1,
      fireBullet,
      fireLaser
  };
 
- enum movement
+enum movement
  {
-     none,
-     forwrd,
+     forwrd = 1,
      backwrd
  };
 
  enum turning
  {
-     none,
-     left,
+     left = 1,
      right
  };
 
@@ -32,6 +34,7 @@ struct up_actionState
     enum turning maneuver;
     int objectID;
 };
+
 
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
 void up_updateShipMovment(struct up_objectInfo *ship);
