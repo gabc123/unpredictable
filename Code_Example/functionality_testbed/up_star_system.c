@@ -26,11 +26,11 @@ void up_generate_map()
 void up_generate_sun()
 {
     struct up_objectInfo sun = {0};
-    sun.scale.x = 1;
-    sun.scale.y = 1;
-    sun.scale.z = 1;
+    sun.scale.x = 50;
+    sun.scale.y = 50;
+    sun.scale.z = 50;
     
-    sun.modelId = 0;
+    sun.modelId = 3;
     
     if(up_unit_add(sun)==0){
         UP_ERROR_MSG("could not add sun");
