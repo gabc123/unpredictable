@@ -68,7 +68,7 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
 {
     struct up_objectInfo obj;
     obj.modelId = modelId;
-    obj.scale = *assets->scaleArray;
+    obj.scale = assets->scaleArray[modelId];
 
     return obj;
 }
