@@ -225,7 +225,7 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
     if(fp==NULL)
     {
         UP_ERROR_MSG("Failed to open the cooldown file.");
-        //exit(0);
+        return;
     }
     fclose(fp);
     currentEvent->flags.bulletFlag.coolDown = 100;
@@ -251,11 +251,11 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
     if(obj->engine.state == fwd){
         localObject->speed +=localObject->acceleration*frameDelta;
     }
-    
+
     if(obj->engine.state==bwd){
         localObject->speed -=localObject->acceleration*frameDelta;
     }
-    
+
     if(obj->maneuver.state == left){
         //Determine where the object is facing
         localObject->angle = localObject->angle + localObject->turnSpeed*frameDelta;
@@ -263,7 +263,7 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->dir.y = cosf(localObject->angle);
         localObject->dir.z = 0;
     }
-    
+
     if(obj->maneuver.state == right){
         //Determine where the object is facing
         localObject->angle = localObject->angle - localObject->turnSpeed*frameDelta;
