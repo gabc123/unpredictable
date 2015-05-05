@@ -60,7 +60,7 @@ int main(int argc, char const *argv[])
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
-
+    printf("past assets\n");
     //up_generate_asteroidBelt(idensity,maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight)
 
     // this is the start ship, initilazing the startin positions
