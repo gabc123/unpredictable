@@ -208,24 +208,25 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
     if(obj->maneuver == left){
         //Determine where the object is facing
         localObject->angle -= turnSpeed*frameDelta;
-        localObject->dir.x = -sinf(localObject->angle)*frameDelta;
-        localObject->dir.y = -cosf(localObject->angle)*frameDelta;
+        localObject->dir.x = -sinf(localObject->angle);
+        localObject->dir.y = -cosf(localObject->angle);
         localObject->dir.z = 0;
     }
     if(obj->maneuver == right){
         //Determine where the object is facing
         localObject->angle += turnSpeed*frameDelta;
-        localObject->dir.x = sinf(localObject->angle)*frameDelta;
-        localObject->dir.y = cosf(localObject->angle)*frameDelta;
+        localObject->dir.x = sinf(localObject->angle);
+        localObject->dir.y = cosf(localObject->angle);
         localObject->dir.z = 0;
     }
 }
+
 void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *server){
 
 }
 
 //updates all action changes in the game.
-void up_update_actions(struct up_actionState *playerShip, struct up_actionState server[], int nrObj)
+void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj)
 {
     int i=0;
     struct up_objectInfo *localObject = NULL;
