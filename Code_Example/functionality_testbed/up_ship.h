@@ -37,7 +37,13 @@ struct up_actionState
 
 
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
+
+//this funktion updates the global position of all objects in the world
+// only called in the main gameloop once
+void up_updateMovements();
+
 void up_updateShipMovment(struct up_objectInfo *ship);
+
 void up_updateFrameTickRate();
 double up_getFrameTimeDelta();
 unsigned int up_getFrameRate();
