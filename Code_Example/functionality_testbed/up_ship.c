@@ -15,6 +15,10 @@ unsigned int up_gFramePerSeconde = 0;
 
 int checkFire(unsigned int startTime, unsigned int cooldown);
 
+
+//not it use
+//Sebastian
+//Revised by Magnus
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
     float deltaTime = (float)up_getFrameTimeDelta();
     ship->speed += 1.0f *(movement->up - movement->down) * deltaTime;
@@ -130,7 +134,7 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
     //shipMove(movement, ship);
     return flag;
 }
-
+//Tobias
 int checkFire(unsigned int startTime, unsigned int cooldown)
 {
    unsigned int tempVar=SDL_GetTicks()-startTime;
@@ -152,6 +156,8 @@ double up_getFrameTimeDelta()
     return up_gFrameTickRate;
 }
 
+
+//Magnus
 void up_updateFrameTickRate()
 {
     static unsigned int fps_counter = 0;
@@ -180,7 +186,8 @@ void up_updateFrameTickRate()
 }
 
 //this funktion updates the global position of all objects in the world
-// only called in the main gameloop once
+//only called in the main gameloop once
+//Magnus 2015-05-05
 void up_updateMovements()
 {
     int numObjects = 0;
@@ -197,6 +204,8 @@ void up_updateMovements()
     }
 }
 //not in use. moves the playership for testing purposes
+//Sebastian
+//revised by magnus
 void up_updateShipMovment(struct up_objectInfo *ship)
 {
 
@@ -222,6 +231,7 @@ void up_updateShipMovment(struct up_objectInfo *ship)
     ship->pos.z += ship->dir.z * ship->speed * deltaTime;
 }
 //not in use. moves the playership for testing purposes
+//Sebastian
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship)
 {
 
@@ -242,6 +252,7 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
     up_matrixModel(matrixModel,&model->pos, &model->rot, &model->scale);
 }
 
+//Tobias 2015-05-05
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
     FILE *fp;
@@ -269,6 +280,7 @@ struct up_actionState
 
 /*determine the new direction and speed of the object*/
 //turnspeed is a set value atm. It is to be stored for each obj
+//Sebastian 2015-05-05
 void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
 {
     //float turnSpeed=1; //temporary. will be unique for each model
@@ -282,7 +294,7 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
     }
 
     if(obj->maneuver.state == left){
-        //Determine where the object is facing
+        //Determines where the object is facing
         localObject->angle = localObject->angle + localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
@@ -290,17 +302,19 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
     }
 
     if(obj->maneuver.state == right){
-        //Determine where the object is facing
+        //Determines where the object is facing
         localObject->angle = localObject->angle - localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
         localObject->dir.z = 0;
     }
 }
-/*Creates the fired projectiles giving them the same speed and direction of the ship that fired them*/
+/*Creates the fired projectiles giving adding the same speed and direction of the ship that fired them*/
+//Sebastian 2015-05-05
 void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj){
     struct up_objectInfo projectile = *localobject;
 
+    //bullet
     if(obj->fireWeapon.state==fireBullet){
         projectile.modelId = 4;
         projectile.scale.x = 5;
@@ -310,7 +324,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         obj->fireWeapon.none = none;
 
     }
-
+    //lazer
     if(obj->fireWeapon.state==fireLaser){
         projectile.modelId = 0;
         projectile.scale.x = 5;
@@ -320,7 +334,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         obj->fireWeapon.none = none;
 
     }
-
+    //missle
     if(obj->fireWeapon.state==fireMissile){
         projectile.modelId = 0;
         projectile.scale.x = 5;
@@ -333,6 +347,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
 }
 
 /*updates all action changes in the game*/
+//Sebastian 2015-05-05
 void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj)
 {
     int i=0;

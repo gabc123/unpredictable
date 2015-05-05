@@ -20,6 +20,8 @@
 
 void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray);
 
+/*stores information of the object*/
+//sebastian
 struct up_modelData
 {
     char obj[MODELLENGTH];
@@ -27,26 +29,28 @@ struct up_modelData
     struct up_vec3 scale;
 };
 
+/*fallback mesh*/
+//magnus
 struct up_mesh *dummyobj()
 {
     struct up_mesh *mesh = meshTriangleShip();
     return mesh;
 }
 
-
+//magnus
 int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_modelData *item)
 {
     int returnCode = 1;
     struct up_objModel *testObj = NULL;
     struct up_mesh *mesh = NULL;
     struct up_texture_data *texture = NULL;
-    
+
     // set up the dummyobjects to be used incase of failure
     struct up_mesh dummyMesh;
     struct up_texture_data dummyTexture;
     up_mesh_list_getAtIndex(meshArray, &dummyMesh, 0);
     up_texture_list_getAtIndex(textureArray, &dummyTexture, 0);
-    
+
     //struct load item;
     testObj= up_loadObjModel(item->obj);
     if (testObj !=NULL) {
@@ -55,13 +59,13 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
     }else{
         mesh = NULL;
     }
-    
+
     if (mesh == NULL) {
         mesh = &dummyMesh;//reuse the same dummy mesh, reducing gpu memory presure
         returnCode = 0;
     }
     up_mesh_list_add(meshArray, mesh);
-    
+
     texture = up_load_texture(item->tex);
 
     if (texture == NULL) {
@@ -72,19 +76,19 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
     up_texture_list_add(textureArray, texture);
     return returnCode;
 }
-
+/*Reads assets to be loaded from a file*/
+//Sebastian
 void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray)
 {
-    
     struct UP_textHandler thafile = up_loadAssetFile("objIndex");
     struct up_vec3 scaleOne = {1.0, 1.0, 1.0};
-    struct up_modelData item; //stores
+    struct up_modelData item; //stores the information of the object
     char *text = thafile.text;
     char *endLine = "\n";
     char *rad;;
-    
+
     //    struct up_vec3 scale;
-    
+
     /*reads from the file and stores read data*/
     do{
         rad = up_token_parser(text, &text, endLine, strlen(endLine));
@@ -98,24 +102,24 @@ void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *text
         {
             item.scale = scaleOne; // there has been a error , set scale to one
         }
-        
+
         up_vec3_list_add(scaleArray, &item.scale);
-        
+
     }while(text <= thafile.text + thafile.length -1);
-    
+
     up_textHandler_free(&thafile);
-    
-    
+
+
 }
 
-
+/*loads all stored assets into the gpu*/
+//Sebastian
 struct up_assets *up_assets_start_setup()
 {
-
     struct up_generic_list *meshArray = up_mesh_list_new(10);
     struct up_generic_list *textureArray = up_texture_list_new(10);
     struct up_generic_list *scaleArray= up_vec3_list_new(10);
-    
+
     // the first model is always a default model  that is used if
     // a missing obj file or texture is found
     struct up_mesh *mesh = dummyobj();
@@ -127,7 +131,7 @@ struct up_assets *up_assets_start_setup()
     up_mesh_list_add(meshArray, mesh);
     up_texture_list_add(textureArray, texture);
     up_vec3_list_add(scaleArray, &scale);
-    
+
 
     loadObjects(meshArray, textureArray, scaleArray);
 
@@ -136,11 +140,11 @@ struct up_assets *up_assets_start_setup()
         UP_ERROR_MSG("failure in assets");
     }
     assets->numobjects = up_mesh_list_count(meshArray);
-    
+
     assets->meshArray = up_mesh_list_transferOwnership(&meshArray);
     assets->textureArray = up_texture_list_transferOwnership(&textureArray);
     assets->scaleArray =up_vec3_list_transferOwnership(&scaleArray);
-    
+
     return assets;
 }
 

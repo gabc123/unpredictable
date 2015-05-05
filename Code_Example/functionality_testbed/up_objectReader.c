@@ -48,11 +48,10 @@ struct up_objModel *up_loadObjModel(const char *filename)
         UP_ERROR_MSG_STR("Obj faild to load", filename);
         return NULL;
     }
-    
+
     text=objFile.text;
     do
     {
-
 
         rad = up_token_parser(text, &text, endLine, strlen(endLine));
         if(rad == NULL)

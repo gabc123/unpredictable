@@ -158,7 +158,8 @@ void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec
     up_matrix4Multiply(&tmpResult, &mat4scale, &rotationMatrix);
     up_matrix4Multiply(modelMatrix, &tmpResult, &posMatrix4);
 }
-
+//matrix cross operation
+//Sebastian
 void up_cross(struct up_vec3 *result,struct up_vec3 *vec3A,struct up_vec3 *vec3B)
 {
     result->x = vec3A->y * vec3B->z - vec3A->z * vec3B->y;
@@ -166,13 +167,15 @@ void up_cross(struct up_vec3 *result,struct up_vec3 *vec3A,struct up_vec3 *vec3B
     result->z = vec3A->x * vec3B->y - vec3A->y * vec3B->x;
 }
 
-
+//Matrix dot operation
+//Sebastian
 float up_dot(struct up_vec3 *vec3A, struct up_vec3 *vec3B)
 {
     return (vec3A->y*vec3B->y + vec3A->z*vec3B->z + vec3A->x*vec3B->x);
 }
 
 //takes 2 vector pointers and puts their subtracted result into the result vector pointer
+//Sebastian
 static void viewdirection(struct up_vec3 *result,struct up_vec3 *center,struct up_vec3 *eye){
     result->x = center->x - eye->x;
     result->y = center->y - eye->y;
@@ -180,6 +183,7 @@ static void viewdirection(struct up_vec3 *result,struct up_vec3 *center,struct u
 }
 
 //the mathematic operation normalize
+//Sebastian
 void up_normalize(struct up_vec3 *result, struct up_vec3 *vec3A)
 {
  //   struct up_vec3 tmp;
@@ -195,36 +199,36 @@ void up_viewTest2(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 
     viewdirection(&dir, center, eye);
     struct up_vec3 f;
     up_normalize(&f, &dir);
-    
+
     struct up_vec3 un;
     up_normalize(&un, UP);
-    
+
     struct up_vec3 cross_fu;
     up_cross(&cross_fu, &f, &un);
-    
+
     struct up_vec3 s;
     up_normalize(&s, &cross_fu);
-    
+
     struct up_vec3 u ;
     up_cross(&u, &s, &f);
-    
+
     float row4x = -up_dot(&s, eye);
     float row4y = -up_dot(&u, eye);
     float row4z = -up_dot(&f, eye);
-    
+
     up_matrix4_t matTmp = {
         s.x, u.x, f.x, 0,
         s.y, u.y, f.y, 0,
         s.z, u.z, f.z, 0,
         row4x, row4y, row4z,1};
-    
+
     *matrixView = matTmp;
-    
+
     //struct up_vec3 invEye = {eye->x,eye->y,eye->z};
     //up_matrix4_t camTranslation = up_matrix4translation(&invEye);
-    
+
     //up_matrix4Multiply(matrixView, &camTranslation, &matTmp);
-    
+
 }
 
 
@@ -239,30 +243,30 @@ void up_viewTest(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *
     struct up_vec3 U;
     up_cross(&U, &un, center);
     struct up_vec3 V;
-    
+
     up_cross(&V, &N, &U);
-    
+
     /*
-     
+
      up_matrix4_t matTmp = {
      U.x,V.x,N.x,0,
      U.y,V.y,N.y,0,
      U.z,V.z,N.z,0,
      0,0,0,1};
-     
+
      */
-    
+
     up_matrix4_t matTmp = {
         U.x,U.y,U.z,0,
         V.x,V.y,V.z,0,
         N.x,N.y,N.z,0,
         0,0,0,1};
-    
+
     struct up_vec3 invEye = {eye->x,eye->y,eye->z};
     up_matrix4_t camTranslation = up_matrix4translation(&invEye);
-    
+
     up_matrix4Multiply(matrixView, &camTranslation, &matTmp);
-    
+
     /*struct up_vec3 F;
     viewdirection(&F, center, eye);
     struct up_vec3 col3;
@@ -279,16 +283,16 @@ void up_viewTest(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *
         col1.y,col2.y,col3.y,0,
         col1.z,col2.z,col3.z,0,
         0,0,0,1};
-    
+
     up_matrix4_t mat4eye = {
         1,0,0,0,
         0,1,0,0,
         0,0,1,0,
         -eye->x,-eye->y,-eye->z,1
     };
-    
+
     up_matrix4Multiply(matrixView,&mat4eye,&matTmp);*/
-    
+
     /*float row4x = -up_dot(&col1, center);
     float row4y = -up_dot(&col2, center);
     float row4z = -up_dot(&col3, center);
@@ -318,11 +322,12 @@ void up_viewTest(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *
 }
 
 // https://www.opengl.org/sdk/docs/man2/xhtml/gluLookAt.xml
+//Sebastian
 void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP)
 {
     up_viewTest2(matrixView,eye,center,UP);
     //up_viewTest(matrixView,eye,center,UP);
-    
+
     /*struct up_vec3 result;
     struct up_vec3 U;
     viewdirection(&result,center,eye);
@@ -353,7 +358,7 @@ void up_matrixPerspective(up_matrix4_t *perspective, GLdouble fov,GLdouble aspec
 {
     double f = 1/tan(fov*0.5);
     double invFrustrum = 1/(zFar - zNear);
-    
+
     perspective->data[0] = f/aspectRatio;
     perspective->data[5] = f;
     perspective->data[10] = zFar*invFrustrum;
@@ -369,7 +374,7 @@ void up_getViewPerspective(up_matrix4_t *vp,
     //up_matrix4_t mv = {0};
     //up_matrix4Multiply(&mv,modelMatrix,matrixView);
     up_matrix4Multiply(vp, matrixView, perspective);
-    
+
     /*up_matrix4_t pv = {0};
      up_matrix4Multiply(&pv,perspective,matrixView);
      up_matrix4Multiply(mvp, &pv, modelMatrix);*/
@@ -383,7 +388,7 @@ void up_getModelViewPerspective(up_matrix4_t *mvp,
     up_matrix4_t mv = {0};
     up_matrix4Multiply(&mv,modelMatrix,matrixView);
     up_matrix4Multiply(mvp, &mv, perspective);
-    
+
     /*up_matrix4_t pv = {0};
     up_matrix4Multiply(&pv,perspective,matrixView);
     up_matrix4Multiply(mvp, &pv, modelMatrix);*/
