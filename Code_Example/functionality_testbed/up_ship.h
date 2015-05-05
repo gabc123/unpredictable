@@ -8,12 +8,23 @@ enum up_none
     none = 0
 };
 
-enum shootingStates
- {
-     fireMissile = 1,
-     fireBullet,
-     fireLaser
- };
+union shootingStates
+{
+    enum up_none state;
+    enum
+    {
+        fireMissile = 1,
+        fireBullet,
+        fireLaser
+    };
+};
+
+//enum shootingStates
+// {
+//     fireMissile = 1,
+//     fireBullet,
+//     fireLaser
+// };
 
 enum movement
  {
@@ -29,7 +40,7 @@ enum movement
 
 struct up_actionState
 {
-    enum shootingStates fireWeapon;
+    union shootingStates fireWeapon;
     enum movement engineState;
     enum turning maneuver;
     int objectID;
