@@ -227,10 +227,10 @@ struct up_mesh *up_meshLettersUsername(float moveY)
     
     // this is the posisions of the vertexes
     struct up_vec3 pos[] = {
-        {-1.0f, -1.0f, 5.0f},   // bottomleft 0
-        {1.0f, -1.0f, 5.0f},   //bottom right 1
-        {-1.0f, 1.0f, 5.0f},  //topleft 2
-        {1.0f, 1.0f, 5.0f}   //topright 3
+        {-1.0f, -1.0f, 0.01f},   // bottomleft 0
+        {1.0f, -1.0f, 0.01f},   //bottom right 1
+        {-1.0f, 1.0f, 0.01f},  //topleft 2
+        {1.0f, 1.0f, 0.01f}   //topright 3
     };
     
     
