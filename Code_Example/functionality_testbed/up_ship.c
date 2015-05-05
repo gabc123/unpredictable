@@ -1,5 +1,5 @@
 #include "up_ship.h"
-
+#include "up_error.h"
 #include "up_sdl_redirect.h"
 #include "up_shader_module.h"
 #include "up_camera_module.h"
@@ -9,6 +9,9 @@ double up_getFrameTimeDelta();
 double up_gFrameTickRate = 0;
 unsigned int up_gFramePerSeconde = 0;
 
+int checkFire(int shootFlag)
+
+
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
     float deltaTime = (float)up_getFrameTimeDelta();
     ship->speed += 1.0f *(movement->up - movement->down) * deltaTime;
@@ -16,10 +19,17 @@ void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
     if(!(movement->up + movement->down)){ship->speed=0;}
 }
 
-int UP_eventHandler(struct up_objectInfo *ship,struct shipMovement *movement)
+struct up_eventState
+{
+    struct up_shootingFlag flags;
+};
+
+int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction)
 {
     int flag = 1;
     SDL_Event event;
+    int tempFlag = 0;
+
 
     while(SDL_PollEvent(&event))
     {
@@ -30,25 +40,41 @@ int UP_eventHandler(struct up_objectInfo *ship,struct shipMovement *movement)
         if(event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
                 case SDLK_w:
-                    movement->up = 1;
+                    objectAction.engineState = forwrd;
                     break;
                 case SDLK_s:
-                    movement->down = 1;
+                    objectAction.engineState = backwrd;
                     break;
                 case SDLK_a:
-                    movement->left=1;
+                    objectAction.maneuver = left;
                     break;
                 case SDLK_d:
-                    movement->right=1;
+                    objectAction.maneuver = right;
                     break;
+
+
                 case SDLK_r:
                     up_cam_zoom(1.0f);
                     break;
                 case SDLK_f:
                     up_cam_zoom(-1.0f);
                     break;
+
+
                 case SDLK_SPACE:
+                    tempFlag = checkFire(currentEvent.flags.bulletFlag);
+                    if(tempFlag=0)
+                    {
+                        objectAction.fireWeapon = fireBullet;
+                        currentEvent.flags.bulletFlag.startTime = SDL_GetTicks();
+                    }else
+                    {
+                        objectAction.fireWeapon = none;
+                    }
                     break;
+
+                case SDLK_c:
+
 
                 default:
                     break;
@@ -59,17 +85,19 @@ int UP_eventHandler(struct up_objectInfo *ship,struct shipMovement *movement)
         {
             switch (event.key.keysym.sym) {
                 case SDLK_w:
-                    movement->up=0;
+                    objectAction.engine=none;
                     break;
                 case SDLK_s:
-                    movement->down=0;
+                    objectAction.engine=none;
                     break;
                 case SDLK_d:
-                    movement->right=0;
+                    objectAction.maneuver=none;
                     break;
                 case SDLK_a:
-                    movement->left=0;
+                    objectAction.maneuver=none;
                     break;
+                case SDLK_SPACE:
+                    objectAction.fireWeapon=none;
                 default:
                     break;
             }
@@ -77,6 +105,17 @@ int UP_eventHandler(struct up_objectInfo *ship,struct shipMovement *movement)
     }
     shipMove(movement, ship);
     return flag;
+}
+
+int checkFire(unsigned int startTime, unsigned int cooldown)
+{
+   unsigned int tempVar=SDL_GetTicks()-startTime;
+
+   if (tempVar<=cooldown)
+   {
+       return 1;
+   }
+   return 0;
 }
 
 unsigned int up_getFrameRate()
@@ -161,5 +200,17 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
     up_matrixModel(matrixModel,&model->pos, &model->rot, &model->scale);
 }
 
+void up_weaponCoolDown_start_setup()
+{
+    FILE *fp;
+    fp = fopen("CoolDown.weapon", "r")
+    if(fp==NULL)
+    {
+        UP_ERROR_MSG("Failed to open the cooldown file.");
+        exit();
+    }
+
+
+}
 
 
