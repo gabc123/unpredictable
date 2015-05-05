@@ -131,7 +131,7 @@ void up_updateMovements()
     int i = 0;
     for (i = 0; i < numObjects; i++) {
         objlocal = &objectArray[i];
-        
+
         objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
         objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
@@ -197,7 +197,7 @@ struct up_actionState
 //turnspeed is a set value atm. It is to be stored for each obj
 void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
 {
-    float turnSpeed=1; //temporary. will be unique for each model
+    float turnSpeed=2; //temporary. will be unique for each model
 
     if(obj->engineState==fwd)
         localObject->speed +=1;
@@ -220,12 +220,22 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->dir.z = 0;
     }
 }
-void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *server){
+void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj){
+    if(obj->fireWeapon==fireBullet){
 
+    }
+
+    if(obj->fireWeapon==fireLaser){
+
+    }
+
+    if(obj->fireWeapon==fireMissile){
+
+    }
 }
 
 //updates all action changes in the game.
-void up_update_actions(struct up_actionState *playerShip, struct up_actionState server[], int nrObj)
+void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj)
 {
     int i=0;
     struct up_objectInfo *localObject = NULL;
