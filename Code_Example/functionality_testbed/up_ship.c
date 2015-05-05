@@ -4,6 +4,9 @@
 #include "up_shader_module.h"
 #include "up_camera_module.h"
 
+
+// magnus , up_updateMovements , 5 maj
+
 double up_getFrameTimeDelta();
 
 double up_gFrameTickRate = 0;
@@ -114,6 +117,24 @@ void up_updateFrameTickRate()
 
     fps_counter++;
     lastTick = SDL_GetTicks();
+}
+
+//this funktion updates the global position of all objects in the world
+// only called in the main gameloop once
+void up_updateMovements()
+{
+    int numObjects = 0;
+    struct up_objectInfo *objectArray = up_unit_getAllObj(&numObjects);
+    struct up_objectInfo *objlocal = NULL;
+    float deltaTime = (float)up_getFrameTimeDelta();
+    int i = 0;
+    for (i = 0; i < numObjects; i++) {
+        objlocal = &objectArray[i];
+        
+        objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
+        objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
+        objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
+    }
 }
 
 void up_updateShipMovment(struct up_objectInfo *ship)
