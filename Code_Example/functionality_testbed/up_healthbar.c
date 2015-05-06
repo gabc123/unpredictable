@@ -1,19 +1,51 @@
 #include "up_healthbar.h"
 #include "up_matrixTransforms.h"
 #include "up_ship.h"
+#include "up_menu.h"
+#include <stdio.h>
+#include "up_initGraphics.h"
+#include "up_utilities.h"
+#include "up_ship.h"
+#include "up_objectReader.h"
+#include "up_shader_module.h"
+#include "up_network_module.h"
+#include "testmodels.h"
+#include "up_modelRepresentation.h"
+#include "up_matrixTransforms.h"
+#include "up_assets.h"
 
 
-/*
 
-void healthbar_creation(up_matrix4_t *modelMatrix,struct camera *cam,struct up_ship *ship){
+int healthbar_creation()
+{
     
-    Up_healthbar healthbar_matrix;
-    struct up_vec3 vertex_healthbar_position;
+    int index;
+    struct up_objectInfo healthBar = up_asset_createObjFromId(0);
     
-    vertex_healthbar_position = 
+    //healthBar.pos = ;
+    
+    index = up_unit_add(healthBar);
+
     
     
     
+    return index;
     
     
-}*/
+}
+
+
+void moveHealthBar(struct up_objectInfo *ship,int index)
+{
+    
+    struct up_objectInfo *healthbar = up_unit_objAtIndex(index);
+    
+    healthbar->pos.x = ship->pos.x;
+    healthbar->pos.y = ship->pos.y+ 20;
+    healthbar->pos.z = ship->pos.z;
+    
+    
+}
+
+
+
