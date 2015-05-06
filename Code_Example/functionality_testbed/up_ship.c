@@ -261,13 +261,12 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
     char *lineReader = NULL;
-    char ammoName[NAMESIZE];
+    char ammoName[NAMESIZE]="\0";
     char *newLineFinder = "\n";
     char *textRead;
-    int tmp1 = 0,tmp2=0;
+    int tmp1 = 0,tmp2 = 0;
 
     struct UP_textHandler cdText = up_loadWeaponStatsFile("CoolDown.weapon");
-
 
     if(cdText.text == NULL)
     {
@@ -275,21 +274,24 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
         return;
     }
     textRead = cdText.text;
-    
+
 
     do
     {
         lineReader = up_token_parser(textRead,&textRead,newLineFinder,strlen(newLineFinder));
+        printf("\n");
         if (lineReader == NULL) {
             printf("File read wepeon");
             break;
         }
-        if(lineReader[0]==':')
+        if(*lineReader==':')
         {
-            sscanf(lineReader,"%d/%d/%s",&tmp1,&tmp2,ammoName);
+            printf("found :\n");
+            lineReader++;
+            sscanf(lineReader,"%d %d %s",&tmp1,&tmp2,ammoName);
         }
 
-        printf("%s",ammoName);
+        printf("%d %d %s",tmp1,tmp2,ammoName);
 
         if(strcmp(ammoName,"bullet")==0)
         {
@@ -362,7 +364,7 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
 }
 /*Creates the fired projectiles giving adding the same speed and direction of the ship that fired them*/
 //Sebastian 2015-05-05
-void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj){
+void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj, struct up_eventState *ammoStats){
     struct up_objectInfo projectile = *localobject;
 
     //bullet
@@ -371,7 +373,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed * 1.10;
+        projectile.speed = localobject->speed + 100;
         up_unit_add(projectile);
         obj->fireWeapon.none = none;
 
@@ -382,7 +384,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed * 1.10;
+        projectile.speed = localobject->speed + 100;
         up_unit_add(projectile);
         obj->fireWeapon.none = none;
 
@@ -393,7 +395,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed * 1.10;
+        projectile.speed = localobject->speed + 40;
         up_unit_add(projectile);
         obj->fireWeapon.none = none;
 
@@ -402,7 +404,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
 
 /*updates all action changes in the game*/
 //Sebastian 2015-05-05
-void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj)
+void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *funkarEj)
 {
     int i=0;
     struct up_objectInfo *localObject = NULL;
@@ -415,10 +417,10 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         tmp=&server[i];
         localObject = up_unit_objAtIndex(tmp->objectID);
         up_moveObj(localObject, tmp,frameDelta);
-        up_createProjectile(localObject, tmp);
+        up_createProjectile(localObject, tmp, funkarEj);
     }
     //local playership update
     localObject = up_unit_objAtIndex(playerShip->objectID);
     up_moveObj(localObject, playerShip, frameDelta);
-    up_createProjectile(localObject, playerShip);
+    up_createProjectile(localObject, playerShip,funkarEj);
 }
