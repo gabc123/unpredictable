@@ -56,7 +56,7 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
 
         distance=sqrt((x*x)+(y*y));
 
-        if(distance<50)
+        if(distance<200)
             in_cam[j++]=allObj[i];
 
     }

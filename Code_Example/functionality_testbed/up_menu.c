@@ -9,6 +9,7 @@
 #include "up_menu.h"
 #include <stdio.h>
 #include "up_initGraphics.h"
+#include "up_assets.h"
 #include "up_utilities.h"
 #include "up_texture_module.h"
 #include "up_ship.h"
@@ -19,7 +20,7 @@
 #include "up_modelRepresentation.h"
 #include "up_matrixTransforms.h"
 
-#define LIMIT 30
+#define UP_LIMIT 30
 
 
 #include "up_sdl_redirect.h"  //mouse event handlingr
@@ -46,13 +47,13 @@ struct navigationState{
 };
 
 struct userData{
-    char username[LIMIT];
-    char password[LIMIT];
+    char username[UP_LIMIT];
+    char password[UP_LIMIT];
     int keypress;
 };
 
 
-int up_menuEventHandler();
+int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar, struct userData *user_data);
 
 
 int up_menu(struct shader_module *shaderprog){
@@ -80,6 +81,8 @@ int up_menu(struct shader_module *shaderprog){
         textureLoginLetters = up_load_texture("lala.png");
     }
     
+
+    
     //TRANSFORMS
     up_matrix4_t transformLoginRegisterBottons;
     up_matrix4_t transformBackground;
@@ -95,8 +98,8 @@ int up_menu(struct shader_module *shaderprog){
     struct up_mesh *background = up_meshMenuBackground();
     struct up_mesh *bottonLogin1 =up_meshBotton(0,0.95,0,0); //(float imageX, float imageY, float screenPosX, float screenPosY)
     struct up_mesh *bottonLogin2 =up_meshBotton(0,0.1,0,-0.25);
-    struct up_mesh *overlay = up_meshLoginOverlay();
-    struct up_mesh *letters = up_meshLettersUsername(0); //(float moveY)
+    //struct up_mesh *overlay = up_meshLoginOverlay();
+    //struct up_mesh *letters = up_meshLettersUsername(0); //(float moveY)
     
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
@@ -116,6 +119,9 @@ int up_menu(struct shader_module *shaderprog){
                                            {0,0,0},
                                            {0.95,0.95,0.95}};
     
+    struct up_font_assets *fonts = up_font_start_setup();
+    struct up_vec3 textpos = {0};
+    struct up_vec3 textscale = {0.1,0.1,0.1};
     
     up_matrixModel(&translationLoginOverlay, &scale2.pos, &scale2.rot, &scale2.scale);
     
@@ -147,18 +153,18 @@ int up_menu(struct shader_module *shaderprog){
     while(status)
     {
         up_updateFrameTickRate();
-        status = up_menuEventHandler(&navigation, &loginBar, &user_data);
         
+        
+        
+        UP_renderBackground();                      //Clears the buffer and results an empty window.
+        UP_shader_bind(shaderprog);                 //
+        
+        status = up_menuEventHandler(&navigation, &loginBar, &user_data);
+        //do menu stuff
+
         if (status==2) {
             break;
         }
-        UP_renderBackground();                      //Clears the buffer and results an empty window.
-        UP_shader_bind(shaderprog);                 //
-
-
-        //do menu stuff
-
-
 
         //up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
@@ -184,26 +190,19 @@ int up_menu(struct shader_module *shaderprog){
                 break;
                 
             case loginMenu:
-                UP_shader_update(shaderprog, &transformLoginOverlay);
-                up_texture_bind(textureLoginOverlay, 3);
-                up_draw_mesh(overlay);
-                
-               // if (navigation.status==writeOn) {
+                if (navigation.status == writeOn) {
+                    up_displayText(user_data.username, user_data.keypress, &textpos, &textscale, fonts, shaderprog);
                     
+                }
                 
-                    UP_shader_update(shaderprog, &transformLoginLetters);
-                    up_texture_bind(textureLoginLetters, 4);
-                    up_draw_mesh(letters);
-                //}
                 
                 break;
                 
-           /* case usernameBar:
-                UP_shader_update(shaderprog, &transformLoginLetters);
-                up_texture_bind(textureLoginLetters, 4);
-                up_draw_mesh(letters);
+            case usernameBar:
+                
+
             
-                break; */
+                break;
               
             default:
                 break;
@@ -232,7 +231,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
     float width = 1280;
     float height = 880;
     SDL_Event event;
-
+    
     while(SDL_PollEvent(&event))
     {
         if (event.type == SDL_QUIT)
@@ -264,84 +263,18 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
         {
             if (navigation->status == writeOn) {
                 
-                user_data->keypress++;
                 
-                switch (event.key.keysym.sym) {
-                    case SDLK_a:
-                        
-                        user_data->username[user_data->keypress] = 'a';
-                        
-                        //printf("jag skriver a\n");
-                        
-                        break;
-                    case SDLK_b:
-                        
-                        user_data->username[user_data->keypress] = 'b';
-                        
-                        //printf("jag skriver b \n");
-                        
-                        break;
-                    case SDLK_c:
-                        
-                        user_data->username[user_data->keypress] = 'c';
-                        
-                        break;
-                    case SDLK_d:
-                        
-                        user_data->username[user_data->keypress] = 'd';
-                        
-                        break;
-                    case SDLK_e:
-                        
-                        
-                        
-                        break;
-                    case SDLK_f:
-                        break;
-                    case SDLK_g:
-                        break;
-                    case SDLK_h:
-                        break;
-                    case SDLK_i:
-                        break;
-                    case SDLK_j:
-                        break;
-                    case SDLK_k:
-                        break;
-                    case SDLK_l:
-                        break;
-                    case SDLK_m:
-                        break;
-                    case SDLK_n:
-                        break;
-                    case SDLK_o:
-                        break;
-                    case SDLK_p:
-                        break;
-                    case SDLK_q:
-                        break;
-                    case SDLK_r:
-                        break;
-                    case SDLK_s:
-                        break;
-                    case SDLK_t:
-                        break;
-                    case SDLK_u:
-                        break;
-                    case SDLK_v:
-                        break;
-                    case SDLK_w:
-                        break;
-                    case SDLK_x:
-                        break;
-                    case SDLK_y:
-                        break;
-                    case SDLK_z:
-                        break;
-                        
-                    default:
-                        break;
+                
+                if ((event.key.keysym.sym > 32) && ( event.key.keysym.sym < 127)) {
+                    user_data->username[user_data->keypress] = event.key.keysym.sym;
+                    user_data->keypress++;
                 }
+                if (event.key.keysym.sym == 32) {
+                    user_data->username[UP_LIMIT - 1] = '\0';
+                    printf("%s\n",user_data->username);
+                    user_data->keypress = 0;
+                }
+
             }
 
         

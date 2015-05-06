@@ -138,11 +138,13 @@ int main(int argc, char const *argv[])
     up_weaponCoolDown_start_setup(&currentEvent);
     printf("out of weapon\n");
     struct up_objectInfo in_cam[500];
+    struct up_eventState funkarEj = {0};
     // starts the main game loop
     while(status)
     {
         up_updateFrameTickRate();
         status = UP_eventHandler(&currentEvent,&shipAction);
+
 
         //upnewtwork_getNewMovement(&ship);          // retrive any updates from the network
 
@@ -150,7 +152,7 @@ int main(int argc, char const *argv[])
 
         //up_updatShipMatrixModel(&modelMatrix,&model,ship); // creates the modelMatrix for the ship
         //up_updateShipMovment(ship);
-        up_update_actions(&shipAction, NULL, 0);
+        up_update_actions(&shipAction, NULL, 0,&funkarEj);
         up_updateMovements();
 
         up_update_camera(&cam, ship);

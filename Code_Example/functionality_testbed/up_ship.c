@@ -7,7 +7,6 @@
 #include "up_modelRepresentation.h"
 #include "up_filereader.h"
 #include "up_assets.h"
-#include "up_filereader.h"
 #define NAMESIZE 100
 
 
@@ -365,7 +364,7 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
 }
 /*Creates the fired projectiles giving adding the same speed and direction of the ship that fired them*/
 //Sebastian 2015-05-05
-void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj){
+void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj, struct up_eventState *ammoStats){
     struct up_objectInfo projectile = *localobject;
 
     //bullet
@@ -374,7 +373,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed * 1.10;
+        projectile.speed = localobject->speed + 100;
         up_unit_add(projectile);
         obj->fireWeapon.none = none;
 
@@ -385,7 +384,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed * 1.10;
+        projectile.speed = localobject->speed + 100;
         up_unit_add(projectile);
         obj->fireWeapon.none = none;
 
@@ -396,7 +395,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed * 1.10;
+        projectile.speed = localobject->speed + 40;
         up_unit_add(projectile);
         obj->fireWeapon.none = none;
 
@@ -405,7 +404,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
 
 /*updates all action changes in the game*/
 //Sebastian 2015-05-05
-void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj)
+void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *funkarEj)
 {
     int i=0;
     struct up_objectInfo *localObject = NULL;
@@ -418,10 +417,10 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         tmp=&server[i];
         localObject = up_unit_objAtIndex(tmp->objectID);
         up_moveObj(localObject, tmp,frameDelta);
-        up_createProjectile(localObject, tmp);
+        up_createProjectile(localObject, tmp, funkarEj);
     }
     //local playership update
     localObject = up_unit_objAtIndex(playerShip->objectID);
     up_moveObj(localObject, playerShip, frameDelta);
-    up_createProjectile(localObject, playerShip);
+    up_createProjectile(localObject, playerShip,funkarEj);
 }

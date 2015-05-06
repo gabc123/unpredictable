@@ -15,9 +15,10 @@ void UP_sdlSetup()
     }
     printf("SDL init done\n");
 
-    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
-        UP_ERROR_MSG("SDL image init failure (PNG)");
+    if (IMG_Init(IMG_INIT_PNG|IMG_INIT_JPG) != (IMG_INIT_PNG|IMG_INIT_JPG)) {
+        UP_ERROR_MSG("SDL image init failure (PNG jpg)");
     }
+    
     printf("SDL image init done\n");
 
 }
