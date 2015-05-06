@@ -252,8 +252,13 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
 }
 
 //Tobias 2015-05-05
+//magnus 2015-05-06
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
+    //defualt values
+    currentEvent->flags.bulletFlag.coolDown = 1000;
+    currentEvent->flags.missileFlag.coolDown = 1000;
+    currentEvent->flags.laserFlag.coolDown = 1000;
     FILE *fp;
     fp = fopen("CoolDown.weapon", "r");
     if(fp==NULL)
@@ -262,9 +267,7 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
         return;
     }
     fclose(fp);
-    currentEvent->flags.bulletFlag.coolDown = 1000;
-    currentEvent->flags.missileFlag.coolDown = 1000;
-    currentEvent->flags.laserFlag.coolDown = 1000;
+    
 }
 /*
 struct up_actionState
