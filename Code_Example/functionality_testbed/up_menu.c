@@ -76,10 +76,6 @@ int up_menu(struct shader_module *shaderprog){
     if (textureLoginOverlay==NULL) {
         textureLoginOverlay = up_load_texture("lala.png");
     }
-    struct up_texture_data *textureLoginLetters = up_load_texture("letters.png");
-    if (textureLoginLetters==NULL) {
-        textureLoginLetters = up_load_texture("lala.png");
-    }
     
 
     
@@ -87,19 +83,18 @@ int up_menu(struct shader_module *shaderprog){
     up_matrix4_t transformLoginRegisterBottons;
     up_matrix4_t transformBackground;
     up_matrix4_t transformLoginOverlay;
-    up_matrix4_t transformLoginLetters;
+
     
     //TRANSLATION TRANSFORMS
     up_matrix4_t translationLoginRegisterButtons;
     up_matrix4_t translationLoginOverlay;
-    up_matrix4_t translationLoginLetters;
+
 
     //MESH LOADING
     struct up_mesh *background = up_meshMenuBackground();
     struct up_mesh *bottonLogin1 =up_meshBotton(0,0.95,0,0); //(float imageX, float imageY, float screenPosX, float screenPosY)
     struct up_mesh *bottonLogin2 =up_meshBotton(0,0.1,0,-0.25);
-    //struct up_mesh *overlay = up_meshLoginOverlay();
-    //struct up_mesh *letters = up_meshLettersUsername(0); //(float moveY)
+    struct up_mesh *overlay = up_meshLoginOverlay();
     
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
@@ -120,22 +115,12 @@ int up_menu(struct shader_module *shaderprog){
                                            {0.95,0.95,0.95}};
     
     struct up_font_assets *fonts = up_font_start_setup();
-    struct up_vec3 textpos = {0};
-    struct up_vec3 textscale = {0.1,0.1,0.1};
+    struct up_vec3 textpos = {-0.17, 0.045, 0};
+    struct up_vec3 textscale = {0.025,0.025,0.025};
     
     up_matrixModel(&translationLoginOverlay, &scale2.pos, &scale2.rot, &scale2.scale);
     
     up_getModelViewPerspective(&transformLoginOverlay, &translationLoginOverlay, &identity, &identity);
-    
-    //LOGIN LETTERS
-    
-    struct up_modelRepresentation scale3 ={{0,0,0},     //no scale (yet)
-                                           {0,0,0},
-                                           {1,1,1}};
-    
-    up_matrixModel(&translationLoginLetters, &scale3.pos, &scale3.rot, &scale3.scale);
-
-    up_getModelViewPerspective(&transformLoginLetters, &translationLoginLetters, &identity, &identity);
     
     //NAVIGATION
     struct navigationState navigation;
@@ -190,6 +175,12 @@ int up_menu(struct shader_module *shaderprog){
                 break;
                 
             case loginMenu:
+                
+                UP_shader_update(shaderprog, &transformLoginOverlay);
+                up_texture_bind(textureLoginOverlay, 3);
+                up_draw_mesh(overlay);
+            
+                
                 if (navigation.status == writeOn) {
                     up_displayText(user_data.username, user_data.keypress, &textpos, &textscale, fonts, shaderprog);
                     
@@ -261,18 +252,27 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
 
         if(event.type == SDL_KEYUP)
         {
-            if (navigation->status == writeOn) {
+            if ((navigation->status == writeOn) && (user_data->keypress <= 30)) {
                 
+                //int data = event.key.keysym.sym;
+                //printf("%d \n", data);
                 
-                
-                if ((event.key.keysym.sym > 32) && ( event.key.keysym.sym < 127)) {
+                if ((event.key.keysym.sym > 32) && ( event.key.keysym.sym < 127)) { // from a to z
                     user_data->username[user_data->keypress] = event.key.keysym.sym;
                     user_data->keypress++;
                 }
-                if (event.key.keysym.sym == 32) {
+                if (event.key.keysym.sym == 32) {  //FOR TESTING, SPACE ERASES ALL
                     user_data->username[UP_LIMIT - 1] = '\0';
                     printf("%s\n",user_data->username);
                     user_data->keypress = 0;
+                }
+                if (event.key.keysym.sym == 8){  //DELETE
+                    
+                    if (user_data->keypress != 0) {
+                        user_data->keypress = user_data->keypress - 1;
+                        
+                        user_data->username[user_data->keypress] = '\0';
+                    }
                 }
 
             }

@@ -36,14 +36,16 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
         index = text_string[i] - 97;
         up_draw_mesh(&fonts->letters[index]);
         //up_draw_mesh(fonts->); // skriver ut c
-        localpos.x += 0.15;
+        localpos.x += 0.0415;
         
         
     }
     
 }
 
-#define UP_LETTER_OFFSET 0.03846153846154
+#define UP_LETTER_OFFSET 0.03811803751804     
+
+//OLD 0.03846153846154
 static struct up_mesh *up_meshLetters(float moveY)
 {
     /// setup the vertexs and the tex coords, this is done like this for debbuging reasons
