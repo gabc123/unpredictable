@@ -8,7 +8,7 @@ layout(location = 2)in vec3 normals;
 //layout(location = 5) out vec3 normalsFragment;
 
 out vec2 texCoord0;
-out vec3 normalsFragment;
+out vec3 normals_worldSpace;
 
 uniform mat4 mvp;
 uniform mat4 model;
@@ -18,5 +18,5 @@ void main()
 {
     gl_Position = mvp*vec4(position,1.0) ;
     texCoord0 = texCoord;
-    normalsFragment = (light_sun * vec4(normals,0.01)).xyz;
+    normals_worldSpace = (model*vec4(normals,0.0)).xyz;
 }
