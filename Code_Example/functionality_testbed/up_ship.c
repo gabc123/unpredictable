@@ -4,7 +4,7 @@
 #include "up_shader_module.h"
 #include "up_camera_module.h"
 #include "up_modelRepresentation.h"
-
+#include "up_assets.h"
 
 // magnus , up_updateMovements , 5 maj
 
@@ -262,9 +262,9 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
         return;
     }
     fclose(fp);
-    currentEvent->flags.bulletFlag.coolDown = 100;
-    currentEvent->flags.missileFlag.coolDown = 100;
-    currentEvent->flags.laserFlag.coolDown = 100;
+    currentEvent->flags.bulletFlag.coolDown = 1000;
+    currentEvent->flags.missileFlag.coolDown = 1000;
+    currentEvent->flags.laserFlag.coolDown = 1000;
 }
 /*
 struct up_actionState
@@ -280,6 +280,7 @@ struct up_actionState
 /*determine the new direction and speed of the object*/
 //turnspeed is a set value atm. It is to be stored for each obj
 //Sebastian 2015-05-05
+//Magnus 2015-05-06
 void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
 {
     //float turnSpeed=1; //temporary. will be unique for each model
@@ -311,14 +312,15 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
 /*Creates the fired projectiles giving adding the same speed and direction of the ship that fired them*/
 //Sebastian 2015-05-05
 void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj){
-    struct up_objectInfo projectile = *localobject;
-
+    struct up_objectInfo projectile = {0};
+    
     //bullet
     if(obj->fireWeapon.state==fireBullet){
-        projectile.modelId = 4;
-        projectile.scale.x = 5;
-        projectile.scale.y = 5;
-        projectile.scale.z = 5;
+        projectile = up_asset_createObjFromId(4);
+        projectile.pos = localobject->pos;
+        projectile.dir = localobject->dir;
+        projectile.angle = localobject->angle;
+        projectile.speed = localobject->speed * 1.10;
         up_unit_add(projectile);
         obj->fireWeapon.none = none;
 
