@@ -1,9 +1,11 @@
 #include "up_ship.h"
 #include "up_error.h"
 #include "up_sdl_redirect.h"
+#include "up_utilities.h"
 #include "up_shader_module.h"
 #include "up_camera_module.h"
 #include "up_modelRepresentation.h"
+#define NAMESIZE 100
 
 
 // magnus , up_updateMovements , 5 maj
@@ -25,6 +27,7 @@ void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
     ship->angle += 1.f *(movement->left - movement->right) * deltaTime;
     if(!(movement->up + movement->down)){ship->speed=0;}
 }
+
 
 
 
@@ -254,18 +257,56 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
 //Tobias 2015-05-05
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
-    FILE *fp;
-    fp = fopen("CoolDown.weapon", "r");
-    if(fp==NULL)
+    char *lineReader;
+    char ammoName[NAMESIZE];
+    char *newLineFinder = "\n"
+    char *textRead;
+    int tmp1,tmp2=0;
+
+    struct UP_textHandler cdText = up_loadWeaponStatsFile("CoolDown.weapon");
+
+
+    if(cdText==NULL)
     {
         UP_ERROR_MSG("Failed to open the cooldown file.");
         return;
     }
-    fclose(fp);
-    currentEvent->flags.bulletFlag.coolDown = 100;
-    currentEvent->flags.missileFlag.coolDown = 100;
-    currentEvent->flags.laserFlag.coolDown = 100;
+
+    lineReader = up_token_parser(textRead,&textRead,newLineFinder,strlen(newLineFinder));
+
+    do
+    {
+        if(lineReader[0]==':')
+        {
+            sscanf(lineReader,"%d/%d/%s",&tmp1,&tmp2,&ammoName);
+        }
+
+        printf("%s",ammoName);
+
+        if(strncmp(ammoName,"bullet")==0)
+        {
+            currentEvent->flags.bulletFlag.coolDown = tmp1;
+            currentEvent->flags.bulletFlag.amunationSpeed = tmp2;
+        }
+
+        else if(strncmp(ammoName,"missile")==0)
+        {
+            currentEvent->flags.missileFlag.coolDown = tmp1;
+            currentEvent->flags.missileFlag.amunationSpeed = tmp2;
+        }
+
+        else if(strncmp(ammoName,"lazer")==0)
+        {
+            currentEvent->flags.laserFlag.coolDown = tmp1;
+            currentEvent->flags.laserFlag.amunitionSpeed = tmp2;
+        }
+
+    }while(textRead <= cdText.text + cdText.length - 1);
+
+    up_textHandler_free(&cdText);
 }
+
+
 /*
 struct up_actionState
 {
@@ -275,6 +316,7 @@ struct up_actionState
     int objectID;
 };
 */
+
 //struct up_objectInfo *up_unit_objAtIndex(int index);
 
 /*determine the new direction and speed of the object*/

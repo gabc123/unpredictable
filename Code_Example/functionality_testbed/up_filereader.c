@@ -34,25 +34,25 @@ long int filesize(const char * filename)
 struct UP_textHandler up_loadShaderFile(const char * filename)
 {
     struct UP_textHandler zero = {.text = NULL,.length = 0};
-    
+
 	long int size = filesize(filename) + 1;
     if (size == 1) {
         //size= 0;
         UP_ERROR_MSG_INT("bad file size:",0);
         return zero;
     }
-    
+
     char *data = malloc(sizeof(char)*size);
     if(data == NULL)
     {
         UP_ERROR_MSG("malloc failure");
         return zero;
     }
-    
+
     FILE *fp = fopen(filename,"r");
     if (fp == NULL) {
         UP_ERROR_MSG_STR("fopen failed, file:",filename);
-        
+
         return zero;
     }
 
@@ -82,3 +82,8 @@ void up_textHandler_free(struct UP_textHandler *text_handler)
 struct UP_textHandler up_loadAssetFile(const char * filename){
     return up_loadShaderFile(filename);
 }
+
+struct UP_textHandler up_loadWeaponStatsFile(const char * filename){
+    return up_loadShaderFile(filename);
+}
+
