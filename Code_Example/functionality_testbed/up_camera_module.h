@@ -19,6 +19,6 @@
 void up_cam_zoom(float change);
 
 void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship);
-struct up_objectInfo *up_ObjectsInView(int *count,struct up_camera *cam);
+struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,struct up_camera *cam);
 
 #endif

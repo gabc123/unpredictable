@@ -88,8 +88,10 @@ struct up_texture_data *up_load_texture(const char  * filename)
 
         #endif // __linux
     }
-
-
+    //unsigned char *pixelData = (unsigned char *)tex->pixels;
+    
+    
+    
     //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->w, tex->h, 0, format_rgb, GL_UNSIGNED_BYTE, tex->pixels);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex->w, tex->h, 0, format_rgb, GL_UNSIGNED_INT_8_8_8_8_REV, tex->pixels);
