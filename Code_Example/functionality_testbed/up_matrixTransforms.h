@@ -10,6 +10,16 @@ struct up_matrix4
 typedef struct up_matrix4 up_matrix4_t;
 
 
+
+// his structure will hold the diffrent matrix transforms that are needed to
+// go from model space to screen space,
+// the model matrix is used for lighting , and need to be sent to the gpu, along with mvp
+struct up_transformationContainer
+{
+    up_matrix4_t mvp; //this is the modelviewperspectiv transformation matrix
+    up_matrix4_t model; //this is the model transformation matrix, (translate the model coordinates to world coordinates)
+};
+
 up_matrix4_t up_matrix4identity();
 
 /*

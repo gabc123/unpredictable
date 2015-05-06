@@ -4,9 +4,9 @@
 
 #include "up_matrixTransforms.h"
 
-void up_updateMatrix(up_matrix4_t *modelReturnData, up_matrix4_t *viewMatrix ,up_matrix4_t *perspectiveMatrix, struct up_objectInfo *objectArray, int count)
+void up_updateMatrix(struct up_transformationContainer *modelReturnData, up_matrix4_t *viewMatrix ,up_matrix4_t *perspectiveMatrix, struct up_objectInfo *objectArray, int count)
 {
-    up_matrix4_t modelMatrix;
+    //up_matrix4_t modelMatrix;
     
     // only calculate the viewPerspectivMatrix once and use it multiple times
     // this saves 10-20% atleast
@@ -22,11 +22,11 @@ void up_updateMatrix(up_matrix4_t *modelReturnData, up_matrix4_t *viewMatrix ,up
         rotation.y = 0;
         rotation.z = objectArray[i].angle;
         
-        up_matrixModel(&modelMatrix,&objectArray[i].pos, &rotation, &objectArray[i].scale);
+        up_matrixModel(&modelReturnData[i].model,&objectArray[i].pos, &rotation, &objectArray[i].scale);
         
         //up_getModelViewPerspective(&modelReturnData[i], &modelMatrix, viewMatrix, perspectiveMatrix);
         
-        up_matrix4Multiply(&modelReturnData[i], &modelMatrix, &viewPerspectivMatrix);
+        up_matrix4Multiply(&modelReturnData[i].mvp, &modelReturnData[i].model, &viewPerspectivMatrix);
         
     }
     
