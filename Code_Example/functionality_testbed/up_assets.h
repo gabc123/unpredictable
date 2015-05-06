@@ -22,6 +22,7 @@ struct up_assets
     struct up_vec3 *scaleArray;
 };
 
+struct up_objectInfo up_asset_createObjFromId(int modelId);
 struct up_assets *up_assets_start_setup();
 void up_assets_shutdown_deinit(struct up_assets *assets);
 
