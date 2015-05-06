@@ -42,10 +42,25 @@ struct shader_module *UP_Shader_new(const char * filename,int location)
 	glValidateProgram(shader_program[location].program);
     Opengl_error_program_check(shader_program[location].program,GL_LINK_STATUS,"Validate, invalid shader program: ");
     
-    shader_program[location].uniforms[UNIFORM_TRANSFORM] = glGetUniformLocation(shader_program[location].program, "transform");
+    shader_program[location].uniforms[UNIFORM_TRANSFORM] = glGetUniformLocation(shader_program[location].program, "mvp");
     shader_program[location].uniforms[UNIFORM_LIGHT_SUN] = glGetUniformLocation(shader_program[location].program, "light_sun");
+    // model transform
+    shader_program[location].uniforms[UNIFORM_MODEL_WORLD] = glGetUniformLocation(shader_program[location].program, "model");
+    
+    
+    // ambient light uniforms
+    shader_program[location].uniforms[UNIFORM_AMBIENT_COLOR] = glGetUniformLocation(shader_program[location].program, "ambiantColor");
+    shader_program[location].uniforms[UNIFORM_AMBIENT_INTENSITY] = glGetUniformLocation(shader_program[location].program, "ambiantIntensity");
+    
+    // directional ligth
+    shader_program[location].uniforms[UNIFORM_DIRECTIONAL_LIGHT_COLOR] = glGetUniformLocation(shader_program[location].program, "lightColor");
+    shader_program[location].uniforms[UNIFORM_DIRECTIONAL_LIGHT_DIR] = glGetUniformLocation(shader_program[location].program, "lightDir");
+    shader_program[location].uniforms[UNIFORM_DIRECTIONAL_LIGHT_INTENSITY] = glGetUniformLocation(shader_program[location].program, "lightIntensity");
+    
 	return &shader_program[location];
 }
+
+
 
 //UNIFORM_LIGHT_SUN
 static GLuint shaderCreate(const char * filename,GLenum type)
@@ -88,6 +103,37 @@ void up_shader_update_transform(struct shader_module *prog,up_matrix4_t *transfo
 {
     glUniformMatrix4fv(prog->uniforms[UNIFORM_TRANSFORM], 1, GL_FALSE, transform->data);
 }
+
+
+void up_shader_update_modelWorld(struct shader_module *prog,up_matrix4_t *modelWorld)
+{
+    glUniformMatrix4fv(prog->uniforms[UNIFORM_MODEL_WORLD], 1, GL_FALSE, modelWorld->data);
+}
+
+void up_shader_update_ambient(struct shader_module *prog,struct up_vec3 *color,float *intensity)
+{
+    //float localColor[3] = {color.x , color.y , color.z};
+    glUniform3fv(prog->uniforms[UNIFORM_AMBIENT_COLOR], 1, (float *)color);
+    glUniform1fv(prog->uniforms[UNIFORM_AMBIENT_INTENSITY], 1, intensity);
+}
+
+/*
+ #define UNIFORM_MODEL_WORLD 4
+ // directional light
+ #define UNIFORM_DIRECTIONAL_LIGHT_COLOR 5
+ #define UNIFORM_DIRECTIONAL_LIGHT_DIR 6
+ #define UNIFORM_DIRECTIONAL_LIGHT_INTENSITY 7
+ 
+ */
+
+void up_shader_update_directional_light(struct shader_module *prog,struct up_vec3 *color,float *intensity,struct up_vec3 *dir)
+{
+
+    glUniform3fv(prog->uniforms[UNIFORM_DIRECTIONAL_LIGHT_COLOR], 1, (float *)color);
+    glUniform1fv(prog->uniforms[UNIFORM_DIRECTIONAL_LIGHT_INTENSITY], 1, intensity);
+    glUniform3fv(prog->uniforms[UNIFORM_DIRECTIONAL_LIGHT_DIR], 1, (float *)dir);
+}
+
 
 void up_shader_update_sunligth(struct shader_module *prog,up_matrix4_t *transform)
 {

@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
     int max_unit_count = 500;
     up_unit_start_setup(max_unit_count);
 
-    up_matrix4_t *transformationArray = malloc(sizeof(up_matrix4_t)*max_unit_count);
+    struct up_transformationContainer *transformationArray = malloc(sizeof(struct up_transformationContainer)*max_unit_count);
     if (transformationArray == NULL) {
         UP_ERROR_MSG("transformation array malloc failure");
 
