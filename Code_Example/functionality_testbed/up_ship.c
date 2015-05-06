@@ -6,6 +6,7 @@
 #include "up_camera_module.h"
 #include "up_modelRepresentation.h"
 #include "up_assets.h"
+#include "up_filereader.h"
 #define NAMESIZE 100
 
 
@@ -261,14 +262,14 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
     char *lineReader;
     char ammoName[NAMESIZE];
-    char *newLineFinder = "\n"
+    char *newLineFinder = "\n";
     char *textRead;
-    int tmp1,tmp2=0;
+    int tmp1=0,tmp2=0;
 
     struct UP_textHandler cdText = up_loadWeaponStatsFile("CoolDown.weapon");
 
 
-    if(cdText==NULL)
+    if(cdText.text==NULL)
     {
         UP_ERROR_MSG("Failed to open the cooldown file.");
         return;
@@ -280,24 +281,24 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
     {
         if(lineReader[0]==':')
         {
-            sscanf(lineReader,"%d/%d/%s",&tmp1,&tmp2,&ammoName);
+            sscanf(lineReader,"%d/%d/%s",&tmp1,&tmp2,ammoName);
         }
 
         printf("%s",ammoName);
 
-        if(strncmp(ammoName,"bullet")==0)
+        if(strncmp(ammoName,"bullet",strlen(ammoName))==0)
         {
             currentEvent->flags.bulletFlag.coolDown = tmp1;
-            currentEvent->flags.bulletFlag.amunationSpeed = tmp2;
+            currentEvent->flags.bulletFlag.amunitionSpeed = tmp2;
         }
 
-        else if(strncmp(ammoName,"missile")==0)
+        else if(strncmp(ammoName,"missile",strlen(ammoName))==0)
         {
             currentEvent->flags.missileFlag.coolDown = tmp1;
-            currentEvent->flags.missileFlag.amunationSpeed = tmp2;
+            currentEvent->flags.missileFlag.amunitionSpeed = tmp2;
         }
 
-        else if(strncmp(ammoName,"lazer")==0)
+        else if(strncmp(ammoName,"lazer",strlen(ammoName))==0)
         {
             currentEvent->flags.laserFlag.coolDown = tmp1;
             currentEvent->flags.laserFlag.amunitionSpeed = tmp2;
