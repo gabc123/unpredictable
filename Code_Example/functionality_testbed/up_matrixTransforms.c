@@ -356,8 +356,11 @@ void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3
 // based on https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
 void up_matrixPerspective(up_matrix4_t *perspective, GLdouble fov,GLdouble aspectRatio,GLdouble zNear,GLdouble zFar)
 {
+    up_matrix4_t identity=up_matrix4identity();
     double f = 1/tan(fov*0.5);
     double invFrustrum = 1/(zFar - zNear);
+
+    *perspective=identity;
 
     perspective->data[0] = f/aspectRatio;
     perspective->data[5] = f;
