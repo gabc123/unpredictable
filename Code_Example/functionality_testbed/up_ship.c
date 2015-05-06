@@ -7,6 +7,7 @@
 #include "up_modelRepresentation.h"
 #include "up_filereader.h"
 #include "up_assets.h"
+#include "up_filereader.h"
 #define NAMESIZE 100
 
 
