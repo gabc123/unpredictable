@@ -262,13 +262,12 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
     char *lineReader = NULL;
-    char ammoName[NAMESIZE];
+    char ammoName[NAMESIZE]="\0";
     char *newLineFinder = "\n";
     char *textRead;
-    int tmp1 = 0,tmp2=0;
+    int tmp1 = 0,tmp2 = 0;
 
     struct UP_textHandler cdText = up_loadWeaponStatsFile("CoolDown.weapon");
-
 
     if(cdText.text == NULL)
     {
@@ -276,21 +275,24 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
         return;
     }
     textRead = cdText.text;
-    
+
 
     do
     {
         lineReader = up_token_parser(textRead,&textRead,newLineFinder,strlen(newLineFinder));
+        printf("\n");
         if (lineReader == NULL) {
             printf("File read wepeon");
             break;
         }
-        if(lineReader[0]==':')
+        if(*lineReader==':')
         {
-            sscanf(lineReader,"%d/%d/%s",&tmp1,&tmp2,ammoName);
+            printf("found :\n");
+            lineReader++;
+            sscanf(lineReader,"%d %d %s",&tmp1,&tmp2,ammoName);
         }
 
-        printf("%s",ammoName);
+        printf("%d %d %s",tmp1,tmp2,ammoName);
 
         if(strcmp(ammoName,"bullet")==0)
         {
