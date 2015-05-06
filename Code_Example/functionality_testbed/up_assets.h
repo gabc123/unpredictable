@@ -10,7 +10,7 @@
 #define __testprojectshader__up_assets__
 #include "up_vertex.h"
 #include "up_texture_module.h"
-#include <stdio.h>
+#include "up_shader_module.h"
 
 #define MODELLENGTH 100
 
@@ -22,9 +22,24 @@ struct up_assets
     struct up_vec3 *scaleArray;
 };
 
+#define UP_NUMBER_LETTER 26
+
+struct up_font_assets
+{
+    struct up_texture_data *texture;
+    int size;
+    struct up_mesh letters[UP_NUMBER_LETTER];
+    
+};
+
 struct up_objectInfo up_asset_createObjFromId(int modelId);
 struct up_assets *up_assets_start_setup();
 void up_assets_shutdown_deinit(struct up_assets *assets);
 
+
+struct up_font_assets * up_font_start_setup();
+void up_displayText(char *text_string,int length,struct up_vec3 *pos,
+                    struct up_vec3 *scale,struct up_font_assets *fonts,
+                    struct shader_module *shaderprog);
 
 #endif /* defined(__testprojectshader__up_assets__) */
