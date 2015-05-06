@@ -130,7 +130,8 @@ void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *text
         rad = up_token_parser(text, &text, endLine, strlen(endLine));
         if(rad == NULL)
         {
-            UP_ERROR_MSG("ERROR, obj String could not be found in loadObjects");
+            //UP_ERROR_MSG("ERROR, obj String could not be found in loadObjects");
+            printf("end of file objIndex\n");
             break;
         }
         sscanf(rad,"%f %f %f %s %s", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex);
