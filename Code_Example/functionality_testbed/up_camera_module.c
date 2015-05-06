@@ -1,7 +1,7 @@
 #include "up_camera_module.h"
 #include "up_matrixTransforms.h"
 #include "up_objectReader.h"
-
+#include <math.h>
 // skapad av waleed hassan 2 maj 2015.
 
 //
@@ -25,8 +25,44 @@ void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
     //cam->eye=ship->
 }
 
-struct up_objectInfo *up_ObjectsInView(int *count,struct up_camera *cam)
+/*
+struct up_objectInfo
 {
-    return up_unit_getAllObj(count);
-    
+    int modelId;
+    struct up_vec3 scale;
+    struct up_vec3 pos;
+    struct up_vec3 dir;
+    float angle;
+    float turnSpeed;
+    float speed;
+    float acceleration;
+};
+*/
+
+/*Function returns a struct with the object to be rendered for the client selectet by the distance between
+ the camera center and every object in the solarsystem*/
+ //Sebastian 2015-05-06
+struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,struct up_camera *cam)
+{
+    int i,j=0;
+    float distance=0,x=0,y=0;
+    int totalObject = 0;
+    struct up_objectInfo *allObj = up_unit_getAllObj(&totalObject);
+
+    for(i=0;i<totalObject;i++){
+
+        x = cam->center.x - allObj[i].pos.x;
+        y = cam->center.y - allObj[i].pos.y;
+
+        distance=sqrt((x*x)+(y*y));
+
+        if(distance<50)
+            in_cam[j++]=allObj[i];
+
+    }
+
+    *count = j;
+    return in_cam;
+    //return up_unit_getAllObj(count);
+
 }
