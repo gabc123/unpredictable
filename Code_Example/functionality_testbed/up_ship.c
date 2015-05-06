@@ -5,6 +5,7 @@
 #include "up_shader_module.h"
 #include "up_camera_module.h"
 #include "up_modelRepresentation.h"
+#include "up_assets.h"
 #define NAMESIZE 100
 
 
@@ -255,6 +256,7 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
 }
 
 //Tobias 2015-05-05
+//magnus 2015-05-06
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
     char *lineReader;
@@ -315,13 +317,15 @@ struct up_actionState
     enum turning maneuver;
     int objectID;
 };
-*/
 
+
+*/
 //struct up_objectInfo *up_unit_objAtIndex(int index);
 
 /*determine the new direction and speed of the object*/
 //turnspeed is a set value atm. It is to be stored for each obj
 //Sebastian 2015-05-05
+//Magnus 2015-05-06
 void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
 {
     //float turnSpeed=1; //temporary. will be unique for each model
@@ -357,30 +361,33 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
 
     //bullet
     if(obj->fireWeapon.state==fireBullet){
-        projectile.modelId = 4;
-        projectile.scale.x = 5;
-        projectile.scale.y = 5;
-        projectile.scale.z = 5;
+        projectile = up_asset_createObjFromId(4);
+        projectile.pos = localobject->pos;
+        projectile.dir = localobject->dir;
+        projectile.angle = localobject->angle;
+        projectile.speed = localobject->speed * 1.10;
         up_unit_add(projectile);
         obj->fireWeapon.none = none;
 
     }
     //lazer
     if(obj->fireWeapon.state==fireLaser){
-        projectile.modelId = 0;
-        projectile.scale.x = 5;
-        projectile.scale.y = 5;
-        projectile.scale.z = 5;
+        projectile = up_asset_createObjFromId(0);
+        projectile.pos = localobject->pos;
+        projectile.dir = localobject->dir;
+        projectile.angle = localobject->angle;
+        projectile.speed = localobject->speed * 1.10;
         up_unit_add(projectile);
         obj->fireWeapon.none = none;
 
     }
     //missle
     if(obj->fireWeapon.state==fireMissile){
-        projectile.modelId = 0;
-        projectile.scale.x = 5;
-        projectile.scale.y = 5;
-        projectile.scale.z = 5;
+        projectile = up_asset_createObjFromId(0);
+        projectile.pos = localobject->pos;
+        projectile.dir = localobject->dir;
+        projectile.angle = localobject->angle;
+        projectile.speed = localobject->speed * 1.10;
         up_unit_add(projectile);
         obj->fireWeapon.none = none;
 

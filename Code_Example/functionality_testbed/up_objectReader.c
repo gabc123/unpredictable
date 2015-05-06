@@ -56,7 +56,8 @@ struct up_objModel *up_loadObjModel(const char *filename)
         rad = up_token_parser(text, &text, endLine, strlen(endLine));
         if(rad == NULL)
         {
-            UP_ERROR_MSG("ERROR, obj String could not be found.");
+            //UP_ERROR_MSG("ERROR, obj String could not be found.");
+            printf("vertex read completed for %s\n",filename);
             break;
         }
         if(rad[0]=='v')
@@ -121,7 +122,8 @@ struct up_objModel *up_loadObjModel(const char *filename)
         rad = up_token_parser(text, &text, endLine, strlen(endLine));
         if(rad == NULL)
         {
-            UP_ERROR_MSG("ERROR, obj String could not be found.");
+            //UP_ERROR_MSG("ERROR, obj String could not be found.");
+            printf("faces index read completed for %s\n",filename);
             break;
         }
 
@@ -154,7 +156,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
     free(tex);
     free(norm);
     up_textHandler_free(&objFile);
-
+    printf("Model loaded %s\n",filename);
     return result;
 }
 

@@ -80,7 +80,7 @@ struct up_texture_data *up_load_texture(const char  * filename)
 
         format_rgb = GL_RGBA;
         printf("\nImg : %s have\n",filename);
-        printf("SDL imgFormat: %s",SDL_GetPixelFormatName(tex->format->format));
+        printf("SDL imgFormat: %s\n",SDL_GetPixelFormatName(tex->format->format));
         #ifdef __linux
         format_rgb = GL_RGBA;
         #else
