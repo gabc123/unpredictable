@@ -137,7 +137,7 @@ int main(int argc, char const *argv[])
     shipAction.objectID = shipIndex;
     up_weaponCoolDown_start_setup(&currentEvent);
     printf("out of weapon\n");
-
+    struct up_objectInfo in_cam[500];
     struct up_eventState funkarEj = {0};
     // starts the main game loop
     while(status)
@@ -159,7 +159,7 @@ int main(int argc, char const *argv[])
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
 
-        objectArray = up_ObjectsInView(&numObjects, &cam);
+        objectArray = up_ObjectsInView(in_cam,&numObjects, &cam);
         //objectArray = up_unit_getAllObj(&numObjects);
 
         numObjects = (max_unit_count > numObjects) ? numObjects : max_unit_count;

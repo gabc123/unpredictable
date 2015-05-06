@@ -5,17 +5,14 @@
 #include "up_matrixTransforms.h"
 #include "up_ship.h"
 #include "up_camera_module.h"
+#include "up_matrixTransforms.h"
+#include "up_ship.h"
+#include "up_texture_module.h"
 
 
 
-//struct up_healthbar{
-//    
-//    struct camera *camera_position;
-//    struct up_modelRepresentation *model_position;
-//    
-//};
-//typedef struct up_healthbar Up_healthbar;
 
-//void healthbar_creation(up_matrix4_t *modelMatrix,struct camera *cam,struct up_ship *ship);
+int healthbar_creation();
+void moveHealthBar(struct up_objectInfo *ship,int index);
 
-#endif /* defined(__up_game__up_healthbar__) */
+#endif  //defined(__up_game__up_healthbar__)
