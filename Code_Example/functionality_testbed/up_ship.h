@@ -75,8 +75,7 @@ struct up_eventState
 
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
 
-
-void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj);
+void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *funkarEj);
 
 //this funktion updates the global position of all objects in the world
 // only called in the main gameloop once
