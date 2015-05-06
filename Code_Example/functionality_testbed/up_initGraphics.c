@@ -14,7 +14,7 @@ void UP_sdlSetup()
         UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
     }
     printf("SDL init done\n");
-    
+
     if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
         UP_ERROR_MSG("SDL image init failure (PNG)");
     }
@@ -68,12 +68,20 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
     SDL_Delay(100);
 //on linux and windows glew needs to be installed
 #ifndef __APPLE__
-	glewExperimental = GL_TRUE;
+	/*glewExperimental = GL_TRUE;
 	GLenum res = glewInit();
 	if(res != GLEW_OK)
 	{
         UP_ERROR_MSG("glew init error");
-	}
+	}*/
+	//Pre-window creation.
+
+
+    if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
+    {
+        UP_ERROR_MSG("OpenGL init failed");
+    }
+//Call functions here.
 #endif
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);

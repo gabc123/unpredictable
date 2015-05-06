@@ -11,11 +11,11 @@
 
 #elif __linux
 
-#include <GL/glew.h>
+#include "gl_core_3_3.h"
 #include <GL/gl.h>
 
 #else
-#include <GL/glew.h>
+#include "gl_core_3_3.h"
 #include <GL/gl.h>
 
 #endif	/* __MacOSX__  */

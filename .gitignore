@@ -47,5 +47,8 @@
 *.x86_64
 *.hex
 
+# Ignore auto generated openGL init
+gl_core_3_3.*
+
 # Debug files
 *.dSYM/ 
