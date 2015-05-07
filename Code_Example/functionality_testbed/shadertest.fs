@@ -39,7 +39,7 @@ void main()
     }
     
     
-    fragColor = texture(diffuse, texCoord0)*(totaldirectional_light + ambiantLight);
+    fragColor = texture(diffuse, texCoord0)*clamp((totaldirectional_light + ambiantLight),0.0,1.0);
     
     
 }
