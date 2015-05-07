@@ -19,6 +19,7 @@
 #include "testmodels.h"
 #include "up_modelRepresentation.h"
 #include "up_matrixTransforms.h"
+#include "up_music.h"
 
 #define UP_LIMIT 30
 
@@ -30,7 +31,8 @@ enum menu_states
 {
     mainMenu,
     loginMenu,
-    usernameBar
+    usernameBar,
+    quitWindow
     
     
 };
@@ -60,6 +62,7 @@ int up_menu(struct shader_module *shaderprog){
 
     int status=1;
     
+    up_music();
     
     //IMAGE LOADING
     up_matrix4_t identity = up_matrix4identity();
@@ -77,17 +80,23 @@ int up_menu(struct shader_module *shaderprog){
         textureLoginOverlay = up_load_texture("lala.png");
     }
     
-
+    struct up_texture_data *textureQuiteWindow = up_load_texture("quitWindow.png");
+    if (textureQuiteWindow==NULL) {
+        textureQuiteWindow = up_load_texture("lala.png");
+    }
+    
     
     //TRANSFORMS
     up_matrix4_t transformLoginRegisterBottons;
     up_matrix4_t transformBackground;
     up_matrix4_t transformLoginOverlay;
+    up_matrix4_t transformQuiteWindow;
 
     
     //TRANSLATION TRANSFORMS
     up_matrix4_t translationLoginRegisterButtons;
     up_matrix4_t translationLoginOverlay;
+    up_matrix4_t translationQuiteWindow;
 
 
     //MESH LOADING
@@ -95,6 +104,7 @@ int up_menu(struct shader_module *shaderprog){
     struct up_mesh *bottonLogin1 =up_meshBotton(0,0.95,0,0); //(float imageX, float imageY, float screenPosX, float screenPosY)
     struct up_mesh *bottonLogin2 =up_meshBotton(0,0.1,0,-0.25);
     struct up_mesh *overlay = up_meshLoginOverlay();
+    struct up_mesh *quiteWindow = up_meshQuitwindow();
     
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
@@ -114,13 +124,32 @@ int up_menu(struct shader_module *shaderprog){
                                            {0,0,0},
                                            {0.95,0.95,0.95}};
     
-    struct up_font_assets *fonts = up_font_start_setup();
-    struct up_vec3 textpos = {-0.17, 0.045, 0};
-    struct up_vec3 textscale = {0.025,0.025,0.025};
     
     up_matrixModel(&translationLoginOverlay, &scale2.pos, &scale2.rot, &scale2.scale);
     
     up_getModelViewPerspective(&transformLoginOverlay, &translationLoginOverlay, &identity, &identity);
+
+    
+    
+    //QUIT WINDOW
+    
+    struct up_modelRepresentation scale3 ={{0,0,0},     //scaling
+                                           {0,0,0},
+                                           {0.7,0.7,0.7}};
+    
+    
+    up_matrixModel(&translationQuiteWindow, &scale3.pos, &scale3.rot, &scale3.scale);
+    
+    up_getModelViewPerspective(&transformQuiteWindow, &translationQuiteWindow, &identity, &identity);
+    
+    
+    
+    //FONT
+    struct up_font_assets *fonts = up_font_start_setup();
+    struct up_vec3 textpos = {-0.17, 0.045, 0};
+    struct up_vec3 textscale = {0.025,0.025,0.025};
+    
+    
     
     //NAVIGATION
     struct navigationState navigation;
@@ -189,9 +218,11 @@ int up_menu(struct shader_module *shaderprog){
                 
                 break;
                 
-            case usernameBar:
+            case quitWindow:
                 
-
+                UP_shader_update(shaderprog, &transformQuiteWindow);
+                up_texture_bind(textureQuiteWindow, 2);
+                up_draw_mesh(quiteWindow);
             
                 break;
               
@@ -266,18 +297,31 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                     printf("%s\n",user_data->username);
                     user_data->keypress = 0;
                 }
-                if (event.key.keysym.sym == 8){  //DELETE
-                    
+                if (event.key.keysym.sym == 8){  //BACKSPACE
                     if (user_data->keypress != 0) {
                         user_data->keypress = user_data->keypress - 1;
                         
                         user_data->username[user_data->keypress] = '\0';
                     }
                 }
-
+                
+                
+            
+                
+            }
+            
+            if (event.key.keysym.sym == 27) {
+                
+                if (navigation->state == mainMenu) {
+                    navigation->state= quitWindow;
+                }
+            
+                if (navigation->state == loginMenu) {
+                    navigation->state= mainMenu;
+                }
             }
 
-        
+            
         }
         if(event.type == SDL_MOUSEBUTTONDOWN) {
             switch (event.button.button) {
@@ -288,7 +332,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                     xf=(float)x/width*2-1;
                     yf=-(float)y/height*2+1;
 
-                    //printf("%f %f \n", xf, yf); //test print
+                    printf("X AND Y COORDINATES: %f %f \n", xf, yf); //test print
                     
                     
                     //LOGIN BOTTON
@@ -304,9 +348,11 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                     //REGISTER BOTTON
                     if(xf > -0.137500 && xf < 0.140625){        //coordinates of registration screen
                         if(yf > -0.068182 && yf < 0.015909){
-
-                            printf("Register botton clicked!\n");
-                            flag=2;
+                            
+                            if (navigation->state == mainMenu){
+                                printf("Register botton clicked!\n");
+                                flag=2;
+                            }
                         }
                     }
                     
@@ -319,21 +365,30 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                             }
                         }
                     }
-
+                    
+                    //QUIT WINDOW
+                    
+                    if(xf > -0.151563 && xf < -0.012500){          //TURN OFF
+                        if (yf > -0.029545 && yf < 0.072727){
+                            
+                            if (navigation->state == quitWindow) {
+                                flag=0;
+                                printf("QUITING \n");
+                            }
+                        }
+                    }
+                    
+                    if(xf > 0.012500 && xf < 0.151562){            //CANCEL
+                        if(yf > 0.027273 && yf < 0.072727){
+                            
+                            if(navigation->state == quitWindow){
+                                navigation->state= mainMenu;
+                            }
+                        }
+                    }
+                    
 
                     break;
-                    /*
-                     case SDLK_s:
-                     movement->down = 1;
-                     break;
-                     case SDLK_a:
-                     movement->left=1;
-                     break;
-                     case SDLK_d:
-                     movement->right=1;
-                     break;
-                     case SDLK_SPACE:
-                     break;*/
 
                 default:
                     break;

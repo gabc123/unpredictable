@@ -19,6 +19,8 @@ void UP_sdlSetup()
         UP_ERROR_MSG("SDL image init failure (PNG jpg)");
     }
     
+    
+    
     printf("SDL image init done\n");
 
 }
