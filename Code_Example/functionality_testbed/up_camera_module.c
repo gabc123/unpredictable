@@ -3,7 +3,6 @@
 #include "up_objectReader.h"
 #include <math.h>
 #include <stdio.h>
-#include <math.h>
 // skapad av waleed hassan 2 maj 2015.
 
 //
@@ -12,6 +11,14 @@ static float zoom = 0;
 void up_cam_zoom(float change)
 {
     zoom += change;
+}
+
+//sebastian 2015-05-07
+float up_returnCamHeight(struct up_camera *cam)
+{
+    float height = (zoom < 0 ) ? -zoom : zoom;
+    height +=cam->center.z - cam->eye.z;
+    return height;
 }
 
 
@@ -47,12 +54,16 @@ struct up_objectInfo
 struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,struct up_camera *cam)
 {
     int i,j=0;
-    float distance=0,x=0,y=0, area=0;
+    float distance=0, x=0, y=0, view=0, height=0;
     int totalObject = 0;
     struct up_objectInfo *allObj = up_unit_getAllObj(&totalObject);
-    float height = cam->center.z - cam->eye.z;
-    printf("camupX = %f\ncamupY = %f\ncamupZ = %f\n", cam->up.x, cam->up.y, cam->up.z);
 
+    height = up_returnCamHeight(cam);
+    printf("height: %f\n", height);
+
+    //value 0.7 comes from tan(70/2) where 70 is the set field of view of the camera
+    view = 0.7 * height;
+    printf("viewrange %f", view);
 
     for(i=0;i<totalObject;i++){
 
@@ -61,7 +72,7 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
 
         distance=sqrt((x*x)+(y*y));
 
-        if(distance<50)
+        if(distance<view)
             in_cam[j++]=allObj[i];
 
         //tmp, for testing collisions.
