@@ -16,33 +16,50 @@
 
 
 
-int healthbar_creation()
+up_health_bar_t healthbar_creation()
 {
     
-    int index;
-    struct up_objectInfo healthBar = up_asset_createObjFromId(0);
     
-    //healthBar.pos = ;
+
+    up_health_bar_t green_and_red;
     
-    index = up_unit_add(healthBar);
+    struct up_objectInfo healthBarGreen = up_asset_createObjFromId(5);
+    struct up_objectInfo healthBarRed = up_asset_createObjFromId(6);
+    
+    healthBarGreen.scale.x = 1;
+    healthBarGreen.scale.x = 1;
+    healthBarGreen.scale.x = 1;
+    
+    healthBarRed.scale.x = 1;
+    healthBarRed.scale.y = 1;
+    healthBarRed.scale.z = 1;
+    
+    green_and_red.greenIndex = up_unit_add(healthBarGreen);
+    green_and_red.redIndex = up_unit_add(healthBarGreen);
 
     
     
     
-    return index;
+    return green_and_red;
     
     
 }
 
 
-void moveHealthBar(struct up_objectInfo *ship,int index)
+void moveHealthBar(int ship_id,up_health_bar_t healing)
 {
+    struct up_objectInfo *ship_pos = up_unit_objAtIndex(ship_id);
     
-    struct up_objectInfo *healthbar = up_unit_objAtIndex(index);
+    struct up_objectInfo *healthGreen = up_unit_objAtIndex(healing.greenIndex);
+    struct up_objectInfo *healthRed = up_unit_objAtIndex(healing.redIndex);
     
-    healthbar->pos.x = ship->pos.x;
-    healthbar->pos.y = ship->pos.y;
-    healthbar->pos.z = ship->pos.z;
+    healthGreen->pos.x = ship_pos->pos.x;
+    healthGreen->pos.y = ship_pos->pos.y+5;
+    healthGreen->pos.z = ship_pos->pos.z;
+    
+    healthRed->pos.x = ship_pos->pos.x;
+    healthRed->pos.y = ship_pos->pos.y+5;
+    healthRed->pos.z = ship_pos->pos.z;
     
     
 }

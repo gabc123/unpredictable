@@ -41,7 +41,9 @@ union turning
     enum
     {
         left = 1,
-        right
+        right,
+        bankLeft,
+        bankRight
     }state;
 };
 

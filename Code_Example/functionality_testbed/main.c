@@ -14,6 +14,7 @@
 #include "up_error.h"
 #include "up_render_engine.h"
 #include "up_star_system.h"
+#include "up_healthbar.h"
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -119,8 +120,10 @@ int main(int argc, char const *argv[])
 
     // the ship will stand stilll at the begining
     //struct shipMovement movement = {0,0,0,0};
-
-
+    
+    up_health_bar_t healthBar;
+    healthBar = healthbar_creation();
+    
     //up_matrix4_t identity = up_matrix4identity();
 
 
@@ -154,6 +157,8 @@ int main(int argc, char const *argv[])
         //up_updateShipMovment(ship);
         up_update_actions(&shipAction, NULL, 0,&funkarEj);
         up_updateMovements();
+        
+        moveHealthBar(shipIndex,healthBar);
 
         up_update_camera(&cam, ship);
 
