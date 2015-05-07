@@ -47,12 +47,18 @@ union turning
     }state;
 };
 
+struct up_objectID
+{
+    int idx;
+    enum up_object_type type;
+};
+
 struct up_actionState
 {
     union shootingStates fireWeapon;
     union movement engine;
     union turning maneuver;
-    int objectID;
+    struct up_objectID objectID;
 };
 
 struct cooldownTimer

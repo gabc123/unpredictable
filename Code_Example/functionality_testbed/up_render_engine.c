@@ -44,17 +44,17 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
         UP_shader_update(shaderprog,transform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
 
         up_shader_update_modelWorld(shaderprog, model);
-        
+
         up_shader_update_ambient(shaderprog, &ambientColor,&ambientIntensity);
-        
+
         lightdir = objectArray[i].pos;
         lightdir.z -=80;
         up_shader_update_directional_light(shaderprog, &lightColor, &lightIntensity, &objectArray[i].pos);
-        
+
         //up_shader_update_sunligth(shaderprog, &identity);    // this uploads the sun angle to the gpu
 
-        
-        
+
+
         up_draw_mesh(mesh); // this draws the model onto the screen , at the location transform, and with the sunlight modelMatrix
 
     }
