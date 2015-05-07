@@ -34,8 +34,8 @@ up_health_bar_t healthbar_creation()
     healthBarRed.scale.y = 1;
     healthBarRed.scale.z = 1;
     
-    green_and_red.greenIndex = up_unit_add(healthBarGreen);
-    green_and_red.redIndex = up_unit_add(healthBarGreen);
+    green_and_red.greenIndex = up_unit_add(up_others_type,healthBarGreen);
+    green_and_red.redIndex = up_unit_add(up_others_type,healthBarGreen);
 
     
     
@@ -48,10 +48,10 @@ up_health_bar_t healthbar_creation()
 
 void moveHealthBar(int ship_id,up_health_bar_t healing)
 {
-    struct up_objectInfo *ship_pos = up_unit_objAtIndex(ship_id);
+    struct up_objectInfo *ship_pos = up_unit_objAtIndex(up_ship_type,ship_id);
     
-    struct up_objectInfo *healthGreen = up_unit_objAtIndex(healing.greenIndex);
-    struct up_objectInfo *healthRed = up_unit_objAtIndex(healing.redIndex);
+    struct up_objectInfo *healthGreen = up_unit_objAtIndex(up_others_type,healing.greenIndex);
+    struct up_objectInfo *healthRed = up_unit_objAtIndex(up_others_type,healing.redIndex);
     
     healthGreen->pos.x = ship_pos->pos.x;
     healthGreen->pos.y = ship_pos->pos.y+5;
