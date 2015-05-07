@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
 
     //up_network_start_setup();
 
-    int mesh_capacity = 40;
+    int mesh_capacity = 200;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
 

@@ -22,7 +22,7 @@ struct up_assets
     struct up_vec3 *scaleArray;
 };
 
-#define UP_NUMBER_LETTER 26
+#define UP_NUMBER_LETTER 106
 
 struct up_font_assets
 {
