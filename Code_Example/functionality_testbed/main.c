@@ -39,10 +39,15 @@ int main(int argc, char const *argv[])
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
 
-    int max_unit_count = 500;
-    up_unit_start_setup(max_unit_count);
+    int max_ship_count = 10;
+    int max_projectile_count = 200;
+    int max_enviroment_count = 500;
+    int max_others_count = 20;
+    
+    up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
-    struct up_transformationContainer *transformationArray = malloc(sizeof(struct up_transformationContainer)*max_unit_count);
+    int totalNumObjects = max_ship_count + max_projectile_count + max_enviroment_count + max_others_count;
+    struct up_transformationContainer *transformationArray = malloc(sizeof(struct up_transformationContainer)*totalNumObjects);
     if (transformationArray == NULL) {
         UP_ERROR_MSG("transformation array malloc failure");
 
@@ -71,7 +76,7 @@ int main(int argc, char const *argv[])
     tmp_ship.turnSpeed = 1;
     tmp_ship.acceleration = 5;
     tmp_ship.scale = assets->scaleArray[1];
-    int shipIndex = up_unit_add(tmp_ship);
+    int shipIndex = up_unit_add(up_ship_type,tmp_ship);
 
 
     struct up_objectInfo stillObj = {0};
@@ -79,9 +84,9 @@ int main(int argc, char const *argv[])
     stillObj.scale = assets->scaleArray[2];
     stillObj.modelId = 2;
 
-    struct up_objectInfo *ship = up_unit_objAtIndex(shipIndex);
+    struct up_objectInfo *ship = up_unit_objAtIndex(up_ship_type,shipIndex);
 
-    up_unit_add(stillObj);
+    up_unit_add(up_environment_type,stillObj);
 
     up_generate_sun();
 
@@ -134,7 +139,8 @@ int main(int argc, char const *argv[])
     int numObjects = 0;
     struct up_eventState currentEvent = {0};
     struct up_actionState shipAction = {0};
-    shipAction.objectID = shipIndex;
+    shipAction.objectID.idx = shipIndex;
+    shipAction.objectID.type = up_ship_type;
     up_weaponCoolDown_start_setup(&currentEvent);
     printf("out of weapon\n");
     struct up_objectInfo in_cam[500];
@@ -162,7 +168,7 @@ int main(int argc, char const *argv[])
         objectArray = up_ObjectsInView(in_cam,&numObjects, &cam);
         //objectArray = up_unit_getAllObj(&numObjects);
 
-        numObjects = (max_unit_count > numObjects) ? numObjects : max_unit_count;
+        numObjects = (totalNumObjects > numObjects) ? numObjects : totalNumObjects;
 
         up_updateMatrix(transformationArray, &viewMatrix, &perspectiveMatrix, objectArray, numObjects);
 

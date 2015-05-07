@@ -196,9 +196,9 @@ void up_updateFrameTickRate()
 void up_updateMovements()
 {
     int numObjects = 0;
-    struct up_objectInfo *objectArray = up_unit_getAllObj(&numObjects);
     struct up_objectInfo *objlocal = NULL;
     float deltaTime = (float)up_getFrameTimeDelta();
+    struct up_objectInfo *objectArray = up_unit_getAllObj(up_ship_type,&numObjects);
     int i = 0;
     for (i = 0; i < numObjects; i++) {
         objlocal = &objectArray[i];
@@ -207,6 +207,35 @@ void up_updateMovements()
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
         objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
     }
+    
+    objectArray = up_unit_getAllObj(up_projectile_type,&numObjects);
+    for (i = 0; i < numObjects; i++) {
+        objlocal = &objectArray[i];
+        
+        objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
+        objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
+        objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
+    }
+    
+    objectArray = up_unit_getAllObj(up_environment_type,&numObjects);
+    for (i = 0; i < numObjects; i++) {
+        objlocal = &objectArray[i];
+        
+        objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
+        objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
+        objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
+    }
+    
+    objectArray = up_unit_getAllObj(up_others_type,&numObjects);
+    for (i = 0; i < numObjects; i++) {
+        objlocal = &objectArray[i];
+        
+        objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
+        objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
+        objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
+    }
+
+    
 }
 //not in use. moves the playership for testing purposes
 //Sebastian
@@ -374,7 +403,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
         projectile.speed = localobject->speed + 100;
-        up_unit_add(projectile);
+        up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
 
     }
@@ -385,7 +414,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
         projectile.speed = localobject->speed + 100;
-        up_unit_add(projectile);
+        up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
 
     }
@@ -396,7 +425,7 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
         projectile.speed = localobject->speed + 40;
-        up_unit_add(projectile);
+        up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
 
     }
@@ -411,16 +440,19 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     struct up_actionState *tmp;
     double frameDelta=up_getFrameTimeDelta();
 
+    
     //Updates of objects from the server
     for(i=0; i<nrObj; i++)
     {
         tmp=&server[i];
-        localObject = up_unit_objAtIndex(tmp->objectID);
+        localObject = up_unit_objAtIndex(tmp->objectID.type,tmp->objectID.idx);
         up_moveObj(localObject, tmp,frameDelta);
         up_createProjectile(localObject, tmp, funkarEj);
     }
+    
+    
     //local playership update
-    localObject = up_unit_objAtIndex(playerShip->objectID);
+    localObject = up_unit_objAtIndex(playerShip->objectID.type,playerShip->objectID.idx);
     up_moveObj(localObject, playerShip, frameDelta);
     up_createProjectile(localObject, playerShip,funkarEj);
 }

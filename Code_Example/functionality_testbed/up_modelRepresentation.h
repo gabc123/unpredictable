@@ -48,11 +48,23 @@ struct up_objectInfo
     float acceleration;
 };
 
-int up_unit_start_setup(unsigned int max_unit_count);
+enum up_object_type
+{
+    up_ship_type,
+    up_projectile_type,
+    up_environment_type,
+    up_others_type
+};
+
+
+int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_count,unsigned int max_environment_count,unsigned int max_others_count);
 void up_unit_shutdown_deinit();
-int up_unit_add(struct up_objectInfo object);
-struct up_objectInfo *up_unit_getAllObj(int *count);
-struct up_objectInfo *up_unit_objAtIndex(int index);
+
+int up_unit_add(enum up_object_type type,struct up_objectInfo object);
+
+struct up_objectInfo *up_unit_objAtIndex(enum up_object_type type,int index);
+
+struct up_objectInfo *up_unit_getAllObj(enum up_object_type type,int *count);
 
 
 #endif

@@ -24,7 +24,7 @@ int healthbar_creation()
     
     //healthBar.pos = ;
     
-    index = up_unit_add(healthBar);
+    index = up_unit_add(up_others_type,healthBar);
 
     
     
@@ -38,7 +38,7 @@ int healthbar_creation()
 void moveHealthBar(struct up_objectInfo *ship,int index)
 {
     
-    struct up_objectInfo *healthbar = up_unit_objAtIndex(index);
+    struct up_objectInfo *healthbar = up_unit_objAtIndex(up_others_type,index);
     
     healthbar->pos.x = ship->pos.x;
     healthbar->pos.y = ship->pos.y+ 20;
