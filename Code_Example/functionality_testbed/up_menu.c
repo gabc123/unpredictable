@@ -62,7 +62,7 @@ int up_menu(struct shader_module *shaderprog){
 
     int status=1;
     
-    up_music();
+    up_music(1);
     
     //IMAGE LOADING
     up_matrix4_t identity = up_matrix4identity();

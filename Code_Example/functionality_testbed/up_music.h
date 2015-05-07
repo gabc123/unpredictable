@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include "up_sdl_redirect.h"
 
-void up_music();
-void closeMusic(Mix_Chunk *gMusic, Mix_Chunk *gExplosion);
+void up_music(int track);
 
 #endif /* defined(__Unpredictable__up_music__) */
