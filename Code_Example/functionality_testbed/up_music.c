@@ -12,69 +12,43 @@
 
 #include <stdio.h>
 
-#define FALSE 0
+#define NOTTRUE 0
 #define TRUE 1
+#define MAXSOUND 10
 
 
-void closeMusic(Mix_Chunk *gMusic, Mix_Chunk *gExplosion);
+struct sound{
+    Mix_Chunk *data[MAXSOUND];
+    int nrOfTracks;
+};
 
-void up_music(){
-    
-    
-    
+void up_music(int track){
+
+    struct sound sound;
     
     int success;
-    //int test;
-    
-    //The music that will be played
-    Mix_Chunk *gMusic = NULL;
-    
-    //The sound effects that will be used
-    Mix_Chunk *gExplosion = NULL;
-
-
+   
     //Initialize SDL_mixer
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
     {
         printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
-        success = FALSE;
+        success = NOTTRUE;
     }
     
     //Load music
-    gMusic = Mix_LoadWAV( "Vangelis.wav" );
+    //Load background music
+    sound.data[1] = Mix_LoadWAV( "Vangelis.wav" );
     
-    if( gMusic == NULL )
+    if( sound.data[1] == NULL )
     {
         printf( "Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError() );
-        success = FALSE;
+        success = NOTTRUE;
     }
+    else sound.nrOfTracks++;
     
-    //Load sound effects
-    gExplosion = Mix_LoadWAV( "" );
-    if( gExplosion == NULL )
-    {
-        printf( "Failed to load explosion sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
-        success = FALSE;
-    }
     
     //play music indefinitely
-    Mix_PlayChannel( -1, gMusic, -1 );   //(channel, sound, loop)   -1 loop is infinite
+    Mix_PlayChannel( -1, sound.data[track], -1 );   //(channel, sound, loop)   -1 loop is infinite
     
     
-}
-
-void closeMusic(Mix_Chunk *gMusic, Mix_Chunk *gExplosion)
-{
-    
-    //Free the sound effects
-    Mix_FreeChunk( gExplosion );
-    gExplosion = NULL;
-    
-    
-    //Free the music
-    Mix_FreeChunk( gMusic );
-    gMusic = NULL;
-    
-    //Quit SDL subsystems
-    Mix_Quit();
 }
