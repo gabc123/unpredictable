@@ -49,6 +49,7 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
     float radius=0;
     float dx=0;
     float dy=0;
+    float scale;
 
     int i=0;
 
@@ -66,10 +67,10 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
         asteroid.pos.x = radius * dx;
         asteroid.pos.y = radius * dy;
         asteroid.pos.z = height;
-
-        asteroid.scale.x = 1.0 + ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * 0.5f ;
-        asteroid.scale.y = 1.0 + ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * 0.5f ;
-        asteroid.scale.z = 1.0 + ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * 0.5f ;
+        scale = 1.0 + ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * 0.5f ;
+        asteroid.scale.x = scale;
+        asteroid.scale.y = scale;
+        asteroid.scale.z = scale;
 
         if(up_unit_add(asteroid)==0){
             UP_ERROR_MSG("could not add asteroid");

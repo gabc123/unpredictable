@@ -41,7 +41,7 @@ void moveHealthBar(struct up_objectInfo *ship,int index)
     struct up_objectInfo *healthbar = up_unit_objAtIndex(index);
     
     healthbar->pos.x = ship->pos.x;
-    healthbar->pos.y = ship->pos.y+ 20;
+    healthbar->pos.y = ship->pos.y;
     healthbar->pos.z = ship->pos.z;
     
     
