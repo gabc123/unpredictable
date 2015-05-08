@@ -436,6 +436,7 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
     if(obj->maneuver.state == bankRight){
         //Determines where the object is facing
 
+
         localObject->bankAngle -= localObject->turnSpeed*frameDelta;
     }
 }
