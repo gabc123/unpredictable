@@ -14,5 +14,6 @@
 
 void up_generate_sun();
 void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight);
+void up_generate_randomize_satellite(int density);
 
 #endif /* defined(__up_game__up_star_system__) */
