@@ -20,10 +20,10 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
     up_matrix4_t *model = NULL;
     //up_matrix4_t identity = up_matrix4identity();
     struct up_vec3 ambientColor = {0.4,0.4,0.4};
-    float ambientIntensity = 0.01;
+    float ambientIntensity = 1.00;
 
-    struct up_vec3 lightColor = {0.4,0.4,0.4};
-    float lightIntensity = 0.05;
+    struct up_vec3 lightColor = {0.2,0.2,0.2};
+    float lightIntensity = 0.01;
     struct up_vec3 lightdir = {0};
     UP_renderBackground();                      //Clears the buffer and results an empty window.
     UP_shader_bind(shaderprog);                 // tells the gpu what shader program to use
@@ -33,9 +33,9 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
     for (i = 0; i < count; i++) {
 
         modelId = objectArray[i].modelId;
-        if(modelId>=assets->numobjects)
+        if (modelId >= assets->numobjects) {
             modelId = 0;
-
+        }
         texture = &assets->textureArray[modelId];
         mesh = &assets->meshArray[modelId];
 
@@ -50,7 +50,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
         up_shader_update_ambient(shaderprog, &ambientColor,&ambientIntensity);
 
         lightdir = objectArray[i].pos;
-        lightdir.z -=80;
+        lightdir.z =80;
         up_shader_update_directional_light(shaderprog, &lightColor, &lightIntensity, &objectArray[i].pos);
 
         //up_shader_update_sunligth(shaderprog, &identity);    // this uploads the sun angle to the gpu

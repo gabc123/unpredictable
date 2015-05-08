@@ -192,8 +192,15 @@ void up_checkCollision(){
             z = ships[i].pos.z - enviroment[j].pos.z;
             distance = sqrt((x*x)+(y*y)+(z*z));
 
-            if(distance <2){
+            if(distance <2 && distance >1){
                 printf("ship %d collision with enviorment id %d\n", i, j);
+                enviroment[j].dir=ships[i].dir;
+                enviroment[j].pos.x+=5*enviroment[j].dir.x;
+                enviroment[j].pos.y+=5*enviroment[j].dir.y;
+                enviroment[j].pos.z+=5*enviroment[j].dir.z;
+                enviroment[j].speed=ships[i].speed*3/4;
+                ships[i].speed =ships[i].speed/2;
+
             }
         }
     }
@@ -474,15 +481,12 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
 
     if(obj->maneuver.state == bankLeft){
         //Determines where the object is facing
-
-
         localObject->bankAngle += localObject->turnSpeed*frameDelta;
+
     }
 
     if(obj->maneuver.state == bankRight){
         //Determines where the object is facing
-
-
         localObject->bankAngle -= localObject->turnSpeed*frameDelta;
     }
 }
@@ -498,6 +502,9 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
         projectile.speed = localobject->speed + 100;
+       // projectile.pos.x += 2;
+
+
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
 

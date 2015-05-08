@@ -36,7 +36,7 @@ int main(int argc, char const *argv[])
 
     //up_network_start_setup();
 
-    int mesh_capacity = 40;
+    int mesh_capacity = 200;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
 
@@ -92,7 +92,9 @@ int main(int argc, char const *argv[])
     up_generate_sun();
 
     up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 60, 20);
-
+    
+    up_generate_randomize_satellite(40);        //satellite
+    up_generate_randomize_spaceMine(80);        //space mine
 
 
     //up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);

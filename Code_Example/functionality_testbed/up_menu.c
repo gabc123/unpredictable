@@ -163,6 +163,11 @@ int up_menu(struct shader_module *shaderprog){
     struct userData user_data;
     user_data.keypress=0;
 
+    char *teststr1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO";
+    char *teststr2 = "PQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¢";
+    struct up_vec3 testtextpos1 = {-1.0, -0.50, 0};
+    struct up_vec3 testtextpos2 = {-1.0, -0.55, 0};
+    
     // MENU LOOP
     while(status)
     {
@@ -212,6 +217,9 @@ int up_menu(struct shader_module *shaderprog){
 
                 if (navigation.status == writeOn) {
                     up_displayText(user_data.username, user_data.keypress, &textpos, &textscale, fonts, shaderprog);
+                    up_displayText(teststr1, (int)strlen(teststr1), &testtextpos1, &textscale, fonts, shaderprog);
+                    up_displayText(teststr2, (int)strlen(teststr2), &testtextpos2, &textscale, fonts, shaderprog);
+
 
                 }
 
