@@ -36,7 +36,7 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
         index = text_string[i] - 22;
         up_draw_mesh(&fonts->letters[index]);
         //up_draw_mesh(fonts->); // skriver ut c
-        localpos.x += 0.0415;
+        localpos.x += 0.0225;
         
         
     }
@@ -50,6 +50,9 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
 #define UP_LETTER_OFFSET_Y 0.1
 
 //OLD 0.03846153846154
+
+// width/hight
+#define UP_LETTER_ASPECT_RATIO 0.535
 static struct up_mesh *up_meshLetters(int letterIndex)
 {
     /// setup the vertexs and the tex coords, this is done like this for debbuging reasons
@@ -79,10 +82,10 @@ static struct up_mesh *up_meshLetters(int letterIndex)
     
     // this is the posisions of the vertexes
     struct up_vec3 pos[] = {
-        {-1.0f, -1.0f, 0.01f},   // bottomleft 0
-        {1.0f, -1.0f, 0.01f},   //bottom right 1
-        {-1.0f, 1.0f, 0.01f},  //topleft 2
-        {1.0f, 1.0f, 0.01f}   //topright 3
+        {-1.0f * UP_LETTER_ASPECT_RATIO, -1.0f, 0.01f},   // bottomleft 0
+        {1.0f * UP_LETTER_ASPECT_RATIO, -1.0f, 0.01f},   //bottom right 1
+        {-1.0f * UP_LETTER_ASPECT_RATIO, 1.0f, 0.01f},  //topleft 2
+        {1.0f * UP_LETTER_ASPECT_RATIO, 1.0f, 0.01f}   //topright 3
     };
     
     
@@ -119,7 +122,9 @@ struct up_font_assets * up_font_start_setup()
     }
     //Alphabet.png
     //struct up_texture_data *textureLetters = up_load_texture("letters.png");
-    struct up_texture_data *textureLetters = up_load_texture("letters_numbers.png");
+    //struct up_texture_data *textureLetters = up_load_texture("letters_numbers.png");
+    struct up_texture_data *textureLetters = up_loadImage_withAlpha("letters_numbers");
+    
     if (textureLetters==NULL) {
         textureLetters = up_load_texture("lala.png");
     }
