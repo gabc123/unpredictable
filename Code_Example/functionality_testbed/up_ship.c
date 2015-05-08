@@ -60,6 +60,14 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
                 case SDLK_d:
                     objectAction->maneuver.state = right;
                     break;
+                //Rotate right
+                case SDLK_e:
+                    objectAction->maneuver.state = bankRight;
+                    break;
+                case SDLK_q:
+                    objectAction->maneuver.state = bankLeft;
+                    break;
+
 
 
                 case SDLK_r:
@@ -131,6 +139,13 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
                     break;
                 case SDLK_SPACE:
                     objectAction->fireWeapon.none=none;
+                    break;
+                case SDLK_e:
+                    objectAction->maneuver.none = none;
+                    break;
+                case SDLK_q:
+                    objectAction->maneuver.none = none;
+                    break;
                 default:
                     break;
             }
@@ -401,7 +416,7 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->angle = localObject->angle + localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
-        localObject->dir.z = 0;
+
     }
 
     if(obj->maneuver.state == right){
@@ -409,7 +424,21 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->angle = localObject->angle - localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
-        localObject->dir.z = 0;
+
+    }
+
+    if(obj->maneuver.state == bankLeft){
+        //Determines where the object is facing
+
+
+        localObject->bankAngle += localObject->turnSpeed*frameDelta;
+    }
+
+    if(obj->maneuver.state == bankRight){
+        //Determines where the object is facing
+
+
+        localObject->bankAngle -= localObject->turnSpeed*frameDelta;
     }
 }
 /*Creates the fired projectiles giving adding the same speed and direction of the ship that fired them*/

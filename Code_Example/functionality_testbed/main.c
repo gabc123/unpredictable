@@ -14,6 +14,7 @@
 #include "up_error.h"
 #include "up_render_engine.h"
 #include "up_star_system.h"
+#include "up_healthbar.h"
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -25,7 +26,7 @@ int main(int argc, char const *argv[])
 
     printf("App is now starting\n");
 
-    //setup , sdl and the opengl window
+    // setup , sdl and the opengl window
     UP_sdlSetup();
     printf("Sdl setup done\n");
     int screen_width = 1280;
@@ -125,6 +126,8 @@ int main(int argc, char const *argv[])
     // the ship will stand stilll at the begining
     //struct shipMovement movement = {0,0,0,0};
 
+    up_health_bar_t healthBar;
+    healthBar = healthbar_creation();
 
     //up_matrix4_t identity = up_matrix4identity();
 
@@ -161,6 +164,8 @@ int main(int argc, char const *argv[])
         up_update_actions(&shipAction, NULL, 0,&funkarEj);
         up_updateMovements();
         up_checkCollision();
+        moveHealthBar(shipIndex,healthBar);
+
         up_update_camera(&cam, ship);
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera

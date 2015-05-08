@@ -43,9 +43,11 @@ struct up_objectInfo
     struct up_vec3 pos;
     struct up_vec3 dir;
     float angle;
+    float bankAngle;
     float turnSpeed;
     float speed;
     float acceleration;
+    
 };
 
 enum up_object_type

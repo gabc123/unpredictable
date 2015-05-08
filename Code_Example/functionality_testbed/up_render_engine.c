@@ -20,10 +20,10 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
     up_matrix4_t *model = NULL;
     //up_matrix4_t identity = up_matrix4identity();
     struct up_vec3 ambientColor = {0.4,0.4,0.4};
-    float ambientIntensity = 0.05;
+    float ambientIntensity = 0.01;
 
     struct up_vec3 lightColor = {0.4,0.4,0.4};
-    float lightIntensity = 0.01;
+    float lightIntensity = 0.05;
     struct up_vec3 lightdir = {0};
     UP_renderBackground();                      //Clears the buffer and results an empty window.
     UP_shader_bind(shaderprog);                 // tells the gpu what shader program to use

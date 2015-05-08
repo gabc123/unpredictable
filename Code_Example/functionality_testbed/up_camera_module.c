@@ -59,9 +59,11 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
     struct up_objectInfo *allObj = up_unit_getAllObj(up_environment_type,&totalObject);
 
     height = up_returnCamHeight(cam);
+    printf("height: %f\n", height);
 
     //value 0.7 comes from tan(70/2) where 70 is the set field of view of the camera
     view = 0.7 * height;
+    printf("viewrange %f", view);
 
     for(i=0;i<totalObject;i++){
 
@@ -72,10 +74,16 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
         if(distance<view)
             in_cam[j++]=allObj[i];
 
+        //tmp, for testing collisions.
+        //note. there are still collisions with fire projectiles
+        //set a flag for owner of object to avoid collisons when fireing
+        if(distance > 0.1 && distance <1){
+
+            printf("collision\n");
+        }
     }
 
     allObj = up_unit_getAllObj(up_ship_type,&totalObject);
-    *count = j;
     for(i=0;i<totalObject;i++){
 
         x = cam->center.x - allObj[i].pos.x;
@@ -88,7 +96,7 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
     }
 
     allObj = up_unit_getAllObj(up_projectile_type,&totalObject);
-    *count = j;
+
     for(i=0;i<totalObject;i++){
 
         x = cam->center.x - allObj[i].pos.x;
@@ -101,7 +109,6 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
     }
 
     allObj = up_unit_getAllObj(up_others_type,&totalObject);
-    *count = j;
     for(i=0;i<totalObject;i++){
 
         x = cam->center.x - allObj[i].pos.x;
@@ -113,6 +120,9 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
 
     }
 
+    *count = j;
+    printf("nr of objects %d", j);
     return in_cam;
+    //return up_unit_getAllObj(count);
 
 }
