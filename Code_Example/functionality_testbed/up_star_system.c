@@ -109,3 +109,30 @@ void up_generate_randomize_satellite(int density){
     
     
 }
+
+void up_generate_randomize_spaceMine(int density){
+    
+    srand((unsigned)time(NULL));
+    struct up_objectInfo mine;
+    mine.modelId=8;
+    
+    int i=0;
+    for(i=0; i<density; i++){
+        
+        mine.pos.x = (float)((rand()%1000) - 500);
+        mine.pos.y = (float)((rand()%1000) - 500);
+        
+        mine.scale.x=1;
+        mine.scale.y=1;
+        mine.scale.z=1;
+        
+        if(up_unit_add(up_environment_type,mine)==0){
+            UP_ERROR_MSG("could not add asteroid");
+            break;
+        }
+    }
+    
+    
+    
+    
+}

@@ -23,8 +23,8 @@ up_health_bar_t healthbar_creation()
 
     up_health_bar_t green_and_red;
 
-    struct up_objectInfo healthBarGreen = up_asset_createObjFromId(5);
-    struct up_objectInfo healthBarRed = up_asset_createObjFromId(6);
+    struct up_objectInfo healthBarGreen = up_asset_createObjFromId(0);
+    struct up_objectInfo healthBarRed = up_asset_createObjFromId(0);
 
     healthBarGreen.scale.x = 1;
     healthBarGreen.scale.x = 1;
