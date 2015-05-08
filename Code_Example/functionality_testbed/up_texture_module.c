@@ -69,7 +69,8 @@ struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
     
     SDL_Surface *tex = IMG_Load(rgb_imageFile);
     if (tex == NULL) {
-        fprintf(stderr, "failed to load texture: %s \n",rgb_imageFile);
+        UP_ERROR_MSG_STR("failed to load texture: %s \n",rgb_imageFile);
+        return NULL;
     }else
     {
         fprintf(stderr, "loaded texture: %s \n",rgb_imageFile);
@@ -106,30 +107,37 @@ struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
     // TODO: load the alpha image and merge them
     SDL_Surface *texAlpha = IMG_Load(alphaChannelFile);
     if (texAlpha == NULL) {
-        fprintf(stderr, "failed to load texture: %s \n",alphaChannelFile);
+        fprintf(stderr, "no alpha channel: %s \n",alphaChannelFile);
+        for(i = 0; i < total_size; i =i + 4 )
+        {
+            // fills in the alpha part of the texture to 1
+            image.pixelData[i + 3] = (unsigned char)255;
+        }
     }else
     {
-        fprintf(stderr, "loaded texture: %s \n",alphaChannelFile);
-    }
-    
-    
-    if (texAlpha->format->BytesPerPixel != bytesPerPixel) {
-        UP_ERROR_MSG_INT("Bytes per pixel mismatch ",texAlpha->format->BytesPerPixel);
+        fprintf(stderr, "loading alpha channel: %s \n",alphaChannelFile);
+        if (texAlpha->format->BytesPerPixel != bytesPerPixel) {
+            UP_ERROR_MSG_INT("Bytes per pixel mismatch ",texAlpha->format->BytesPerPixel);
+            SDL_FreeSurface(texAlpha);
+            return NULL;
+        }
+        
+        // we want to load the image data into our own buffer
+        // to do that we transfer it like this
+        unsigned char *tmp_alphaData = (unsigned char *)texAlpha->pixels;
+        
+        for(i = 0; i < total_size; i =i + 4 )
+        {
+            // they both have been given the same amount off bytes per pixel
+            image.pixelData[i + 3] = tmp_alphaData[i + 2];
+        }
+        
         SDL_FreeSurface(texAlpha);
-        return NULL;
     }
     
-    // we want to load the image data into our own buffer
-    // to do that we transfer it like this
-    unsigned char *tmp_alphaData = (unsigned char *)texAlpha->pixels;
     
-    for(i = 0; i < total_size; i =i + 4 )
-    {
-        // they both have been given the same amount off bytes per pixel
-        image.pixelData[i + 3] = tmp_alphaData[i + 2];
-    }
     
-    SDL_FreeSurface(texAlpha);
+    
     
     glGenTextures(1, &(tex_data->textureId));
     glBindTexture(GL_TEXTURE_2D, tex_data->textureId);
@@ -166,7 +174,7 @@ struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
 
 struct up_texture_data *up_load_texture(const char  * filename)
 {
-    if (internal_texture.count >= internal_texture.size) {
+    /*if (internal_texture.count >= internal_texture.size) {
         UP_ERROR_MSG("Error , tried to load too many textures");
         return NULL;
     }
@@ -222,7 +230,16 @@ struct up_texture_data *up_load_texture(const char  * filename)
 
     SDL_FreeSurface(tex);
     internal_texture.count++;
-    return tex_data;
+    return tex_data;*/
+    char newName[30];
+    strcpy(newName,filename);
+    char *postfix = strstr(newName, ".png");
+    if(postfix != NULL)
+    {
+        postfix[0] = '\0';
+    }
+        
+    return up_loadImage_withAlpha(newName);
 }
 
 void up_texture_bind(struct up_texture_data *texture, unsigned int texUnit)
