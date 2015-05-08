@@ -152,7 +152,7 @@ struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
     image.format = GL_BGRA;
     
 #endif // __linux
-    image.format = GL_BGRA;
+
     
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width, image.height, 0, image.format, GL_UNSIGNED_INT_8_8_8_8_REV, image.pixelData);
     
