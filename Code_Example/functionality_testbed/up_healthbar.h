@@ -10,10 +10,10 @@
 #include "up_texture_module.h"
 
 typedef struct up_health_bar_t{
-    
+
     float greenIndex;
     float redIndex;
-    
+
 }up_health_bar_t;
 
 

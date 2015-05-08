@@ -90,6 +90,10 @@ void UP_openGLwindowSetup(int width,int height, const char *title)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);   // we should change this, the model is in the wrong order
 
+    glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
     /// print opengl information
     printf("\n\n\n\n");
     printf("\n\nGL_VENDOR: %s",glGetString(GL_VENDOR));

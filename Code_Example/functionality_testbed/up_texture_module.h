@@ -21,6 +21,8 @@ void up_texture_shutdown_deinit();
 
 
 struct up_texture_data *up_load_texture(const char  * filename);
+struct up_texture_data *up_loadImage_withAlpha(const char  * filename);
+
 
 void up_texture_bind(struct up_texture_data *texture, unsigned int texUnit);
 

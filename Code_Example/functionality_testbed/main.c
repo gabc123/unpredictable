@@ -36,7 +36,7 @@ int main(int argc, char const *argv[])
 
     //up_network_start_setup();
 
-    int mesh_capacity = 40;
+    int mesh_capacity = 200;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
 
@@ -44,7 +44,7 @@ int main(int argc, char const *argv[])
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
     int max_others_count = 20;
-    
+
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
     int totalNumObjects = max_ship_count + max_projectile_count + max_enviroment_count + max_others_count;
@@ -126,10 +126,10 @@ int main(int argc, char const *argv[])
 
     // the ship will stand stilll at the begining
     //struct shipMovement movement = {0,0,0,0};
-    
+
     up_health_bar_t healthBar;
     healthBar = healthbar_creation();
-    
+
     //up_matrix4_t identity = up_matrix4identity();
 
 
@@ -164,7 +164,7 @@ int main(int argc, char const *argv[])
         //up_updateShipMovment(ship);
         up_update_actions(&shipAction, NULL, 0,&funkarEj);
         up_updateMovements();
-        
+        up_checkCollision();
         moveHealthBar(shipIndex,healthBar);
 
         up_update_camera(&cam, ship);

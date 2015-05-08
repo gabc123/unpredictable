@@ -21,7 +21,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
     //up_matrix4_t identity = up_matrix4identity();
     struct up_vec3 ambientColor = {0.4,0.4,0.4};
     float ambientIntensity = 0.01;
-    
+
     struct up_vec3 lightColor = {0.4,0.4,0.4};
     float lightIntensity = 0.05;
     struct up_vec3 lightdir = {0};
@@ -33,7 +33,9 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
     for (i = 0; i < count; i++) {
 
         modelId = objectArray[i].modelId;
-
+        if (modelId >= assets->numobjects) {
+            modelId = 0;
+        }
         texture = &assets->textureArray[modelId];
         mesh = &assets->meshArray[modelId];
 

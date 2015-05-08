@@ -5,7 +5,6 @@
 #include <stdio.h>
 // skapad av waleed hassan 2 maj 2015.
 
-//
 static float zoom = 0;
 
 void up_cam_zoom(float change)
@@ -56,7 +55,7 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
     int i,j=0;
     float distance=0, x=0, y=0, view=0, height=0;
     int totalObject = 0;
-    
+
     struct up_objectInfo *allObj = up_unit_getAllObj(up_environment_type,&totalObject);
 
     height = up_returnCamHeight(cam);
@@ -70,7 +69,6 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
 
         x = cam->center.x - allObj[i].pos.x;
         y = cam->center.y - allObj[i].pos.y;
-
         distance=sqrt((x*x)+(y*y));
 
         if(distance<view)
@@ -86,48 +84,44 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
     }
 
     allObj = up_unit_getAllObj(up_ship_type,&totalObject);
-    *count = j;
     for(i=0;i<totalObject;i++){
-        
+
         x = cam->center.x - allObj[i].pos.x;
         y = cam->center.y - allObj[i].pos.y;
-        
         distance=sqrt((x*x)+(y*y));
-        
-        if(distance<200)
+
+        if(distance<view)
             in_cam[j++]=allObj[i];
-        
+
     }
 
     allObj = up_unit_getAllObj(up_projectile_type,&totalObject);
-    *count = j;
+
     for(i=0;i<totalObject;i++){
-        
+
         x = cam->center.x - allObj[i].pos.x;
         y = cam->center.y - allObj[i].pos.y;
-        
         distance=sqrt((x*x)+(y*y));
-        
-        if(distance<200)
+
+        if(distance<view)
             in_cam[j++]=allObj[i];
-        
-    }
-    
-    allObj = up_unit_getAllObj(up_others_type,&totalObject);
-    *count = j;
-    for(i=0;i<totalObject;i++){
-        
-        x = cam->center.x - allObj[i].pos.x;
-        y = cam->center.y - allObj[i].pos.y;
-        
-        distance=sqrt((x*x)+(y*y));
-        
-        if(distance<200)
-            in_cam[j++]=allObj[i];
-        
+
     }
 
-    
+    allObj = up_unit_getAllObj(up_others_type,&totalObject);
+    for(i=0;i<totalObject;i++){
+
+        x = cam->center.x - allObj[i].pos.x;
+        y = cam->center.y - allObj[i].pos.y;
+
+        distance=sqrt((x*x)+(y*y));
+        if(distance<view)
+            in_cam[j++]=allObj[i];
+
+    }
+
+    *count = j;
+    printf("nr of objects %d", j);
     return in_cam;
     //return up_unit_getAllObj(count);
 

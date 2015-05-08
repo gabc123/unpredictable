@@ -33,45 +33,59 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
          // flyttar os 1 plats
         up_matrixModel(&transform,&localpos,&rot,scale);
         UP_shader_update(shaderprog,&transform);
-        index = text_string[i] - 97;
+        index = text_string[i] - 22;
         up_draw_mesh(&fonts->letters[index]);
         //up_draw_mesh(fonts->); // skriver ut c
-        localpos.x += 0.0415;
+        localpos.x += 0.0225;
         
         
     }
     
 }
 
-#define UP_LETTER_OFFSET 0.03811803751804     
+//#define UP_LETTER_OFFSET 0.03811803751804
+
+// image is 80 by 160, and have 10 by 10 chareckter
+#define UP_LETTER_OFFSET_X 0.1
+#define UP_LETTER_OFFSET_Y 0.1
 
 //OLD 0.03846153846154
-static struct up_mesh *up_meshLetters(float moveY)
+
+// width/hight
+#define UP_LETTER_ASPECT_RATIO 0.535
+static struct up_mesh *up_meshLetters(int letterIndex)
 {
     /// setup the vertexs and the tex coords, this is done like this for debbuging reasons
     // texture coordinates, 0,0 is bottom left, 1,1 is top right
     
-    if ((moveY < 0) && (moveY > 26))
+    if ((letterIndex < 0) || (letterIndex > UP_NUMBER_LETTER - 1))
     {
-        printf("\noffset value %f",moveY);
+        printf("\noffset value %d",letterIndex);
         UP_ERROR_MSG("font posistion out of bounds");
-        moveY = 0;
+        letterIndex = 0;
     }
-    moveY = moveY * UP_LETTER_OFFSET;
+    // the letter images is a 10 by 10 grid of letters and charecters
+    // this gets the correct x y coords, but the are not scaled yet
+    float x_offset = (float)(letterIndex%10);
+    float y_offset = (float)(letterIndex - (letterIndex%10))/10.0f;
+    
+    x_offset = x_offset * UP_LETTER_OFFSET_X; // scale to the rigth tex coords
+    // the y coord start at top
+    y_offset = 1.0 - y_offset * UP_LETTER_OFFSET_Y; // scale to the rigth tex coords
     
     struct up_vec2 tex[] = {
-        {0.0f + moveY, 0.0f},
-        {UP_LETTER_OFFSET + moveY, 0.0f},
-        {0.0f + moveY, 1.0f},
-        {UP_LETTER_OFFSET + moveY, 1.0f}
+        {x_offset, y_offset},
+        {UP_LETTER_OFFSET_X + x_offset, y_offset},
+        {x_offset, UP_LETTER_OFFSET_Y + y_offset},
+        {UP_LETTER_OFFSET_X + x_offset, UP_LETTER_OFFSET_Y + y_offset}
     };
     
     // this is the posisions of the vertexes
     struct up_vec3 pos[] = {
-        {-1.0f, -1.0f, 0.01f},   // bottomleft 0
-        {1.0f, -1.0f, 0.01f},   //bottom right 1
-        {-1.0f, 1.0f, 0.01f},  //topleft 2
-        {1.0f, 1.0f, 0.01f}   //topright 3
+        {-1.0f * UP_LETTER_ASPECT_RATIO, -1.0f, 0.01f},   // bottomleft 0
+        {1.0f * UP_LETTER_ASPECT_RATIO, -1.0f, 0.01f},   //bottom right 1
+        {-1.0f * UP_LETTER_ASPECT_RATIO, 1.0f, 0.01f},  //topleft 2
+        {1.0f * UP_LETTER_ASPECT_RATIO, 1.0f, 0.01f}   //topright 3
     };
     
     
@@ -108,7 +122,9 @@ struct up_font_assets * up_font_start_setup()
     }
     //Alphabet.png
     //struct up_texture_data *textureLetters = up_load_texture("letters.png");
-    struct up_texture_data *textureLetters = up_load_texture("letters.png");
+    //struct up_texture_data *textureLetters = up_load_texture("letters_numbers.png");
+    struct up_texture_data *textureLetters = up_loadImage_withAlpha("letters_numbers");
+    
     if (textureLetters==NULL) {
         textureLetters = up_load_texture("lala.png");
     }
@@ -120,11 +136,10 @@ struct up_font_assets * up_font_start_setup()
     struct up_mesh *tmp_mesh = NULL;
     
     int i = 0;
-    float pos = 0.0f;
     for (i = 0; i < UP_NUMBER_LETTER; i++) {
-        tmp_mesh = up_meshLetters(pos);
+        tmp_mesh = up_meshLetters(i);
         fonts->letters[i] = *tmp_mesh;
-        pos += 1.0f;
+        
     }
     fonts->size = UP_NUMBER_LETTER;
     

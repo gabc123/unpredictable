@@ -72,6 +72,7 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
         asteroid.scale.y = scale;
         asteroid.scale.z = scale;
 
+
         if(up_unit_add(up_environment_type,asteroid)==0){
             UP_ERROR_MSG("could not add asteroid");
             break;
