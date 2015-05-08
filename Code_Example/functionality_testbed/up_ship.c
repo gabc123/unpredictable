@@ -161,6 +161,27 @@ double up_getFrameTimeDelta()
     return up_gFrameTickRate;
 }
 
+void up_checkCollision(){
+
+    int i, j, totalShips = 0, totalObject = 0;
+    float distance=0, x=0, y=0, z=0;
+
+    struct up_objectInfo *ships = up_unit_getAllObj(up_ship_type,&totalShips);
+    struct up_objectInfo *enviroment = up_unit_getAllObj(up_environment_type, &totalObject);
+    for(i=0; i < totalShips; i++){
+        for(j=0; j < totalObject; j++){
+            x = ships[i].pos.x - enviroment[j].pos.x;
+            y = ships[i].pos.y - enviroment[j].pos.y;
+            z = ships[i].pos.z - enviroment[j].pos.z;
+            distance = sqrt((x*x)+(y*y)+(z*z));
+
+            if(distance <2){
+                printf("ship %d collision\n", i);
+            }
+        }
+    }
+
+}
 
 //Magnus
 void up_updateFrameTickRate()
@@ -207,35 +228,35 @@ void up_updateMovements()
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
         objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
     }
-    
+
     objectArray = up_unit_getAllObj(up_projectile_type,&numObjects);
     for (i = 0; i < numObjects; i++) {
         objlocal = &objectArray[i];
-        
-        objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
-        objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
-        objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
-    }
-    
-    objectArray = up_unit_getAllObj(up_environment_type,&numObjects);
-    for (i = 0; i < numObjects; i++) {
-        objlocal = &objectArray[i];
-        
-        objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
-        objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
-        objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
-    }
-    
-    objectArray = up_unit_getAllObj(up_others_type,&numObjects);
-    for (i = 0; i < numObjects; i++) {
-        objlocal = &objectArray[i];
-        
+
         objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
         objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
     }
 
-    
+    objectArray = up_unit_getAllObj(up_environment_type,&numObjects);
+    for (i = 0; i < numObjects; i++) {
+        objlocal = &objectArray[i];
+
+        objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
+        objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
+        objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
+    }
+
+    objectArray = up_unit_getAllObj(up_others_type,&numObjects);
+    for (i = 0; i < numObjects; i++) {
+        objlocal = &objectArray[i];
+
+        objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
+        objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
+        objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
+    }
+
+
 }
 //not in use. moves the playership for testing purposes
 //Sebastian
@@ -440,7 +461,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     struct up_actionState *tmp;
     double frameDelta=up_getFrameTimeDelta();
 
-    
+
     //Updates of objects from the server
     for(i=0; i<nrObj; i++)
     {
@@ -449,8 +470,8 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         up_moveObj(localObject, tmp,frameDelta);
         up_createProjectile(localObject, tmp, funkarEj);
     }
-    
-    
+
+
     //local playership update
     localObject = up_unit_objAtIndex(playerShip->objectID.type,playerShip->objectID.idx);
     up_moveObj(localObject, playerShip, frameDelta);

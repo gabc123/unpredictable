@@ -25,7 +25,7 @@ int main(int argc, char const *argv[])
 
     printf("App is now starting\n");
 
-    // setup , sdl and the opengl window
+    //setup , sdl and the opengl window
     UP_sdlSetup();
     printf("Sdl setup done\n");
     int screen_width = 1280;
@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
     int max_others_count = 20;
-    
+
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
     int totalNumObjects = max_ship_count + max_projectile_count + max_enviroment_count + max_others_count;
@@ -160,7 +160,7 @@ int main(int argc, char const *argv[])
         //up_updateShipMovment(ship);
         up_update_actions(&shipAction, NULL, 0,&funkarEj);
         up_updateMovements();
-
+        up_checkCollision();
         up_update_camera(&cam, ship);
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
