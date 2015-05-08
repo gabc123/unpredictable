@@ -32,7 +32,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
     int modelId = 0;
     for (i = 0; i < count; i++) {
 
-        modelId = objectArray[i].modelId;
+        modelId = objectArray[i].modelId.idx;
         if (modelId >= assets->numobjects) {
             modelId = 0;
         }
@@ -50,7 +50,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
         up_shader_update_ambient(shaderprog, &ambientColor,&ambientIntensity);
 
         lightdir = objectArray[i].pos;
-        lightdir.z =80;
+        lightdir.z = 80;
         up_shader_update_directional_light(shaderprog, &lightColor, &lightIntensity, &objectArray[i].pos);
 
         //up_shader_update_sunligth(shaderprog, &identity);    // this uploads the sun angle to the gpu

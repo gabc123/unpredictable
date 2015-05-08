@@ -30,8 +30,8 @@ void up_generate_sun()
     sun.scale.y = 50;
     sun.scale.z = 50;
 
-    sun.modelId = 3;
-
+    sun.modelId.idx = 3;
+    sun.modelId.type = up_environment_type;
     if(up_unit_add(up_environment_type,sun)==0){
         UP_ERROR_MSG("could not add sun");
     }
@@ -53,7 +53,8 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
 
     int i=0;
 
-    asteroid.modelId=2;
+    asteroid.modelId.idx=2;
+    asteroid.modelId.type = up_environment_type;
 
     for(i=0; i<density; i++){
 
@@ -87,7 +88,8 @@ void up_generate_randomize_satellite(int density){
     
     srand((unsigned)time(NULL));
     struct up_objectInfo satellite;
-    satellite.modelId=7;
+    satellite.modelId.idx=7;
+    satellite.modelId.type = up_others_type;
     
     int i=0;
     for(i=0; i<density; i++){
@@ -114,7 +116,8 @@ void up_generate_randomize_spaceMine(int density){
     
     srand((unsigned)time(NULL));
     struct up_objectInfo mine;
-    mine.modelId=8;
+    mine.modelId.idx=8;
+    mine.modelId.type = up_environment_type;
     
     int i=0;
     for(i=0; i<density; i++){

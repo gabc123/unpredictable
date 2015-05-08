@@ -1,14 +1,18 @@
 #ifndef UP_SHIP_H
 #define UP_SHIP_H
+#include "up_type.h"
 #include "up_matrixTransforms.h"
 #include "up_modelRepresentation.h"
+
+
+
 
 enum up_none
 {
     none = 0
 };
 
-union shootingStates
+union up_shootingStates
 {
     enum up_none none;
     enum
@@ -19,13 +23,8 @@ union shootingStates
     }state;
 };
 
-//enum shootingStates
-// {
-//     fireMissile = 1,
-//     fireBullet,
-//     fireLaser
-// };
-union movement
+
+union up_movement
 {
     enum up_none none;
     enum
@@ -35,7 +34,7 @@ union movement
     }state;
 };
 
-union turning
+union up_turning
 {
     enum up_none none;
     enum
@@ -47,17 +46,11 @@ union turning
     }state;
 };
 
-struct up_objectID
-{
-    int idx;
-    enum up_object_type type;
-};
-
 struct up_actionState
 {
-    union shootingStates fireWeapon;
-    union movement engine;
-    union turning maneuver;
+    union up_shootingStates fireWeapon;
+    union up_movement engine;
+    union up_turning maneuver;
     struct up_objectID objectID;
 };
 
