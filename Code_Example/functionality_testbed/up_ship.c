@@ -408,15 +408,13 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
     
     if(obj->maneuver.state == bankLeft){
         //Determines where the object is facing
-
         
         localObject->bankAngle += localObject->turnSpeed*frameDelta;
     }
     
     if(obj->maneuver.state == bankRight){
         //Determines where the object is facing
-        
-        
+
         localObject->bankAngle -= localObject->turnSpeed*frameDelta;
     }
 }
@@ -432,6 +430,9 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
         projectile.speed = localobject->speed + 100;
+       // projectile.pos.x += 2;
+
+        
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
 
