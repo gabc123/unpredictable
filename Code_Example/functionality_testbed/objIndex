@@ -1,4 +1,7 @@
-1.0 1.0 1.0 fighter.obj fighter.png
+1.0 1.0 1.0 starShipMagnus.obj starShipMagnus.png
 1.0 1.0 1.0 astriod.obj astriod.png
-1.0 1.0 1.0 GreenDwarf.obj BlueMagnusGiant.png
-0.1 0.1 0.1 bullet.obj lala.png
+10.0 10.0 10.0 magnusSuperSun.obj magnusSuperSun.png
+1.0 1.0 1.0 missileMagnus.obj missileMagnus.png
+1.0 1.0 1.0 redMagnus.obj redMagnus.png
+10.0 10.0 10.0 greenMagnus.obj greenMagnus.png
+1.0 1.0 1.0 satelitMagnus.obj satelitMagnus.png
