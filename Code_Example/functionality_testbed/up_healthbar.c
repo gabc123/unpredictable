@@ -19,12 +19,10 @@
 up_health_bar_t healthbar_creation()
 {
 
-
-
     up_health_bar_t green_and_red;
 
-    struct up_objectInfo healthBarGreen = up_asset_createObjFromId(5);
-    struct up_objectInfo healthBarRed = up_asset_createObjFromId(6);
+    struct up_objectInfo healthBarGreen = up_asset_createObjFromId(0);
+    struct up_objectInfo healthBarRed = up_asset_createObjFromId(0);
 
     healthBarGreen.scale.x = 1;
     healthBarGreen.scale.x = 1;
@@ -54,11 +52,11 @@ void moveHealthBar(int ship_id,up_health_bar_t healing)
     struct up_objectInfo *healthRed = up_unit_objAtIndex(up_others_type,healing.redIndex);
 
     healthGreen->pos.x = ship_pos->pos.x;
-    healthGreen->pos.y = ship_pos->pos.y+5;
+    healthGreen->pos.y = ship_pos->pos.y+3;
     healthGreen->pos.z = ship_pos->pos.z;
 
     healthRed->pos.x = ship_pos->pos.x;
-    healthRed->pos.y = ship_pos->pos.y+5;
+    healthRed->pos.y = ship_pos->pos.y+3;
     healthRed->pos.z = ship_pos->pos.z;
 
 

@@ -33,6 +33,8 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
     for (i = 0; i < count; i++) {
 
         modelId = objectArray[i].modelId;
+        if(modelId>=assets->numobjects)
+            modelId = 0;
 
         texture = &assets->textureArray[modelId];
         mesh = &assets->meshArray[modelId];

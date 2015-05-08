@@ -176,6 +176,8 @@ double up_getFrameTimeDelta()
     return up_gFrameTickRate;
 }
 
+//checks for collisions based on object type
+//Sebastian
 void up_checkCollision(){
 
     int i, j, totalShips = 0, totalObject = 0;
@@ -191,11 +193,54 @@ void up_checkCollision(){
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance <2){
-                printf("ship %d collision\n", i);
+                printf("ship %d collision with enviorment id %d\n", i, j);
             }
         }
     }
 
+    struct up_objectInfo *projectile = up_unit_getAllObj(up_projectile_type, &totalObject);
+    for(i=0; i < totalShips; i++){
+        for(j=0; j < totalObject; j++){
+            x = ships[i].pos.x - projectile[j].pos.x;
+            y = ships[i].pos.y - projectile[j].pos.y;
+            z = ships[i].pos.z - projectile[j].pos.z;
+            distance = sqrt((x*x)+(y*y)+(z*z));
+
+            if(distance <2){
+                 printf("ship %d collision with projectile %d\n", i, j);
+            }
+        }
+    }
+
+    /*struct up_objectInfo *others = up_unit_getAllObj(up_others_type, &totalObject);
+    for(i=0; i < totalShips; i++){
+        for(j=0; j < totalObject; j++){
+            x = ships[i].pos.x - others[j].pos.x;
+            y = ships[i].pos.y - others[j].pos.y;
+            z = ships[i].pos.z - others[j].pos.z;
+            distance = sqrt((x*x)+(y*y)+(z*z));
+
+            if(distance <2){
+                printf("ship %d collision\n", i);
+            }
+        }
+    }
+    */
+
+    /*for(i=0; i < totalShips; i++){
+        for(j=i+1; j < totalShips-1; j++){
+            x = ships[i].pos.x - ships[j].pos.x;
+            y = ships[i].pos.y - ships[j].pos.y;
+            z = ships[i].pos.z - ships[j].pos.z;
+            distance = sqrt((x*x)+(y*y)+(z*z));
+
+            if(distance <2){
+                printf("ship %d collision\n", i);
+            }
+        }
+
+    }
+    */
 }
 
 //Magnus
