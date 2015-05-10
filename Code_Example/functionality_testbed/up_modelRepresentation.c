@@ -118,6 +118,7 @@ static int unit_add(struct internal_object * objects,struct up_objectInfo object
         return 0;
     }
 
+    object.objectId.idx = count;
     objects->objects[count]=object;
 
     objects->count++;
@@ -127,8 +128,10 @@ static int unit_add(struct internal_object * objects,struct up_objectInfo object
 int up_unit_add(enum up_object_type type,struct up_objectInfo object)
 {
     int index = 0;
+    object.objectId.type = type;
     switch (type) {
         case up_ship_type:
+            
             index = unit_add(&internal_tracker.ships, object);
             break;
         case up_projectile_type:

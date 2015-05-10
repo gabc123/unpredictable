@@ -32,7 +32,8 @@ struct up_modelRepresentation
 
 struct up_objectInfo
 {
-    struct up_objectID modelId;
+    int modelId;
+    struct up_objectID objectId;
     struct up_vec3 scale;
     struct up_vec3 pos;
     struct up_vec3 dir;

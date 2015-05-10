@@ -32,7 +32,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
     int modelId = 0;
     for (i = 0; i < count; i++) {
 
-        modelId = objectArray[i].modelId.idx;
+        modelId = objectArray[i].modelId;
         if (modelId >= assets->numobjects) {
             modelId = 0;
         }
