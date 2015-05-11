@@ -10,6 +10,7 @@
 #define UP_MODELREPRESENTATION_H
 
 #include "up_vertex.h"
+#include "up_type.h"
 
 struct shipMovement
 {
@@ -19,13 +20,6 @@ struct shipMovement
     int right;
 };
 
-//struct up_objectInfo
-//{
-//    struct up_vec3 pos;
-//    struct up_vec3 dir;
-//    float angle;
-//    float speed;
-//};
 
 
 struct up_modelRepresentation
@@ -39,6 +33,7 @@ struct up_modelRepresentation
 struct up_objectInfo
 {
     int modelId;
+    struct up_objectID objectId;
     struct up_vec3 scale;
     struct up_vec3 pos;
     struct up_vec3 dir;
@@ -50,13 +45,7 @@ struct up_objectInfo
     
 };
 
-enum up_object_type
-{
-    up_ship_type,
-    up_projectile_type,
-    up_environment_type,
-    up_others_type
-};
+
 
 
 int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_count,unsigned int max_environment_count,unsigned int max_others_count);

@@ -74,6 +74,7 @@ int main(int argc, char const *argv[])
     tmp_ship.pos.x = 440;
     tmp_ship.pos.z = 40;
     tmp_ship.modelId = 1;
+    tmp_ship.objectId.type = up_ship_type;
     tmp_ship.turnSpeed = 1;
     tmp_ship.acceleration = 5;
     tmp_ship.scale = assets->scaleArray[1];
@@ -84,6 +85,7 @@ int main(int argc, char const *argv[])
     stillObj.pos.z = 30;
     stillObj.scale = assets->scaleArray[2];
     stillObj.modelId = 2;
+    stillObj.objectId.type = up_others_type;
 
     struct up_objectInfo *ship = up_unit_objAtIndex(up_ship_type,shipIndex);
 
