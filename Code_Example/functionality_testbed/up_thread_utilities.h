@@ -9,16 +9,26 @@
 #ifndef UP_THREAD_UTILITIES_H
 #define UP_THREAD_UTILITIES_H
 #include "up_vertex.h"
+#include "up_ship.h"
 
+
+struct __attribute__((__packed__)) up_packed_data
+{
+    int timestamp;
+    struct up_actionState action;
+    struct up_vec3 pos;
+    float angle;
+    float bankAngle;
+    float turnSpeed;
+    float speed;
+};
 
 struct objUpdateInformation
 {
     int id;
-    int timestamp;
-    struct up_vec3 pos;
-    struct up_vec3 dir;
-    struct up_vec3 speed;
+    struct up_packed_data data; // packed structure to prevent padding when tranforming data into unsigned char to transmitt over the network
 };
+
 
 
 int up_concurrentQueue_start_setup();

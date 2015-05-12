@@ -93,7 +93,7 @@ int main(int argc, char const *argv[])
 
     up_generate_sun();
 
-    up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 60, 20);
+    up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 50, 30);
     
     up_generate_randomize_satellite(40);        //satellite
     up_generate_randomize_spaceMine(80);        //space mine
