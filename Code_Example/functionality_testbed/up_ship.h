@@ -3,6 +3,7 @@
 #include "up_type.h"
 #include "up_matrixTransforms.h"
 #include "up_modelRepresentation.h"
+#include "up_music.h"
 
 
 
@@ -77,7 +78,7 @@ struct up_eventState
 void up_checkCollision();
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
 
-void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *funkarEj);
+void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *funkarEj, struct soundLib *sound);
 
 //this funktion updates the global position of all objects in the world
 // only called in the main gameloop once

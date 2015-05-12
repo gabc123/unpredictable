@@ -14,7 +14,16 @@
 #include "up_shader_module.h"
 #include "up_assets.h"
 
+typedef struct up_skyBox{
+    
+    struct up_texture_data *textureId;
+    struct up_mesh *mesh;
+    struct shader_module *skyBox;
+        
+}up_skyBox_t;
+
+
 void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArray,struct up_objectInfo *objectArray,int count,
-                     struct shader_module *shaderprog,struct up_assets *assets);
+                     up_matrix4_t *viewPerspectivMatrix,struct shader_module *shaderprog,struct up_assets *assets,up_skyBox_t *skyBox);
 
 #endif /* defined(__up_game__up_render_engine__) */

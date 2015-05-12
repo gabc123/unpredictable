@@ -281,7 +281,36 @@ struct up_texture_data *up_cubeMapTexture_load(){
     SDL_Surface *texR = IMG_Load("right.png");
     SDL_Surface *texL = IMG_Load("left.png");
     SDL_Surface *texB = IMG_Load("back.png");
-
+    
+    if(texF == NULL) {
+        texF = IMG_Load("lala.png");
+        UP_ERROR_MSG("could not load skybox images");
+    }
+    if (texT == NULL){
+        texT = IMG_Load("lala.png");
+        UP_ERROR_MSG("could not load skybox images");
+    }
+    
+    if (texG == NULL){
+        texG = IMG_Load("lala.png");
+        UP_ERROR_MSG("could not load skybox images");
+    }
+    
+    if (texR == NULL){
+        texR = IMG_Load("lala.png");
+        UP_ERROR_MSG("could not load skybox images");
+    }
+    
+    if (texL == NULL){
+        texL = IMG_Load("lala.png");
+        UP_ERROR_MSG("could not load skybox images");
+    }
+    
+    if (texB == NULL){
+        texB = IMG_Load("lala.png");
+        UP_ERROR_MSG("could not load skybox images");
+    }
+    
     if (texF->format->BytesPerPixel != 4) {
 
         UP_ERROR_MSG("Error: picture is in wrong pixel format");
