@@ -107,13 +107,20 @@ struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
 
     SDL_FreeSurface(tex);
     // TODO: load the alpha image and merge them
+    int alphaChannel = 3;
+#ifdef __linux
+    int redChannel = 0;
+#else
+    int redChannel = 2;
+#endif
+    
     SDL_Surface *texAlpha = IMG_Load(alphaChannelFile);
     if (texAlpha == NULL) {
         fprintf(stderr, "no alpha channel: %s \n",alphaChannelFile);
         for(i = 0; i < image.totalByteSize; i =i + 4)
         {
             // fills in the alpha part of the texture to 1
-            image.pixelData[i + 3] = (unsigned char)255;
+            image.pixelData[i + alphaChannel] = (unsigned char)255;
         }
     }else
     {
@@ -131,7 +138,7 @@ struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
         for(i = 0; i < image.totalByteSize; i =i + 4, j =j + 3 )
         {
             // they both have been given the same amount off bytes per pixel
-            image.pixelData[i + 3] = tmp_alphaData[i + 2];
+            image.pixelData[i + alphaChannel] = tmp_alphaData[i + redChannel];
         }
 
         SDL_FreeSurface(texAlpha);
