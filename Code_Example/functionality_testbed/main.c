@@ -141,7 +141,14 @@ int main(int argc, char const *argv[])
     struct shader_module *shaderprog;
     shaderprog = UP_Shader_new("shadertest",1);
     printf("Shader finnished\n");
-
+    
+    // loads skybox shaders and fill out the structure
+    up_skyBox_t skyBox;
+    skyBox.textureId = up_cubeMapTexture_load();
+    skyBox.skyBox = UP_Shader_new("skybox",2);
+    
+    skyBox.mesh = &assets->meshArray[3];
+    
     struct up_objectInfo *objectArray = NULL;
     int numObjects = 0;
     struct up_eventState currentEvent = {0};
@@ -153,6 +160,8 @@ int main(int argc, char const *argv[])
     struct up_objectInfo in_cam[500];
     struct up_eventState funkarEj = {0};
     // starts the main game loop
+    up_matrix4_t viewPerspectivMatrix;
+    
     while(status)
     {
         up_updateFrameTickRate();
@@ -179,10 +188,12 @@ int main(int argc, char const *argv[])
 
         numObjects = (totalNumObjects > numObjects) ? numObjects : totalNumObjects;
 
-        up_updateMatrix(transformationArray, &viewMatrix, &perspectiveMatrix, objectArray, numObjects);
+        up_getViewPerspective(&viewPerspectivMatrix,&viewMatrix,&perspectiveMatrix);
+        
+        up_updateMatrix(transformationArray, &viewPerspectivMatrix, objectArray, numObjects);
 
-        up_render_scene(transformationArray, objectArray, numObjects, shaderprog, assets);
-
+        up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
+        
 
     }
     printf("Ended main loop\n");

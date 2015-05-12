@@ -25,5 +25,7 @@ struct up_texture_data *up_loadImage_withAlpha(const char  * filename);
 
 
 void up_texture_bind(struct up_texture_data *texture, unsigned int texUnit);
+struct up_texture_data *up_cubeMapTexture_load();
+
 
 #endif /* defined(UP_TEXTURE_MODULE_H) */
