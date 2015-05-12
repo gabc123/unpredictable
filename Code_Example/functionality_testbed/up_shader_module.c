@@ -23,7 +23,7 @@ struct shader_module *UP_Shader_new(const char * filename,int location)
 
 	strncat(vertexFilename,".vs",4);
 	strncat(fragmentFilename,".fs",4);
-	
+
 	//GLint shader[2];
 	shader_program[location].program = glCreateProgram();
 	shader_program[location].shader[0] = shaderCreate(vertexFilename,GL_VERTEX_SHADER);
@@ -35,28 +35,28 @@ struct shader_module *UP_Shader_new(const char * filename,int location)
 	glBindAttribLocation(shader_program[location].program,0,"position");
    	glBindAttribLocation(shader_program[location].program,1,"texCoord");
    	glBindAttribLocation(shader_program[location].program,2,"normals");
-    
+
 	glLinkProgram(shader_program[location].program);
     Opengl_error_program_check(shader_program[location].program,GL_LINK_STATUS,"link error : ");
 
 	glValidateProgram(shader_program[location].program);
     Opengl_error_program_check(shader_program[location].program,GL_LINK_STATUS,"Validate, invalid shader program: ");
-    
+
     shader_program[location].uniforms[UNIFORM_TRANSFORM] = glGetUniformLocation(shader_program[location].program, "mvp");
     shader_program[location].uniforms[UNIFORM_LIGHT_SUN] = glGetUniformLocation(shader_program[location].program, "light_sun");
     // model transform
     shader_program[location].uniforms[UNIFORM_MODEL_WORLD] = glGetUniformLocation(shader_program[location].program, "model");
-    
-    
+
+
     // ambient light uniforms
     shader_program[location].uniforms[UNIFORM_AMBIENT_COLOR] = glGetUniformLocation(shader_program[location].program, "ambiantColor");
     shader_program[location].uniforms[UNIFORM_AMBIENT_INTENSITY] = glGetUniformLocation(shader_program[location].program, "ambiantIntensity");
-    
+
     // directional ligth
     shader_program[location].uniforms[UNIFORM_DIRECTIONAL_LIGHT_COLOR] = glGetUniformLocation(shader_program[location].program, "lightColor");
     shader_program[location].uniforms[UNIFORM_DIRECTIONAL_LIGHT_DIR] = glGetUniformLocation(shader_program[location].program, "lightDir");
     shader_program[location].uniforms[UNIFORM_DIRECTIONAL_LIGHT_INTENSITY] = glGetUniformLocation(shader_program[location].program, "lightIntensity");
-    
+
 	return &shader_program[location];
 }
 
@@ -79,7 +79,7 @@ static GLuint shaderCreate(const char * filename,GLenum type)
     fprintf(stderr,"\n\nShader: %s compiling...\n",filename);
 	glShaderSource(shader,1,sourceText,sourceLength);
 	glCompileShader(shader);
-    
+
     Opengl_error_shader_check(shader,GL_COMPILE_STATUS,"ERROR, compiling shader program: ");
     up_textHandler_free(&shaderSourcetext);
     return shader;
@@ -123,7 +123,7 @@ void up_shader_update_ambient(struct shader_module *prog,struct up_vec3 *color,f
  #define UNIFORM_DIRECTIONAL_LIGHT_COLOR 5
  #define UNIFORM_DIRECTIONAL_LIGHT_DIR 6
  #define UNIFORM_DIRECTIONAL_LIGHT_INTENSITY 7
- 
+
  */
 
 void up_shader_update_directional_light(struct shader_module *prog,struct up_vec3 *color,float *intensity,struct up_vec3 *dir)
@@ -146,14 +146,14 @@ void UP_Shader_delete()
     for (i = 0; i< UP_SHADER_MAX_COUNT; i++) {
         glDetachShader(shader_program[i].program,shader_program[i].shader[0]);
         glDeleteShader(shader_program[i].shader[0]);
-        
-        
+
+
         glDetachShader(shader_program[i].program,shader_program[i].shader[1]);
         glDeleteShader(shader_program[i].shader[1]);
-        
+
         glDeleteProgram(shader_program[i].program);
     }
-	
+
 
 }
 
@@ -178,11 +178,3 @@ static void Opengl_error_shader_check(GLuint shader,GLuint flag,const char* str)
         fprintf(stderr, "OpenGl program error , msg: %s log: %s \n",str,errormsg);
     }
 }
-
-
-
-
-
-
-
-

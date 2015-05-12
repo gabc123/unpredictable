@@ -14,6 +14,7 @@
 
 #define MODELLENGTH 100
 
+
 struct up_assets
 {
     unsigned int numobjects;
@@ -29,7 +30,7 @@ struct up_font_assets
     struct up_texture_data *texture;
     int size;
     struct up_mesh letters[UP_NUMBER_LETTER];
-    
+
 };
 
 struct up_objectInfo up_asset_createObjFromId(int modelId);
