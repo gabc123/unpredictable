@@ -11,7 +11,15 @@
 #include "up_sdl_redirect.h"
 #include "up_modelRepresentation.h"
 
-void up_network_start_setup();
+struct pthread_listen_datapipe{
+    UDPsocket udpSocket;
+    //UDPpacket *packet;
+    IPaddress addr;
+};
+
+typedef struct pthread_listen_datapipe Pthread_listen_datapipe_t;
+
+Pthread_listen_datapipe_t *up_network_start_setup();
 void up_network_shutdown_deinit();
 
 

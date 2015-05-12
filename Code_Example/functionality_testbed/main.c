@@ -15,6 +15,7 @@
 #include "up_render_engine.h"
 #include "up_star_system.h"
 #include "up_healthbar.h"
+#include "up_music.h"
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -60,8 +61,11 @@ int main(int argc, char const *argv[])
     shader_menu = UP_Shader_new("shader_menu",0);
     printf("Shader menu finnished\n");
 
+    //Init sound
+    struct soundLib *sound= up_setupSound();
+    
     // start the menu, and display it
-    status=up_menu(shader_menu);
+    status=up_menu(shader_menu, sound);
 
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
@@ -93,7 +97,7 @@ int main(int argc, char const *argv[])
 
     up_generate_sun();
 
-    up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 60, 20);
+    up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 50, 30);
     
     up_generate_randomize_satellite(40);        //satellite
     up_generate_randomize_spaceMine(80);        //space mine
@@ -141,7 +145,14 @@ int main(int argc, char const *argv[])
     struct shader_module *shaderprog;
     shaderprog = UP_Shader_new("shadertest",1);
     printf("Shader finnished\n");
-
+    
+    // loads skybox shaders and fill out the structure
+    up_skyBox_t skyBox;
+    skyBox.textureId = up_cubeMapTexture_load();
+    skyBox.skyBox = UP_Shader_new("skybox",2);
+    
+    skyBox.mesh = &assets->meshArray[3];
+    
     struct up_objectInfo *objectArray = NULL;
     int numObjects = 0;
     struct up_eventState currentEvent = {0};
@@ -153,6 +164,8 @@ int main(int argc, char const *argv[])
     struct up_objectInfo in_cam[500];
     struct up_eventState funkarEj = {0};
     // starts the main game loop
+    up_matrix4_t viewPerspectivMatrix;
+    
     while(status)
     {
         up_updateFrameTickRate();
@@ -165,7 +178,7 @@ int main(int argc, char const *argv[])
 
         //up_updatShipMatrixModel(&modelMatrix,&model,ship); // creates the modelMatrix for the ship
         //up_updateShipMovment(ship);
-        up_update_actions(&shipAction, NULL, 0,&funkarEj);
+        up_update_actions(&shipAction, NULL, 0,&funkarEj, sound);
         up_updateMovements();
         up_checkCollision();
         moveHealthBar(shipIndex,healthBar);
@@ -179,10 +192,12 @@ int main(int argc, char const *argv[])
 
         numObjects = (totalNumObjects > numObjects) ? numObjects : totalNumObjects;
 
-        up_updateMatrix(transformationArray, &viewMatrix, &perspectiveMatrix, objectArray, numObjects);
+        up_getViewPerspective(&viewPerspectivMatrix,&viewMatrix,&perspectiveMatrix);
+        
+        up_updateMatrix(transformationArray, &viewPerspectivMatrix, objectArray, numObjects);
 
-        up_render_scene(transformationArray, objectArray, numObjects, shaderprog, assets);
-
+        up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
+        
 
     }
     printf("Ended main loop\n");
@@ -191,6 +206,7 @@ int main(int argc, char const *argv[])
     UP_Shader_delete();
     up_unit_shutdown_deinit();
     up_mesh_shutdown_deinit();
+    up_freeSound(sound);
 
     up_texture_shutdown_deinit();
     up_assets_shutdown_deinit(assets);
