@@ -58,11 +58,13 @@ struct userData{
 int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar, struct userData *user_data);
 
 
-int up_menu(struct shader_module *shaderprog){
+int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
 
     int status=1;
     
-    up_music(1);
+    //MUSIC
+    
+    up_music(0, -1, sound);
     
     //IMAGE LOADING
     up_matrix4_t identity = up_matrix4identity();
@@ -167,6 +169,10 @@ int up_menu(struct shader_module *shaderprog){
     char *teststr2 = "PQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¢";
     struct up_vec3 testtextpos1 = {-1.0, -0.50, 0};
     struct up_vec3 testtextpos2 = {-1.0, -0.55, 0};
+
+    
+    
+    
     
     // MENU LOOP
     while(status)
