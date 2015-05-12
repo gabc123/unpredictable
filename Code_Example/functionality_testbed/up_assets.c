@@ -74,13 +74,22 @@ struct up_objectInfo
     float acceleration;
 };
 */
+
+void fallbackHitbox(struct up_objectInfo *obj){
+    //if(obj->collisionbox.xmax < internal_assets[i].meshArray.vertexArrayObj.)
+}
+
 /*Returns stored date of the model*/
 //Sebastian
 struct up_objectInfo up_asset_createObjFromId(int modelId)
 {
     struct up_objectInfo obj;
     obj.modelId = modelId;
+
+    //internal assets is a static global
     obj.scale = internal_assets->scaleArray[modelId];
+
+    fallbackHitbox(&obj);
 
     return obj;
 }
@@ -89,10 +98,12 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
 //magnus
 int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_modelData *item)
 {
-    int returnCode = 1;
+    int returnCode = 1, i;
     struct up_objModel *testObj = NULL;
     struct up_mesh *mesh = NULL;
     struct up_texture_data *texture = NULL;
+
+    float xmax=0, ymax=0, zmax=0, xmin=0, ymin=0, zmin=0;
 
     // set up the dummyobjects to be used incase of failure
     struct up_mesh dummyMesh;
@@ -102,6 +113,23 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
 
     //struct load item;
     testObj= up_loadObjModel(item->obj);
+
+    for(i=0; i< testObj->vertex_length; i++){
+        if(xmax<testObj->vertex[i].pos.x)
+            xmax=testObj->vertex[i].pos.x;
+        if(ymax<testObj->vertex[i].pos.y)
+            ymax=testObj->vertex[i].pos.y;
+        if(zmax<testObj->vertex[i].pos.z)
+            zmax=testObj->vertex[i].pos.z;
+        if(xmin>testObj->vertex[i].pos.x)
+            xmin=testObj->vertex[i].pos.x;
+        if(ymin>testObj->vertex[i].pos.y)
+            ymin=testObj->vertex[i].pos.y;
+        if(zmin<testObj->vertex[i].pos.z)
+            zmin=testObj->vertex[i].pos.z;
+    }
+    printf("xmax: %f ymax %f zmax %f xmin: %f ymin %f zmin %f\n", xmax,ymax,zmax, xmin,ymin,zmin);
+
     if (testObj !=NULL) {
         mesh = UP_mesh_new(testObj->vertex, testObj->vertex_length, testObj->indexArray, testObj->index_length);
         up_objModelFree(testObj);
@@ -126,6 +154,7 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
     up_texture_list_add(textureArray, texture);
     return returnCode;
 }
+
 /*Reads assets to be loaded from a file*/
 //Sebastian
 void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray)

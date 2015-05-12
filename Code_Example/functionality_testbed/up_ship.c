@@ -183,24 +183,22 @@ void testCollision(struct up_objectInfo *enviroment, struct up_objectInfo *ship,
 {
     struct Hitbox hitShip = {ship[i].pos.x+3.0, ship[i].pos.y+3.0, ship[i].pos.z+3.0,  ship[i].pos.x-3.0,  ship[i].pos.y-3.0,  ship[i].pos.z-3.0};
     struct Hitbox otherModel ={enviroment[j].pos.x+1.0, enviroment[j].pos.y+1.0, enviroment[j].pos.z+5.0,  enviroment[j].pos.x-1.0,  enviroment[j].pos.y-1.0,  enviroment[j].pos.z-5.0};
-    if((hitShip.xmax < otherModel.xmax && hitShip.xmax > otherModel.xmin) || (hitShip.xmin > otherModel.xmin && hitShip.xmin < otherModel.xmax))
-        if((hitShip.ymax < otherModel.ymax && hitShip.ymax > otherModel.ymin) || (hitShip.ymin > otherModel.ymin && hitShip.ymin < otherModel.ymax))
-            if((hitShip.zmax < otherModel.zmax && hitShip.zmax > otherModel.zmin) || (hitShip.zmin > otherModel.zmin && hitShip.zmin < otherModel.zmax))
+
+    if((hitShip.xmax > otherModel.xmax && hitShip.xmin < otherModel.xmax) || (hitShip.xmin < otherModel.xmin && hitShip.xmax > otherModel.xmin))
+        if((hitShip.ymax > otherModel.ymax && hitShip.ymin < otherModel.ymax) || (hitShip.ymin < otherModel.ymin && hitShip.ymax > otherModel.ymin))
+            if((hitShip.zmax > otherModel.zmax && hitShip.zmin < otherModel.zmax) || (hitShip.zmin < otherModel.zmin && hitShip.zmax > otherModel.ymin))
             {
                 printf("ship %d collision with enviroment id %d\n", i, j);
                 enviroment[j].dir=ship[i].dir;
                 enviroment[j].pos.x+=5*ship[i].dir.x;
                 enviroment[j].pos.y+=5*ship[i].dir.y;
-                enviroment[j].pos.z+=5*ship[i].dir.z;
                 enviroment[j].speed=ship[i].speed*3/4;
                 ship[i].speed =ship[i].speed/2;
             }
-
-
 }
 
 //checks for collisions based on object type
-//Sebastian
+//Sebastian 2015-05-08
 void up_checkCollision(){
 
     int i, j, totalShips = 0, totalObject = 0;
@@ -512,7 +510,7 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
 void up_createProjectile(struct up_objectInfo *localobject,
                          struct up_actionState *obj, struct up_eventState *ammoStats,
                          struct soundLib *sound){
-    
+
     struct up_objectInfo projectile = *localobject;
 
     //bullet
@@ -538,7 +536,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.speed = localobject->speed + 100;
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
-    
+
         //pew pew sound
         up_music(1, 0, sound);
 
