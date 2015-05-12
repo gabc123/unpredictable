@@ -18,6 +18,7 @@ struct up_transformationContainer
 {
     up_matrix4_t mvp; //this is the modelviewperspectiv transformation matrix
     up_matrix4_t model; //this is the model transformation matrix, (translate the model coordinates to world coordinates)
+    
 };
 
 up_matrix4_t up_matrix4identity();
