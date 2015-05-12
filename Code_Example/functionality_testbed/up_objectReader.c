@@ -250,6 +250,7 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
     if(tmp==3)
     {
         sscanf(text2,"%d/%d/%d", &vertexIdx[0],&vertexIdx[1],&vertexIdx[2]);
+        //C arrays starts at 0, objfileintex starts at 1. Those needs to be synched
         vertexIdx[0]--;
         vertexIdx[1]--;
         vertexIdx[2]--;
@@ -275,6 +276,3 @@ void objFaces(char *rad, struct up_generic_list *facePosList, struct up_vertex *
         **/
 
 }
-
-
-

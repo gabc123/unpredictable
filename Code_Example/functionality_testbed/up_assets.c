@@ -24,6 +24,17 @@ static struct up_assets *internal_assets=NULL;
 
 void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray);
 
+struct box{
+    float x1,y1,z1;
+    float x2,y2,z2;
+};
+
+struct Collisionbox
+{
+    int numbox;
+    struct box *boxarray;
+
+};
 /*stores information of the object*/
 //sebastian
 struct up_modelData
@@ -31,6 +42,7 @@ struct up_modelData
     char obj[MODELLENGTH];
     char tex[MODELLENGTH];
     struct up_vec3 scale;
+
 };
 
 /*fallback mesh*/
@@ -73,6 +85,7 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     return obj;
 }
 
+
 //magnus
 int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_modelData *item)
 {
@@ -95,6 +108,7 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
     }else{
         mesh = NULL;
     }
+
 
     if (mesh == NULL) {
         mesh = &dummyMesh;//reuse the same dummy mesh, reducing gpu memory presure
@@ -121,20 +135,20 @@ void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *text
     struct up_modelData item; //stores the information of the object
     char *text = thafile.text;
     char *endLine = "\n";
-    char *rad;;
+    char *row;
 
     //    struct up_vec3 scale;
 
     /*reads from the file and stores read data*/
     do{
-        rad = up_token_parser(text, &text, endLine, strlen(endLine));
-        if(rad == NULL)
+        row = up_token_parser(text, &text, endLine, strlen(endLine));
+        if(row == NULL)
         {
             //UP_ERROR_MSG("ERROR, obj String could not be found in loadObjects");
             printf("end of file objIndex\n");
             break;
         }
-        sscanf(rad,"%f %f %f %s %s", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex);
+        sscanf(row,"%f %f %f %s %s", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex);
         if(up_process_asset(meshArray,textureArray,&item) == 0)
         {
             item.scale = scaleOne; // there has been a error , set scale to one

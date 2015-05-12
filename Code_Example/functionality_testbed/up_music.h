@@ -12,6 +12,18 @@
 #include <stdio.h>
 #include "up_sdl_redirect.h"
 
-void up_music(int track);
+#define MAXSOUND 10
+
+
+struct soundLib{
+    Mix_Chunk *data[MAXSOUND];
+    int nrOfTracks;
+    
+};
+
+struct soundLib *up_setupSound();
+int up_music(int track, int loops, struct soundLib *sound);
+void up_freeSound(struct soundLib *sound);
+
 
 #endif /* defined(__Unpredictable__up_music__) */

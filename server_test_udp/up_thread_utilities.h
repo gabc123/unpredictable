@@ -11,7 +11,6 @@
 #include "up_vertex.h"
 #include "up_ship.h"
 
-
 struct __attribute__((__packed__)) up_packed_data
 {
     int timestamp;
@@ -28,7 +27,6 @@ struct objUpdateInformation
     int id;
     struct up_packed_data data; // packed structure to prevent padding when tranforming data into unsigned char to transmitt over the network
 };
-
 
 
 int up_concurrentQueue_start_setup();

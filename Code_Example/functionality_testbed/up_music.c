@@ -12,43 +12,83 @@
 
 #include <stdio.h>
 
-#define NOTTRUE 0
-#define TRUE 1
+#include <assert.h>
+
+
 #define MAXSOUND 10
 
 
-struct sound{
-    Mix_Chunk *data[MAXSOUND];
-    int nrOfTracks;
-};
-
-void up_music(int track){
-
-    struct sound sound;
+int createSound(struct soundLib *sound, Mix_Chunk *data ){
     
-    int success;
-   
-    //Initialize SDL_mixer
+    int success = 1;
+    
+    sound->data[sound->nrOfTracks] = data;
+    
+    sound->nrOfTracks += 1;
+    
+    if(sound->nrOfTracks == 0){
+        
+        success= -1;
+        printf("ERROR: No tracks \n");
+    }
+    
+    return success;
+}
+
+
+
+//NEED TO FIX POINTER TO STRUCT
+
+struct soundLib *up_setupSound(){
+    
+    //INIT SOUND
+    
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
     {
         printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
-        success = NOTTRUE;
     }
     
-    //Load music
-    //Load background music
-    sound.data[1] = Mix_LoadWAV( "Vangelis.wav" );
+    struct soundLib *sound;
     
-    if( sound.data[1] == NULL )
-    {
-        printf( "Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError() );
-        success = NOTTRUE;
-    }
-    else sound.nrOfTracks++;
+    sound = malloc(sizeof(struct soundLib));
+    
+    assert(sound != NULL);
+    
+    sound->nrOfTracks = 0;
+
+    
+    //CREATING SOUND
+    
+    createSound(sound, Mix_LoadWAV( "Vangelis.wav" ));
+    createSound(sound, Mix_LoadWAV("Laser_Sound_Effect.wav"));
+    
+    //sound = createSound(Mix_LoadWAV("Laser_Sound_Effect.wav"), 2);
+    
+    return sound;
+}
+
+
+
+void up_freeSound(struct soundLib *sound){
+    
+    assert(sound != NULL);
+
+    free(sound);
+}
+
+
+int up_music(int track, int loops, struct soundLib *sound){
     
     
-    //play music indefinitely
-    Mix_PlayChannel( -1, sound.data[track], -1 );   //(channel, sound, loop)   -1 loop is infinite
+    int channel = track;
     
+    int success=1;
+    
+    //PLAYS THE TRACK
+    success = Mix_PlayChannel( channel, sound->data[track], loops );   //(channel, sound, loop)   -1 loop is infinite
+    //error^
+    
+    
+    return success;
     
 }

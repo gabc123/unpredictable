@@ -7,6 +7,7 @@
 #include "up_modelRepresentation.h"
 #include "up_filereader.h"
 #include "up_assets.h"
+#include "up_music.h"
 #define NAMESIZE 100
 
 
@@ -176,6 +177,28 @@ double up_getFrameTimeDelta()
     return up_gFrameTickRate;
 }
 
+//Sebastian + Tobias 2015-05-12
+//checks objects collisionboxes for whether a hit has occured or not
+void testCollision(struct up_objectInfo *enviroment, struct up_objectInfo *ship, int i, int j)
+{
+    struct Hitbox hitShip = {ship[i].pos.x+3.0, ship[i].pos.y+3.0, ship[i].pos.z+3.0,  ship[i].pos.x-3.0,  ship[i].pos.y-3.0,  ship[i].pos.z-3.0};
+    struct Hitbox otherModel ={enviroment[j].pos.x+1.0, enviroment[j].pos.y+1.0, enviroment[j].pos.z+5.0,  enviroment[j].pos.x-1.0,  enviroment[j].pos.y-1.0,  enviroment[j].pos.z-5.0};
+    if((hitShip.xmax < otherModel.xmax && hitShip.xmax > otherModel.xmin) || (hitShip.xmin > otherModel.xmin && hitShip.xmin < otherModel.xmax))
+        if((hitShip.ymax < otherModel.ymax && hitShip.ymax > otherModel.ymin) || (hitShip.ymin > otherModel.ymin && hitShip.ymin < otherModel.ymax))
+            if((hitShip.zmax < otherModel.zmax && hitShip.zmax > otherModel.zmin) || (hitShip.zmin > otherModel.zmin && hitShip.zmin < otherModel.zmax))
+            {
+                printf("ship %d collision with enviroment id %d\n", i, j);
+                enviroment[j].dir=ship[i].dir;
+                enviroment[j].pos.x+=5*ship[i].dir.x;
+                enviroment[j].pos.y+=5*ship[i].dir.y;
+                enviroment[j].pos.z+=5*ship[i].dir.z;
+                enviroment[j].speed=ship[i].speed*3/4;
+                ship[i].speed =ship[i].speed/2;
+            }
+
+
+}
+
 //checks for collisions based on object type
 //Sebastian
 void up_checkCollision(){
@@ -192,14 +215,8 @@ void up_checkCollision(){
             z = ships[i].pos.z - enviroment[j].pos.z;
             distance = sqrt((x*x)+(y*y)+(z*z));
 
-            if(distance <2 && distance >1){
-                printf("ship %d collision with enviorment id %d\n", i, j);
-                enviroment[j].dir=ships[i].dir;
-                enviroment[j].pos.x+=5*enviroment[j].dir.x;
-                enviroment[j].pos.y+=5*enviroment[j].dir.y;
-                enviroment[j].pos.z+=5*enviroment[j].dir.z;
-                enviroment[j].speed=ships[i].speed*3/4;
-                ships[i].speed =ships[i].speed/2;
+            if(distance <30){
+                testCollision(enviroment,ships, i, j);
 
             }
         }
@@ -214,7 +231,7 @@ void up_checkCollision(){
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance <2){
-                 printf("ship %d collision with projectile %d\n", i, j);
+                 testCollision(projectile,ships, i, j);
             }
         }
     }
@@ -490,9 +507,12 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->bankAngle -= localObject->turnSpeed*frameDelta;
     }
 }
-/*Creates the fired projectiles giving adding the same speed and direction of the ship that fired them*/
+/*Creates the fired projectiles adding the speed and direction of the ship that fired them*/
 //Sebastian 2015-05-05
-void up_createProjectile(struct up_objectInfo *localobject, struct up_actionState *obj, struct up_eventState *ammoStats){
+void up_createProjectile(struct up_objectInfo *localobject,
+                         struct up_actionState *obj, struct up_eventState *ammoStats,
+                         struct soundLib *sound){
+    
     struct up_objectInfo projectile = *localobject;
 
     //bullet
@@ -518,6 +538,9 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
         projectile.speed = localobject->speed + 100;
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
+    
+        //pew pew sound
+        up_music(1, 0, sound);
 
     }
     //missle
@@ -535,7 +558,8 @@ void up_createProjectile(struct up_objectInfo *localobject, struct up_actionStat
 
 /*updates all action changes in the game*/
 //Sebastian 2015-05-05
-void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *funkarEj)
+void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server,
+                       int nrObj, struct up_eventState *funkarEj, struct soundLib *sound)
 {
     int i=0;
     struct up_objectInfo *localObject = NULL;
@@ -549,12 +573,12 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         tmp=&server[i];
         localObject = up_unit_objAtIndex(tmp->objectID.type,tmp->objectID.idx);
         up_moveObj(localObject, tmp,frameDelta);
-        up_createProjectile(localObject, tmp, funkarEj);
+        up_createProjectile(localObject, tmp, funkarEj, sound);
     }
 
 
     //local playership update
     localObject = up_unit_objAtIndex(playerShip->objectID.type,playerShip->objectID.idx);
     up_moveObj(localObject, playerShip, frameDelta);
-    up_createProjectile(localObject, playerShip,funkarEj);
+    up_createProjectile(localObject, playerShip,funkarEj, sound);
 }
