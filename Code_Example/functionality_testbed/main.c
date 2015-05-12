@@ -146,8 +146,8 @@ int main(int argc, char const *argv[])
     up_skyBox_t skyBox;
     skyBox.textureId = up_cubeMapTexture_load();
     skyBox.skyBox = UP_Shader_new("skybox",2);
-    
     skyBox.mesh = &assets->meshArray[3];
+    
     
     struct up_objectInfo *objectArray = NULL;
     int numObjects = 0;
