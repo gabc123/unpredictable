@@ -176,6 +176,8 @@ double up_getFrameTimeDelta()
     return up_gFrameTickRate;
 }
 
+//Sebastian + Tobias 2015-05-12
+//checks objects collisionboxes for whether a hit has occured or not
 void testCollision(struct up_objectInfo *enviroment, struct up_objectInfo *ship, int i, int j)
 {
     struct Hitbox hitShip = {ship[i].pos.x+3.0, ship[i].pos.y+3.0, ship[i].pos.z+3.0,  ship[i].pos.x-3.0,  ship[i].pos.y-3.0,  ship[i].pos.z-3.0};
