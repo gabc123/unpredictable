@@ -184,6 +184,7 @@ void testCollision(struct up_objectInfo *enviroment, struct up_objectInfo *ship,
     struct Hitbox hitShip = {ship[i].pos.x+3.0, ship[i].pos.y+3.0, ship[i].pos.z+3.0,  ship[i].pos.x-3.0,  ship[i].pos.y-3.0,  ship[i].pos.z-3.0};
     struct Hitbox otherModel ={enviroment[j].pos.x+1.0, enviroment[j].pos.y+1.0, enviroment[j].pos.z+5.0,  enviroment[j].pos.x-1.0,  enviroment[j].pos.y-1.0,  enviroment[j].pos.z-5.0};
 
+    // the smaler of the two objects need to be the one that checks whether it is insider te larger objects hitbox
     if((hitShip.xmax > otherModel.xmax && hitShip.xmin < otherModel.xmax) || (hitShip.xmin < otherModel.xmin && hitShip.xmax > otherModel.xmin))
         if((hitShip.ymax > otherModel.ymax && hitShip.ymin < otherModel.ymax) || (hitShip.ymin < otherModel.ymin && hitShip.ymax > otherModel.ymin))
             if((hitShip.zmax > otherModel.zmax && hitShip.zmin < otherModel.zmax) || (hitShip.zmin < otherModel.zmin && hitShip.zmax > otherModel.ymin))
