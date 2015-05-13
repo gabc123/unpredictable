@@ -72,7 +72,7 @@ unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInfo
 
 
 
-static struct up_server_connection_info *up_server_start();
+static struct up_server_connection_info *up_server_socket_start();
 
 
 
@@ -90,6 +90,7 @@ void *up_server_reciveing_thread(void *parm)
     unsigned long msglen = 0;
     int i = 0;
     while (server_con->shutdown == 0) {
+        msglen = 0;
         if ((msglen = recvfrom(server_con->socket_server, recvBuff, BUFFER_SIZE, 0, (struct sockaddr *)&client_sock,&client_sock_len))==-1) {
             printf("recvfrom failed\n");
             perror("recfrom failed");
@@ -110,12 +111,16 @@ void *up_server_reciveing_thread(void *parm)
             server_con->client_infoArray[i] = client_sock;
             server_con->connected_clients++;
         }
-        
+        if (msglen < sizeof(local_data.data)) {
+            printf("\ntrash msg %lu",msglen);
+            continue;
+        }
+        printf("\npacket recived with length: %lu",msglen);
         up_copyBufferIntoObject(recvBuff,&local_data);
         
         up_writeToNetworkDatabuffer(&local_data);
         
-        printf("\nmsg length: %lu",msglen);
+        //printf("\nmsg length: %lu",msglen);
     }
     //close(socket_server);
     //close(socket_server);
@@ -145,12 +150,13 @@ void *up_server_send_thread(void *parm)
     
     int i = 0;
     while (server_con->shutdown == 0) {
-        while (packet_read > 0)
+        packet_read =0;
+        while (packet_read <= 0)
         {
             
             packet_read = up_readNetworkDatabuffer(local_data, length);
             spin_counter++;
-            
+            usleep(100);
             if (spin_counter > 2000) {
                 usleep(1000);
                 if (server_con->shutdown) {
@@ -189,7 +195,7 @@ struct internal_server_state *up_server_startup()
     {
         UP_ERROR_MSG("queue failed");
     }
-    struct up_server_connection_info *server = up_server_start();
+    struct up_server_connection_info *server = up_server_socket_start();
     pthread_t *server_thread = malloc(sizeof(pthread_t)*2);
     
     pthread_create(&server_thread[0],NULL,&up_server_reciveing_thread,server);
@@ -236,7 +242,7 @@ void up_server_shutdown_cleanup(struct internal_server_state *server_state)
     
 }
 
-static struct up_server_connection_info *up_server_start()
+static struct up_server_connection_info *up_server_socket_start()
 {
     struct sockaddr_in sock_server = {0};
     

@@ -511,8 +511,8 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
 //Sebastian 2015-05-05
 void up_createProjectile(struct up_objectInfo *localobject,
                          struct up_actionState *obj, struct up_eventState *ammoStats,
-                         struct soundLib *sound){
-    
+                         struct soundLib *sound)
+{
     struct up_objectInfo projectile = *localobject;
 
     //bullet
@@ -571,7 +571,14 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     for(i=0; i<nrObj; i++)
     {
         tmp=&server[i];
+        if (tmp->objectID.idx == 0) {
+            continue;
+        }
         localObject = up_unit_objAtIndex(tmp->objectID.type,tmp->objectID.idx);
+        if (localObject == NULL) {
+            printf("up_update_actions localobject  == NULL \n");
+            return;
+        }
         up_moveObj(localObject, tmp,frameDelta);
         up_createProjectile(localObject, tmp, funkarEj, sound);
     }

@@ -10,6 +10,9 @@
 #include "up_sdl_redirect.h"
 #include "stdatomic.h"
 #include "up_error.h"
+#include <stdio.h>
+#include <stdlib.h>
+
 
 #define UP_BUFFER_1 0
 #define UP_BUFFER_2 1
@@ -166,7 +169,7 @@ int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)
             
         }
         //https://gcc.gnu.org/onlinedocs/gcc-4.4.3/gcc/Atomic-Builtins.html compiler bulltins
-    }while (__sync_bool_compare_and_swap(&currentLast->next, NULL, newData) == SDL_FALSE);
+    }while (__sync_bool_compare_and_swap(&currentLast->next, NULL, newData) == 0);
     
     internal_concurrentQueue->last[whatBuffer] = newData;
     return 1;

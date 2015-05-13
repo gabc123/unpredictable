@@ -55,10 +55,10 @@ Pthread_listen_datapipe_t *up_network_start_setup()                             
         UP_ERROR_MSG("network setup failed malloc");
         return NULL;
     }
-    UDPsocket client_socket;                                // deklaratons of sdl udp sockets for later use
+    //UDPsocket client_socket;                                // deklaratons of sdl udp sockets for later use
     //UDPpacket *recive_packet;
     //IPaddress addr;
-    SDL_Thread *thread;
+    //SDL_Thread *thread;
     char file[20]="ip_address";
     char ip_address[20];
     int success;
@@ -95,29 +95,30 @@ Pthread_listen_datapipe_t *up_network_start_setup()                             
     }
                                                             // randomize a port so that the client can communicate, returns 0 if not success else success
     
-    client_socket=SDLNet_UDP_Open(0);
-    if(!client_socket){
+    p->udpSocket =SDLNet_UDP_Open(0);
+    if(!p->udpSocket){
         printf("Error: Could not open socket");
         exit(EXIT_FAILURE);
     }
     else{
         printf("Socket port: ");
     }
+    
                                                             // resolving conection between host and destination address, sending data throuh port 5001
     
-    success=SDLNet_ResolveHost(&p->addr, ip_address, 5001);
+    success=SDLNet_ResolveHost(&p->addr, ip_address, 22422);
     if(success==-1){
         printf("Error: Could not fill out ip address");
     }
     else{
-        printf("Success filling out the ip address");
+        printf("Success filling out the ip address\n");
     }
     
-    
-                                                            // allocate and resize a single udp packet
+    p->online = 1;
+    p->sendPacket =   SDLNet_AllocPacket(1024);                                                      // allocate and resize a single udp packet
     
                                                             // creates thread for the server
-    thread=SDL_CreateThread(up_network_recive,"up_network_recive",p);
+    p->recive_thread=SDL_CreateThread(up_network_recive,"up_network_recive",p);
     
     
     
@@ -126,38 +127,82 @@ Pthread_listen_datapipe_t *up_network_start_setup()                             
 
 
 
-void up_network_shutdown_deinit()
+void up_network_shutdown_deinit(Pthread_listen_datapipe_t *p)
 {
+    p->online = 0;
+    SDL_Delay(100); // make sure that the recive thread has ended before we shut down all other stuff
+    SDLNet_FreePacket(p->sendPacket);
+    
+    SDL_WaitThread(p->recive_thread, NULL);
+    
     up_concurrentQueue_shutdown_deinit();
+    
+   
+}
+
+#define UP_OBJECT_BUFFER_READ_LENGTH 20
+int up_network_getNewMovement(struct up_actionState *states,int max)
+{
+    struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
+    max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
+    
+    
+    int packet_read = up_readNetworkDatabuffer(objUpdate, max);
+    int i = 0;
+    for (i = 0; i < packet_read; i++) {
+        states[i] = objUpdate[i].data.action;
+    }
+    
+    return packet_read;
     
 }
 
-
-void up_newtwork_getNewMovement(struct up_objectInfo * ship)
+void up_network_sendNewMovement(struct up_actionState *states, Pthread_listen_datapipe_t *socket_data)
 {
-    struct objUpdateInformation obj[5];
+    struct up_objectInfo *object = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
+    struct up_packed_data data;
+    data.action = *states;
+    data.angle = object->angle;
+    data.bankAngle = object->bankAngle;
+    data.pos = object->pos;
+    data.speed = object->speed;
+    data.timestamp = 0;
+    data.turnSpeed = object->turnSpeed;
     
-    int len = up_readNetworkDatabuffer(obj, 5);
-    int i = 0;
-    for (i=0; i<len; i++) {
-        //ship->speed += obj[i].speed.y;
-    }
+    struct objUpdateInformation objUpdate;
+    objUpdate.data = data;
+    objUpdate.id = states->objectID.idx;
+    
+    UDPsocket socket = socket_data->udpSocket;
+    UDPpacket *packet = socket_data->sendPacket;
+    packet->address.host = socket_data->addr.host;
+    packet->address.port = socket_data->addr.port;
+    
+    int len = up_copyObjectIntoBuffer(&objUpdate, packet->data);
+    len = len+ 1;
+    packet->len = len;
+    SDLNet_UDP_Send(socket, -1, packet);
+    
 }
 
 
 int up_network_recive(void *arg)
 {
     Pthread_listen_datapipe_t *p=(Pthread_listen_datapipe_t *)arg;
-    int quit=1;
+   
     UDPsocket socket = p->udpSocket;
     UDPpacket *packet = SDLNet_AllocPacket(1024);
     struct objUpdateInformation local_data = {0};
     
-    while(quit!=0){
+    packet->address.host = p->addr.host;
+    packet->address.port = p->addr.port;
+    
+    
+    while(p->online){
         SDL_Delay(1);
 
         if (SDLNet_UDP_Recv(socket,packet)){
-            
+           /*
             printf("UDP Packet incoming\n");
             printf("\tChan:    %d\n", packet->channel);
             //printf("\tData:    %s\n", (char *)packet->data);
@@ -165,7 +210,7 @@ int up_network_recive(void *arg)
             printf("\tMaxlen:  %d\n", packet->maxlen);
             printf("\tStatus:  %d\n", packet->status);
             printf("\tAddress: %x %x\n", packet->address.host, packet->address.port);
-            
+            */
             if (packet->len >= sizeof(local_data.data)) {
                 up_copyBufferIntoObject(packet->data,&local_data);
                 
@@ -180,16 +225,9 @@ int up_network_recive(void *arg)
 
     }
     
-
+    SDLNet_FreePacket(packet);
     return 1;
 }
 
 
 
-
-int up_network_send(UDPsocket *udpSocket,IPaddress addr)
-{
-
-    return 0;
-
-}
