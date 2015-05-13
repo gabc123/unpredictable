@@ -27,6 +27,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
     struct up_vec3 lightdir = {0};
     UP_renderBackground();                      //Clears the buffer and results an empty window.
     UP_shader_bind(shaderprog);                 // tells the gpu what shader program to use
+    
 
     int i = 0;
     int modelId = 0;
@@ -61,32 +62,33 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
 
     }
     
-    UP_shader_bind(skyBox->skyBox);
-    
-    // skybox is the backround therefor its always going to be farest away. we dont need any skybuffer.inspiration
-    GLint previousFaceValue;
-    glGetIntegerv(GL_CULL_FACE_MODE, &previousFaceValue);
-    GLint previousDepthValue;
-    glGetIntegerv(GL_DEPTH_FUNC, &previousDepthValue);
-    
-    glCullFace(GL_FRONT);
-    glDepthFunc(GL_LEQUAL);
-    
-    struct up_vec3 skyBoxPosition = {0};
-    struct up_vec3 skyBoxRotation = {0};
-    struct up_vec3 skyBoxScale = {200,200,200};
-    up_matrix4_t skyBoxModel;
-    
-    up_matrixModel(&skyBoxModel, &skyBoxPosition, &skyBoxRotation, &skyBoxScale);
-    up_matrix4_t skyBox_mvp = {0};
-    up_matrix4Multiply(&skyBox_mvp, &skyBoxModel, viewPerspectivMatrix);
-    
-    UP_shader_update(skyBox->skyBox, &skyBox_mvp);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, skyBox->textureId->textureId);
-
-    up_draw_mesh(skyBox->mesh);
-    glCullFace(previousFaceValue);
-    glDepthFunc(previousDepthValue);
+//    UP_shader_bind(skyBox->skyBox);
+//    
+//    // skybox is the backround therefor its always going to be farest away. we dont need any skybuffer.inspiration
+//    GLint previousFaceValue;
+//    glGetIntegerv(GL_CULL_FACE_MODE, &previousFaceValue);
+//    GLint previousDepthValue;
+//    glGetIntegerv(GL_DEPTH_FUNC, &previousDepthValue);
+//    
+//    glCullFace(GL_FRONT);
+//    glDepthFunc(GL_LEQUAL);
+//    
+//    struct up_vec3 skyBoxPosition = {0};
+//    struct up_vec3 skyBoxRotation = {0};
+//    struct up_vec3 skyBoxScale = {4000,0,0};
+//    up_matrix4_t skyBoxModel;
+//    
+//    up_matrixModel(&skyBoxModel, &skyBoxPosition, &skyBoxRotation, &skyBoxScale);
+//    up_matrix4_t skyBox_mvp = {0};
+//    up_matrix4Multiply(&skyBox_mvp, &skyBoxModel, viewPerspectivMatrix);
+//    
+//    
+//    UP_shader_update(skyBox->skyBox, &skyBox_mvp);
+//    glBindTexture(GL_TEXTURE_CUBE_MAP, skyBox->textureId->textureId);
+//
+//    up_draw_mesh(skyBox->mesh);
+//    glCullFace(previousFaceValue);
+//    glDepthFunc(previousDepthValue);
     
     UP_openGLupdate();  // this swaps the render and window buffer , displaying it on screen
 }

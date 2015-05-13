@@ -179,37 +179,39 @@ double up_getFrameTimeDelta()
 
 //Sebastian + Tobias 2015-05-12
 //checks objects collisionboxes for whether a hit has occured or not
-void testCollision(struct up_objectInfo *enviroment, struct up_objectInfo *ship, int i, int j)
+void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int i, int j)
 {
-    struct Hitbox hitShip = {ship[i].pos.x+3.0, ship[i].pos.y+3.0, ship[i].pos.z+3.0,  ship[i].pos.x-3.0,  ship[i].pos.y-3.0,  ship[i].pos.z-3.0};
-    struct Hitbox otherModel ={enviroment[j].pos.x+1.0, enviroment[j].pos.y+1.0, enviroment[j].pos.z+5.0,  enviroment[j].pos.x-1.0,  enviroment[j].pos.y-1.0,  enviroment[j].pos.z-5.0};
-    if((hitShip.xmax < otherModel.xmax && hitShip.xmax > otherModel.xmin) || (hitShip.xmin > otherModel.xmin && hitShip.xmin < otherModel.xmax))
-        if((hitShip.ymax < otherModel.ymax && hitShip.ymax > otherModel.ymin) || (hitShip.ymin > otherModel.ymin && hitShip.ymin < otherModel.ymax))
-            if((hitShip.zmax < otherModel.zmax && hitShip.zmax > otherModel.zmin) || (hitShip.zmin > otherModel.zmin && hitShip.zmin < otherModel.zmax))
+    struct Hitbox hitShip = {object2[i].pos.x+3.0, object2[i].pos.y+3.0, object2[i].pos.z+3.0,  object2[i].pos.x-3.0,  object2[i].pos.y-3.0,  object2[i].pos.z-3.0};
+    struct Hitbox otherModel ={object1[j].pos.x+1.0, object1[j].pos.y+1.0, object1[j].pos.z+5.0,  object1[j].pos.x-1.0,  object1[j].pos.y-1.0,  object1[j].pos.z-5.0};
+
+    // the smaler of the two objects need to be the one that checks whether it is insider te larger objects hitbox
+    if((hitShip.xmax > otherModel.xmax && hitShip.xmin < otherModel.xmax) || (hitShip.xmin < otherModel.xmin && hitShip.xmax > otherModel.xmin))
+        if((hitShip.ymax > otherModel.ymax && hitShip.ymin < otherModel.ymax) || (hitShip.ymin < otherModel.ymin && hitShip.ymax > otherModel.ymin))
+            if((hitShip.zmax > otherModel.zmax && hitShip.zmin < otherModel.zmax) || (hitShip.zmin < otherModel.zmin && hitShip.zmax > otherModel.ymin))
             {
-                printf("ship %d collision with enviroment id %d\n", i, j);
-                enviroment[j].dir=ship[i].dir;
-                enviroment[j].pos.x+=5*ship[i].dir.x;
-                enviroment[j].pos.y+=5*ship[i].dir.y;
-                enviroment[j].pos.z+=5*ship[i].dir.z;
-                enviroment[j].speed=ship[i].speed*3/4;
-                ship[i].speed =ship[i].speed/2;
+                object1[j].dir=object2[i].dir;
+                object1[j].pos.x+=5*object2[i].dir.x;
+                object1[j].pos.y+=5*object2[i].dir.y;
+                object1[j].speed=object2[i].speed*3/4;
+                object2[i].speed =object2[i].speed/2;
             }
-
-
 }
 
 //checks for collisions based on object type
-//Sebastian
+//Sebastian 2015-05-08
 void up_checkCollision(){
 
-    int i, j, totalShips = 0, totalObject = 0;
+    int i, j, totalShips = 0, totalObjects = 0, totalProjectiles;
     float distance=0, x=0, y=0, z=0;
 
+    //checks ships vs enviroment
     struct up_objectInfo *ships = up_unit_getAllObj(up_ship_type,&totalShips);
-    struct up_objectInfo *enviroment = up_unit_getAllObj(up_environment_type, &totalObject);
+    struct up_objectInfo *enviroment = up_unit_getAllObj(up_environment_type, &totalObjects);
+    struct up_objectInfo *projectile = up_unit_getAllObj(up_projectile_type, &totalProjectiles);
+
+
     for(i=0; i < totalShips; i++){
-        for(j=0; j < totalObject; j++){
+        for(j=0; j < totalObjects; j++){
             x = ships[i].pos.x - enviroment[j].pos.x;
             y = ships[i].pos.y - enviroment[j].pos.y;
             z = ships[i].pos.z - enviroment[j].pos.z;
@@ -222,16 +224,30 @@ void up_checkCollision(){
         }
     }
 
-    struct up_objectInfo *projectile = up_unit_getAllObj(up_projectile_type, &totalObject);
+    for(i=0; i < totalProjectiles; i++){
+        for(j=0; j < totalObjects; j++){
+            x = projectile[i].pos.x - enviroment[j].pos.x;
+            y = projectile[i].pos.y - enviroment[j].pos.y;
+            z = projectile[i].pos.z - enviroment[j].pos.z;
+            distance = sqrt((x*x)+(y*y)+(z*z));
+
+            if(distance <30){
+                testCollision(enviroment,projectile, i, j);
+
+            }
+        }
+    }
+
+
     for(i=0; i < totalShips; i++){
-        for(j=0; j < totalObject; j++){
+        for(j=0; j < totalProjectiles; j++){
             x = ships[i].pos.x - projectile[j].pos.x;
             y = ships[i].pos.y - projectile[j].pos.y;
             z = ships[i].pos.z - projectile[j].pos.z;
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance <2){
-                 testCollision(projectile,ships, i, j);
+                 testCollision(ships,projectile, i, j);
             }
         }
     }
@@ -538,7 +554,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.speed = localobject->speed + 100;
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
-    
+
         //pew pew sound
         up_music(1, 0, sound);
 
