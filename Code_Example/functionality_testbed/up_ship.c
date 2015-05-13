@@ -247,7 +247,7 @@ void up_checkCollision(){
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance <2){
-                 testCollision(projectile,ships, i, j);
+                 testCollision(ships,projectile, i, j);
             }
         }
     }
