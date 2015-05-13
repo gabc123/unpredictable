@@ -146,11 +146,18 @@ int up_network_getNewMovement(struct up_actionState *states,int max)
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
     
-    
+    struct up_objectInfo *tmpObject = NULL;
     int packet_read = up_readNetworkDatabuffer(objUpdate, max);
     int i = 0;
     for (i = 0; i < packet_read; i++) {
         states[i] = objUpdate[i].data.action;
+        tmpObject = up_unit_objAtIndex(states[i].objectID.type, states[i].objectID.idx);
+        if (tmpObject != NULL) {
+            tmpObject->pos = objUpdate[i].data.pos;
+            tmpObject->speed = objUpdate[i].data.speed;
+            tmpObject->angle = objUpdate[i].data.angle;
+            tmpObject->bankAngle = objUpdate[i].data.bankAngle;
+        }
     }
     
     return packet_read;
