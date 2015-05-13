@@ -36,7 +36,7 @@ struct Collisionbox
 
 };
 /*stores information of the object*/
-//sebastian
+//Sebastian
 struct up_modelData
 {
     char obj[MODELLENGTH];
@@ -94,7 +94,6 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     return obj;
 }
 
-
 //magnus
 int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_modelData *item)
 {
@@ -105,7 +104,7 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
 
     float xmax=0, ymax=0, zmax=0, xmin=0, ymin=0, zmin=0;
 
-    // set up the dummyobjects to be used incase of failure
+    // set up the dummyobjects to be used in case of failure
     struct up_mesh dummyMesh;
     struct up_texture_data dummyTexture;
     up_mesh_list_getAtIndex(meshArray, &dummyMesh, 0);
@@ -136,7 +135,6 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
     }else{
         mesh = NULL;
     }
-
 
     if (mesh == NULL) {
         mesh = &dummyMesh;//reuse the same dummy mesh, reducing gpu memory presure
@@ -189,7 +187,6 @@ void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *text
 
     up_textHandler_free(&thafile);
 
-
 }
 
 /*loads all stored assets into the gpu*/
@@ -240,4 +237,3 @@ void up_assets_shutdown_deinit(struct up_assets *assets)
 /*
     loadobject loads models listed in the objIndex file.
 */
-

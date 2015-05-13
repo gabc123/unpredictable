@@ -593,7 +593,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         localObject = up_unit_objAtIndex(tmp->objectID.type,tmp->objectID.idx);
         if (localObject == NULL) {
             printf("up_update_actions localobject  == NULL \n");
-            return;
+            continue;
         }
         up_moveObj(localObject, tmp,frameDelta);
         up_createProjectile(localObject, tmp, funkarEj, sound);
