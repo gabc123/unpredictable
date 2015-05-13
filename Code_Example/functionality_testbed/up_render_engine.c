@@ -75,7 +75,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
 //    
 //    struct up_vec3 skyBoxPosition = {0};
 //    struct up_vec3 skyBoxRotation = {0};
-//    struct up_vec3 skyBoxScale = {200,200,200};
+//    struct up_vec3 skyBoxScale = {4000,0,0};
 //    up_matrix4_t skyBoxModel;
 //    
 //    up_matrixModel(&skyBoxModel, &skyBoxPosition, &skyBoxRotation, &skyBoxScale);

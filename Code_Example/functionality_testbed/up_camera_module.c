@@ -28,7 +28,7 @@ void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
     cam->center.z=ship->pos.z;
     cam->eye.x=ship->pos.x;
     cam->eye.y=ship->pos.y;
-    cam->eye.z=ship->pos.z - 20 + zoom;
+    cam->eye.z=ship->pos.z - 80 + zoom;
 
     //cam->eye=ship->
 }
