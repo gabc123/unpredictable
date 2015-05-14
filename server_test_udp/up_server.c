@@ -22,7 +22,7 @@
 
 #define UP_MAX_CLIENTS 20
 
-#define UP_SEND_OBJECT_LENGTH 4
+#define UP_SEND_OBJECT_LENGTH 100
 #define UP_SEND_BUFFER_DATA_SIZE 400
 
 struct up_server_connection_info
@@ -189,28 +189,7 @@ void *up_server_send_thread(void *parm)
 
 
 
-struct internal_server_state *up_server_startup()
-{
-    if(!up_concurrentQueue_start_setup())
-    {
-        UP_ERROR_MSG("queue failed");
-    }
-    struct up_server_connection_info *server = up_server_socket_start();
-    pthread_t *server_thread = malloc(sizeof(pthread_t)*2);
-    
-    pthread_create(&server_thread[0],NULL,&up_server_reciveing_thread,server);
-    pthread_create(&server_thread[1],NULL,&up_server_send_thread,server);
-    
-    struct internal_server_state *server_state = malloc(sizeof(struct internal_server_state));
-    if (server_state == NULL) {
-        UP_ERROR_MSG("failed to malloc server state");
-    }
 
-    server_state->server = server;
-    server_state->server_thread = server_thread;
-    
-    return server_state;
-}
 
 void up_server_run(struct internal_server_state *server_state)
 {
@@ -242,6 +221,7 @@ void up_server_shutdown_cleanup(struct internal_server_state *server_state)
     
 }
 
+// bind the listening port
 static struct up_server_connection_info *up_server_socket_start()
 {
     struct sockaddr_in sock_server = {0};
@@ -277,3 +257,28 @@ static struct up_server_connection_info *up_server_socket_start()
     //close(socket_server);
     
 }
+
+// starts the threads and recive and store
+struct internal_server_state *up_server_startup()
+{
+    if(!up_concurrentQueue_start_setup())
+    {
+        UP_ERROR_MSG("queue failed");
+    }
+    struct up_server_connection_info *server = up_server_socket_start();
+    pthread_t *server_thread = malloc(sizeof(pthread_t)*2);
+    
+    pthread_create(&server_thread[0],NULL,&up_server_reciveing_thread,server);
+    pthread_create(&server_thread[1],NULL,&up_server_send_thread,server);
+    
+    struct internal_server_state *server_state = malloc(sizeof(struct internal_server_state));
+    if (server_state == NULL) {
+        UP_ERROR_MSG("failed to malloc server state");
+    }
+    
+    server_state->server = server;
+    server_state->server_thread = server_thread;
+    
+    return server_state;
+}
+
