@@ -39,7 +39,7 @@ int main(int argc, char const *argv[])
 
 
 
-    int mesh_capacity = 200;
+    int mesh_capacity = 500;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
 
@@ -111,7 +111,8 @@ int main(int argc, char const *argv[])
     up_generate_randomize_satellite(40);        //satellite
     up_generate_randomize_spaceMine(80);        //space mine
 
-
+    
+    struct up_font_assets *font_assets = up_font_start_setup();  //load font to inteface startup
     //up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
 
     // all the 4by4 matrix that are needed to place the model at the right location and with the right perspective
@@ -220,6 +221,8 @@ int main(int argc, char const *argv[])
         up_getViewPerspective(&viewPerspectivMatrix,&viewMatrix,&perspectiveMatrix);
 
         up_updateMatrix(transformationArray, &viewPerspectivMatrix, objectArray, numObjects);
+        
+        up_gamePlayInterface(font_assets,shader_menu);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
 

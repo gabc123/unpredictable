@@ -64,9 +64,25 @@ void moveHealthBar(int ship_id,up_health_bar_t healing)
 
     healthGreen->scale.x = ((float)healthLevel/100)*2;
     
+}
 
-
-
+void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program){
+    
+    struct up_vec3 pos;
+    struct up_vec3 scale;
+    
+    pos.x = -0.17;
+    pos.y = -0.45;
+    pos.z = -0.5;
+    
+    scale.x = 0.5;
+    scale.y = 0.5;
+    scale.z = 0.5;
+    
+    char *text = "hejkds<djcpdo<cszodps";
+    int length = (int)strlen(text);
+    
+    up_displayText(text,length, &pos, &scale, font_assets, shader_program);
 
 }
 
