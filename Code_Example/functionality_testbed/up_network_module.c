@@ -149,21 +149,27 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
     struct up_objectInfo *tmpObject = NULL;
     int packet_read = up_readNetworkDatabuffer(objUpdate, max);
     int i = 0;
+    int j = 0;
     for (i = 0; i < packet_read; i++) {
-        states[i] = objUpdate[i].data.action;
+        states[j] = objUpdate[i].data.action;
+        j++;
         if ((playerId == states[i].objectID.idx) && (states[i].objectID.type = up_ship_type)) {
+            j--;
             continue;   // we already know our own position
         }
         tmpObject = up_unit_objAtIndex(states[i].objectID.type, states[i].objectID.idx);
-        if (tmpObject != NULL) {
-            tmpObject->pos = objUpdate[i].data.pos;
-            tmpObject->speed = objUpdate[i].data.speed;
-            tmpObject->angle = objUpdate[i].data.angle;
-            tmpObject->bankAngle = objUpdate[i].data.bankAngle;
+        if (tmpObject == NULL) {
+            j--;
+            continue;
         }
+        tmpObject->pos = objUpdate[i].data.pos;
+        tmpObject->speed = objUpdate[i].data.speed;
+        tmpObject->angle = objUpdate[i].data.angle;
+        tmpObject->bankAngle = objUpdate[i].data.bankAngle;
+        
     }
     
-    return packet_read;
+    return j;
     
 }
 
