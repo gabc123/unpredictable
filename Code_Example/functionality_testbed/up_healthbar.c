@@ -109,9 +109,9 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
     pos.y = -0.7;
     pos.z = 0.0;
     
-    scale.x = 0.02;
-    scale.y = 0.02;
-    scale.z = 0.02;
+    scale.x = 0.04;
+    scale.y = 0.04;
+    scale.z = 0.04;
     
 
     sprintf(ship_health,"%d", stats->current_health);
@@ -123,7 +123,7 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
     
     struct up_vec3 color = {20.118,0.0,0.0};
     
-    up_displayText(ship_health,length, &pos, &scale, font_assets, shader_program,0.000000000009,&color);
+    up_displayText(ship_health,length, &pos, &scale, font_assets, shader_program,0.02,&color);
     
     pos.x = -0.72;
     pos.y = -0.72;
@@ -131,13 +131,13 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
     
     length = (int)strlen(ship_armor);
     
-    up_displayText(ship_armor,length, &pos, &scale, font_assets, shader_program,0.0002,&color);
+    up_displayText(ship_armor,length, &pos, &scale, font_assets, shader_program,0.02,&color);
     
     pos.x = 0;
     
     length = (int)strlen(ship_ammunition);
     
-    up_displayText(ship_ammunition,length, &pos, &scale, font_assets, shader_program,0.0005,&color);
+    up_displayText(ship_ammunition,length, &pos, &scale, font_assets, shader_program,0.02,&color);
 
 
 }
