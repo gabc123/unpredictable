@@ -32,7 +32,7 @@ struct up_server_connection_info
     struct sockaddr_in server_info;
     int connected_clients;
     struct sockaddr_in client_infoArray[UP_MAX_CLIENTS];
-    
+    struct up_thread_queue *queue;
 };
 
 struct internal_server_state
@@ -72,7 +72,7 @@ unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInfo
 
 
 
-static struct up_server_connection_info *up_server_socket_start();
+//static struct up_server_connection_info *up_server_socket_start();
 
 
 
@@ -118,7 +118,7 @@ void *up_server_reciveing_thread(void *parm)
         printf("\npacket recived with length: %lu",msglen);
         up_copyBufferIntoObject(recvBuff,&local_data);
         
-        up_writeToNetworkDatabuffer(&local_data);
+        up_writeToNetworkDatabuffer(server_con->queue,&local_data);
         
         //printf("\nmsg length: %lu",msglen);
     }
@@ -154,7 +154,7 @@ void *up_server_send_thread(void *parm)
         while (packet_read <= 0)
         {
             
-            packet_read = up_readNetworkDatabuffer(local_data, length);
+            packet_read = up_readNetworkDatabuffer(server_con->queue,local_data, length);
             spin_counter++;
             usleep(100);
             if (spin_counter > 2000) {
@@ -214,8 +214,10 @@ void up_server_shutdown_cleanup(struct internal_server_state *server_state)
         pthread_join(server_state->server_thread[i], NULL);
     }
     
+    
     free(server_state->server);
     free(server_state->server_thread);
+    
     up_concurrentQueue_shutdown_deinit();
     printf("\nserver cleanup done");
     
@@ -302,6 +304,11 @@ struct internal_server_state *up_server_startup()
         UP_ERROR_MSG("queue failed");
     }
     struct up_server_connection_info *server = up_server_gameplay_start(22422);
+    
+    server->queue = up_concurrentQueue_new();
+    if (server->queue == NULL) {
+        UP_ERROR_MSG("failed to start queue");
+    }
     
     pthread_t *server_thread = malloc(sizeof(pthread_t)*2);
     pthread_create(&server_thread[0],NULL,&up_server_reciveing_thread,server);

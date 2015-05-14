@@ -92,7 +92,7 @@ void up_generate_randomize_satellite(int density){
     satellite.modelId = 7;
     ship.modelId = 0;
     satellite.objectId.type = up_others_type;
-    ship.objectId.type = up_ship_type;
+    ship.objectId.type = up_environment_type;
     int i=0;
     for(i=0; i<density; i++){
 

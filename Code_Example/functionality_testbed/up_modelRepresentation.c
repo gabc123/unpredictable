@@ -12,6 +12,7 @@
 struct internal_object
 {
     struct up_objectInfo *objects;
+    enum up_object_type type;
     int count;
     int size;
 };
@@ -48,8 +49,10 @@ int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_
     internal_tracker.ships.count = 0;
     internal_tracker.ships.objects = ships;
     internal_tracker.ships.size=max_ship_count;
+    internal_tracker.ships.type = up_ship_type;
 
-
+    
+    
     //////////////////
 
     //internal_tracker.count=0;
@@ -67,6 +70,7 @@ int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_
     internal_tracker.projectile.count = 0;
     internal_tracker.projectile.objects = projectile;
     internal_tracker.projectile.size=max_projectile_count;
+    internal_tracker.projectile.type = up_projectile_type;
 
     //////////////////
 
@@ -85,6 +89,7 @@ int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_
     internal_tracker.environment.count = 0;
     internal_tracker.environment.objects = environment;
     internal_tracker.environment.size=max_environment_count;
+    internal_tracker.environment.type = up_environment_type;
 
     //////////////////
 
@@ -103,6 +108,7 @@ int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_
     internal_tracker.others.count = 0;
     internal_tracker.others.objects = others;
     internal_tracker.others.size=max_others_count;
+    internal_tracker.others.type = up_others_type;
 
     return 1;
 }
@@ -114,7 +120,8 @@ static int unit_add(struct internal_object * objects,struct up_objectInfo object
     int count=objects->count;
 
     if(count>=objects->size){
-        UP_ERROR_MSG("unit buffer is full\n");
+        UP_ERROR_MSG_INT("unit buffer is full\n",(int)objects->type);
+        printf("\nUnit count %d",count);
         return 0;
     }
 

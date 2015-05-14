@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
 
-    int max_ship_count = 40;
+    int max_ship_count = 70;
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
     int max_others_count = 20;
@@ -211,6 +211,8 @@ int main(int argc, char const *argv[])
 
         up_update_camera(&cam, ship);
 
+        
+        
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
 
         objectArray = up_ObjectsInView(in_cam,&numObjects, &cam);

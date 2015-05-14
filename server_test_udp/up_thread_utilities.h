@@ -31,6 +31,10 @@ struct objUpdateInformation
 // forward decleration
 struct up_thread_queue;
 
+
+struct up_thread_queue *up_concurrentQueue_new();
+void up_concurrentQueue_free(struct up_thread_queue *queue);
+
 int up_concurrentQueue_start_setup();
 void up_concurrentQueue_shutdown_deinit();
 
