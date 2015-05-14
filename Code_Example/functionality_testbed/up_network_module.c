@@ -140,8 +140,8 @@ void up_network_shutdown_deinit(Pthread_listen_datapipe_t *p)
    
 }
 
-#define UP_OBJECT_BUFFER_READ_LENGTH 20
-int up_network_getNewMovement(struct up_actionState *states,int max)
+#define UP_OBJECT_BUFFER_READ_LENGTH 60
+int up_network_getNewMovement(struct up_actionState *states,int max,int playerId)
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
@@ -151,6 +151,9 @@ int up_network_getNewMovement(struct up_actionState *states,int max)
     int i = 0;
     for (i = 0; i < packet_read; i++) {
         states[i] = objUpdate[i].data.action;
+        if ((playerId == states[i].objectID.idx) && (states[i].objectID.type = up_ship_type)) {
+            continue;   // we already know our own position
+        }
         tmpObject = up_unit_objAtIndex(states[i].objectID.type, states[i].objectID.idx);
         if (tmpObject != NULL) {
             tmpObject->pos = objUpdate[i].data.pos;

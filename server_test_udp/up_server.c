@@ -89,6 +89,7 @@ void *up_server_reciveing_thread(void *parm)
     
     unsigned long msglen = 0;
     int i = 0;
+    int userId = 0;
     while (server_con->shutdown == 0) {
         msglen = 0;
         if ((msglen = recvfrom(server_con->socket_server, recvBuff, BUFFER_SIZE, 0, (struct sockaddr *)&client_sock,&client_sock_len))==-1) {
@@ -96,7 +97,7 @@ void *up_server_reciveing_thread(void *parm)
             perror("recfrom failed");
             break;
         }
-        
+
         for (i = 0; i < server_con->connected_clients; i++) {
             if(server_con->client_infoArray[i].sin_addr.s_addr == client_sock.sin_addr.s_addr)
             {
@@ -104,19 +105,25 @@ void *up_server_reciveing_thread(void *parm)
             }
         }
         
+        userId = i - 1;
+        
         if (i == server_con->connected_clients ) {
             if (i >=  UP_MAX_CLIENTS) {
                 continue;
             }
             server_con->client_infoArray[i] = client_sock;
+            userId = i;
             server_con->connected_clients++;
         }
+        
         if (msglen < sizeof(local_data.data)) {
             printf("\ntrash msg %lu",msglen);
             continue;
         }
         printf("\npacket recived with length: %lu",msglen);
         up_copyBufferIntoObject(recvBuff,&local_data);
+        
+        local_data.id = userId;
         
         up_writeToNetworkDatabuffer(server_con->queue,&local_data);
         

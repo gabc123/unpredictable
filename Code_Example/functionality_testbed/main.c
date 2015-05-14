@@ -92,7 +92,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = shipIndex_tmp;
+    shipIndex = 2;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -178,8 +178,8 @@ int main(int argc, char const *argv[])
     up_matrix4_t viewPerspectivMatrix;
 
 
-    struct up_actionState network_states_data[10];
-    int max_network_states = 10;
+    struct up_actionState network_states_data[50];
+    int max_network_states = 50;
     int i = 0;
     struct up_actionState noState = {0};
     for (i = 0; i < max_network_states; i++) {
@@ -202,7 +202,7 @@ int main(int argc, char const *argv[])
         //up_updatShipMatrixModel(&modelMatrix,&model,ship); // creates the modelMatrix for the ship
         //up_updateShipMovment(ship);
         up_network_sendNewMovement(&shipAction, connection_data);
-        network_state_recived = up_network_getNewMovement(network_states_data, max_network_states);
+        network_state_recived = up_network_getNewMovement(network_states_data, max_network_states,shipIndex);
 
         up_update_actions(&shipAction, network_states_data, network_state_recived,&funkarEj, sound);
         up_updateMovements();
