@@ -17,7 +17,7 @@
 
 void up_displayText(char *text_string,int length,struct up_vec3 *pos,
                     struct up_vec3 *scale,struct up_font_assets *fonts,
-                    struct shader_module *shaderprog, float step)
+                    struct shader_module *shaderprog, float step,struct up_vec3 *color)
 {
     struct up_vec3 localpos = *pos;
     up_matrix4_t transform;
@@ -28,6 +28,11 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
     }
     UP_shader_bind(shaderprog);
     up_texture_bind(fonts->texture, 1);
+    if (color != NULL) {
+        up_shader_update_font_color(shaderprog,color);
+    }
+
+    
     int i = 0;
     for (i = 0; i< length; i++) {
          // flyttar os 1 plats

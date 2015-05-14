@@ -45,6 +45,8 @@ void UP_shader_update(struct shader_module *prog,up_matrix4_t *transform);
 
 void up_shader_update_modelWorld(struct shader_module *prog,up_matrix4_t *modelWorld);
 
+void up_shader_update_font_color(struct shader_module *prog,struct up_vec3 *color);
+
 // light
 void up_shader_update_ambient(struct shader_module *prog,struct up_vec3 *color,float *intensity);
 

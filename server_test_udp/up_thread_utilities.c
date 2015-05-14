@@ -42,6 +42,17 @@ struct up_concurrentQueue
     
 };
 
+struct up_concurrentQueue_gabageRecycler
+{
+    struct up_linkElement *start;
+    struct up_linkElement *end;
+};
+
+struct up_thread_queue
+{
+    struct up_concurrentQueue live_chain;
+    struct up_concurrentQueue_gabageRecycler garbage;
+};
 
 //static struct up_concurrentQueue *internal_concurrentQueue = NULL;
 
@@ -53,31 +64,31 @@ static void linkElement_recycle(struct up_linkElement * fromLink,struct up_linkE
 
 
 // lockfree waitfree reader on a buffer
-int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
+int up_readNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInformation *data,int length)
 {
     // move the writer to the other buffer
-    int reader = internal_concurrentQueue->reader;  //if error then setup has not been called early enugh
+    int reader = queue->live_chain.reader;  //if error then setup has not been called early enugh
     struct up_linkElement *first = NULL;
     struct up_linkElement *last = NULL;
     struct up_linkElement *tmpLink = NULL;
     
-    //reader = internal_concurrentQueue->reader;
+    //reader = queue->live_chain.reader;
     // change the writerhead atomicly so the writer will work on the other
     // linklist buffer,(it do not matter if the last node change between operations,
     // the writer look for the end always, it only matter that it is set atmoicly )
     
-    //SDL_AtomicSet(&internal_concurrentQueue->writer_head, reader);
-    internal_concurrentQueue->writer_head = reader;
+    //SDL_AtomicSet(&queue->live_chain.writer_head, reader);
+    queue->live_chain.writer_head = reader;
     
     // change the reader variable so it matches current state
     reader = (reader == UP_BUFFER_1) ? UP_BUFFER_2 : UP_BUFFER_1;
     
-    first = internal_concurrentQueue->first[reader];
-    last = internal_concurrentQueue->last[reader];
+    first = queue->live_chain.first[reader];
+    last = queue->live_chain.last[reader];
     
     // it is empty
     if (first == last || first == NULL) {
-        internal_concurrentQueue->reader = reader;  //change the reader position so we can get data on other que
+        queue->live_chain.reader = reader;  //change the reader position so we can get data on other que
         return 0;
     }
     
@@ -113,7 +124,7 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
     
     
     // move the first pointer to the correct location for continued reading
-    internal_concurrentQueue->first[reader] = current;
+    queue->live_chain.first[reader] = current;
     int countRead = count;
     count++; // walk to the last element
     //if the whole buffer gets consumed we need to set a new last link
@@ -121,13 +132,13 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
         data[count] = current->obj;
         current->obj.id = 0; // id 0 is a dummy id for no data to be read
         //we set the new last link so we can attache the writer on the correct spot
-        internal_concurrentQueue->last[reader] = current;
+        queue->live_chain.last[reader] = current;
         
         countRead = count;
         
         // notice that we do not update reader if we run out of data space
         // this is only done if we intende to change queue nexte cycle
-        internal_concurrentQueue->reader = reader;
+        queue->live_chain.reader = reader;
     }
     
     
@@ -138,7 +149,7 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
     return countRead; //succsess
 }
 
-int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)
+int up_writeToNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInformation *data)
 {
     struct up_linkElement *newData = linkElement_create();
     if (newData == NULL) {
@@ -151,15 +162,15 @@ int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)
     int check = 0;
     int counter_failed = 0;
     do {
-        /*if (whatBuffer != (check = SDL_AtomicGet(&internal_concurrentQueue->writer_head))) {
-         currentLast = internal_concurrentQueue->last[check];
+        /*if (whatBuffer != (check = SDL_AtomicGet(&queue->live_chain.writer_head))) {
+         currentLast = queue->live_chain.last[check];
          whatBuffer = check;
          }else
          {
          currentLast = currentLast->next;
          }*/
-        if (whatBuffer != ((check = internal_concurrentQueue->writer_head))) {
-            currentLast = internal_concurrentQueue->last[check];
+        if (whatBuffer != ((check = queue->live_chain.writer_head))) {
+            currentLast = queue->live_chain.last[check];
             whatBuffer = check;
         }else
         {
@@ -174,7 +185,7 @@ int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)
         //https://gcc.gnu.org/onlinedocs/gcc-4.4.3/gcc/Atomic-Builtins.html compiler bulltins
     }while (__sync_bool_compare_and_swap(&currentLast->next, NULL, newData) == 0);
     
-    internal_concurrentQueue->last[whatBuffer] = newData;
+    queue->live_chain.last[whatBuffer] = newData;
     return 1;
 }
 
@@ -193,34 +204,28 @@ static struct up_linkElement *linkElement_alloc()
 }
 
 
-struct up_concurrentQueue_gabageRecycler
-{
-    
-    struct up_linkElement *start;
-    struct up_linkElement *end;
-};
 
-struct up_concurrentQueue_gabageRecycler internal_queueRecycler;
+
 
 // consume the recyled list if there is anyone
 // else it will allocate a new link
-static struct up_linkElement *linkElement_create()
+static struct up_linkElement *linkElement_create(struct up_thread_queue *queue)
 {
     int loopCounter = 0;
     struct up_linkElement *link = NULL;
     do {
         loopCounter++;
         if (loopCounter >= 1000) {
-            usleep(10); //sleep to reduce contension on the internal_queueRecycler
+            usleep(10); //sleep to reduce contension on the queue->garbage
         }
-        link = internal_queueRecycler.start;
+        link = queue->garbage.start;
         if (link == NULL) {
             return linkElement_alloc();
         }
         
         
         //we do not want to return the last element
-        if (internal_queueRecycler.start == internal_queueRecycler.end)
+        if (queue->garbage.start == queue->garbage.end)
         {
             return linkElement_alloc();
         }
@@ -234,10 +239,10 @@ static struct up_linkElement *linkElement_create()
         
         // now we can relink the list and return our recycled link
         // makes sure we have not gotten a failed link
-    } while (__sync_bool_compare_and_swap(&internal_queueRecycler.start, link, link->next) == 0);
+    } while (__sync_bool_compare_and_swap(&queue->garbage.start, link, link->next) == 0);
     
     // now we can relink the list and return our recycled link
-    internal_queueRecycler.start = link->next;
+    queue->garbage.start = link->next;
     link->next = NULL; //decouple link from this
     return link;
 }
@@ -247,7 +252,7 @@ static struct up_linkElement *linkElement_create()
 // when a link is not needed any more the next element
 // cpu reordering information: http://www.rdrop.com/users/paulmck/scalability/paper/ordering.2007.09.19a.pdf
 //
-static void linkElement_recycle(struct up_linkElement * fromLink,struct up_linkElement * toLink)
+static void linkElement_recycle(struct up_thread_queue *queue,struct up_linkElement * fromLink,struct up_linkElement * toLink)
 {
 #ifndef UP_PRODUCTION
     if (fromLink == NULL) {
@@ -270,14 +275,14 @@ static void linkElement_recycle(struct up_linkElement * fromLink,struct up_linkE
     //SDL_MemoryBarrierRelease();
     
     // connect the chain to the recycler for use
-    internal_queueRecycler.end->next = fromLink; // !! must happen after tolink->next = NULL
+    queue->garbage.end->next = fromLink; // !! must happen after tolink->next = NULL
     
-    internal_queueRecycler.end = toLink;
+    queue->garbage.end = toLink;
 }
 
-struct up_concurrentQueue *up_concurrentQueue_new()
+struct up_thread_queue *up_concurrentQueue_new()
 {
-    struct up_concurrentQueue *queue = malloc(sizeof(struct up_concurrentQueue));
+    struct up_thread_queue *thread_queue = malloc(sizeof(struct up_thread_queue));
     if (queue == NULL) {
         UP_ERROR_MSG("malloc failed");
         return 0;
@@ -303,36 +308,41 @@ struct up_concurrentQueue *up_concurrentQueue_new()
     queue->last[UP_BUFFER_2] = link2;
     
     queue->reader = UP_BUFFER_1;
-    //SDL_AtomicSet(&internal_concurrentQueue->writer_head, UP_BUFFER_2);
+    //SDL_AtomicSet(&queue->live_chain.writer_head, UP_BUFFER_2);
     queue->writer_head = UP_BUFFER_2;
+    
+    
+    
+    struct up_linkElement *garbage = linkElement_alloc();
+    if (garbage == NULL) {
+        UP_ERROR_MSG("malloc failed");
+        return 0;
+    }
+    queue->garbage.start = garbage;
+    queue->garbage.end = garbage;
+    
     return queue;
 }
 
 
 // this setup the garbage collection for all the queues
 // so every thing can run,
-int up_concurrentQueue_start_setup()
+int up_concurrentQueue_start_setup(struct up_thread_queue *queue)
 {
-    struct up_linkElement *garbage = linkElement_alloc();
-    if (garbage == NULL) {
-        UP_ERROR_MSG("malloc failed");
-        return 0;
-    }
-    internal_queueRecycler.start = garbage;
-    internal_queueRecycler.end = garbage;
+    
     return 1;
     
 }
 
 
-void up_concurrentQueue_shutdown_deinit()
+void up_concurrentQueue_shutdown_deinit(struct up_thread_queue *queue)
 {
     struct up_linkElement *tmpLink = NULL;
     struct up_linkElement *current = NULL;
     
     //free buffer 1
-    current = internal_concurrentQueue->first[UP_BUFFER_1];
-    internal_concurrentQueue->first[UP_BUFFER_1] = NULL;
+    current = queue->live_chain.first[UP_BUFFER_1];
+    queue->live_chain.first[UP_BUFFER_1] = NULL;
     
     while (current != NULL) {
         tmpLink = current;
@@ -340,21 +350,21 @@ void up_concurrentQueue_shutdown_deinit()
         tmpLink->next = NULL;   //break link
         free(tmpLink);
     }
-    internal_concurrentQueue->last[UP_BUFFER_1] = NULL;
+    queue->live_chain.last[UP_BUFFER_1] = NULL;
     
     //free buffer 2
-    current = internal_concurrentQueue->first[UP_BUFFER_2];
-    internal_concurrentQueue->first[UP_BUFFER_2] = NULL;
+    current = queue->live_chain.first[UP_BUFFER_2];
+    queue->live_chain.first[UP_BUFFER_2] = NULL;
     while (current != NULL) {
         tmpLink = current;
         current = current->next;
         tmpLink->next = NULL;   //break link
         free(tmpLink);
     }
-    internal_concurrentQueue->last[UP_BUFFER_2] = NULL;
+    queue->live_chain.last[UP_BUFFER_2] = NULL;
     
     //free the garbage recyler
-    current = internal_queueRecycler.start;
+    current = queue->garbage.start;
     while (current != NULL) {
         tmpLink = current;
         current = current->next;
@@ -362,8 +372,8 @@ void up_concurrentQueue_shutdown_deinit()
         free(tmpLink);
     }
     
-    free(internal_concurrentQueue);
-    internal_concurrentQueue = NULL;
+    free(queue);
+    //internal_concurrentQueue = NULL;
 }
 
 

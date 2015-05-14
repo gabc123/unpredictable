@@ -82,7 +82,9 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
     char *text = "hejkdsdjcpdoszodps";
     int length = (int)strlen(text);
     
-    up_displayText(text,length, &pos, &scale, font_assets, shader_program,0.02);
+    struct up_vec3 color = {0.2,8.0,0.0};
+    
+    up_displayText(text,length, &pos, &scale, font_assets, shader_program,0.02,&color);
 
 }
 

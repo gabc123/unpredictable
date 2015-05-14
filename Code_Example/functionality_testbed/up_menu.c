@@ -222,9 +222,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
 
 
                 if (navigation.status == writeOn) {
-                    up_displayText(user_data.username, user_data.keypress, &textpos, &textscale, fonts, shaderprog,0);
-                    up_displayText(teststr1, (int)strlen(teststr1), &testtextpos1, &textscale, fonts, shaderprog,0);
-                    up_displayText(teststr2, (int)strlen(teststr2), &testtextpos2, &textscale, fonts, shaderprog,0);
+                    up_displayText(user_data.username, user_data.keypress, &textpos, &textscale, fonts, shaderprog,0,NULL);
+                    up_displayText(teststr1, (int)strlen(teststr1), &testtextpos1, &textscale, fonts, shaderprog,0,NULL);
+                    up_displayText(teststr2, (int)strlen(teststr2), &testtextpos2, &textscale, fonts, shaderprog,0,NULL);
 
 
                 }

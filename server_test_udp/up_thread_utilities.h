@@ -28,6 +28,8 @@ struct objUpdateInformation
     struct up_packed_data data; // packed structure to prevent padding when tranforming data into unsigned char to transmitt over the network
 };
 
+// forward decleration
+struct up_thread_queue;
 
 int up_concurrentQueue_start_setup();
 void up_concurrentQueue_shutdown_deinit();
@@ -38,10 +40,10 @@ void up_concurrentQueue_shutdown_deinit();
 
 // this is a waitfree lockfree bufferRead
 // use this to read the buffer,
-int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length);
+int up_readNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInformation *data,int length);
 
 // use this to store data that comes from the network
-int up_writeToNetworkDatabuffer(struct objUpdateInformation *data);
+int up_writeToNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInformation *data);
 
 // unittest for the queue
 void up_unitTest_concurency_queue_spsc();

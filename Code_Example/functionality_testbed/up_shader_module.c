@@ -126,6 +126,12 @@ void up_shader_update_ambient(struct shader_module *prog,struct up_vec3 *color,f
 
  */
 
+void up_shader_update_font_color(struct shader_module *prog,struct up_vec3 *color)
+{
+    //float localColor[3] = {color.x , color.y , color.z};
+    glUniform3fv(prog->uniforms[UNIFORM_AMBIENT_COLOR], 1, (float *)color);
+}
+
 void up_shader_update_directional_light(struct shader_module *prog,struct up_vec3 *color,float *intensity,struct up_vec3 *dir)
 {
 
