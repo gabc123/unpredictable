@@ -46,7 +46,7 @@ int main(int argc, char const *argv[])
     int max_ship_count = 70;
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
-    int max_others_count = 20;
+    int max_others_count = 200;
 
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
@@ -146,6 +146,10 @@ int main(int argc, char const *argv[])
 
     up_health_bar_t healthBar;
     healthBar = healthbar_creation();
+    
+    up_stats_index_t interface_info;
+    interface_info = up_create_statsObject();
+
 
     //up_matrix4_t identity = up_matrix4identity();
 
@@ -188,6 +192,14 @@ int main(int argc, char const *argv[])
     int network_state_recived = 0;
     Pthread_listen_datapipe_t *connection_data = up_network_start_setup();
 
+    up_player_stats_t stats;
+    stats.current_health = 59;
+    stats.max_health = 100;
+    stats.current_armor = 70;
+    stats.max_armor = 100;
+    stats.missile = 5;
+    stats.bullets = 100;
+    stats.laser = 50;
 
     while(status)
     {
@@ -207,12 +219,13 @@ int main(int argc, char const *argv[])
         up_update_actions(&shipAction, network_states_data, network_state_recived,&funkarEj, sound);
         up_updateMovements();
         up_checkCollision();
-        moveHealthBar(shipIndex,healthBar);
-
+        
         up_update_camera(&cam, ship);
+        
+        up_moveHealthBar(shipIndex,healthBar);
+        up_interface_placement(&cam,interface_info);
 
-        
-        
+
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
 
         objectArray = up_ObjectsInView(in_cam,&numObjects, &cam);
@@ -227,7 +240,7 @@ int main(int argc, char const *argv[])
         
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
         
-        up_gamePlayInterface(font_assets,shader_menu);
+        up_gamePlayInterface(font_assets,shader_menu,&stats);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
 
