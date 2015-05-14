@@ -122,49 +122,49 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
         {
             switch (event.key.keysym.sym) {
                 case SDLK_w:
-                    if(objectAction->engine.fwd)
+                    if(objectAction->engine.state == fwd)
                     {
                         objectAction->engine.none=none;
                     }
                     break;
 
                 case SDLK_s:
-                    if(objectAction->engine.bwd)
+                    if(objectAction->engine.state == bwd)
                     {
                         objectAction->engine.none=none;
                     }
                     break;
 
                 case SDLK_d:
-                    if(objectAction->maneuver.right)
+                    if(objectAction->maneuver.state == right)
                     {
                         objectAction->maneuver.none=none;
                     }
                     break;
 
                 case SDLK_a:
-                    if(objectAction->maneuver.left)
+                    if(objectAction->maneuver.state == left)
                     {
                         objectAction->maneuver.none=none;
                     }
                     break;
 
                 case SDLK_SPACE:
-                    if(objectAction->fireWeapon.fireBullet)
+                    if(objectAction->fireWeapon.state == fireBullet)
                     {
                         objectAction->fireWeapon.none=none;
                     }
                     break;
 
                 case SDLK_e:
-                    if(objectAction->maneuver.bankRight)
+                    if(objectAction->maneuver.state == bankRight)
                     {
                         objectAction->maneuver.none = none;
                     }
                     break;
 
                 case SDLK_q:
-                    if(objectAction->maneuver.bankLeft)
+                    if(objectAction->maneuver.state == bankLeft)
                     {
                         objectAction->maneuver.none = none;
                     }
