@@ -39,7 +39,7 @@ int main(int argc, char const *argv[])
 
 
 
-    int mesh_capacity = 200;
+    int mesh_capacity = 500;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
 
@@ -222,7 +222,7 @@ int main(int argc, char const *argv[])
 
         up_updateMatrix(transformationArray, &viewPerspectivMatrix, objectArray, numObjects);
         
-        up_gamePlayInterface(font_assets,shaderprog);
+        up_gamePlayInterface(font_assets,shader_menu);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
 
