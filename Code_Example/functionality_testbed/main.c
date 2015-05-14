@@ -46,7 +46,7 @@ int main(int argc, char const *argv[])
     int max_ship_count = 40;
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
-    int max_others_count = 20;
+    int max_others_count = 200;
 
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
@@ -188,6 +188,10 @@ int main(int argc, char const *argv[])
     int network_state_recived = 0;
     Pthread_listen_datapipe_t *connection_data = up_network_start_setup();
 
+    int current_health=59;
+    int max_health=100;
+    int current_armor = 70;
+    int max_armor = 100;
 
     while(status)
     {
@@ -225,7 +229,7 @@ int main(int argc, char const *argv[])
         
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
         
-        up_gamePlayInterface(font_assets,shader_menu);
+        up_gamePlayInterface(font_assets,shader_menu,current_health,max_health,current_armor,max_armor);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
 

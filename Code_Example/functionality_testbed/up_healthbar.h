@@ -15,6 +15,7 @@ typedef struct up_health_bar_t{
 
     float greenIndex;
     float redIndex;
+    float heartIndex;
 
 }up_health_bar_t;
 
@@ -22,6 +23,7 @@ typedef struct up_health_bar_t{
 up_health_bar_t healthbar_creation();
 void moveHealthBar(int ship_id,up_health_bar_t healing);
 
-void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program);
+void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program,int current_health,int max_health,
+                          int current_armor,int max_armor);
 
 #endif  //defined(__up_game__up_healthbar__)
