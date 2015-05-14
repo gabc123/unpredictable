@@ -27,7 +27,7 @@ Pthread_listen_datapipe_t *up_network_start_setup();
 void up_network_shutdown_deinit();
 
 
-int up_network_getNewMovement(struct up_actionState *states,int max);
+int up_network_getNewMovement(struct up_actionState *states,int max,int playerId);
 void up_network_sendNewMovement(struct up_actionState *states, Pthread_listen_datapipe_t *socket_data);
 
 

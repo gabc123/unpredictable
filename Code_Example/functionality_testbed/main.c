@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
 
-    int max_ship_count = 40;
+    int max_ship_count = 70;
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
     int max_others_count = 200;
@@ -92,7 +92,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = shipIndex_tmp;
+    shipIndex = 2;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -182,8 +182,8 @@ int main(int argc, char const *argv[])
     up_matrix4_t viewPerspectivMatrix;
 
 
-    struct up_actionState network_states_data[10];
-    int max_network_states = 10;
+    struct up_actionState network_states_data[50];
+    int max_network_states = 50;
     int i = 0;
     struct up_actionState noState = {0};
     for (i = 0; i < max_network_states; i++) {
@@ -211,7 +211,7 @@ int main(int argc, char const *argv[])
         //up_updatShipMatrixModel(&modelMatrix,&model,ship); // creates the modelMatrix for the ship
         //up_updateShipMovment(ship);
         up_network_sendNewMovement(&shipAction, connection_data);
-        network_state_recived = up_network_getNewMovement(network_states_data, max_network_states);
+        network_state_recived = up_network_getNewMovement(network_states_data, max_network_states,shipIndex);
 
         up_update_actions(&shipAction, network_states_data, network_state_recived,&funkarEj, sound);
         up_updateMovements();
@@ -223,6 +223,8 @@ int main(int argc, char const *argv[])
         
         up_interface_placement(&cam,interface_info);
 
+        
+        
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
 
         objectArray = up_ObjectsInView(in_cam,&numObjects, &cam);

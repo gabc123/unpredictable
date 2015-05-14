@@ -32,7 +32,7 @@ struct up_server_connection_info
     struct sockaddr_in server_info;
     int connected_clients;
     struct sockaddr_in client_infoArray[UP_MAX_CLIENTS];
-    
+    struct up_thread_queue *queue;
 };
 
 struct internal_server_state
@@ -72,7 +72,7 @@ unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInfo
 
 
 
-static struct up_server_connection_info *up_server_socket_start();
+//static struct up_server_connection_info *up_server_socket_start();
 
 
 
@@ -86,9 +86,13 @@ void *up_server_reciveing_thread(void *parm)
 #define BUFFER_SIZE 1024
     unsigned char recvBuff[BUFFER_SIZE];
     struct objUpdateInformation local_data = {0};
+    struct objUpdateInformation obj_zero = {0};
     
     unsigned long msglen = 0;
     int i = 0;
+    int userId = 0;
+    struct up_vec3 userPos = {0};
+    
     while (server_con->shutdown == 0) {
         msglen = 0;
         if ((msglen = recvfrom(server_con->socket_server, recvBuff, BUFFER_SIZE, 0, (struct sockaddr *)&client_sock,&client_sock_len))==-1) {
@@ -96,7 +100,7 @@ void *up_server_reciveing_thread(void *parm)
             perror("recfrom failed");
             break;
         }
-        
+
         for (i = 0; i < server_con->connected_clients; i++) {
             if(server_con->client_infoArray[i].sin_addr.s_addr == client_sock.sin_addr.s_addr)
             {
@@ -104,21 +108,28 @@ void *up_server_reciveing_thread(void *parm)
             }
         }
         
+        userId = i;
+        
         if (i == server_con->connected_clients ) {
             if (i >=  UP_MAX_CLIENTS) {
                 continue;
             }
             server_con->client_infoArray[i] = client_sock;
+            userId = i;
             server_con->connected_clients++;
         }
+        
         if (msglen < sizeof(local_data.data)) {
             printf("\ntrash msg %lu",msglen);
             continue;
         }
-        printf("\npacket recived with length: %lu",msglen);
+        local_data = obj_zero;
         up_copyBufferIntoObject(recvBuff,&local_data);
+        userPos = local_data.data.pos;
+        printf("\npacket recived %lu,User:%d,idx: %d pos: %f %f %f",msglen,userId,local_data.data.action.objectID.idx, userPos.x,userPos.y,userPos.z);
+        local_data.id = userId;
         
-        up_writeToNetworkDatabuffer(&local_data);
+        up_writeToNetworkDatabuffer(server_con->queue,&local_data);
         
         //printf("\nmsg length: %lu",msglen);
     }
@@ -154,7 +165,7 @@ void *up_server_send_thread(void *parm)
         while (packet_read <= 0)
         {
             
-            packet_read = up_readNetworkDatabuffer(local_data, length);
+            packet_read = up_readNetworkDatabuffer(server_con->queue,local_data, length);
             spin_counter++;
             usleep(100);
             if (spin_counter > 2000) {
@@ -214,8 +225,10 @@ void up_server_shutdown_cleanup(struct internal_server_state *server_state)
         pthread_join(server_state->server_thread[i], NULL);
     }
     
+    
     free(server_state->server);
     free(server_state->server_thread);
+    
     up_concurrentQueue_shutdown_deinit();
     printf("\nserver cleanup done");
     
@@ -302,6 +315,11 @@ struct internal_server_state *up_server_startup()
         UP_ERROR_MSG("queue failed");
     }
     struct up_server_connection_info *server = up_server_gameplay_start(22422);
+    
+    server->queue = up_concurrentQueue_new();
+    if (server->queue == NULL) {
+        UP_ERROR_MSG("failed to start queue");
+    }
     
     pthread_t *server_thread = malloc(sizeof(pthread_t)*2);
     pthread_create(&server_thread[0],NULL,&up_server_reciveing_thread,server);
