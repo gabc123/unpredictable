@@ -86,10 +86,13 @@ void *up_server_reciveing_thread(void *parm)
 #define BUFFER_SIZE 1024
     unsigned char recvBuff[BUFFER_SIZE];
     struct objUpdateInformation local_data = {0};
+    struct objUpdateInformation obj_zero = {0};
     
     unsigned long msglen = 0;
     int i = 0;
     int userId = 0;
+    struct up_vec3 userPos = {0};
+    
     while (server_con->shutdown == 0) {
         msglen = 0;
         if ((msglen = recvfrom(server_con->socket_server, recvBuff, BUFFER_SIZE, 0, (struct sockaddr *)&client_sock,&client_sock_len))==-1) {
@@ -105,7 +108,7 @@ void *up_server_reciveing_thread(void *parm)
             }
         }
         
-        userId = i - 1;
+        userId = i;
         
         if (i == server_con->connected_clients ) {
             if (i >=  UP_MAX_CLIENTS) {
@@ -120,9 +123,10 @@ void *up_server_reciveing_thread(void *parm)
             printf("\ntrash msg %lu",msglen);
             continue;
         }
-        printf("\npacket recived with length: %lu",msglen);
+        local_data = obj_zero;
         up_copyBufferIntoObject(recvBuff,&local_data);
-        
+        userPos = local_data.data.pos;
+        printf("\npacket recived %lu,User:%d,idx: %d pos: %f %f %f",msglen,userId,local_data.data.action.objectID.idx, userPos.x,userPos.y,userPos.z);
         local_data.id = userId;
         
         up_writeToNetworkDatabuffer(server_con->queue,&local_data);
