@@ -221,8 +221,7 @@ void up_server_shutdown_cleanup(struct internal_server_state *server_state)
     
 }
 
-// bind the listening port
-static struct up_server_connection_info *up_server_socket_start()
+static struct up_server_connection_info *up_server_account_start(unsigned int port)
 {
     struct sockaddr_in sock_server = {0};
     
@@ -239,7 +238,44 @@ static struct up_server_connection_info *up_server_socket_start()
     memset((char *)&sock_server, 0, sizeof(sock_server));
     
     sock_server.sin_family = AF_INET;
-    sock_server.sin_port = htons(22422);
+    sock_server.sin_port = htons(port);
+    sock_server.sin_addr.s_addr = htonl(INADDR_ANY);
+    
+    if (bind(socket_server, (struct sockaddr*)&sock_server, sizeof(struct sockaddr)) == -1) {
+        printf("bind failure");
+        close(socket_server);
+        perror("bind error");
+        return NULL;
+    }
+    
+    struct up_server_connection_info *server = malloc(sizeof(struct up_server_connection_info));
+    server->socket_server = socket_server;
+    server->server_info = sock_server;
+    return server;
+    
+    
+}
+
+
+// bind the listening port
+static struct up_server_connection_info *up_server_gameplay_start(unsigned int port)
+{
+    struct sockaddr_in sock_server = {0};
+    
+    
+    int socket_server;
+    //unsigned int sock_client_len = sizeof(sock_client);
+    
+    if((socket_server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    {
+        printf("err, failed scoket\n");
+        return NULL;
+    }
+    
+    memset((char *)&sock_server, 0, sizeof(sock_server));
+    
+    sock_server.sin_family = AF_INET;
+    sock_server.sin_port = htons(port);
     sock_server.sin_addr.s_addr = htonl(INADDR_ANY);
     
     if (bind(socket_server, (struct sockaddr*)&sock_server, sizeof(struct sockaddr)) == -1) {
@@ -265,9 +301,9 @@ struct internal_server_state *up_server_startup()
     {
         UP_ERROR_MSG("queue failed");
     }
-    struct up_server_connection_info *server = up_server_socket_start();
-    pthread_t *server_thread = malloc(sizeof(pthread_t)*2);
+    struct up_server_connection_info *server = up_server_gameplay_start(22422);
     
+    pthread_t *server_thread = malloc(sizeof(pthread_t)*2);
     pthread_create(&server_thread[0],NULL,&up_server_reciveing_thread,server);
     pthread_create(&server_thread[1],NULL,&up_server_send_thread,server);
     

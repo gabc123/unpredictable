@@ -12,6 +12,9 @@
 #include "up_error.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h> //we need usleep
+
 
 
 #define UP_BUFFER_1 0
@@ -40,7 +43,7 @@ struct up_concurrentQueue
 };
 
 
-static struct up_concurrentQueue *internal_concurrentQueue = NULL;
+//static struct up_concurrentQueue *internal_concurrentQueue = NULL;
 
 
 static struct up_linkElement *linkElement_alloc();
@@ -192,6 +195,7 @@ static struct up_linkElement *linkElement_alloc()
 
 struct up_concurrentQueue_gabageRecycler
 {
+    
     struct up_linkElement *start;
     struct up_linkElement *end;
 };
@@ -202,25 +206,35 @@ struct up_concurrentQueue_gabageRecycler internal_queueRecycler;
 // else it will allocate a new link
 static struct up_linkElement *linkElement_create()
 {
-    
-    struct up_linkElement *link = internal_queueRecycler.start;
-    if (link == NULL) {
-        return linkElement_alloc();
-    }
-    
-    
-    //we do not want to return the last element
-    if (internal_queueRecycler.start == internal_queueRecycler.end)
-    {
-        return linkElement_alloc();
-    }
-    
-    
-    //when a link gets recycle there is a chance that the end link has not been updated
-    // in that case we check to se if last , if so alloc a new linkelement
-    if (link->next == NULL) {
-        return linkElement_alloc();
-    }
+    int loopCounter = 0;
+    struct up_linkElement *link = NULL;
+    do {
+        loopCounter++;
+        if (loopCounter >= 1000) {
+            usleep(10); //sleep to reduce contension on the internal_queueRecycler
+        }
+        link = internal_queueRecycler.start;
+        if (link == NULL) {
+            return linkElement_alloc();
+        }
+        
+        
+        //we do not want to return the last element
+        if (internal_queueRecycler.start == internal_queueRecycler.end)
+        {
+            return linkElement_alloc();
+        }
+        
+        
+        //when a link gets recycle there is a chance that the end link has not been updated
+        // in that case we check to se if last , if so alloc a new linkelement
+        if (link->next == NULL) {
+            return linkElement_alloc();
+        }
+        
+        // now we can relink the list and return our recycled link
+        // makes sure we have not gotten a failed link
+    } while (__sync_bool_compare_and_swap(&internal_queueRecycler.start, link, link->next) == 0);
     
     // now we can relink the list and return our recycled link
     internal_queueRecycler.start = link->next;
@@ -261,11 +275,10 @@ static void linkElement_recycle(struct up_linkElement * fromLink,struct up_linkE
     internal_queueRecycler.end = toLink;
 }
 
-
-int up_concurrentQueue_start_setup()
+struct up_concurrentQueue *up_concurrentQueue_new()
 {
-    internal_concurrentQueue = malloc(sizeof(struct up_concurrentQueue));
-    if (internal_concurrentQueue == NULL) {
+    struct up_concurrentQueue *queue = malloc(sizeof(struct up_concurrentQueue));
+    if (queue == NULL) {
         UP_ERROR_MSG("malloc failed");
         return 0;
     }
@@ -275,24 +288,31 @@ int up_concurrentQueue_start_setup()
     struct up_linkElement *link1 = linkElement_alloc();
     if (link1 == NULL) {
         UP_ERROR_MSG("malloc failed");
-        return 0;
+        return NULL;
     }
-    internal_concurrentQueue->first[UP_BUFFER_1] = link1;
-    internal_concurrentQueue->last[UP_BUFFER_1] = link1;
+    queue->first[UP_BUFFER_1] = link1;
+    queue->last[UP_BUFFER_1] = link1;
     
     
     struct up_linkElement *link2 = linkElement_alloc();
     if (link2 == NULL) {
         UP_ERROR_MSG("malloc failed");
-        return 0;
+        return NULL;
     }
-    internal_concurrentQueue->first[UP_BUFFER_2] = link2;
-    internal_concurrentQueue->last[UP_BUFFER_2] = link2;
+    queue->first[UP_BUFFER_2] = link2;
+    queue->last[UP_BUFFER_2] = link2;
     
-    internal_concurrentQueue->reader = UP_BUFFER_1;
+    queue->reader = UP_BUFFER_1;
     //SDL_AtomicSet(&internal_concurrentQueue->writer_head, UP_BUFFER_2);
-    internal_concurrentQueue->writer_head = UP_BUFFER_2;
-    
+    queue->writer_head = UP_BUFFER_2;
+    return queue;
+}
+
+
+// this setup the garbage collection for all the queues
+// so every thing can run,
+int up_concurrentQueue_start_setup()
+{
     struct up_linkElement *garbage = linkElement_alloc();
     if (garbage == NULL) {
         UP_ERROR_MSG("malloc failed");
