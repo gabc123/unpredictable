@@ -41,6 +41,6 @@ void up_assets_shutdown_deinit(struct up_assets *assets);
 struct up_font_assets * up_font_start_setup();
 void up_displayText(char *text_string,int length,struct up_vec3 *pos,
                     struct up_vec3 *scale,struct up_font_assets *fonts,
-                    struct shader_module *shaderprog);
+                    struct shader_module *shaderprog,float step);
 
 #endif /* defined(__testprojectshader__up_assets__) */

@@ -71,18 +71,18 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
     struct up_vec3 pos;
     struct up_vec3 scale;
     
-    pos.x = -0.17;
-    pos.y = -0.45;
-    pos.z = -0.5;
+    pos.x = 0.17;
+    pos.y = 0.45;
+    pos.z = 0.0;
     
-    scale.x = 0.5;
-    scale.y = 0.5;
-    scale.z = 0.5;
+    scale.x = 0.05;
+    scale.y = 0.05;
+    scale.z = 0.05;
     
-    char *text = "hejkds<djcpdo<cszodps";
+    char *text = "hejkdsdjcpdoszodps";
     int length = (int)strlen(text);
     
-    up_displayText(text,length, &pos, &scale, font_assets, shader_program);
+    up_displayText(text,length, &pos, &scale, font_assets, shader_program,0.02);
 
 }
 

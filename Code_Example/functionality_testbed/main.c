@@ -222,6 +222,9 @@ int main(int argc, char const *argv[])
 
         up_updateMatrix(transformationArray, &viewPerspectivMatrix, objectArray, numObjects);
         
+        
+        UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
+        
         up_gamePlayInterface(font_assets,shader_menu);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);

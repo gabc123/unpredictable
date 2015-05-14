@@ -17,7 +17,7 @@
 
 void up_displayText(char *text_string,int length,struct up_vec3 *pos,
                     struct up_vec3 *scale,struct up_font_assets *fonts,
-                    struct shader_module *shaderprog)
+                    struct shader_module *shaderprog, float step)
 {
     struct up_vec3 localpos = *pos;
     up_matrix4_t transform;
@@ -36,7 +36,7 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
         index = text_string[i] - 22;
         up_draw_mesh(&fonts->letters[index]);
         //up_draw_mesh(fonts->); // skriver ut c
-        localpos.x += 0.0225;
+        localpos.x += 0.0225 + step;
         
         
     }
