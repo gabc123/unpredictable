@@ -146,6 +146,10 @@ int main(int argc, char const *argv[])
 
     up_health_bar_t healthBar;
     healthBar = healthbar_creation();
+    
+    up_stats_index_t interface_info;
+    interface_info = up_create_statsObject();
+
 
     //up_matrix4_t identity = up_matrix4identity();
 
@@ -188,10 +192,11 @@ int main(int argc, char const *argv[])
     int network_state_recived = 0;
     Pthread_listen_datapipe_t *connection_data = up_network_start_setup();
 
-    int current_health=59;
-    int max_health=100;
-    int current_armor = 70;
-    int max_armor = 100;
+    up_player_stats_t stats;
+    stats.current_health = 59;
+    stats.max_health = 100;
+    stats.current_armor = 70;
+    stats.max_armor = 100;
 
     while(status)
     {
@@ -211,9 +216,12 @@ int main(int argc, char const *argv[])
         up_update_actions(&shipAction, network_states_data, network_state_recived,&funkarEj, sound);
         up_updateMovements();
         up_checkCollision();
-        moveHealthBar(shipIndex,healthBar);
+        
+        up_moveHealthBar(shipIndex,healthBar);
 
         up_update_camera(&cam, ship);
+        
+        up_interface_placement(&cam,interface_info);
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
 
@@ -229,7 +237,7 @@ int main(int argc, char const *argv[])
         
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
         
-        up_gamePlayInterface(font_assets,shader_menu,current_health,max_health,current_armor,max_armor);
+        up_gamePlayInterface(font_assets,shader_menu,stats);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
 
