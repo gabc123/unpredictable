@@ -32,6 +32,9 @@ typedef struct up_player_stats{
     int max_health;
     int current_armor;
     int max_armor;
+    int missile;
+    int bullets;
+    int laser;
 
 }up_player_stats_t;
 
@@ -42,7 +45,7 @@ void up_moveHealthBar(int ship_id,up_health_bar_t healing);      //puts the righ
 up_stats_index_t up_create_statsObject();
 void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObject);
 
-void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program,up_player_stats_t stats);
+void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program,up_player_stats_t *stats);
 
 
 #endif  //defined(__up_game__up_healthbar__)
