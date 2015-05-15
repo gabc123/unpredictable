@@ -22,10 +22,13 @@ struct __attribute__((__packed__)) up_packed_data
     float speed;
 };
 
+#define UP_QUEUE_DATA_SIZE 768
 struct objUpdateInformation
 {
     int id;
-    struct up_packed_data data; // packed structure to prevent padding when tranforming data into unsigned char to transmitt over the network
+    int length;
+    unsigned char data[UP_QUEUE_DATA_SIZE];
+    //struct up_packed_data data; // packed structure to prevent padding when tranforming data into unsigned char to transmitt over the network
 };
 
 // forward decleration
