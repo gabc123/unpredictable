@@ -285,7 +285,6 @@ void *up_server_gamplay_reciveing_thread(void *parm)
     unsigned long msglen = 0;
     int i = 0;
     int userId = 0;
-    struct up_vec3 userPos = {0};
     
     while (server_con->shutdown == 0) {
         msglen = 0;
@@ -313,12 +312,14 @@ void *up_server_gamplay_reciveing_thread(void *parm)
             server_con->connected_clients++;
         }
         
-        if (msglen < sizeof(local_data.data)) {
-            printf("\ntrash msg %lu",msglen);
-            continue;
+        if ((msglen > 5) && (msglen < UP_QUEUE_DATA_SIZE)) {
+            local_data.length = (int)msglen;
+            generic_copyElement((unsigned int)msglen, local_data.data, recvBuff);
+            up_writeToNetworkDatabuffer(server_con->queue,&local_data);
+            
         }
-        local_data = obj_zero;
-        up_copyBufferIntoObject(recvBuff,&local_data);
+        
+        //up_copyBufferIntoObject(recvBuff,&local_data);
         /*userPos = local_data.data.pos;
         printf("\npacket recived %lu,User:%d,idx: %d pos: %f %f %f",msglen,userId,local_data.data.action.objectID.idx, userPos.x,userPos.y,userPos.z);
         local_data.id = userId;
