@@ -15,7 +15,6 @@ typedef struct up_health_bar{
 
     int greenIndex;
     int redIndex;
-    int heartIndex;
 
 }up_health_bar_t;
 
@@ -23,18 +22,27 @@ typedef struct up_stats_index{
     
     int armorIndex;
     int heartIndex;
+    int frameLeftIndex;
+    int frameRightIndex;
+    int bulletIndex;
+    int missileIndex;
+    int laserIndex;
     
 }up_stats_index_t;
+
+typedef struct up_player_weapons{
+    
+    int missile;
+    int bullets;
+    int laser;
+    
+}up_player_weapons_t;
 
 typedef struct up_player_stats{
     
     int current_health;
-    int max_health;
     int current_armor;
-    int max_armor;
-    int missile;
-    int bullets;
-    int laser;
+    up_player_weapons_t weapons;
 
 }up_player_stats_t;
 

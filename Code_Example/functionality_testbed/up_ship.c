@@ -8,6 +8,7 @@
 #include "up_filereader.h"
 #include "up_assets.h"
 #include "up_music.h"
+#include <math.h>
 #define NAMESIZE 100
 
 
