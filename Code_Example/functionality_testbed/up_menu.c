@@ -32,8 +32,8 @@ enum menu_states
     mainMenu,
     loginMenu,
     usernameBar,
-    quitWindow
-
+    quitWindow,
+    settings
 
 };
 
@@ -43,9 +43,23 @@ enum loginBar_state
     writeOff
 };
 
+enum soundEffect_state{
+    
+    soundOn,
+    soundOff
+};
+
+enum music_state{
+    
+    musicOn,
+    musicOff
+};
+
 struct navigationState{
     enum menu_states state;
     enum loginBar_state status;
+    enum soundEffect_state toggle;
+    enum music_state toogle2;
 };
 
 struct userData{
@@ -55,14 +69,16 @@ struct userData{
 };
 
 
-int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar, struct userData *user_data);
+int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar,
+                        struct navigationState *soundToggle, struct navigationState *musicToogle,
+                        struct userData *user_data, struct soundLib *sound);
 
 
 int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
 
     int status=1;
     
-    //MUSIC
+    //THEME MUSIC
     
     up_music(0, -1, sound);
     
@@ -86,20 +102,32 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
     if (textureQuiteWindow==NULL) {
         textureQuiteWindow = up_load_texture("lala.png");
     }
-
+    
+    struct up_texture_data *textureCogWheel = up_load_texture("cogWheel.png");
+    if (textureCogWheel==NULL) {
+        textureCogWheel = up_load_texture("lala.png");
+    }
+    
+    struct up_texture_data *textureSettingsOverlay = up_load_texture("settings.png");
+    if(textureSettingsOverlay == NULL){
+        textureSettingsOverlay = up_loadImage_withAlpha("lala.png");
+    }
+    
 
     //TRANSFORMS
     up_matrix4_t transformLoginRegisterBottons;
     up_matrix4_t transformBackground;
     up_matrix4_t transformLoginOverlay;
     up_matrix4_t transformQuiteWindow;
-
+    up_matrix4_t transformCogWheel;
+    up_matrix4_t transformSettingsOverlay;
 
     //TRANSLATION TRANSFORMS
     up_matrix4_t translationLoginRegisterButtons;
     up_matrix4_t translationLoginOverlay;
     up_matrix4_t translationQuiteWindow;
-
+    up_matrix4_t translationCogWheel;
+    up_matrix4_t translationSettingsOverlay;
 
     //MESH LOADING
     struct up_mesh *background = up_meshMenuBackground();
@@ -107,7 +135,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
     struct up_mesh *bottonLogin2 =up_meshBotton(0,0.1,0,-0.25);
     struct up_mesh *overlay = up_meshLoginOverlay();
     struct up_mesh *quiteWindow = up_meshQuitwindow();
-
+    struct up_mesh *cogWheel = up_cogWheel();
+    struct up_mesh *settingsOverlay = up_settingsOverlay();
+    
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
                                           {0,0,0},
@@ -145,20 +175,43 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
     up_getModelViewPerspective(&transformQuiteWindow, &translationQuiteWindow, &identity, &identity);
 
 
-
     //FONT
     struct up_font_assets *fonts = up_font_start_setup();
     struct up_vec3 textpos = {-0.17, 0.045, 0};
     struct up_vec3 textscale = {0.025,0.025,0.025};
 
+    //COGWHEEL
+    
+    struct up_modelRepresentation scale4 ={{0,0,0},     //scaling
+                                           {0,0,0},
+                                           {0.4,0.4,0.4}};
 
+    up_matrixModel(&translationCogWheel, &scale4.pos, &scale4.rot, &scale4.scale);
+    
+    up_getModelViewPerspective(&transformCogWheel, &translationCogWheel, &identity, &identity);
+    
+    
+    //SETTINGS OVERLAY
+    
+    struct up_modelRepresentation scale5={{0,0,0},     //scaling
+                                          {0,0,0},
+                                          {1,1,1}};
 
+    up_matrixModel(&translationSettingsOverlay, &scale5.pos, &scale5.rot, &scale5.scale);
+    
+    up_getModelViewPerspective(&transformSettingsOverlay, &translationSettingsOverlay, &identity, &identity);
+    
     //NAVIGATION
     struct navigationState navigation;
     struct navigationState loginBar;
+    struct navigationState soundToggle;
+    struct navigationState musicToggle;
 
     navigation.state = mainMenu;
     loginBar.status = writeOff;
+    soundToggle.toggle = soundOn;
+    musicToggle.toogle2 = musicOn;
+    
 
 
     //USER DATA
@@ -179,26 +232,19 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
     {
         up_updateFrameTickRate();
 
-
-
         UP_renderBackground();                      //Clears the buffer and results an empty window.
         UP_shader_bind(shaderprog);                 //
 
-        status = up_menuEventHandler(&navigation, &loginBar, &user_data);
-        //do menu stuff
-
+        status = up_menuEventHandler(&navigation, &loginBar, &soundToggle, &musicToggle, &user_data, sound);
+        
+        //STATUS FLAG FOR MAIN GAME LOOP
         if (status==2) {
             break;
         }
-
-        //up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
-
-        //up_getModelViewPerspective(&transform, &translation, &identity, &identity);
-
-        //dispMat(&transform);
-        UP_shader_update(shaderprog,&transformBackground);    //background
+        
+        //BACKGROUND
+        UP_shader_update(shaderprog,&transformBackground);
         up_texture_bind(textureMenuBackground, 1);
-        //up_shader_update_sunligth(shaderprog,&identity);
         up_draw_mesh(background);
 
 
@@ -211,7 +257,11 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
                 UP_shader_update(shaderprog,&transformLoginRegisterBottons);     //button2
                 up_texture_bind(textureBottonLogin, 2);
                 up_draw_mesh(bottonLogin2);
-
+                
+                UP_shader_update(shaderprog,&translationCogWheel);     //settings
+                up_texture_bind(textureCogWheel, 3);
+                up_draw_mesh(cogWheel);
+                
                 break;
 
             case loginMenu:
@@ -226,7 +276,6 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
                     up_displayText(teststr1, (int)strlen(teststr1), &testtextpos1, &textscale, fonts, shaderprog);
                     up_displayText(teststr2, (int)strlen(teststr2), &testtextpos2, &textscale, fonts, shaderprog);
 
-
                 }
 
 
@@ -239,7 +288,19 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
                 up_draw_mesh(quiteWindow);
 
                 break;
-
+                
+            case settings:
+                
+                UP_shader_update(shaderprog,&translationCogWheel);     //settings
+                up_texture_bind(textureCogWheel, 3);
+                up_draw_mesh(cogWheel);
+                
+                UP_shader_update(shaderprog, &translationSettingsOverlay);
+                up_texture_bind(textureSettingsOverlay, 3);
+                up_draw_mesh(settingsOverlay);
+                
+                break;
+                
             default:
                 break;
         }
@@ -249,7 +310,6 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
 
         UP_openGLupdate();
 
-        //transform = up_matrixModel(&model.pos, &model.rot, &model.scale);
     }
 
 
@@ -258,7 +318,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
 }
 
 
-int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar, struct userData *user_data)
+int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar,
+                        struct navigationState *soundToggle, struct navigationState *musicToogle,
+                        struct userData *user_data, struct soundLib *sound)
 {
 
     int flag = 1;
@@ -333,6 +395,10 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                 if (navigation->state == loginMenu) {
                     navigation->state= mainMenu;
                 }
+                
+                if (navigation->state == settings) {
+                    navigation->state= mainMenu;
+                }
             }
 
 
@@ -400,8 +466,72 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                             }
                         }
                     }
+                    
+                    
+                    //COGWHEEL BUTTON
+                    
+                    if(xf > 0.600000 && xf < 0.837500){
+                        if (yf < -0.502273 && yf > -0.675000){
+                            
+                            if (navigation->state == mainMenu) {
+                                navigation->state= settings;
+                            }
+                        }
+                    }
 
-
+                    //SETTINGS OVERLAY
+                    
+                    if(xf > -0.135938 && xf < 0.132812){            //SOUND EFFECTS
+                        if(yf > 0.034091 && yf < 0.145455){
+                            printf("TEST SOUND\n");
+                            if(navigation->state == settings){
+                                
+                                if (soundToggle->toggle == soundOn) {
+                                    sound->toogleSoundEffects=0;
+                                    soundToggle->toggle= soundOff;
+                                    
+                                    printf("Sound OFF\n");
+                                }
+                                
+                                else if(soundToggle->toggle == soundOff){
+                                    sound->toogleSoundEffects=1;
+                                    soundToggle->toggle= soundOn;
+                                    
+                                    up_music(1, 0, sound);
+                                    
+                                    printf("Sound ON\n");
+                                    
+                                }
+                                
+                            }
+                        }
+                    }
+                    
+                    
+                    if(xf > -0.135938 && xf < 0.132812){            //MUSIC
+                        if(yf > 0.195455 && yf < 0.309091){
+                            printf("TEST MUSIC\n");
+                            if (navigation->state == settings) {
+                                
+                                if (musicToogle->toogle2 == musicOn) {
+                                    sound->toogleThemeMusic = 0;
+                                    musicToogle->toogle2 = musicOff;
+                                    
+                                    Mix_HaltChannel(0);
+                                    
+                                      printf("music OFF\n");
+                                }
+                                else if (musicToogle->toogle2 == musicOff){
+                                    sound->toogleThemeMusic = 1;
+                                    musicToogle->toogle2 = musicOn;
+                                    
+                                    up_music(0, -1, sound);
+                                    
+                                    printf("music ON\n");
+                                }
+                            }
+                        }
+                    }
                     break;
 
                 default:

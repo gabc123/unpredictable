@@ -18,7 +18,8 @@
 struct soundLib{
     Mix_Chunk *data[MAXSOUND];
     int nrOfTracks;
-    
+    int toogleSoundEffects;
+    int toogleThemeMusic;
 };
 
 struct soundLib *up_setupSound();

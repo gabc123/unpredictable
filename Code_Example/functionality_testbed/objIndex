@@ -2,6 +2,7 @@
 1.0 1.0 1.0 astriod.obj astriod.png
 10.0 10.0 10.0 magnusSuperSun.obj magnusSuperSun.png
 1.0 1.0 1.0 missileMagnus.obj missileMagnus.png
-1.0 1.0 1.0 redMagnus.obj redMagnus.png
-10.0 10.0 10.0 greenMagnus.obj greenMagnus.png
+2.0 6.0 6.0 redMagnusNew.obj redMagnus.png
+2.0 6.0 6.0 greenMagnusNew.obj greenMagnus.png
 1.0 1.0 1.0 satelitMagnus.obj satelitMagnus.png
+15.0 15.0 15.0 minorMagnus.obj minorMagnus.png
