@@ -86,7 +86,7 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     struct up_objectInfo obj;
     obj.modelId = modelId;
 
-    //internal assets is a static global
+    //internal_assets is a static global
     obj.scale = internal_assets->scaleArray[modelId];
 
     fallbackHitbox(&obj);
@@ -112,21 +112,24 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
 
     //struct load item;
     testObj= up_loadObjModel(item->obj);
-
-    for(i=0; i< testObj->vertex_length; i++){
-        if(xmax<testObj->vertex[i].pos.x)
-            xmax=testObj->vertex[i].pos.x;
-        if(ymax<testObj->vertex[i].pos.y)
-            ymax=testObj->vertex[i].pos.y;
-        if(zmax<testObj->vertex[i].pos.z)
-            zmax=testObj->vertex[i].pos.z;
-        if(xmin>testObj->vertex[i].pos.x)
-            xmin=testObj->vertex[i].pos.x;
-        if(ymin>testObj->vertex[i].pos.y)
-            ymin=testObj->vertex[i].pos.y;
-        if(zmin<testObj->vertex[i].pos.z)
-            zmin=testObj->vertex[i].pos.z;
+    if (testObj != NULL) {
+        for(i=0; i< testObj->vertex_length; i++){
+            if(xmax<testObj->vertex[i].pos.x)
+                xmax=testObj->vertex[i].pos.x;
+            if(ymax<testObj->vertex[i].pos.y)
+                ymax=testObj->vertex[i].pos.y;
+            if(zmax<testObj->vertex[i].pos.z)
+                zmax=testObj->vertex[i].pos.z;
+            if(xmin>testObj->vertex[i].pos.x)
+                xmin=testObj->vertex[i].pos.x;
+            if(ymin>testObj->vertex[i].pos.y)
+                ymin=testObj->vertex[i].pos.y;
+            if(zmin<testObj->vertex[i].pos.z)
+                zmin=testObj->vertex[i].pos.z;
+        }
     }
+
+
     printf("xmax: %f ymax %f zmax %f xmin: %f ymin %f zmin %f\n", xmax,ymax,zmax, xmin,ymin,zmin);
 
     if (testObj !=NULL) {
@@ -233,7 +236,3 @@ void up_assets_shutdown_deinit(struct up_assets *assets)
     free(assets->scaleArray);
     free(assets);
 }
-
-/*
-    loadobject loads models listed in the objIndex file.
-*/

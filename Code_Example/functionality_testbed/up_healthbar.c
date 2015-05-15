@@ -162,9 +162,9 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
     pos.y = -0.7;
     pos.z = 0.0;
     
-    scale.x = 0.02;
-    scale.y = 0.02;
-    scale.z = 0.02;
+    scale.x = 0.04;
+    scale.y = 0.04;
+    scale.z = 0.04;
     
 
     sprintf(ship_health,"%d", stats->current_health);
