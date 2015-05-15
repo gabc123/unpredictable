@@ -47,6 +47,7 @@ int main(int argc, char const *argv[])
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
     int max_others_count = 200;
+    struct up_allCollisions allcollisions;
 
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
@@ -111,7 +112,7 @@ int main(int argc, char const *argv[])
     up_generate_randomize_satellite(40);        //satellite
     up_generate_randomize_spaceMine(80);        //space mine
 
-    
+
     struct up_font_assets *font_assets = up_font_start_setup();  //load font to inteface startup
     //up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
 
@@ -146,7 +147,7 @@ int main(int argc, char const *argv[])
 
     up_health_bar_t healthBar;
     healthBar = healthbar_creation();
-    
+
     up_stats_index_t interface_info;
     interface_info = up_create_statsObject();
 
@@ -206,7 +207,6 @@ int main(int argc, char const *argv[])
         up_updateFrameTickRate();
         status = UP_eventHandler(&currentEvent,&shipAction);
 
-
         //upnewtwork_getNewMovement(&ship);          // retrive any updates from the network
 
         //up_newtwork_getNewMovement(&ship);          // retrive any updates from the network
@@ -218,13 +218,13 @@ int main(int argc, char const *argv[])
 
         up_update_actions(&shipAction, network_states_data, network_state_recived,&funkarEj, sound);
         up_updateMovements();
-        up_checkCollision();
-        
+        up_checkCollision(&allcollisions);
+        up_handleCollision(&allcollisions);
+
         up_update_camera(&cam, ship);
-        
+
         up_moveHealthBar(shipIndex,healthBar);
         up_interface_placement(&cam,interface_info);
-
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
 
@@ -236,10 +236,10 @@ int main(int argc, char const *argv[])
         up_getViewPerspective(&viewPerspectivMatrix,&viewMatrix,&perspectiveMatrix);
 
         up_updateMatrix(transformationArray, &viewPerspectivMatrix, objectArray, numObjects);
-        
-        
+
+
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
-        
+
         up_gamePlayInterface(font_assets,shader_menu,&stats);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
