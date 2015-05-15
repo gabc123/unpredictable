@@ -20,14 +20,8 @@ typedef struct up_health_bar{
 
 typedef struct up_stats_index{
     
-    int armorIndex;
-    int heartIndex;
-    int frameLeftIndex;
-    int frameRightIndex;
-    int bulletIndex;
-    int missileIndex;
-    int laserIndex;
-    
+    int interfaceIndex[5];
+
 }up_stats_index_t;
 
 typedef struct up_player_weapons{

@@ -62,84 +62,51 @@ void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red)
 up_stats_index_t up_create_statsObject()
 {
     up_stats_index_t interfaceObject;
+    struct up_objectInfo interfaceObj[10];
+    int i=0,count=9;
     
-    struct up_objectInfo heart = up_asset_createObjFromId(8);
-    struct up_objectInfo armor = up_asset_createObjFromId(10);
-    struct up_objectInfo frameLeft = up_asset_createObjFromId(11);
-    struct up_objectInfo frameRight = up_asset_createObjFromId(12);
-    struct up_objectInfo bullet = up_asset_createObjFromId(13);
-    struct up_objectInfo missile = up_asset_createObjFromId(14);
-    struct up_objectInfo laser = up_asset_createObjFromId(15);
-
-    
-    heart.angle = 0;
-    armor.angle = 0;
-    frameLeft.angle = 0;
-    frameRight.angle = 0;
-    bullet.angle = 0;
-    missile.angle = 0;
-    laser.angle = 0;
-    
-    interfaceObject.heartIndex = up_unit_add(up_others_type,heart);
-    interfaceObject.armorIndex = up_unit_add(up_others_type,armor);
-    interfaceObject.frameLeftIndex = up_unit_add(up_others_type, frameLeft);
-    interfaceObject.frameRightIndex = up_unit_add(up_others_type, frameRight);
-    interfaceObject.bulletIndex = up_unit_add(up_others_type, bullet);
-    interfaceObject.missileIndex = up_unit_add(up_others_type, missile);
-    interfaceObject.laserIndex = up_unit_add(up_others_type, laser);
-
+    for(i=0; i<5; i++){
+        interfaceObj[i] = up_asset_createObjFromId(count);
+        interfaceObj[i].angle = 0;
+        interfaceObject.interfaceIndex[i] = up_unit_add(up_others_type,interfaceObj[i]);
+        count++;
+    }
 
 
     return interfaceObject;
 }
 
+
 void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObject)
 {
+    int i;
+    struct up_objectInfo *interfaceObj[5];
     
-    struct up_objectInfo *heart = up_unit_objAtIndex(up_others_type,interfaceObject.heartIndex);
-    struct up_objectInfo *armor = up_unit_objAtIndex(up_others_type,interfaceObject.armorIndex);
-//    struct up_objectInfo *frameLeft = up_unit_objAtIndex(up_others_type,interfaceObject.frameLeftIndex);
-//    struct up_objectInfo *frameRight = up_unit_objAtIndex(up_others_type,interfaceObject.frameRightIndex);
-    struct up_objectInfo *bullet = up_unit_objAtIndex(up_others_type,interfaceObject.bulletIndex);
-    struct up_objectInfo *missile = up_unit_objAtIndex(up_others_type,interfaceObject.missileIndex);
-    struct up_objectInfo *laser = up_unit_objAtIndex(up_others_type,interfaceObject.laserIndex);
+    for(i=0; i<5; i++){
+        interfaceObj[i] = up_unit_objAtIndex(up_others_type,interfaceObject.interfaceIndex[i]);
+        interfaceObj[i]->pos = cam->eye;
+    }
+    
+    
+    interfaceObj[0]->pos.x += 3;             //interface plus
+    interfaceObj[0]->pos.y -= 2.3;
+    interfaceObj[0]->pos.z += 6;
 
-
-    heart->pos = cam->eye;
-    armor->pos = cam->eye;
-//    frameLeft->pos = cam->eye;
-//    frameRight->pos = cam->eye;
-    bullet->pos = cam->eye;
-    missile->pos = cam->eye;
-    laser->pos = cam->eye;
+    interfaceObj[1]->pos.x += 3.01;          //inteface shield
+    interfaceObj[1]->pos.y -= 2.55;
+    interfaceObj[1]->pos.z += 6;
     
-    heart->pos.x += 3;             //interface plus
-    heart->pos.y -= 2.3;
-    heart->pos.z += 6;
-
-    armor->pos.x += 3.01;          //inteface shield
-    armor->pos.y -= 2.55;
-    armor->pos.z += 6;
+    interfaceObj[2]->pos.x -= 2.77;             //interface bullet
+    interfaceObj[2]->pos.y -= 2.05;
+    interfaceObj[2]->pos.z +=6;
     
-//    frameLeft->pos.x += 2.85;       //interface frames
-//    frameLeft->pos.y -= 2.4;
-//    frameLeft->pos.z +=6;
-//    
-//    frameRight->pos.x -= 2.58;
-//    frameRight->pos.y -= 2.1;
-//    frameRight->pos.z +=6;
+    interfaceObj[3]->pos.x -= 2.77;             //interface missile
+    interfaceObj[3]->pos.y -= 2.3;
+    interfaceObj[3]->pos.z +=6;
     
-    bullet->pos.x -= 2.77;             //interface bullet
-    bullet->pos.y -= 2.05;
-    bullet->pos.z +=6;
-    
-    missile->pos.x -= 2.77;             //interface missile
-    missile->pos.y -= 2.3;
-    missile->pos.z +=6;
-    
-    laser->pos.x -= 2.77;             //interface laser
-    laser->pos.y -= 2.55;
-    laser->pos.z +=6;
+    interfaceObj[4]->pos.x -= 2.77;             //interface laser
+    interfaceObj[4]->pos.y -= 2.55;
+    interfaceObj[4]->pos.z +=6;
 }
 
 
