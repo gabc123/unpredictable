@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
     printf("Sdl setup done\n");
     int screen_width = 1280;
     int screen_hight = 800;
-    UP_openGLwindowSetup(screen_width,screen_hight,"Det fungerar !!!");
+    UP_openGLwindowSetup(screen_width,screen_hight,"UNPREDICTABLE");
     printf("opengl window setup done\n");
 
     //up_network_start_setup();
