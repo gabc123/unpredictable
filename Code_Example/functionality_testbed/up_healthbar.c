@@ -188,7 +188,7 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
         color.z = 1;
     }
     
-    up_displayText(ship_health,length, &pos, &scale, font_assets, shader_program,0.002,&color);
+    up_displayText(ship_health,length, &pos, &scale, font_assets, shader_program,0.02,&color);
     
     pos.x = -0.85;
     pos.y = -0.77;
@@ -207,7 +207,7 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
         color.z = 1;
     }
     
-    up_displayText(ship_armor,length, &pos, &scale, font_assets, shader_program,0.002,&color);
+    up_displayText(ship_armor,length, &pos, &scale, font_assets, shader_program,0.02,&color);
     
     pos.x = 0.87;
     pos.y = -0.607;
@@ -225,7 +225,7 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
         color.z = 1;
     }
     
-    up_displayText(ship_bullet,length, &pos, &scale, font_assets, shader_program,0.002,&color);
+    up_displayText(ship_bullet,length, &pos, &scale, font_assets, shader_program,0.02,&color);
     
     pos.x = 0.87;
     pos.y = -0.68;
@@ -243,7 +243,7 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
         color.z = 1;
     }
     
-    up_displayText(ship_missile,length, &pos, &scale, font_assets, shader_program,0.002,&color);
+    up_displayText(ship_missile,length, &pos, &scale, font_assets, shader_program,0.02,&color);
 
     pos.x = 0.87;
     pos.y = -0.758;
@@ -261,7 +261,7 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
         color.z = 1;
     }
     
-    up_displayText(ship_laser,length, &pos, &scale, font_assets, shader_program,0.002,&color);
+    up_displayText(ship_laser,length, &pos, &scale, font_assets, shader_program,0.02,&color);
 
 }
 

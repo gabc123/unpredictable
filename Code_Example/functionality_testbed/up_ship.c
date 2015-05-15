@@ -8,6 +8,7 @@
 #include "up_filereader.h"
 #include "up_assets.h"
 #include "up_music.h"
+#include <math.h>
 #define NAMESIZE 100
 
 
@@ -219,9 +220,9 @@ void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2,
     ylengthModel2 = hitModel2.ymax - hitModel2.ymin;
     zlengthModel2 = hitModel2.zmax - hitModel2.zmin;
 
-    distanceX = abs(object2[nrObj2].pos.x - object1[nrObj1].pos.x);
-    distanceY = abs(object2[nrObj2].pos.y - object1[nrObj1].pos.y);
-    distanceZ = abs(object2[nrObj2].pos.z - object1[nrObj1].pos.z);
+    distanceX = fabsf(object2[nrObj2].pos.x - object1[nrObj1].pos.x);
+    distanceY = fabsf(object2[nrObj2].pos.y - object1[nrObj1].pos.y);
+    distanceZ = fabsf(object2[nrObj2].pos.z - object1[nrObj1].pos.z);
 
     if(distanceX <= xlengthModel1 || distanceX <= xlengthModel2)
         if(distanceY <= ylengthModel1 ||distanceY <= ylengthModel2)
