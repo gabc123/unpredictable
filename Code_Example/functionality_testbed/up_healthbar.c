@@ -24,6 +24,9 @@ up_health_bar_t healthbar_creation()
     struct up_objectInfo healthBarGreen = up_asset_createObjFromId(6);
     struct up_objectInfo healthBarRed = up_asset_createObjFromId(5);
 
+    
+    healthBarGreen.angle = 0;
+    healthBarRed.angle = 0;
 
     green_and_red.greenIndex = up_unit_add(up_others_type,healthBarGreen);
     green_and_red.redIndex = up_unit_add(up_others_type,healthBarRed);
@@ -60,8 +63,11 @@ up_stats_index_t up_create_statsObject()
 {
     up_stats_index_t interfaceObject;
     
-    struct up_objectInfo heart = up_asset_createObjFromId(0);
-    struct up_objectInfo armor = up_asset_createObjFromId(0);
+    struct up_objectInfo heart = up_asset_createObjFromId(8);
+    struct up_objectInfo armor = up_asset_createObjFromId(8);
+    
+    heart.angle = 0;
+    armor.angle = 0;
     
     interfaceObject.heartIndex = up_unit_add(up_others_type,heart);
     interfaceObject.armorIndex = up_unit_add(up_others_type,armor);
@@ -79,8 +85,8 @@ void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObje
     armor->pos = cam->eye;
     
     heart->pos.x += 3;
-    heart->pos.y -= 2;
-    heart->pos.z += 7;
+    heart->pos.y -= 2.3;
+    heart->pos.z += 6;
 
     armor->pos.x += 2;
     armor->pos.y -= 2;
@@ -89,38 +95,50 @@ void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObje
 
 
 
-void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program,up_player_stats_t stats){
+void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program,up_player_stats_t *stats){
     
     struct up_vec3 pos;
     struct up_vec3 scale;
     
     char ship_health[10];
     char ship_armor[10];
+    char ship_ammunition[40];
+
     
-    pos.x = -0.92;
-    pos.y = -0.72;
+    pos.x = -0.85;
+    pos.y = -0.7;
     pos.z = 0.0;
     
-    scale.x = 0.0215;
-    scale.y = 0.0215;
-    scale.z = 0.0215;
+    scale.x = 0.04;
+    scale.y = 0.04;
+    scale.z = 0.04;
     
 
-    sprintf(ship_health,"%d/%d", stats.current_health,stats.max_health);
-    sprintf(ship_armor,"%d/%d", stats.current_armor,stats.max_armor);
+    sprintf(ship_health,"%d", stats->current_health);
+    sprintf(ship_armor,"%d/%d", stats->current_armor,stats->max_armor);
+    sprintf(ship_ammunition,"Missle %d Bullets %d Laser %d", stats->missile,stats->bullets,stats->laser);
 
     
     int length = (int)strlen(ship_health);
     
-    struct up_vec3 color = {0.0,8.0,3.0};
+    struct up_vec3 color = {20.118,0.0,0.0};
     
-    up_displayText(ship_health,length, &pos, &scale, font_assets, shader_program,0.0002,&color);
+    up_displayText(ship_health,length, &pos, &scale, font_assets, shader_program,0.02,&color);
     
     pos.x = -0.72;
     pos.y = -0.72;
     pos.z = 0.0;
     
-    up_displayText(ship_armor,length, &pos, &scale, font_assets, shader_program,0.0002,&color);
+    length = (int)strlen(ship_armor);
+    
+    up_displayText(ship_armor,length, &pos, &scale, font_assets, shader_program,0.02,&color);
+    
+    pos.x = 0;
+    
+    length = (int)strlen(ship_ammunition);
+    
+    up_displayText(ship_ammunition,length, &pos, &scale, font_assets, shader_program,0.02,&color);
+
 
 }
 

@@ -197,6 +197,9 @@ int main(int argc, char const *argv[])
     stats.max_health = 100;
     stats.current_armor = 70;
     stats.max_armor = 100;
+    stats.missile = 5;
+    stats.bullets = 100;
+    stats.laser = 50;
 
     while(status)
     {
@@ -217,14 +220,12 @@ int main(int argc, char const *argv[])
         up_updateMovements();
         up_checkCollision();
         
-        up_moveHealthBar(shipIndex,healthBar);
-
         up_update_camera(&cam, ship);
         
+        up_moveHealthBar(shipIndex,healthBar);
         up_interface_placement(&cam,interface_info);
 
-        
-        
+
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
 
         objectArray = up_ObjectsInView(in_cam,&numObjects, &cam);
@@ -239,7 +240,7 @@ int main(int argc, char const *argv[])
         
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
         
-        up_gamePlayInterface(font_assets,shader_menu,stats);
+        up_gamePlayInterface(font_assets,shader_menu,&stats);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
 

@@ -128,7 +128,7 @@ struct up_font_assets * up_font_start_setup()
     //Alphabet.png
     //struct up_texture_data *textureLetters = up_load_texture("letters.png");
     //struct up_texture_data *textureLetters = up_load_texture("letters_numbers.png");
-    struct up_texture_data *textureLetters = up_loadImage_withAlpha("letters_numbers");
+    struct up_texture_data *textureLetters = up_loadImage_withAlpha("font_final");
     
     if (textureLetters==NULL) {
         textureLetters = up_load_texture("lala.png");
