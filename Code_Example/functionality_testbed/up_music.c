@@ -55,6 +55,8 @@ struct soundLib *up_setupSound(){
     assert(sound != NULL);
     
     sound->nrOfTracks = 0;
+    sound->toogleSoundEffects = 1;
+    sound->toogleThemeMusic = 1;
 
     
     //CREATING SOUND
@@ -84,9 +86,14 @@ int up_music(int track, int loops, struct soundLib *sound){
     
     int success=1;
     
-    //PLAYS THE TRACK
-    success = Mix_PlayChannel( channel, sound->data[track], loops );   //(channel, sound, loop)   -1 loop is infinite
-    //error^
+    if (sound->toogleSoundEffects == 0  &&  track == 1) {
+        return success;
+    }
+        
+    else{
+         success = Mix_PlayChannel( channel, sound->data[track], loops );   //(channel, sound, loop)   -1 loop is infinite
+    }
+
     
     
     return success;
