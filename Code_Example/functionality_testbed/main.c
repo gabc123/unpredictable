@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
     printf("Sdl setup done\n");
     int screen_width = 1280;
     int screen_hight = 800;
-    UP_openGLwindowSetup(screen_width,screen_hight,"Det fungerar !!!");
+    UP_openGLwindowSetup(screen_width,screen_hight,"UNPREDICTABLE");
     printf("opengl window setup done\n");
 
     //up_network_start_setup();
@@ -112,7 +112,7 @@ int main(int argc, char const *argv[])
     up_generate_randomize_satellite(40);        //satellite
     up_generate_randomize_spaceMine(80);        //space mine
 
-
+    
     struct up_font_assets *font_assets = up_font_start_setup();  //load font to inteface startup
     //up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
 
@@ -147,9 +147,8 @@ int main(int argc, char const *argv[])
 
     up_health_bar_t healthBar;
     healthBar = healthbar_creation();
-
-    up_stats_index_t interface_info;
-    interface_info = up_create_statsObject();
+    
+    up_stats_index_t interface_info = up_create_statsObject();
 
 
     //up_matrix4_t identity = up_matrix4identity();
@@ -194,18 +193,17 @@ int main(int argc, char const *argv[])
     Pthread_listen_datapipe_t *connection_data = up_network_start_setup();
 
     up_player_stats_t stats;
-    stats.current_health = 59;
-    stats.max_health = 100;
-    stats.current_armor = 70;
-    stats.max_armor = 100;
-    stats.missile = 5;
-    stats.bullets = 100;
-    stats.laser = 50;
+    stats.current_health = 90;
+    stats.current_armor = 40;
+    stats.weapons.missile = 5;
+    stats.weapons.bullets = 100;
+    stats.weapons.laser = 50;
 
     while(status)
     {
         up_updateFrameTickRate();
         status = UP_eventHandler(&currentEvent,&shipAction);
+
 
         //upnewtwork_getNewMovement(&ship);          // retrive any updates from the network
 
@@ -222,9 +220,10 @@ int main(int argc, char const *argv[])
         up_handleCollision(&allcollisions);
 
         up_update_camera(&cam, ship);
-
+        
         up_moveHealthBar(shipIndex,healthBar);
         up_interface_placement(&cam,interface_info);
+
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
 
@@ -236,10 +235,10 @@ int main(int argc, char const *argv[])
         up_getViewPerspective(&viewPerspectivMatrix,&viewMatrix,&perspectiveMatrix);
 
         up_updateMatrix(transformationArray, &viewPerspectivMatrix, objectArray, numObjects);
-
-
+        
+        
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
-
+        
         up_gamePlayInterface(font_assets,shader_menu,&stats);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);

@@ -14,12 +14,22 @@ long int filesize(const char * filename)
 	long int size = 0;
 
 	// we open the file att the end,
-	FILE *fp = fopen(filename,"a");
+	FILE *fp = fopen(filename,"r");
 	// the file pointer is at the end, read the position
+    if (fp == NULL) {
+        UP_ERROR_MSG_STR("file do not exist",filename);
+        return 0;
+    }
+    fclose(fp); // we needed to check if the file exist,
+    
+    // now we open the file at the end, this will tell us the file size
+    fp = fopen(filename,"a");
+    // the file pointer is at the end, read the position
     if (fp == NULL) {
         UP_ERROR_MSG_STR("fopen failed, file:",filename);
         return 0;
     }
+    
 	size = ftell(fp);
     printf("\nfile loader: end: %ld",size);
 	//rewind the file so fp
@@ -38,7 +48,7 @@ struct UP_textHandler up_loadShaderFile(const char * filename)
 	long int size = filesize(filename) + 1;
     if (size == 1) {
         //size= 0;
-        UP_ERROR_MSG_INT("bad file size:",0);
+        UP_ERROR_MSG_STR("bad file size:",filename);
         return zero;
     }
 
