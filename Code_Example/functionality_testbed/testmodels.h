@@ -8,5 +8,7 @@ struct up_mesh *up_meshMenuBackground();
 struct up_mesh *up_meshBotton(float imageX, float imageY, float screenPosX, float screenPosY);
 struct up_mesh *up_meshLoginOverlay();
 struct up_mesh *up_meshQuitwindow();
+struct up_mesh *up_cogWheel();
+struct up_mesh *up_settingsOverlay();
 
 #endif
