@@ -195,7 +195,7 @@ void up_network_sendNewMovement(struct up_actionState *states, Pthread_listen_da
     packet->address.port = socket_data->addr.port;
     
     int len = up_copyObjectIntoBuffer(&objUpdate, packet->data);
-    len = len+ 1;
+    len = len;
     packet->len = len;
     SDLNet_UDP_Send(socket, -1, packet);
     
