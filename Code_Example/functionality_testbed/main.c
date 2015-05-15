@@ -92,7 +92,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 2;
+    shipIndex = 3;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -147,8 +147,7 @@ int main(int argc, char const *argv[])
     up_health_bar_t healthBar;
     healthBar = healthbar_creation();
     
-    up_stats_index_t interface_info;
-    interface_info = up_create_statsObject();
+    up_stats_index_t interface_info = up_create_statsObject();
 
 
     //up_matrix4_t identity = up_matrix4identity();
@@ -193,13 +192,11 @@ int main(int argc, char const *argv[])
     Pthread_listen_datapipe_t *connection_data = up_network_start_setup();
 
     up_player_stats_t stats;
-    stats.current_health = 59;
-    stats.max_health = 100;
-    stats.current_armor = 70;
-    stats.max_armor = 100;
-    stats.missile = 5;
-    stats.bullets = 100;
-    stats.laser = 50;
+    stats.current_health = 90;
+    stats.current_armor = 40;
+    stats.weapons.missile = 5;
+    stats.weapons.bullets = 100;
+    stats.weapons.laser = 50;
 
     while(status)
     {

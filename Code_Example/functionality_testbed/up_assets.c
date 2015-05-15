@@ -86,7 +86,7 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     struct up_objectInfo obj;
     obj.modelId = modelId;
 
-    //internal assets is a static global
+    //internal_assets is a static global
     obj.scale = internal_assets->scaleArray[modelId];
 
     fallbackHitbox(&obj);
@@ -129,7 +129,7 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
         }
     }
 
-    
+
     printf("xmax: %f ymax %f zmax %f xmin: %f ymin %f zmin %f\n", xmax,ymax,zmax, xmin,ymin,zmin);
 
     if (testObj !=NULL) {
@@ -236,7 +236,3 @@ void up_assets_shutdown_deinit(struct up_assets *assets)
     free(assets->scaleArray);
     free(assets);
 }
-
-/*
-    loadobject loads models listed in the objIndex file.
-*/
