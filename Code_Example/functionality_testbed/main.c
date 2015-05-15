@@ -147,8 +147,7 @@ int main(int argc, char const *argv[])
     up_health_bar_t healthBar;
     healthBar = healthbar_creation();
     
-    up_stats_index_t interface_info;
-    interface_info = up_create_statsObject();
+    up_stats_index_t interface_info = up_create_statsObject();
 
 
     //up_matrix4_t identity = up_matrix4identity();
