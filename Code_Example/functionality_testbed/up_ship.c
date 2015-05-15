@@ -202,24 +202,44 @@ double up_getFrameTimeDelta()
 
 //Sebastian + Tobias 2015-05-12
 //checks objects collisionboxes for whether a hit has occured or not
-void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int i, int j)
+void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int nrObj1, int nrObj2)
 {
-    struct Hitbox hitShip = {object2[i].pos.x+3.0, object2[i].pos.y+3.0, object2[i].pos.z+3.0,  object2[i].pos.x-3.0,  object2[i].pos.y-3.0,  object2[i].pos.z-3.0};
-    struct Hitbox otherModel ={object1[j].pos.x+1.0, object1[j].pos.y+1.0, object1[j].pos.z+5.0,  object1[j].pos.x-1.0,  object1[j].pos.y-1.0,  object1[j].pos.z-5.0};
+    float xlengthModel1, ylengthModel1, zlengthModel1;
+    float xlengthModel2, ylengthModel2, zlengthModel2;
+    float resX, resY, resZ;
 
-    // the smaler of the two objects need to be the one that checks whether it is insider te larger objects hitbox
-    if((hitShip.xmax > otherModel.xmax && hitShip.xmin < otherModel.xmax) || (hitShip.xmin < otherModel.xmin && hitShip.xmax > otherModel.xmin))
-        if((hitShip.ymax > otherModel.ymax && hitShip.ymin < otherModel.ymax) || (hitShip.ymin < otherModel.ymin && hitShip.ymax > otherModel.ymin))
-            if((hitShip.zmax > otherModel.zmax && hitShip.zmin < otherModel.zmax) || (hitShip.zmin < otherModel.zmin && hitShip.zmax > otherModel.ymin))
+    struct Hitbox hitModel1 ={object1[nrObj1].pos.x+1.0, object1[nrObj1].pos.y+1.0, object1[nrObj1].pos.z+1.0,  object1[nrObj1].pos.x-1.0,  object1[nrObj1].pos.y-1.0,  object1[nrObj1].pos.z-1.0};
+    struct Hitbox hitModel2 = {object2[nrObj2].pos.x+1.0, object2[nrObj2].pos.y+1.0, object2[nrObj2].pos.z+1.0,  object2[nrObj2].pos.x-1.0,  object2[nrObj2].pos.y-1.0,  object2[nrObj2].pos.z-1.0};
+
+    xlengthModel1 = hitModel1.xmax - hitModel1.xmin;
+    ylengthModel1 = hitModel1.ymax - hitModel1.ymin;
+    zlengthModel1 = hitModel1.zmax - hitModel1.zmin;
+
+    xlengthModel2 = hitModel2.xmax - hitModel2.xmin;
+    ylengthModel2 = hitModel2.ymax - hitModel2.ymin;
+    zlengthModel2 = hitModel2.zmax - hitModel2.zmin;
+
+    resX = abs(object2[nrObj2].pos.x - object1[nrObj1].pos.x);
+    resY = abs(object2[nrObj2].pos.y - object1[nrObj1].pos.y);
+    resZ = abs(object2[nrObj2].pos.z - object1[nrObj1].pos.z);
+
+    if(resX <= xlengthModel2)
+        if(resY <= ylengthModel2)
+            if(resZ <= zlengthModel2)
+
             {
-                object1[j].dir=object2[i].dir;
-                object1[j].pos.x+=5*object2[i].dir.x;
-                object1[j].pos.y+=5*object2[i].dir.y;
-                object1[j].speed=object2[i].speed*3/4;
-                object2[i].speed =object2[i].speed/2;
+                printf("xlength model2 %f object2 - object1 posx %f\n", xlengthModel2, object2[nrObj2].pos.x-object1[nrObj1].pos.x);
+                printf("ylength model2 %f object2 - object1 posy %f\n", ylengthModel2, object2[nrObj2].pos.y-object1[nrObj1].pos.y);
+                printf("xlength model2 %f object2 - object1 posx %f\n", zlengthModel2, object2[nrObj2].pos.z-object1[nrObj1].pos.z);
+                printf("model1 xmax %f model1 ymax %f model1 zmax %f\nmodel1 minx %f model1miny %f model1minz %f\n", hitModel1.xmax, hitModel1.ymax, hitModel1.zmax, hitModel1.xmin, hitModel1.ymin, hitModel1.zmin);
+                printf("model2 xmax %f model2 ymax %f model2 zmax %f\nmodel2 minx %f model2miny %f model2minz %f\n\n", hitModel2.xmax, hitModel2.ymax, hitModel2.zmax, hitModel2.xmin, hitModel2.ymin, hitModel2.zmin);
+                object1[nrObj1].dir=object2[nrObj2].dir;
+                object1[nrObj1].pos.x+=5*object2[nrObj2].dir.x;
+                object1[nrObj1].pos.y+=5*object2[nrObj2].dir.y;
+                object1[nrObj1].speed=object2[nrObj2].speed*3/4;
+                object2[nrObj2].speed =object2[nrObj2].speed/2;
             }
 }
-
 //checks for collisions based on object type
 //Sebastian 2015-05-08
 void up_checkCollision(){
@@ -241,7 +261,7 @@ void up_checkCollision(){
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance <30){
-                testCollision(enviroment,ships, i, j);
+                testCollision(enviroment,ships, j, i);
 
             }
         }
