@@ -37,11 +37,13 @@ int main(int argc, char const *argv[])
 
     //up_network_start_setup();
 
+
+
     int mesh_capacity = 200;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
 
-    int max_ship_count = 10;
+    int max_ship_count = 40;
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
     int max_others_count = 20;
@@ -63,7 +65,7 @@ int main(int argc, char const *argv[])
 
     //Init sound
     struct soundLib *sound= up_setupSound();
-    
+
     // start the menu, and display it
     status=up_menu(shader_menu, sound);
 
@@ -82,8 +84,15 @@ int main(int argc, char const *argv[])
     tmp_ship.turnSpeed = 1;
     tmp_ship.acceleration = 5;
     tmp_ship.scale = assets->scaleArray[1];
-    int shipIndex = up_unit_add(up_ship_type,tmp_ship);
 
+    int shipIndex = 0;
+    int shipIndex_tmp = 0;
+    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
+    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
+    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
+    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
+    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
+    shipIndex = shipIndex_tmp;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -97,8 +106,8 @@ int main(int argc, char const *argv[])
 
     up_generate_sun();
 
-    up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 60, 20);
-    
+    up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 50, 30);
+
     up_generate_randomize_satellite(40);        //satellite
     up_generate_randomize_spaceMine(80);        //space mine
 
@@ -145,27 +154,40 @@ int main(int argc, char const *argv[])
     struct shader_module *shaderprog;
     shaderprog = UP_Shader_new("shadertest",1);
     printf("Shader finnished\n");
-    
+
     // loads skybox shaders and fill out the structure
     up_skyBox_t skyBox;
     skyBox.textureId = up_cubeMapTexture_load();
     skyBox.skyBox = UP_Shader_new("skybox",2);
-    
     skyBox.mesh = &assets->meshArray[3];
-    
+
+
     struct up_objectInfo *objectArray = NULL;
     int numObjects = 0;
     struct up_eventState currentEvent = {0};
     struct up_actionState shipAction = {0};
     shipAction.objectID.idx = shipIndex;
     shipAction.objectID.type = up_ship_type;
+
     up_weaponCoolDown_start_setup(&currentEvent);
     printf("out of weapon\n");
     struct up_objectInfo in_cam[500];
     struct up_eventState funkarEj = {0};
     // starts the main game loop
     up_matrix4_t viewPerspectivMatrix;
-    
+
+
+    struct up_actionState network_states_data[10];
+    int max_network_states = 10;
+    int i = 0;
+    struct up_actionState noState = {0};
+    for (i = 0; i < max_network_states; i++) {
+        network_states_data[i] = noState;
+    }
+    int network_state_recived = 0;
+    Pthread_listen_datapipe_t *connection_data = up_network_start_setup();
+
+
     while(status)
     {
         up_updateFrameTickRate();
@@ -178,7 +200,10 @@ int main(int argc, char const *argv[])
 
         //up_updatShipMatrixModel(&modelMatrix,&model,ship); // creates the modelMatrix for the ship
         //up_updateShipMovment(ship);
-        up_update_actions(&shipAction, NULL, 0,&funkarEj, sound);
+        up_network_sendNewMovement(&shipAction, connection_data);
+        network_state_recived = up_network_getNewMovement(network_states_data, max_network_states);
+
+        up_update_actions(&shipAction, network_states_data, network_state_recived,&funkarEj, sound);
         up_updateMovements();
         up_checkCollision();
         moveHealthBar(shipIndex,healthBar);
@@ -193,11 +218,11 @@ int main(int argc, char const *argv[])
         numObjects = (totalNumObjects > numObjects) ? numObjects : totalNumObjects;
 
         up_getViewPerspective(&viewPerspectivMatrix,&viewMatrix,&perspectiveMatrix);
-        
+
         up_updateMatrix(transformationArray, &viewPerspectivMatrix, objectArray, numObjects);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
-        
+
 
     }
     printf("Ended main loop\n");
@@ -211,6 +236,7 @@ int main(int argc, char const *argv[])
     up_texture_shutdown_deinit();
     up_assets_shutdown_deinit(assets);
     //up_network_shutdown_deinit();
+    up_network_shutdown_deinit(connection_data);
     UP_openGLwindowCleanup();
     UP_sdlCleanup();
     printf("All cleanup completed\n");

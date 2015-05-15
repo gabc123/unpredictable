@@ -32,71 +32,71 @@ int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_
 {
     struct up_objectInfo zero = {0};
     int i = 0;
-    
+
     //internal_tracker.count=0;
     struct up_objectInfo *ships = malloc(sizeof(struct up_objectInfo)*max_ship_count);
-    
+
     if(ships == NULL){
         UP_ERROR_MSG("malloc failed");
         return 0;
     }
-    
-    
+
+
     for (i = 0; i < max_ship_count; i++) {
         ships[i] = zero;
     }
     internal_tracker.ships.count = 0;
     internal_tracker.ships.objects = ships;
     internal_tracker.ships.size=max_ship_count;
-    
-    
+
+
     //////////////////
-    
+
     //internal_tracker.count=0;
     struct up_objectInfo *projectile = malloc(sizeof(struct up_objectInfo)*max_projectile_count);
-    
+
     if(projectile == NULL){
         UP_ERROR_MSG("malloc failed");
         return 0;
     }
-    
-    
+
+
     for (i = 0; i < max_projectile_count; i++) {
         projectile[i] = zero;
     }
     internal_tracker.projectile.count = 0;
     internal_tracker.projectile.objects = projectile;
     internal_tracker.projectile.size=max_projectile_count;
-    
+
     //////////////////
-    
+
     //internal_tracker.count=0;
     struct up_objectInfo *environment = malloc(sizeof(struct up_objectInfo)*max_environment_count);
-    
+
     if(environment == NULL){
         UP_ERROR_MSG("malloc failed");
         return 0;
     }
-    
-    
+
+
     for (i = 0; i < max_environment_count; i++) {
         environment[i] = zero;
     }
     internal_tracker.environment.count = 0;
     internal_tracker.environment.objects = environment;
     internal_tracker.environment.size=max_environment_count;
-    
+
     //////////////////
-    
+
     //internal_tracker.count=0;
     struct up_objectInfo *others = malloc(sizeof(struct up_objectInfo)*max_others_count);
-    
+
     if(others == NULL){
         UP_ERROR_MSG("malloc failed");
         return 0;
     }
-    
-    
+
+
     for (i = 0; i < max_others_count; i++) {
         others[i] = zero;
     }
@@ -131,7 +131,6 @@ int up_unit_add(enum up_object_type type,struct up_objectInfo object)
     object.objectId.type = type;
     switch (type) {
         case up_ship_type:
-            
             index = unit_add(&internal_tracker.ships, object);
             break;
         case up_projectile_type:
@@ -151,7 +150,7 @@ int up_unit_add(enum up_object_type type,struct up_objectInfo object)
 }
 
 
-static struct up_objectInfo *unit_objAtIndex(struct internal_object * objects,int index){
+static struct up_objectInfo *unit_objAtIndex(struct internal_object * objects, int index){
 
     if(objects->count <= index){
         UP_ERROR_MSG("try to access object out of bound");
@@ -181,7 +180,7 @@ struct up_objectInfo *up_unit_objAtIndex(enum up_object_type type,int index)
             UP_ERROR_MSG("Wrong type");
             break;
     }
-    
+
     return object;
 }
 
@@ -212,7 +211,7 @@ struct up_objectInfo *up_unit_getAllObj(enum up_object_type type,int *count)
             UP_ERROR_MSG("Wrong type");
             break;
     }
-    
+
     return object;
 }
 
@@ -223,18 +222,18 @@ void up_unit_shutdown_deinit()
 
     internal_tracker.ships.size=0;
     internal_tracker.ships.count=0;
-    
+
     internal_tracker.projectile.size=0;
     internal_tracker.projectile.count=0;
-    
+
     internal_tracker.environment.size=0;
     internal_tracker.environment.count=0;
-    
+
     free(internal_tracker.ships.objects);
     free(internal_tracker.projectile.objects);
     free(internal_tracker.environment.objects);
     free(internal_tracker.others.objects);
-    
+
     internal_tracker.ships.objects = NULL;
     internal_tracker.projectile.objects = NULL;
     internal_tracker.environment.objects = NULL;

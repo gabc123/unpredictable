@@ -49,6 +49,7 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
         }
         if(event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
+                //Stearing the ship.
                 case SDLK_w:
                     objectAction->engine.state = fwd;
                     break;
@@ -61,41 +62,36 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
                 case SDLK_d:
                     objectAction->maneuver.state = right;
                     break;
-                //Rotate right
+                //Rotate
                 case SDLK_e:
                     objectAction->maneuver.state = bankRight;
                     break;
                 case SDLK_q:
                     objectAction->maneuver.state = bankLeft;
                     break;
-
-
-
+                //Zooming
                 case SDLK_r:
                     up_cam_zoom(1.0f);
                     break;
                 case SDLK_f:
                     up_cam_zoom(-1.0f);
                     break;
-
                 //fire main weapon for playership
                 case SDLK_SPACE:
                     //Checks if its ok to fire a projectile
                     tempFlag = checkFire(currentEvent->flags.bulletFlag.startTime, currentEvent->flags.bulletFlag.coolDown);
-
                     if(tempFlag==0)
                     {
                         objectAction->fireWeapon.state = fireBullet;
-                        currentEvent->flags.bulletFlag.startTime = SDL_GetTicks();
+                        currentEvent->flags.bulletFlag.startTime = SDL_GetTicks();  //marks the time the wepon was fired,
                     }else
                     {
                         objectAction->fireWeapon.state = none;
                     }
                     break;
-                //missle
+                //missile
                 case SDLK_c:
                     tempFlag = checkFire(currentEvent->flags.missileFlag.startTime, currentEvent->flags.missileFlag.coolDown);
-
                     if(tempFlag==0)
                     {
                         objectAction->fireWeapon.state = fireMissile;
@@ -108,7 +104,6 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
                 //lazer
                 case SDLK_v:
                     tempFlag = checkFire(currentEvent->flags.laserFlag.startTime, currentEvent->flags.laserFlag.coolDown);
-
                     if(tempFlag==0)
                     {
                         objectAction->fireWeapon.state = fireLaser;
@@ -127,26 +122,54 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
         {
             switch (event.key.keysym.sym) {
                 case SDLK_w:
-                    objectAction->engine.none=none;
+                    if(objectAction->engine.fwd)
+                    {
+                        objectAction->engine.none=none;
+                    }
                     break;
+
                 case SDLK_s:
-                    objectAction->engine.none=none;
+                    if(objectAction->engine.bwd)
+                    {
+                        objectAction->engine.none=none;
+                    }
                     break;
+
                 case SDLK_d:
-                    objectAction->maneuver.none=none;
+                    if(objectAction->maneuver.right)
+                    {
+                        objectAction->maneuver.none=none;
+                    }
                     break;
+
                 case SDLK_a:
-                    objectAction->maneuver.none=none;
+                    if(objectAction->maneuver.left)
+                    {
+                        objectAction->maneuver.none=none;
+                    }
                     break;
+
                 case SDLK_SPACE:
-                    objectAction->fireWeapon.none=none;
+                    if(objectAction->fireWeapon.fireBullet)
+                    {
+                        objectAction->fireWeapon.none=none;
+                    }
                     break;
+
                 case SDLK_e:
-                    objectAction->maneuver.none = none;
+                    if(objectAction->maneuver.bankRight)
+                    {
+                        objectAction->maneuver.none = none;
+                    }
                     break;
+
                 case SDLK_q:
-                    objectAction->maneuver.none = none;
+                    if(objectAction->maneuver.bankLeft)
+                    {
+                        objectAction->maneuver.none = none;
+                    }
                     break;
+
                 default:
                     break;
             }
@@ -177,45 +200,77 @@ double up_getFrameTimeDelta()
     return up_gFrameTickRate;
 }
 
+//Sebastian + Tobias 2015-05-12
+//checks objects collisionboxes for whether a hit has occured or not
+void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int i, int j)
+{
+    struct Hitbox hitShip = {object2[i].pos.x+3.0, object2[i].pos.y+3.0, object2[i].pos.z+3.0,  object2[i].pos.x-3.0,  object2[i].pos.y-3.0,  object2[i].pos.z-3.0};
+    struct Hitbox otherModel ={object1[j].pos.x+1.0, object1[j].pos.y+1.0, object1[j].pos.z+5.0,  object1[j].pos.x-1.0,  object1[j].pos.y-1.0,  object1[j].pos.z-5.0};
+
+    // the smaler of the two objects need to be the one that checks whether it is insider te larger objects hitbox
+    if((hitShip.xmax > otherModel.xmax && hitShip.xmin < otherModel.xmax) || (hitShip.xmin < otherModel.xmin && hitShip.xmax > otherModel.xmin))
+        if((hitShip.ymax > otherModel.ymax && hitShip.ymin < otherModel.ymax) || (hitShip.ymin < otherModel.ymin && hitShip.ymax > otherModel.ymin))
+            if((hitShip.zmax > otherModel.zmax && hitShip.zmin < otherModel.zmax) || (hitShip.zmin < otherModel.zmin && hitShip.zmax > otherModel.ymin))
+            {
+                object1[j].dir=object2[i].dir;
+                object1[j].pos.x+=5*object2[i].dir.x;
+                object1[j].pos.y+=5*object2[i].dir.y;
+                object1[j].speed=object2[i].speed*3/4;
+                object2[i].speed =object2[i].speed/2;
+            }
+}
+
 //checks for collisions based on object type
-//Sebastian
+//Sebastian 2015-05-08
 void up_checkCollision(){
 
-    int i, j, totalShips = 0, totalObject = 0;
+    int i, j, totalShips = 0, totalObjects = 0, totalProjectiles;
     float distance=0, x=0, y=0, z=0;
 
+    //checks ships vs enviroment
     struct up_objectInfo *ships = up_unit_getAllObj(up_ship_type,&totalShips);
-    struct up_objectInfo *enviroment = up_unit_getAllObj(up_environment_type, &totalObject);
+    struct up_objectInfo *enviroment = up_unit_getAllObj(up_environment_type, &totalObjects);
+    struct up_objectInfo *projectile = up_unit_getAllObj(up_projectile_type, &totalProjectiles);
+
+
     for(i=0; i < totalShips; i++){
-        for(j=0; j < totalObject; j++){
+        for(j=0; j < totalObjects; j++){
             x = ships[i].pos.x - enviroment[j].pos.x;
             y = ships[i].pos.y - enviroment[j].pos.y;
             z = ships[i].pos.z - enviroment[j].pos.z;
             distance = sqrt((x*x)+(y*y)+(z*z));
 
-            if(distance <2 && distance >1){
-                //printf("ship %d collision with enviorment id %d\n", i, j);
-                enviroment[j].dir=ships[i].dir;
-                enviroment[j].pos.x+=5*enviroment[j].dir.x;
-                enviroment[j].pos.y+=5*enviroment[j].dir.y;
-                enviroment[j].pos.z+=5*enviroment[j].dir.z;
-                enviroment[j].speed=ships[i].speed*3/4;
-                ships[i].speed =ships[i].speed/2;
+            if(distance <30){
+                testCollision(enviroment,ships, i, j);
 
             }
         }
     }
 
-    struct up_objectInfo *projectile = up_unit_getAllObj(up_projectile_type, &totalObject);
+    for(i=0; i < totalProjectiles; i++){
+        for(j=0; j < totalObjects; j++){
+            x = projectile[i].pos.x - enviroment[j].pos.x;
+            y = projectile[i].pos.y - enviroment[j].pos.y;
+            z = projectile[i].pos.z - enviroment[j].pos.z;
+            distance = sqrt((x*x)+(y*y)+(z*z));
+
+            if(distance <30){
+                testCollision(enviroment,projectile, i, j);
+
+            }
+        }
+    }
+
+
     for(i=0; i < totalShips; i++){
-        for(j=0; j < totalObject; j++){
+        for(j=0; j < totalProjectiles; j++){
             x = ships[i].pos.x - projectile[j].pos.x;
             y = ships[i].pos.y - projectile[j].pos.y;
             z = ships[i].pos.z - projectile[j].pos.z;
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance <2){
-                 //printf("ship %d collision with projectile %d\n", i, j);
+                 testCollision(ships,projectile, i, j);
             }
         }
     }
@@ -491,12 +546,12 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->bankAngle -= localObject->turnSpeed*frameDelta;
     }
 }
-/*Creates the fired projectiles giving adding the same speed and direction of the ship that fired them*/
+/*Creates the fired projectiles adding the speed and direction of the ship that fired them*/
 //Sebastian 2015-05-05
 void up_createProjectile(struct up_objectInfo *localobject,
                          struct up_actionState *obj, struct up_eventState *ammoStats,
-                         struct soundLib *sound){
-    
+                         struct soundLib *sound)
+{
     struct up_objectInfo projectile = *localobject;
 
     //bullet
@@ -522,7 +577,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.speed = localobject->speed + 100;
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
-    
+
         //pew pew sound
         up_music(1, 0, sound);
 
@@ -555,7 +610,14 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     for(i=0; i<nrObj; i++)
     {
         tmp=&server[i];
+        if (tmp->objectID.idx == 0) {
+            continue;
+        }
         localObject = up_unit_objAtIndex(tmp->objectID.type,tmp->objectID.idx);
+        if (localObject == NULL) {
+            printf("up_update_actions localobject  == NULL \n");
+            continue;
+        }
         up_moveObj(localObject, tmp,frameDelta);
         up_createProjectile(localObject, tmp, funkarEj, sound);
     }

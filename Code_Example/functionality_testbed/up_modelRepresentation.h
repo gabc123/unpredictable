@@ -12,6 +12,15 @@
 #include "up_vertex.h"
 #include "up_type.h"
 
+struct Hitbox{
+    float xmax;
+    float ymax;
+    float zmax;
+    float xmin;
+    float ymin;
+    float zmin;
+};
+
 struct shipMovement
 {
     int up;
@@ -42,7 +51,7 @@ struct up_objectInfo
     float turnSpeed;
     float speed;
     float acceleration;
-    
+    struct Hitbox collisionbox;
 };
 
 

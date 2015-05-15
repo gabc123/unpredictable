@@ -5,6 +5,7 @@
 #include "up_modelRepresentation.h"
 #include "up_matrixTransforms.h"
 #include "up_error.h"
+
 /*fallback mesh*/
 //Sebastian
 
@@ -229,7 +230,7 @@ struct up_mesh *up_meshQuitwindow()
         {0.0f, 1.0f},
         {1.0f, 1.0f}
     };
-    
+
     // this is the posisions of the vertexes
     struct up_vec3 pos[] = {
         {-0.28f, -0.3f, 0.2f},   // bottomleft 0
@@ -237,10 +238,10 @@ struct up_mesh *up_meshQuitwindow()
         {-0.28f, 0.2f, 0.2f},  //topleft 2
         {0.28f, 0.2f, 0.2f}   //topright 3
     };
-    
-    
+
+
     unsigned int indexArray[] = {1,2,0,1,3,2};  //binds togheter two triangels into one square
-    
+
     // left over from debugging. fills the vertex array with pos and tex
     struct up_vertex vertex[4];
     int i = 0;
