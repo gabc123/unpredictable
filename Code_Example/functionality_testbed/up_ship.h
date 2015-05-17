@@ -93,6 +93,7 @@ struct up_eventState
 };
 
 void up_checkCollision(struct up_allCollisions *allcollisions);
+void up_handleCollision(struct up_allCollisions *allcollisions);
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
 
 void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *funkarEj, struct soundLib *sound);

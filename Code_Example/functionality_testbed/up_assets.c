@@ -22,7 +22,7 @@
 
 static struct up_assets *internal_assets=NULL;
 
-void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray);
+int loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray);
 
 struct box{
     float x1,y1,z1;
@@ -158,9 +158,15 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
 
 /*Reads assets to be loaded from a file*/
 //Sebastian
-void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray)
+// magnus error handeling
+int loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray)
 {
     struct UP_textHandler thafile = up_loadAssetFile("objIndex");
+    if (thafile.text == NULL) {
+        UP_ERROR_MSG("Failed to load objindex");
+        return 0;   // failed ti a load objindex
+    }
+    
     struct up_vec3 scaleOne = {1.0, 1.0, 1.0};
     struct up_modelData item; //stores the information of the object
     char *text = thafile.text;
@@ -189,6 +195,7 @@ void loadObjects(struct up_generic_list *meshArray, struct up_generic_list *text
     }while(text <= thafile.text + thafile.length -1);
 
     up_textHandler_free(&thafile);
+    return 1; // sucess
 
 }
 

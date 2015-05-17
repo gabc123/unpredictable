@@ -49,6 +49,32 @@ int main(int argc, char const *argv[])
     int max_others_count = 200;
     struct up_allCollisions allcollisions;
 
+    // loads the shaders for the rendering loop (location 1)
+    struct shader_module *shaderprog;
+    shaderprog = UP_Shader_new("shadertest",1);
+    printf("Shader finnished\n");
+    
+    // if we failed to load the primary shaders, there is no game to play
+    // so do program cleanup and exit
+    if (shaderprog == NULL) {
+        UP_ERROR_MSG("Failed to load primary shader aborting program");
+        UP_Shader_delete();
+        up_mesh_shutdown_deinit();
+        up_texture_shutdown_deinit();
+        UP_openGLwindowCleanup();
+        UP_sdlCleanup();
+        return 0;
+    }
+    // Load a shader just for the menu system (location 0)
+    struct shader_module *shader_menu;
+    shader_menu = UP_Shader_new("shader_menu",0);
+    if (shader_menu == NULL) {
+        // we use the primary shader as a fallback
+        shader_menu = shaderprog;
+    }
+    printf("Shader menu finnished\n");
+    
+    
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
     int totalNumObjects = max_ship_count + max_projectile_count + max_enviroment_count + max_others_count;
@@ -59,10 +85,7 @@ int main(int argc, char const *argv[])
     }
 
 
-    // Load a shader just for the menu system (location 0)
-    struct shader_module *shader_menu;
-    shader_menu = UP_Shader_new("shader_menu",0);
-    printf("Shader menu finnished\n");
+    
 
     //Init sound
     struct soundLib *sound= up_setupSound();
@@ -155,10 +178,7 @@ int main(int argc, char const *argv[])
 
 
 
-    // loads the shaders for the rendering loop (location 1)
-    struct shader_module *shaderprog;
-    shaderprog = UP_Shader_new("shadertest",1);
-    printf("Shader finnished\n");
+    
 
     // loads skybox shaders and fill out the structure
     up_skyBox_t skyBox;

@@ -287,5 +287,6 @@ int up_network_registerAccount(char username[UP_USERPASS], char password[UP_USER
     generic_copyElement(writeSpace, packet->data, messageToServer);
     packet->len = writeSpace;
     SDLNet_UDP_Send(socket, -1, packet);
+    return 0;
 
 }
