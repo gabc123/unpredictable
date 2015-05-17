@@ -24,7 +24,7 @@ int checkFire(unsigned int startTime, unsigned int cooldown);
 
 //not it use
 //Sebastian
-//Revised by Magnus
+//Magnus
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
     float deltaTime = (float)up_getFrameTimeDelta();
     ship->speed += 1.0f *(movement->up - movement->down) * deltaTime;
@@ -201,16 +201,105 @@ double up_getFrameTimeDelta()
     return up_gFrameTickRate;
 }
 
+//Sebastian 2015-05-15
+void up_handleCollision(struct up_allCollisions *allcollisions)
+{
+    int i=0;
+    struct up_objectInfo *object1;
+    struct up_objectInfo *object2;
+
+    for(i=0; i < allcollisions->shipEnviroment.nrCollisions; i++){
+        object1 = up_unit_objAtIndex(up_ship_type, allcollisions->shipEnviroment.object1[i]);
+        object2 = up_unit_objAtIndex(up_environment_type, allcollisions->shipEnviroment.object2[i]);
+        if (object1 == NULL){
+            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
+            printf("itemnr: %d\n", i);
+            continue;
+        }
+        if (object2 ==NULL){
+            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
+            printf("itemnr: %d\n", i);
+            continue;
+        }
+
+        object2->dir=object1->dir;
+        object2->pos.x+=5*object1->dir.x;
+        object2->pos.y+=5*object1->dir.y;
+        object2->speed=object1->speed*3/4;
+        object1->speed =object1->speed/2;
+
+    }
+        for(i=0; i < allcollisions->projectileEnviroment.nrCollisions; i++){
+        object1 = up_unit_objAtIndex(up_projectile_type, allcollisions->projectileEnviroment.object1[i]);
+        object2 = up_unit_objAtIndex(up_environment_type, allcollisions->projectileEnviroment.object2[i]);
+        if (object1 == NULL){
+            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
+            printf("itemnr: %d\n", i);
+            continue;
+        }
+        if (object2 ==NULL){
+            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
+            printf("itemnr: %d\n", i);
+            continue;
+        }
+
+        object2->dir=object1->dir;
+        object2->pos.x+=5*object1->dir.x;
+        object2->pos.y+=5*object1->dir.y;
+        object2->speed=object1->speed*3/4;
+        object1->speed =object1->speed/2;
+
+    }
+
+        for(i=0; i < allcollisions->projectileShip.nrCollisions; i++){
+        object1 = up_unit_objAtIndex(up_projectile_type, allcollisions->projectileShip.object1[i]);
+        object2 = up_unit_objAtIndex(up_ship_type, allcollisions->projectileShip.object2[i]);
+        if (object1 == NULL){
+            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
+            printf("itemnr: %d\n", i);
+            continue;
+        }
+        if (object2 ==NULL){
+            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
+            printf("itemnr: %d\n", i);
+            continue;
+        }
+
+        object2->dir=object1->dir;
+        object2->pos.x+=5*object1->dir.x;
+        object2->pos.y+=5*object1->dir.y;
+        object2->speed=object1->speed*3/4;
+        object1->speed =object1->speed/2;
+
+    }
+
+
+    /*
+    enum up_object_type
+    {
+        up_ship_type,
+        up_projectile_type,
+        up_environment_type,
+        up_others_type
+    };
+    */
+}
+
 //Sebastian + Tobias 2015-05-12
-//checks objects collisionboxes for whether a hit has occured or not
-void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int nrObj1, int nrObj2)
+//checks objects collisionboxes too see whether a hit has occured or not
+void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int nrObj1, int nrObj2, struct up_allCollisions *allcollisions, int typeCollision)
 {
     float xlengthModel1, ylengthModel1, zlengthModel1;
     float xlengthModel2, ylengthModel2, zlengthModel2;
     float distanceX, distanceY, distanceZ;
 
-    struct Hitbox hitModel1 ={object1[nrObj1].pos.x+1.0, object1[nrObj1].pos.y+1.0, object1[nrObj1].pos.z+1.0,  object1[nrObj1].pos.x-1.0,  object1[nrObj1].pos.y-1.0,  object1[nrObj1].pos.z-1.0};
-    struct Hitbox hitModel2 = {object2[nrObj2].pos.x+1.0, object2[nrObj2].pos.y+1.0, object2[nrObj2].pos.z+1.0,  object2[nrObj2].pos.x-1.0,  object2[nrObj2].pos.y-1.0,  object2[nrObj2].pos.z-1.0};
+    struct Hitbox hitModel1 ={
+        object1[nrObj1].pos.x+1.0, object1[nrObj1].pos.y+1.0, object1[nrObj1].pos.z+1.0,
+        object1[nrObj1].pos.x-1.0,  object1[nrObj1].pos.y-1.0,  object1[nrObj1].pos.z-1.0};
+
+    struct Hitbox hitModel2 = {
+        object2[nrObj2].pos.x+1.0, object2[nrObj2].pos.y+1.0, object2[nrObj2].pos.z+1.0,
+        object2[nrObj2].pos.x-1.0,  object2[nrObj2].pos.y-1.0,  object2[nrObj2].pos.z-1.0};
 
     xlengthModel1 = hitModel1.xmax - hitModel1.xmin;
     ylengthModel1 = hitModel1.ymax - hitModel1.ymin;
@@ -224,31 +313,49 @@ void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2,
     distanceY = fabsf(object2[nrObj2].pos.y - object1[nrObj1].pos.y);
     distanceZ = fabsf(object2[nrObj2].pos.z - object1[nrObj1].pos.z);
 
+    //checks if the collisionboxes collides
     if(distanceX <= xlengthModel1 || distanceX <= xlengthModel2)
         if(distanceY <= ylengthModel1 ||distanceY <= ylengthModel2)
             if(distanceZ <= zlengthModel1 || distanceZ <= zlengthModel2)
-
             {
-             /* printf("xlength model2 %f object2 - object1 posx %f\n", xlengthModel2, object2[nrObj2].pos.x-object1[nrObj1].pos.x);
-                printf("ylength model2 %f object2 - object1 posy %f\n", ylengthModel2, object2[nrObj2].pos.y-object1[nrObj1].pos.y);
-                printf("xlength model2 %f object2 - object1 posx %f\n", zlengthModel2, object2[nrObj2].pos.z-object1[nrObj1].pos.z);
-                printf("model1 xmax %f model1 ymax %f model1 zmax %f\nmodel1 minx %f model1miny %f model1minz %f\n", hitModel1.xmax, hitModel1.ymax, hitModel1.zmax, hitModel1.xmin, hitModel1.ymin, hitModel1.zmin);
-                printf("model2 xmax %f model2 ymax %f model2 zmax %f\nmodel2 minx %f model2miny %f model2minz %f\n\n", hitModel2.xmax, hitModel2.ymax, hitModel2.zmax, hitModel2.xmin, hitModel2.ymin, hitModel2.zmin);
-            */
-                object1[nrObj1].dir=object2[nrObj2].dir;
-                object1[nrObj1].pos.x+=5*object2[nrObj2].dir.x;
-                object1[nrObj1].pos.y+=5*object2[nrObj2].dir.y;
-                object1[nrObj1].speed=object2[nrObj2].speed*3/4;
-                object2[nrObj2].speed =object2[nrObj2].speed/2;
+                //stores the id and type of collision for the colliding objects
+                switch(typeCollision)
+                {
+                case shipEnviroment:
+                    allcollisions->shipEnviroment.object1[allcollisions->shipEnviroment.nrCollisions] = object1[nrObj1].objectId.idx;
+                    allcollisions->shipEnviroment.object2[allcollisions->shipEnviroment.nrCollisions++] = object2[nrObj2].objectId.idx;
+                    /*printf("shipEnviroment\n");
+                    printf("object1Id read: %d\n", object1[nrObj1].objectId.idx);
+                    printf("object2Id read: %d\n", object2[nrObj2].objectId.idx);
+                    printf("object1id stored: %d\n", allcollisions->shipEnviroment.object1[allcollisions->shipEnviroment.nrCollisions-1]);
+                    printf("object2id stored: %d\n", allcollisions->shipEnviroment.object2[allcollisions->shipEnviroment.nrCollisions-1]);
+                    */
+                    break;
+                //projectile enviroment
+                case projectileEnviroment:
+                    //printf("projectileEnviroment\n");
+                    allcollisions->projectileEnviroment.object1[allcollisions->projectileEnviroment.nrCollisions] = object1[nrObj1].objectId.idx;
+                    allcollisions->projectileEnviroment.object2[allcollisions->projectileEnviroment.nrCollisions++] = object2[nrObj2].objectId.idx;
+                    break;
+                //projectile ship
+                case projectileShip:
+                    //printf("projectileShip\n");
+                    allcollisions->projectileShip.object1[allcollisions->projectileShip.nrCollisions] = object1[nrObj1].objectId.idx;
+                    allcollisions->projectileShip.object2[allcollisions->projectileShip.nrCollisions++] = object2[nrObj2].objectId.idx;
+                    break;
+                }
             }
 }
 
 //checks for collisions based on object type
 //Sebastian 2015-05-08
-void up_checkCollision(){
+void up_checkCollision(struct up_allCollisions *allcollisions){
 
     int i, j, totalShips = 0, totalObjects = 0, totalProjectiles;
     float distance=0, x=0, y=0, z=0;
+    allcollisions->projectileEnviroment.nrCollisions=0;
+    allcollisions->projectileShip.nrCollisions=0;
+    allcollisions->shipEnviroment.nrCollisions=0;
 
     //list items based on type
     struct up_objectInfo *ships = up_unit_getAllObj(up_ship_type,&totalShips);
@@ -264,7 +371,7 @@ void up_checkCollision(){
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance <30){
-                testCollision(enviroment,ships, j, i);
+                testCollision(ships, enviroment, i, j, allcollisions, shipEnviroment);
             }
         }
     }
@@ -277,7 +384,7 @@ void up_checkCollision(){
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance <30){
-                testCollision(enviroment,projectile, j, i);
+                testCollision(projectile, enviroment, i, j, allcollisions, projectileEnviroment);
             }
         }
     }
@@ -292,7 +399,7 @@ void up_checkCollision(){
                     distance = sqrt((x*x)+(y*y)+(z*z));
 
                     if(distance <2){
-                         testCollision(ships ,projectile, i, j);
+                         testCollision(projectile, ships, j, i, allcollisions, projectileShip);
                     }
                 }
         }

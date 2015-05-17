@@ -5,8 +5,19 @@
 #include "up_modelRepresentation.h"
 #include "up_music.h"
 
+struct up_collision
+{
+    int object1[100];
+    int object2[100];
+    int nrCollisions;
+};
 
-
+struct up_allCollisions
+{
+    struct up_collision projectileEnviroment;
+    struct up_collision projectileShip;
+    struct up_collision shipEnviroment;
+};
 
 enum up_none
 {
@@ -47,6 +58,12 @@ union up_turning
     }state;
 };
 
+enum collisionType
+{
+    shipEnviroment,
+    projectileShip,
+    projectileEnviroment
+};
 struct up_actionState
 {
     union up_shootingStates fireWeapon;
@@ -75,7 +92,7 @@ struct up_eventState
     struct up_shootingFlag flags;
 };
 
-void up_checkCollision();
+void up_checkCollision(struct up_allCollisions *allcollisions);
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
 
 void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *funkarEj, struct soundLib *sound);

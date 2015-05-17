@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
     printf("Sdl setup done\n");
     int screen_width = 1280;
     int screen_hight = 800;
-    UP_openGLwindowSetup(screen_width,screen_hight,"Det fungerar !!!");
+    UP_openGLwindowSetup(screen_width,screen_hight,"UNPREDICTABLE");
     printf("opengl window setup done\n");
 
     //up_network_start_setup();
@@ -47,6 +47,7 @@ int main(int argc, char const *argv[])
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
     int max_others_count = 200;
+    struct up_allCollisions allcollisions;
 
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
@@ -92,7 +93,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 3;
+    shipIndex = 2;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -215,8 +216,9 @@ int main(int argc, char const *argv[])
 
         up_update_actions(&shipAction, network_states_data, network_state_recived,&funkarEj, sound);
         up_updateMovements();
-        up_checkCollision();
-        
+        up_checkCollision(&allcollisions);
+        up_handleCollision(&allcollisions);
+
         up_update_camera(&cam, ship);
         
         up_moveHealthBar(shipIndex,healthBar);

@@ -33,7 +33,8 @@ enum menu_states
     loginMenu,
     usernameBar,
     quitWindow,
-    settings
+    settings,
+    keyBindings
 
 };
 
@@ -399,6 +400,10 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                 if (navigation->state == settings) {
                     navigation->state= mainMenu;
                 }
+                
+                if (navigation->state == keyBindings) {
+                    navigation->state= settings;
+                }
             }
 
 
@@ -476,6 +481,10 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                             if (navigation->state == mainMenu) {
                                 navigation->state= settings;
                             }
+                            
+                            else if (navigation->state == settings) {
+                                navigation->state= mainMenu;
+                            }
                         }
                     }
 
@@ -483,14 +492,14 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                     
                     if(xf > -0.135938 && xf < 0.132812){            //SOUND EFFECTS
                         if(yf > 0.034091 && yf < 0.145455){
-                            printf("TEST SOUND\n");
+                            
                             if(navigation->state == settings){
                                 
                                 if (soundToggle->toggle == soundOn) {
                                     sound->toogleSoundEffects=0;
                                     soundToggle->toggle= soundOff;
                                     
-                                    printf("Sound OFF\n");
+                                    //printf("Sound OFF\n");
                                 }
                                 
                                 else if(soundToggle->toggle == soundOff){
@@ -499,7 +508,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                                     
                                     up_music(1, 0, sound);
                                     
-                                    printf("Sound ON\n");
+                                    //printf("Sound ON\n");
                                     
                                 }
                                 
@@ -510,7 +519,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                     
                     if(xf > -0.135938 && xf < 0.132812){            //MUSIC
                         if(yf > 0.195455 && yf < 0.309091){
-                            printf("TEST MUSIC\n");
+                            
                             if (navigation->state == settings) {
                                 
                                 if (musicToogle->toogle2 == musicOn) {
@@ -519,7 +528,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                                     
                                     Mix_HaltChannel(0);
                                     
-                                      printf("music OFF\n");
+                                    //printf("music OFF\n");
                                 }
                                 else if (musicToogle->toogle2 == musicOff){
                                     sound->toogleThemeMusic = 1;
@@ -527,11 +536,25 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                                     
                                     up_music(0, -1, sound);
                                     
-                                    printf("music ON\n");
+                                    //printf("music ON\n");
                                 }
                             }
                         }
                     }
+                    
+                    if(xf > -0.135938 && xf < 0.132812){            //SETTINGS
+                        if(yf > -0.143182 && yf < -0.020455){
+                            
+                            if (navigation->state == settings) {
+                                
+                                navigation->state = keyBindings;
+                                
+                                //do stuff
+
+                            }
+                        }
+                    }
+                    
                     break;
 
                 default:
