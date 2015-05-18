@@ -6,7 +6,19 @@
 #include "up_music.h"
 
 
+struct up_collision
+{
+    int object1[100];
+    int object2[100];
+    int nrCollisions;
+};
 
+struct up_allCollisions
+{
+    struct up_collision projectileEnviroment;
+    struct up_collision projectileShip;
+    struct up_collision shipEnviroment;
+};
 
 enum up_none
 {
