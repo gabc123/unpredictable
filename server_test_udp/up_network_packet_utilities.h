@@ -6,9 +6,22 @@
 //  Copyright (c) 2015 o_0. All rights reserved.
 //
 
-#ifndef __up_server_part_xcode__up_network_packet_utilities__
-#define __up_server_part_xcode__up_network_packet_utilities__
+#ifndef UP_NETWORK_PACKET_UTILITIES_H
+#define UP_NETWORK_PACKET_UTILITIES_H
 
-#include <stdio.h>
+#include "up_ship.h"
+#include "up_vertex.h"
+#include "up_server.h"
+#include "up_thread_utilities.h"
+
+int up_network_action_packetEncode(struct objUpdateInformation *object,
+                                   struct up_actionState *action,
+                                   struct up_vec3 pos,float speed,
+                                   float angle,float bankangle,int timestamp);
+
+int up_network_action_packetDecode(struct objUpdateInformation *object,
+                                   struct up_actionState *action,
+                                   struct up_vec3 *pos,float *speed,
+                                   float *angle,float *bankangle,int *timestamp);
 
 #endif /* defined(__up_server_part_xcode__up_network_packet_utilities__) */
