@@ -8,7 +8,7 @@
 // have all the data nessesary for a complete shader  program
 static struct shader_module shader_program[UP_SHADER_MAX_COUNT];
 
-static GLuint shaderCreate(const char * filename,GLenum type);
+static GLuint shaderCreate(const char * filename,GLenum type,int *err);
 
 void Opengl_error_check(GLuint shader,GLuint flag,int isProgram,const char* str);
 static void Opengl_error_shader_check(GLuint shader,GLuint flag,const char* str);
@@ -24,11 +24,18 @@ struct shader_module *UP_Shader_new(const char * filename,int location)
 	strncat(vertexFilename,".vs",4);
 	strncat(fragmentFilename,".fs",4);
 
+    int errFlag = 0;
 	//GLint shader[2];
 	shader_program[location].program = glCreateProgram();
-	shader_program[location].shader[0] = shaderCreate(vertexFilename,GL_VERTEX_SHADER);
-	shader_program[location].shader[1] = shaderCreate(fragmentFilename,GL_FRAGMENT_SHADER);
+	shader_program[location].shader[0] = shaderCreate(vertexFilename,GL_VERTEX_SHADER, &errFlag);
+	shader_program[location].shader[1] = shaderCreate(fragmentFilename,GL_FRAGMENT_SHADER, &errFlag);
 
+    if (errFlag == 1) {
+        // this happens if shader failed to load,
+        UP_ERROR_MSG("faild to create shaders");
+        return NULL;
+    }
+    
 	glAttachShader(shader_program[location].program, shader_program[location].shader[0]);
 	glAttachShader(shader_program[location].program, shader_program[location].shader[1]);
 
@@ -63,7 +70,7 @@ struct shader_module *UP_Shader_new(const char * filename,int location)
 
 
 //UNIFORM_LIGHT_SUN
-static GLuint shaderCreate(const char * filename,GLenum type)
+static GLuint shaderCreate(const char * filename,GLenum type,int *err)
 {
 	struct UP_textHandler shaderSourcetext;
 
@@ -73,6 +80,11 @@ static GLuint shaderCreate(const char * filename,GLenum type)
 	GLint sourceLength[1];
 
 	shaderSourcetext = up_loadShaderFile(filename);
+    if (shaderSourcetext.text == NULL) {
+        UP_ERROR_MSG("Failed to load shader file, aborting shader loading");
+        *err = 1;
+        return 0;
+    }
 	sourceText[0] = shaderSourcetext.text;
 	sourceLength[0] = shaderSourcetext.length;
 

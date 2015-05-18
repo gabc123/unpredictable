@@ -245,5 +245,48 @@ int up_network_recive(void *arg)
     return 1;
 }
 
+#define UP_USERPASS 21
+#define UP_REGISTRATE_FLAG (unsigned char)1
+#define UP_LOGIN_FLAG (unsigned char)2
+#define UP_USER_PASS_FLAG (unsigned char)4
+
+int up_network_registerAccount(char username[UP_USERPASS], char password[UP_USERPASS], Pthread_listen_datapipe_t *socket_data )
+{
+    int i,writeSpace = 0;
+    unsigned char messageToServer[768];
+    unsigned char userLength = (unsigned char) strlen(username);
+    unsigned char passLength = (unsigned char) strlen(password);
+
+    messageToServer[writeSpace]=UP_REGISTRATE_FLAG;
+    writeSpace++;
+    messageToServer[writeSpace]=UP_USER_PASS_FLAG;
+    writeSpace++;
+
+    messageToServer[writeSpace++]=userLength;
+
+    for(i=0; i<userLength; i++)
+    {
+        messageToServer[writeSpace++]=username[i];
+    }
+    
+    messageToServer[writeSpace++]=passLength;
+
+    for(i=0;i<passLength;i++)
+    {
+        messageToServer[writeSpace++]=password[i];
+    }
+
+    messageToServer[writeSpace++]='\0';
 
 
+    UDPsocket socket = socket_data->udpSocket;
+    UDPpacket *packet = socket_data->sendPacket;
+    packet->address.host = socket_data->addr.host;
+    packet->address.port = socket_data->addr.port;
+    
+    generic_copyElement(writeSpace, packet->data, messageToServer);
+    packet->len = writeSpace;
+    SDLNet_UDP_Send(socket, -1, packet);
+    return 0;
+
+}

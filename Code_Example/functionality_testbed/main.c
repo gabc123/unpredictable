@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
     printf("Sdl setup done\n");
     int screen_width = 1280;
     int screen_hight = 800;
-    UP_openGLwindowSetup(screen_width,screen_hight,"Det fungerar !!!");
+    UP_openGLwindowSetup(screen_width,screen_hight,"UNPREDICTABLE");
     printf("opengl window setup done\n");
 
     //up_network_start_setup();
@@ -47,7 +47,34 @@ int main(int argc, char const *argv[])
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
     int max_others_count = 200;
+    struct up_allCollisions allcollisions;
 
+    // loads the shaders for the rendering loop (location 1)
+    struct shader_module *shaderprog;
+    shaderprog = UP_Shader_new("shadertest",1);
+    printf("Shader finnished\n");
+    
+    // if we failed to load the primary shaders, there is no game to play
+    // so do program cleanup and exit
+    if (shaderprog == NULL) {
+        UP_ERROR_MSG("Failed to load primary shader aborting program");
+        UP_Shader_delete();
+        up_mesh_shutdown_deinit();
+        up_texture_shutdown_deinit();
+        UP_openGLwindowCleanup();
+        UP_sdlCleanup();
+        return 0;
+    }
+    // Load a shader just for the menu system (location 0)
+    struct shader_module *shader_menu;
+    shader_menu = UP_Shader_new("shader_menu",0);
+    if (shader_menu == NULL) {
+        // we use the primary shader as a fallback
+        shader_menu = shaderprog;
+    }
+    printf("Shader menu finnished\n");
+    
+    
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
     int totalNumObjects = max_ship_count + max_projectile_count + max_enviroment_count + max_others_count;
@@ -58,10 +85,7 @@ int main(int argc, char const *argv[])
     }
 
 
-    // Load a shader just for the menu system (location 0)
-    struct shader_module *shader_menu;
-    shader_menu = UP_Shader_new("shader_menu",0);
-    printf("Shader menu finnished\n");
+    
 
     //Init sound
     struct soundLib *sound= up_setupSound();
@@ -92,7 +116,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 3;
+    shipIndex = 2;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -154,10 +178,7 @@ int main(int argc, char const *argv[])
 
 
 
-    // loads the shaders for the rendering loop (location 1)
-    struct shader_module *shaderprog;
-    shaderprog = UP_Shader_new("shadertest",1);
-    printf("Shader finnished\n");
+    
 
     // loads skybox shaders and fill out the structure
     up_skyBox_t skyBox;
@@ -215,8 +236,9 @@ int main(int argc, char const *argv[])
 
         up_update_actions(&shipAction, network_states_data, network_state_recived,&funkarEj, sound);
         up_updateMovements();
-        up_checkCollision();
-        
+        up_checkCollision(&allcollisions);
+        up_handleCollision(&allcollisions);
+
         up_update_camera(&cam, ship);
         
         up_moveHealthBar(shipIndex,healthBar);

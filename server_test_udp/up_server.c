@@ -240,10 +240,6 @@ void *up_server_account_send_thread(void *parm)
                 continue;
             }
             
-            
-            
-            
-            
         }
         
         dataToSend_len = 0;
@@ -280,7 +276,6 @@ void *up_server_gamplay_reciveing_thread(void *parm)
 
     unsigned char recvBuff[BUFFER_SIZE];
     struct objUpdateInformation local_data = {0};
-    struct objUpdateInformation obj_zero = {0};
     
     unsigned long msglen = 0;
     int i = 0;
@@ -313,19 +308,13 @@ void *up_server_gamplay_reciveing_thread(void *parm)
         }
         
         if ((msglen > 5) && (msglen < UP_QUEUE_DATA_SIZE)) {
+            local_data.id = userId;
             local_data.length = (int)msglen;
             generic_copyElement((unsigned int)msglen, local_data.data, recvBuff);
             up_writeToNetworkDatabuffer(server_con->queue,&local_data);
             
         }
         
-        //up_copyBufferIntoObject(recvBuff,&local_data);
-        /*userPos = local_data.data.pos;
-        printf("\npacket recived %lu,User:%d,idx: %d pos: %f %f %f",msglen,userId,local_data.data.action.objectID.idx, userPos.x,userPos.y,userPos.z);
-        local_data.id = userId;
-        
-        up_writeToNetworkDatabuffer(server_con->queue,&local_data);
-        */
         //printf("\nmsg length: %lu",msglen);
     }
     //close(socket_server);
@@ -336,52 +325,67 @@ void *up_server_gamplay_reciveing_thread(void *parm)
 }
 
 
-void *up_server_gamplay_send_thread(void *parm)
+static int up_server_send_bufferRead_spinloop(struct objUpdateInformation *local_data,int length,struct up_server_connection_info * server_con)
+{
+    int packet_read =0;
+    int spin_counter = 0;
+    while (packet_read <= 0)
+    {
+        packet_read = up_readNetworkDatabuffer(server_con->queue,local_data, length);
+        spin_counter++;
+        usleep(100);
+        if (spin_counter > 2000) {
+            usleep(1000);
+            if (server_con->shutdown) {
+                return 0;
+            }
+            spin_counter = 0;
+        }
+    }
+    return packet_read;
+}
+
+static int up_server_send_toAll(struct up_server_connection_info * server_con, struct objUpdateInformation *local_data, int packet_read)
+{
+    unsigned int client_sock_len = sizeof(server_con->client_infoArray[0]);
+    
+    int packet_idx = 0;
+    int client_idx = 0;
+    
+    int dataToSend_len = 0;
+    for (packet_idx = 0; packet_idx < packet_read; packet_idx++) {
+        dataToSend_len = local_data[packet_idx].length;
+        for (client_idx = 0; client_idx < server_con->connected_clients; client_idx++) {
+            if (sendto(server_con->socket_server, local_data[packet_idx].data, dataToSend_len, 0, (struct sockaddr *)&server_con->client_infoArray[client_idx], client_sock_len) == -1) {
+                printf("sendTo error");
+                break;
+            }
+        }
+        
+    }
+    return 0;
+}
+
+
+void *up_server_gameplay_send_thread(void *parm)
 {
     struct up_server_connection_info * server_con = (struct up_server_connection_info *)parm;
     int length = UP_SEND_OBJECT_LENGTH;
     struct objUpdateInformation local_data[UP_SEND_OBJECT_LENGTH];
     
     int packet_read = 0;
-    
-    int spin_counter = 0;
-    
-    unsigned char dataBuffer[UP_SEND_BUFFER_DATA_SIZE];
-    unsigned int dataToSend_len = 0;
-    unsigned int client_sock_len = sizeof(server_con->client_infoArray[0]);
-    
-    int i = 0;
+
     while (server_con->shutdown == 0) {
-        packet_read =0;
-        while (packet_read <= 0)
-        {
-            
-            packet_read = up_readNetworkDatabuffer(server_con->queue,local_data, length);
-            spin_counter++;
-            usleep(100);
-            if (spin_counter > 2000) {
-                usleep(1000);
-                if (server_con->shutdown) {
-                    break;
-                }
-            }
-        }
+        
+        packet_read = up_server_send_bufferRead_spinloop(local_data, length, server_con);
         
         if (server_con->shutdown) {
             break;
         }
         
-        dataToSend_len = 0;
-        for (i = 0; i < packet_read; i++) {
-            dataToSend_len += up_copyObjectIntoBuffer(&local_data[i], &dataBuffer[dataToSend_len]);
-        }
+        // TODO: decode data and check if correct
         
-        for (i = 0; i < server_con->connected_clients; i++) {
-            if (sendto(server_con->socket_server, dataBuffer, dataToSend_len, 0, (struct sockaddr *)&server_con->client_infoArray[i], client_sock_len) == -1) {
-                printf("sendTo error");
-                break;
-            }
-        }
+        up_server_send_toAll(server_con, local_data, packet_read);
         
     }
     
@@ -523,7 +527,7 @@ struct internal_server_state *up_server_startup()
         UP_ERROR_MSG("malloc failure");
     }
     pthread_create(&server_gameplay_thread[0],NULL,&up_server_gamplay_reciveing_thread,server_gameplay);
-    pthread_create(&server_gameplay_thread[1],NULL,&up_server_gamplay_send_thread,server_gameplay);
+    pthread_create(&server_gameplay_thread[1],NULL,&up_server_gameplay_send_thread,server_gameplay);
     
     // too keep track of all threads and servers running we need to return
     struct internal_server_state *server_state = malloc(sizeof(struct internal_server_state));

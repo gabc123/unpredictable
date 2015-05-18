@@ -11,7 +11,7 @@
 
 enum up_object_type
 {
-    up_ship_type,
+    up_ship_type = 1,
     up_projectile_type,
     up_environment_type,
     up_others_type
