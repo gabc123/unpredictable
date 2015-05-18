@@ -90,7 +90,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
 //    glCullFace(previousFaceValue);
 //    glDepthFunc(previousDepthValue);
     
-    UP_openGLupdate();  // this swaps the render and window buffer , displaying it on screen
+     // this swaps the render and window buffer , displaying it on screen
 }
 
 

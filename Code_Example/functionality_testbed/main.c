@@ -259,10 +259,11 @@ int main(int argc, char const *argv[])
         
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
         
-        up_gamePlayInterface(font_assets,shader_menu,&stats);
-
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
 
+        up_gamePlayInterface(font_assets,shader_menu,&stats);
+        
+        UP_openGLupdate();
 
     }
     printf("Ended main loop\n");

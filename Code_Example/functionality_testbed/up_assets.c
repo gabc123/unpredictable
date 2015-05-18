@@ -22,7 +22,7 @@
 
 static struct up_assets *internal_assets=NULL;
 
-int loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray);
+static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray);
 
 struct box{
     float x1,y1,z1;
@@ -159,7 +159,7 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
 /*Reads assets to be loaded from a file*/
 //Sebastian
 // magnus error handeling
-int loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray)
+static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray)
 {
     struct UP_textHandler thafile = up_loadAssetFile("objIndex");
     if (thafile.text == NULL) {
