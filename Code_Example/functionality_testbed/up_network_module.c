@@ -166,7 +166,9 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
             printf("\nRecive packet coruppted");
             continue;
         }
-        
+        if (states[i].objectID.type == up_ship_type && states[i].objectID.idx == playerId) {
+            continue;
+        }
         // TODO: timedalation
         // this is a temporary solution
         tmpObject->pos = pos;
@@ -218,8 +220,9 @@ int up_network_recive(void *arg)
         SDL_Delay(1);
 
         if (SDLNet_UDP_Recv(socket,packet)){
-           
+            printf("\n pack recv: ");
             if (packet->len >= sizeof(local_data.data)) {
+                printf("pack processing ");
                 up_copyBufferIntoObject(packet->data,&local_data);
                 
                 up_writeToNetworkDatabuffer(&local_data);

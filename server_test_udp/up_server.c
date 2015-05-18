@@ -303,11 +303,12 @@ void *up_server_gamplay_reciveing_thread(void *parm)
                 continue;
             }
             server_con->client_infoArray[i] = client_sock;
+            printf("\nUser connected: %s",inet_ntoa(client_sock.sin_addr));
             userId = i;
             server_con->connected_clients++;
         }
         
-        if ((msglen > 5) && (msglen < UP_QUEUE_DATA_SIZE)) {
+        if ((msglen > 5) && (msglen < UP_QUEUE_DATA_SIZE + 1)) {
             local_data.id = userId;
             local_data.length = (int)msglen;
             generic_copyElement((unsigned int)msglen, local_data.data, recvBuff);
