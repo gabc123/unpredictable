@@ -318,6 +318,7 @@ struct up_texture_data *up_cubeMapTexture_load(){
 
     // the resson to load the errtexture regardless is to make sure that error checking is operational
     // and to re use the same texture in case of error
+    int errflag = 0;
     SDL_Surface *errTex = IMG_Load("lala.png");
     if (errTex == NULL) {
         UP_ERROR_MSG("err texture failed to load, aborting sktbox");
@@ -335,35 +336,42 @@ struct up_texture_data *up_cubeMapTexture_load(){
     if(texF == NULL) {
         texF = errTex;
         UP_ERROR_MSG("could not load skybox images");
+        errflag = 1;
     }
     if (texT == NULL){
         texT = errTex;
         UP_ERROR_MSG("could not load skybox images");
+        errflag = 1;
     }
     
     if (texG == NULL){
         texG = errTex;
         UP_ERROR_MSG("could not load skybox images");
+        errflag = 1;
     }
     
     if (texR == NULL){
         texR = errTex;
         UP_ERROR_MSG("could not load skybox images");
+        errflag = 1;
     }
     
     if (texL == NULL){
         texL = errTex;
         UP_ERROR_MSG("could not load skybox images");
+        errflag = 1;
     }
     
     if (texB == NULL){
         texB = errTex;
         UP_ERROR_MSG("could not load skybox images");
+        errflag = 1;
     }
     
     if (texF->format->BytesPerPixel != 4) {
 
         UP_ERROR_MSG("Error: picture is in wrong pixel format");
+        errflag = 1;
 
     }
 
@@ -389,12 +397,15 @@ struct up_texture_data *up_cubeMapTexture_load(){
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-    SDL_FreeSurface(texF);
-    SDL_FreeSurface(texT);
-    SDL_FreeSurface(texG);
-    SDL_FreeSurface(texR);
-    SDL_FreeSurface(texL);
-    SDL_FreeSurface(texB);
+    if (errflag == 0) {
+        SDL_FreeSurface(texF);
+        SDL_FreeSurface(texT);
+        SDL_FreeSurface(texG);
+        SDL_FreeSurface(texR);
+        SDL_FreeSurface(texL);
+        SDL_FreeSurface(texB);
+    }
+    
     SDL_FreeSurface(errTex);
 
     return textureId;
