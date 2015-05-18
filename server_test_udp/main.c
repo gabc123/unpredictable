@@ -21,6 +21,11 @@ int main(int argc, const char * argv[]) {
         UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
     }*/
     
+    printf("\nsizeof(int):%lu",sizeof(int));
+    printf("\nsizeof(float):%lu",sizeof(float));
+    printf("\nsizeof(long):%lu",sizeof(long));
+    
+    
     struct internal_server_state *server_state = up_server_startup();
     up_server_run(server_state);
     up_server_shutdown_cleanup(server_state);
