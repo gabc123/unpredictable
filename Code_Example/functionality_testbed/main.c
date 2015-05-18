@@ -53,7 +53,7 @@ int main(int argc, char const *argv[])
     struct shader_module *shaderprog;
     shaderprog = UP_Shader_new("shadertest",1);
     printf("Shader finnished\n");
-    
+
     // if we failed to load the primary shaders, there is no game to play
     // so do program cleanup and exit
     if (shaderprog == NULL) {
@@ -73,19 +73,18 @@ int main(int argc, char const *argv[])
         shader_menu = shaderprog;
     }
     printf("Shader menu finnished\n");
-    
-    
+
+
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
     int totalNumObjects = max_ship_count + max_projectile_count + max_enviroment_count + max_others_count;
     struct up_transformationContainer *transformationArray = malloc(sizeof(struct up_transformationContainer)*totalNumObjects);
     if (transformationArray == NULL) {
         UP_ERROR_MSG("transformation array malloc failure");
-
     }
 
 
-    
+
 
     //Init sound
     struct soundLib *sound= up_setupSound();
@@ -135,7 +134,7 @@ int main(int argc, char const *argv[])
     up_generate_randomize_satellite(40);        //satellite
     up_generate_randomize_spaceMine(80);        //space mine
 
-    
+
     struct up_font_assets *font_assets = up_font_start_setup();  //load font to inteface startup
     //up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
 
@@ -170,7 +169,7 @@ int main(int argc, char const *argv[])
 
     up_health_bar_t healthBar;
     healthBar = healthbar_creation();
-    
+
     up_stats_index_t interface_info = up_create_statsObject();
 
 
@@ -178,7 +177,7 @@ int main(int argc, char const *argv[])
 
 
 
-    
+
 
     // loads skybox shaders and fill out the structure
     up_skyBox_t skyBox;
@@ -240,7 +239,7 @@ int main(int argc, char const *argv[])
         up_handleCollision(&allcollisions);
 
         up_update_camera(&cam, ship);
-        
+
         up_moveHealthBar(shipIndex,healthBar);
         up_interface_placement(&cam,interface_info);
 
@@ -255,14 +254,14 @@ int main(int argc, char const *argv[])
         up_getViewPerspective(&viewPerspectivMatrix,&viewMatrix,&perspectiveMatrix);
 
         up_updateMatrix(transformationArray, &viewPerspectivMatrix, objectArray, numObjects);
-        
-        
+
+
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
-        
+
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
 
         up_gamePlayInterface(font_assets,shader_menu,&stats);
-        
+
         UP_openGLupdate();
 
     }
