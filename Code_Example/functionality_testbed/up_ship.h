@@ -92,6 +92,16 @@ struct up_eventState
     struct up_shootingFlag flags;
 };
 
+struct up_key_map
+{
+    char name[25];
+    SDL_Keycode key;
+    void (*keyDown_func)(struct up_eventState *currentEvent,struct up_actionState *objectAction);
+    void (*keyUp_func)(struct up_eventState *currentEvent,struct up_actionState *objectAction);
+};
+
+struct up_key_map *up_key_remapping_setup();
+
 void up_checkCollision(struct up_allCollisions *allcollisions);
 void up_handleCollision(struct up_allCollisions *allcollisions);
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
@@ -109,7 +119,7 @@ double up_getFrameTimeDelta();
 unsigned int up_getFrameRate();
 
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent);
-int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction);
+int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction,struct up_key_map *up_keymap);
 
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship);
 #endif

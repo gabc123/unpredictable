@@ -98,6 +98,8 @@ int main(int argc, char const *argv[])
     printf("past assets\n");
     //up_generate_asteroidBelt(idensity,maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight)
 
+    struct up_key_map *keymap = up_key_remapping_setup();
+    
     // this is the start ship, initilazing the startin positions
     struct up_objectInfo tmp_ship = {0};
     tmp_ship.pos.x = 440;
@@ -221,7 +223,7 @@ int main(int argc, char const *argv[])
     while(status)
     {
         up_updateFrameTickRate();
-        status = UP_eventHandler(&currentEvent,&shipAction);
+        status = UP_eventHandler(&currentEvent,&shipAction,keymap);
 
 
         //upnewtwork_getNewMovement(&ship);          // retrive any updates from the network

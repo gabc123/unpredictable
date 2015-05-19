@@ -215,15 +215,9 @@ void up_key_function_stop_bankleft(struct up_eventState *currentEvent,struct up_
   keymapp
  
  */
-struct up_key_map
-{
-    char name[25];
-    SDL_Keycode key;
-    void (*keyDown_func)(struct up_eventState *currentEvent,struct up_actionState *objectAction);
-    void (*keyUp_func)(struct up_eventState *currentEvent,struct up_actionState *objectAction);
-};
 
-struct up_key_map up_keymap[] =
+
+struct up_key_map internal_keymap[] =
 {{"Forward",SDLK_w                      , &up_key_function_forward , &up_key_function_stop_forward},
     {"Backward",SDLK_s                  , &up_key_function_backward , &up_key_function_stop_backward},
     {"Turn Left",SDLK_a                 , &up_key_function_turnLeft , &up_key_function_stop_turnleft},
@@ -244,10 +238,15 @@ struct up_key_map up_keymap[] =
     {"Fire laser",SDLK_v                , &up_key_function_firelaser, &up_key_function_noop},
     {"\0",0,&up_key_function_noop,&up_key_function_noop}};  //end
 
+struct up_key_map *up_key_remapping_setup()
+{
+    return &internal_keymap[0];
+}
+
 
 // tobias
 // magnus added keyremappin
-int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction)
+int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction,struct up_key_map *up_keymap)
 {
     int flag = 1;
     SDL_Event event;
@@ -274,7 +273,7 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
             currentKey = event.key.keysym.sym;
             for (i = 0; up_keymap[i].key != 0; i++) {
                 if (up_keymap[i].key == currentKey) {
-                    up_keymap[i].keyDown_func(currentEvent,objectAction);
+                    up_keymap[i].keyUp_func(currentEvent,objectAction);
                     break;
                 }
             }
