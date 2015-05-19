@@ -36,13 +36,223 @@ void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
 
 
 
+
+/**
+    Key remapping 
+    The key_map struct contains 2 function pointers, one for key down , and one for key up
+    also what key they map to.
+    below are all the functions
+ 
+ **/
+
+
+
+
+void up_key_function_noop(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    
+}
+
+void up_key_function_forward(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    objectAction->engine.state = fwd;
+}
+void up_key_function_backward(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    objectAction->engine.state = bwd;
+}
+void up_key_function_turnLeft(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    objectAction->maneuver.state = left;
+}
+void up_key_function_turnRigth(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    objectAction->maneuver.state = right;
+}
+//Rotate
+void up_key_function_bankRigth(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    objectAction->maneuver.state = bankRight;
+}
+void up_key_function_bankLeft(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    objectAction->maneuver.state = bankLeft;
+}
+//Zooming
+void up_key_function_zoomin(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    up_cam_zoom(1.0f);
+}
+void up_key_function_zoomout(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    up_cam_zoom(-1.0f);
+}
+// demonstration code to toggle diffrent propertys
+#ifdef UP_PRESENTATION_MODE
+void up_key_function_toggle_wireframe(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    up_toggle_wireframe();
+}
+void up_key_function_toggle_ambient(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    up_toggle_ambientLigth();
+}
+void up_key_function_toggle_dirligth(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    up_toggle_directionalLigth();
+}
+void up_key_function_toggle_ligth(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    up_toggle_allLigth();
+}
+#endif
+//fire main weapon for playership
+void up_key_function_firebullet(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    //Checks if its ok to fire a projectile
+    int tempFlag = checkFire(currentEvent->flags.bulletFlag.startTime, currentEvent->flags.bulletFlag.coolDown);
+    if(tempFlag==0)
+    {
+        objectAction->fireWeapon.state = fireBullet;
+        currentEvent->flags.bulletFlag.startTime = SDL_GetTicks();  //marks the time the wepon was fired,
+    }else
+    {
+        objectAction->fireWeapon.state = none;
+    }
+}
+//missile
+void up_key_function_firemissile(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    int tempFlag = checkFire(currentEvent->flags.missileFlag.startTime, currentEvent->flags.missileFlag.coolDown);
+    if(tempFlag==0)
+    {
+        objectAction->fireWeapon.state = fireMissile;
+        currentEvent->flags.missileFlag.startTime = SDL_GetTicks();
+    }else
+    {
+        objectAction->fireWeapon.state = none;
+    }
+}
+//lazer
+void up_key_function_firelaser(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    int tempFlag = checkFire(currentEvent->flags.laserFlag.startTime, currentEvent->flags.laserFlag.coolDown);
+    if(tempFlag==0)
+    {
+        objectAction->fireWeapon.state = fireLaser;
+        currentEvent->flags.laserFlag.startTime = SDL_GetTicks();
+    }else
+    {
+        objectAction->fireWeapon.state = none;
+    }
+}
+
+
+
+
+
+
+
+
+void up_key_function_stop_forward(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    if(objectAction->engine.state == fwd)
+    {
+        objectAction->engine.none=none;
+    }
+}
+
+void up_key_function_stop_backward(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    if(objectAction->engine.state == bwd)
+    {
+        objectAction->engine.none=none;
+    }
+}
+
+void up_key_function_stop_turnrigth(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    if(objectAction->maneuver.state == right)
+    {
+        objectAction->maneuver.none=none;
+    }
+}
+
+void up_key_function_stop_turnleft(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    if(objectAction->maneuver.state == left)
+    {
+        objectAction->maneuver.none=none;
+    }
+}
+
+void up_key_function_stop_firebullet(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    if(objectAction->fireWeapon.state == fireBullet)
+    {
+        objectAction->fireWeapon.none=none;
+    }
+}
+
+void up_key_function_stop_bankrigth(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    if(objectAction->maneuver.state == bankRight)
+    {
+        objectAction->maneuver.none = none;
+    }
+}
+
+void up_key_function_stop_bankleft(struct up_eventState *currentEvent,struct up_actionState *objectAction)
+{
+    if(objectAction->maneuver.state == bankLeft)
+    {
+        objectAction->maneuver.none = none;
+    }
+}
+
+
+/**
+  keymapp
+ 
+ */
+struct up_key_map
+{
+    char name[25];
+    SDL_Keycode key;
+    void (*keyDown_func)(struct up_eventState *currentEvent,struct up_actionState *objectAction);
+    void (*keyUp_func)(struct up_eventState *currentEvent,struct up_actionState *objectAction);
+};
+
+struct up_key_map up_keymap[] =
+{{"Forward",SDLK_w                      , &up_key_function_forward , &up_key_function_stop_forward},
+    {"Backward",SDLK_s                  , &up_key_function_backward , &up_key_function_stop_backward},
+    {"Turn Left",SDLK_a                 , &up_key_function_turnLeft , &up_key_function_stop_turnleft},
+    {"Turn Rigth",SDLK_d                , &up_key_function_turnRigth , &up_key_function_stop_turnrigth},
+    {"Bank Left",SDLK_q                 , &up_key_function_bankLeft , &up_key_function_stop_bankleft},
+    {"Bank Right",SDLK_e                , &up_key_function_bankRigth, &up_key_function_stop_bankrigth},
+    {"Zoom in",SDLK_r                   , &up_key_function_zoomin, &up_key_function_noop},
+    {"Zoom out",SDLK_f                  , &up_key_function_zoomout, &up_key_function_noop},
+    // demonstration code to toggle diffrent propertys
+#ifdef UP_PRESENTATION_MODE
+    {"Toggle wireframe",SDLK_t          , &up_key_function_toggle_wireframe, &up_key_function_noop},
+    {"Toggle ambiant Ligth",SDLK_y      , &up_key_function_toggle_ambient, &up_key_function_noop},
+    {"Toggle Directional Ligth",SDLK_u  , &up_key_function_toggle_dirligth, &up_key_function_noop},
+    {"Toggle ligth",SDLK_i              , &up_key_function_toggle_ligth, &up_key_function_noop},
+#endif
+    {"Fire bullet",SDLK_SPACE           , &up_key_function_firebullet, &up_key_function_stop_firebullet},
+    {"Fire missile",SDLK_c              , &up_key_function_firemissile, &up_key_function_noop},
+    {"Fire laser",SDLK_v                , &up_key_function_firelaser, &up_key_function_noop},
+    {"\0",0,&up_key_function_noop,&up_key_function_noop}};  //end
+
+
+// tobias
+// magnus added keyremappin
 int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction)
 {
     int flag = 1;
     SDL_Event event;
-    int tempFlag = 0;
-
-
+    SDL_Keycode currentKey;
+    int i = 0;
     while(SDL_PollEvent(&event))
     {
         if (event.type == SDL_QUIT)
@@ -50,145 +260,23 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
             flag = 0;
         }
         if(event.type == SDL_KEYDOWN) {
-            switch (event.key.keysym.sym) {
-                //Stearing the ship.
-                case SDLK_w:
-                    objectAction->engine.state = fwd;
+            currentKey = event.key.keysym.sym;
+            for (i = 0; up_keymap[i].key != 0; i++) {
+                if (up_keymap[i].key == currentKey) {
+                    up_keymap[i].keyDown_func(currentEvent,objectAction);
                     break;
-                case SDLK_s:
-                    objectAction->engine.state = bwd;
-                    break;
-                case SDLK_a:
-                    objectAction->maneuver.state = left;
-                    break;
-                case SDLK_d:
-                    objectAction->maneuver.state = right;
-                    break;
-                //Rotate
-                case SDLK_e:
-                    objectAction->maneuver.state = bankRight;
-                    break;
-                case SDLK_q:
-                    objectAction->maneuver.state = bankLeft;
-                    break;
-                //Zooming
-                case SDLK_r:
-                    up_cam_zoom(1.0f);
-                    break;
-                case SDLK_f:
-                    up_cam_zoom(-1.0f);
-                    break;
-                // demonstration code to toggle diffrent propertys
-#ifdef UP_PRESENTATION_MODE
-                case SDLK_t:
-                    up_toggle_wireframe();
-                    break;
-                case SDLK_y:
-                    up_toggle_ambientLigth();
-                    break;
-                case SDLK_u:
-                    up_toggle_directionalLigth();
-                    break;
-                case SDLK_i:
-                    up_toggle_allLigth();
-                    break;
-#endif
-                //fire main weapon for playership
-                case SDLK_SPACE:
-                    //Checks if its ok to fire a projectile
-                    tempFlag = checkFire(currentEvent->flags.bulletFlag.startTime, currentEvent->flags.bulletFlag.coolDown);
-                    if(tempFlag==0)
-                    {
-                        objectAction->fireWeapon.state = fireBullet;
-                        currentEvent->flags.bulletFlag.startTime = SDL_GetTicks();  //marks the time the wepon was fired,
-                    }else
-                    {
-                        objectAction->fireWeapon.state = none;
-                    }
-                    break;
-                //missile
-                case SDLK_c:
-                    tempFlag = checkFire(currentEvent->flags.missileFlag.startTime, currentEvent->flags.missileFlag.coolDown);
-                    if(tempFlag==0)
-                    {
-                        objectAction->fireWeapon.state = fireMissile;
-                        currentEvent->flags.missileFlag.startTime = SDL_GetTicks();
-                    }else
-                    {
-                        objectAction->fireWeapon.state = none;
-                    }
-                    break;
-                //lazer
-                case SDLK_v:
-                    tempFlag = checkFire(currentEvent->flags.laserFlag.startTime, currentEvent->flags.laserFlag.coolDown);
-                    if(tempFlag==0)
-                    {
-                        objectAction->fireWeapon.state = fireLaser;
-                        currentEvent->flags.laserFlag.startTime = SDL_GetTicks();
-                    }else
-                    {
-                        objectAction->fireWeapon.state = none;
-                    }
-                    break;
-                default:
-                    break;
+                }
             }
         }
 
         if(event.type == SDL_KEYUP)
         {
-            switch (event.key.keysym.sym) {
-                case SDLK_w:
-                    if(objectAction->engine.state == fwd)
-                    {
-                        objectAction->engine.none=none;
-                    }
+            currentKey = event.key.keysym.sym;
+            for (i = 0; up_keymap[i].key != 0; i++) {
+                if (up_keymap[i].key == currentKey) {
+                    up_keymap[i].keyDown_func(currentEvent,objectAction);
                     break;
-
-                case SDLK_s:
-                    if(objectAction->engine.state == bwd)
-                    {
-                        objectAction->engine.none=none;
-                    }
-                    break;
-
-                case SDLK_d:
-                    if(objectAction->maneuver.state == right)
-                    {
-                        objectAction->maneuver.none=none;
-                    }
-                    break;
-
-                case SDLK_a:
-                    if(objectAction->maneuver.state == left)
-                    {
-                        objectAction->maneuver.none=none;
-                    }
-                    break;
-
-                case SDLK_SPACE:
-                    if(objectAction->fireWeapon.state == fireBullet)
-                    {
-                        objectAction->fireWeapon.none=none;
-                    }
-                    break;
-
-                case SDLK_e:
-                    if(objectAction->maneuver.state == bankRight)
-                    {
-                        objectAction->maneuver.none = none;
-                    }
-                    break;
-
-                case SDLK_q:
-                    if(objectAction->maneuver.state == bankLeft)
-                    {
-                        objectAction->maneuver.none = none;
-                    }
-                    break;
-
-                default:
-                    break;
+                }
             }
         }
     }
