@@ -5,6 +5,7 @@
 #include "up_shader_module.h"
 #include "up_camera_module.h"
 #include "up_modelRepresentation.h"
+#include "up_render_engine.h"
 #include "up_filereader.h"
 #include "up_assets.h"
 #include "up_music.h"
@@ -77,6 +78,21 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
                 case SDLK_f:
                     up_cam_zoom(-1.0f);
                     break;
+                // demonstration code to toggle diffrent propertys
+#ifdef UP_PRESENTATION_MODE
+                case SDLK_t:
+                    up_toggle_wireframe();
+                    break;
+                case SDLK_y:
+                    up_toggle_ambientLigth();
+                    break;
+                case SDLK_u:
+                    up_toggle_directionalLigth();
+                    break;
+                case SDLK_i:
+                    up_toggle_allLigth();
+                    break;
+#endif
                 //fire main weapon for playership
                 case SDLK_SPACE:
                     //Checks if its ok to fire a projectile

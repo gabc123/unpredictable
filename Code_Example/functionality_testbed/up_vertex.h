@@ -37,6 +37,7 @@ struct up_mesh
 	int vertex_count;
     int index_count;
 	int active;
+    int drawMode;
 };
 
 void up_mesh_start_setup(int maximum_meshes);
@@ -44,5 +45,6 @@ void up_mesh_shutdown_deinit();
 
 struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned int *indexArray,int index_count);
 void up_draw_mesh(struct up_mesh *mesh);
+void up_draw_mesh_speciall(struct up_mesh *mesh,int drawMode);
 
 #endif
