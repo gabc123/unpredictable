@@ -216,7 +216,7 @@ void up_key_function_stop_bankleft(struct up_eventState *currentEvent,struct up_
  
  */
 
-
+// Name , what key activates it, function for keyDown event, function for keyUp event
 struct up_key_map internal_keymap[] =
 {{"Forward",SDLK_w                      , &up_key_function_forward , &up_key_function_stop_forward},
     {"Backward",SDLK_s                  , &up_key_function_backward , &up_key_function_stop_backward},

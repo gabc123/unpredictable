@@ -20,11 +20,109 @@
 #include "up_modelRepresentation.h"
 #include "up_matrixTransforms.h"
 #include "up_music.h"
+#include "up_error.h"
 
 #define UP_LIMIT 30
 
 
 #include "up_sdl_redirect.h"  //mouse event handlingr
+
+
+// magnus
+struct up_menu_button
+{
+    struct up_vec3 pos;
+    int width;
+    int hight;
+    
+    char text[30];
+    int text_len;
+    struct up_vec3 textScale;
+    struct up_mesh *mesh;
+    struct up_texture_data *tex;
+};
+#define UP_SCREEN_WIDTH 1280
+#define UP_SCREEN_HIGHT 800
+
+// magnus
+struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map *keymap, struct up_vec3 pos,int hight,int width,struct up_vec3 textScale)
+{
+    int count = 0;
+    int i = 0;
+    while(keymap[count].key != 0)
+    {
+        count++;
+    }
+    
+    struct up_menu_button *buttonArray = malloc(sizeof(struct up_menu_button) * count);
+    if (buttonArray == NULL)
+    {
+        UP_ERROR_MSG("malloc failed");
+        return NULL;
+    }
+    struct up_mesh *mesh = up_mesh_menu_Botton();
+    
+    struct up_texture_data *textureButton = up_load_texture("placeholder.png");
+    if(textureButton == NULL){
+        textureButton = up_loadImage_withAlpha("lala.png");
+    }
+    
+    for (i = 0; i < count; i++) {
+        strcpy(buttonArray[i].text ,SDL_GetKeyName(keymap[i].key));
+        buttonArray[i].text_len = (int)strlen(buttonArray[i].text);
+        buttonArray[i].textScale = textScale;
+        
+        buttonArray[i].pos = pos;
+        pos.y -= 0.02;
+        buttonArray[i].width = width;
+        buttonArray[i].hight = hight;
+        
+        buttonArray[i].mesh = mesh;
+        buttonArray[i].tex = textureButton;
+        
+    }
+    return buttonArray;
+}
+
+// magnus
+void up_generate_settings_freebuttons(struct up_menu_button *buttonArray)
+{
+    free(buttonArray);
+}
+
+// magnus
+void up_drawbutton(struct shader_module *shaderprog,struct up_menu_button *button,struct up_font_assets *fonts,struct up_vec3 *color)
+{
+    up_matrix4_t modelMatrix;
+    struct up_vec3 rot = {0};
+    struct up_vec3 scale;
+    scale.x = (float)button->width/UP_SCREEN_WIDTH;
+    scale.y = (float)button->hight/UP_SCREEN_HIGHT;
+    scale.z = 1;
+    
+    up_matrixModel(&modelMatrix,&button->pos,&rot,&scale);
+    
+    UP_shader_update(shaderprog,&modelMatrix);
+    up_texture_bind(button->tex, 2);
+    up_draw_mesh(button->mesh);
+    
+    up_displayText(button->text,button->text_len,&button->pos,&button->textScale,fonts,shaderprog,0,color);
+    
+}
+
+// magnus
+int up_checkButtonClick(struct up_menu_button *button,int mouse_x,int mouse_y)
+{
+    int x = UP_SCREEN_WIDTH*(button->pos.x + 1.0)/2;
+    int y = UP_SCREEN_HIGHT - UP_SCREEN_HIGHT*(button->pos.y + 1.0)/2;
+    int width = button->width;
+    int hight = button->hight;
+    x = x - width/2; // the xy coord is the center of the button
+    y = y - hight/2; // the xy coord is the center of the button
+    
+    // check if the click is inside the buttom, returns "true" elese "false"
+    return ((x <= mouse_x) && ( mouse_x <= x + width) && (y <= mouse_y) && ( mouse_y <= y + hight));
+}
 
 
 enum menu_states
@@ -417,7 +515,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                     xf=(float)x/width*2-1;
                     yf=-(float)y/height*2+1;
 
-                    printf("X AND Y COORDINATES: %f %f \n", xf, yf); //test print
+                    printf("X AND Y COORDINATES: %f %f , real x %d y %d\n", xf, yf,x,y); //test print
 
 
                     //LOGIN BOTTON
