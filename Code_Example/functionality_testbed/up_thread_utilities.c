@@ -85,6 +85,7 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
     
     if (current == NULL) {
         //weired
+        return 0;
     }
     // if current == last, then the while loop never gets executed
     // so this make sure this is not null at the end of the function.
