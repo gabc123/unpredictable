@@ -325,11 +325,11 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
             continue;
         }
 
-        object2->dir=object1->dir;
-        object2->pos.x+=5*object1->dir.x;
-        object2->pos.y+=5*object1->dir.y;
-        object2->speed=object1->speed*3/4;
-        object1->speed =object1->speed/2;
+        object2->dir = object1->dir;
+        object2->pos.x += 5*object1->dir.x;
+        object2->pos.y += 5*object1->dir.y;
+        object2->speed = object1->speed*3/4;
+        object1->speed = object1->speed/2;
 
     }
     for(i=0; i < allcollisions->nrProjectileEnviroment; i++){
@@ -346,11 +346,11 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
             continue;
         }
 
-        object2->dir=object1->dir;
-        object2->pos.x+=5*object1->dir.x;
-        object2->pos.y+=5*object1->dir.y;
-        object2->speed=object1->speed*3/4;
-        object1->speed =object1->speed/2;
+        object2->dir = object1->dir;
+        object2->pos.x += 5*object1->dir.x;
+        object2->pos.y += 5*object1->dir.y;
+        object2->speed = object1->speed*3/4;
+        object1->speed = object1->speed/2;
 
     }
 
@@ -369,11 +369,11 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
             continue;
         }
 
-        object2->dir=object1->dir;
-        object2->pos.x+=5*object1->dir.x;
-        object2->pos.y+=5*object1->dir.y;
-        object2->speed=object1->speed*3/4;
-        object1->speed =object1->speed/2;
+        object2->dir = object1->dir;
+        object2->pos.x += 5*object1->dir.x;
+        object2->pos.y += 5*object1->dir.y;
+        object2->speed = object1->speed*3/4;
+        object1->speed = object1->speed/2;
 
     }
 
@@ -385,23 +385,28 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
             printf("itemnr: %d\n", i);
             continue;
         }
-
         if (object2 ==NULL){
             UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
             printf("itemnr: %d\n", i);
             continue;
         }
-        if(object1->objectId.idx != object2->owner){
-            object2->owner = object1->objectId.idx;
-            printf("trolololooooo\n");
-            object2->dir=object1->dir;
-            object2->pos.x+=5*object1->dir.x;
-            object2->pos.y+=5*object1->dir.y;
-            object2->speed=object1->speed*3/4;
-            object1->speed =object1->speed/2;
-        }
-    }
+        //2 static object on top of eachother result in no collision
+        if(object1->speed == 0 && object2->speed == 0)
+            continue;
 
+
+        if(object1->objectId.idx != object2->owner && object2->objectId.idx != object1->owner){
+            object2->owner = object1->objectId.idx;
+            object2->dir = object1->dir;
+            object2->pos.x += 5*object1->dir.x;
+            object2->pos.y += 5*object1->dir.y;
+            object2->speed = object1->speed*3/4;
+            object1->speed = object1->speed/2;
+       }
+    }
+    for(i=0; i < allcollisions->nrEnviromentEnviroment; i++){
+        object2->owner = object2->objectId.idx;
+    }
     /*
     enum up_object_type
     {
@@ -417,6 +422,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
 //checks objects collisionboxes too see whether a hit has occured or not
 void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int nrObj1, int nrObj2, struct up_allCollisions *allcollisions, int typeCollision)
 {
+
     float xlengthModel1, ylengthModel1, zlengthModel1;
     float xlengthModel2, ylengthModel2, zlengthModel2;
     float distanceX, distanceY, distanceZ;
@@ -533,7 +539,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
-    //ship vs projectile
+    //projectile vs ship
     for(i=0; i < totalShips; i++){
         for(j=0; j < totalProjectiles; j++){
                 if(ships[i].objectId.idx != projectile[j].owner){
@@ -548,23 +554,22 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 }
         }
     }
-    /*
+
     //enviroment vs enviroment
     for(i=0; i < totalObjects; i++){
         for(j=0; j < totalObjects; j++){
             if(i != j){
-                    x = projectile[i].pos.x - projectile[j].pos.x;
-                    y = projectile[i].pos.y - projectile[j].pos.y;
-                    z = projectile[i].pos.z - projectile[j].pos.z;
+                    x = enviroment[i].pos.x - enviroment[j].pos.x;
+                    y = enviroment[i].pos.y - enviroment[j].pos.y;
+                    z = enviroment[i].pos.z - enviroment[j].pos.z;
                     distance = sqrt((x*x)+(y*y)+(z*z));
 
                     if(distance <2){
-                         testCollision(projectile, ships, j, i, allcollisions, projectileShip);
+                         testCollision(enviroment, enviroment, j, i, allcollisions, enviromentEnviroment);
                     }
             }
         }
     }
-    */
 
 }
 
