@@ -197,29 +197,30 @@ void up_viewTest2(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 
 {
     struct up_vec3 dir;
     viewdirection(&dir, center, eye);
-    struct up_vec3 f;
-    up_normalize(&f, &dir);
+    struct up_vec3 face;
+    up_normalize(&face, &dir);
 
+    //normalized upvector
     struct up_vec3 un;
     up_normalize(&un, UP);
 
     struct up_vec3 cross_fu;
-    up_cross(&cross_fu, &f, &un);
+    up_cross(&cross_fu, &face, &un);
 
-    struct up_vec3 s;
-    up_normalize(&s, &cross_fu);
+    struct up_vec3 shader;
+    up_normalize(&shader, &cross_fu);
 
-    struct up_vec3 u ;
-    up_cross(&u, &s, &f);
+    struct up_vec3 upp;
+    up_cross(&upp, &shader, &face);
 
-    float row4x = -up_dot(&s, eye);
-    float row4y = -up_dot(&u, eye);
-    float row4z = -up_dot(&f, eye);
+    float row4x = -up_dot(&shader, eye);
+    float row4y = -up_dot(&upp, eye);
+    float row4z = -up_dot(&face, eye);
 
     up_matrix4_t matTmp = {
-        s.x, u.x, f.x, 0,
-        s.y, u.y, f.y, 0,
-        s.z, u.z, f.z, 0,
+        shader.x, upp.x, face.x, 0,
+        shader.y, upp.y, face.y, 0,
+        shader.z, upp.z, face.z, 0,
         row4x, row4y, row4z,1};
 
     *matrixView = matTmp;

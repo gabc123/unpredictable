@@ -7,16 +7,25 @@
 
 struct up_collision
 {
-    int object1[100];
-    int object2[100];
-    int nrCollisions;
+    int object1;
+    int object2;
+    int nrObj1;
+    int nrObj2;
 };
 
 struct up_allCollisions
 {
-    struct up_collision projectileEnviroment;
-    struct up_collision projectileShip;
-    struct up_collision shipEnviroment;
+    struct up_collision projectileEnviroment[100];
+    struct up_collision projectileShip[100];
+    struct up_collision shipEnviroment[100];
+    struct up_collision enviromentEnviroment[100];
+    struct up_collision shipShip[100];
+    //current number of objects in each array
+    int nrProjectileEnviroment;
+    int nrProjectileShip;
+    int nrShipEnviroment;
+    int nrEnviromentEnviroment;
+    int nrShipShip;
 };
 
 enum up_none
@@ -62,7 +71,9 @@ enum collisionType
 {
     shipEnviroment,
     projectileShip,
-    projectileEnviroment
+    projectileEnviroment,
+    enviromentEnviroment,
+    shipShip
 };
 struct up_actionState
 {

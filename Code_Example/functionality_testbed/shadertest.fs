@@ -22,8 +22,7 @@ out vec4 fragColor;
 void main()
 {
     // This is temporary untill mats model gets a propper scaling done to it
-    vec4 ambiantLight = vec4(ambiantColor,0.0) * ambiantIntensity;
-    ambiantLight = vec4(ambiantLight.xyz,1.0);
+    vec4 ambiantLight = vec4(ambiantColor,1.0)*ambiantIntensity;
     
     // directional light, we want light comming in at a step angle to get the brigther fraction of
     // the intensity then ligth comming in at a shallow angle, this calculation
