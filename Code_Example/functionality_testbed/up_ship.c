@@ -664,6 +664,7 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
 
 //Tobias 2015-05-05
 //magnus 2015-05-06
+// magnus 2015-05-21 bug fix
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
     char *lineReader = NULL;
@@ -690,11 +691,15 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
             printf("File read wepeon");
             break;
         }
+        if (lineReader[0] == '#') {
+            continue;
+        }
+        
         if(*lineReader==':')
         {
             printf("found :\n");
             lineReader++;
-            sscanf(lineReader,"%d %d %s",&tmp1,&tmp2,ammoName);
+            sscanf(lineReader,"%d/%d/%s",&tmp1,&tmp2,ammoName);
         }
 
         printf("%d %d %s",tmp1,tmp2,ammoName);
