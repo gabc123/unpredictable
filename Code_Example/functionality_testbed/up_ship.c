@@ -548,7 +548,8 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 }
         }
     }
-  /*  //enviroment vs enviroment
+    /*
+    //enviroment vs enviroment
     for(i=0; i < totalObjects; i++){
         for(j=0; j < totalObjects; j++){
             if(i != j){
@@ -563,7 +564,8 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
-*/
+    */
+
 }
 
 //Magnus
