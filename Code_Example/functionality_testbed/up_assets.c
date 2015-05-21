@@ -83,7 +83,11 @@ void fallbackHitbox(struct up_objectInfo *obj){
 //Sebastian
 struct up_objectInfo up_asset_createObjFromId(int modelId)
 {
-    struct up_objectInfo obj;
+    struct up_objectInfo obj = {0};
+    obj.scale.x = 1;
+    obj.scale.y = 1;
+    obj.scale.z = 1;
+    
     obj.modelId = modelId;
 
     //internal_assets is a static global
