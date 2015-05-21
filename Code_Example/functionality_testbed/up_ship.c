@@ -308,8 +308,8 @@ double up_getFrameTimeDelta()
 void up_handleCollision(struct up_allCollisions *allcollisions)
 {
     int i=0;
-    struct up_objectInfo *object1;
-    struct up_objectInfo *object2;
+    struct up_objectInfo *object1 = NULL;
+    struct up_objectInfo *object2 = NULL;
 
     for(i=0; i < allcollisions->nrShipEnviroment; i++){
         object1 = up_unit_objAtIndex(up_ship_type, allcollisions->shipEnviroment[i].object1);
@@ -404,6 +404,11 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
             object1->speed = object1->speed/2;
        }
     }
+    
+    if (object2 == NULL) {
+        return;
+    }
+    
     for(i=0; i < allcollisions->nrEnviromentEnviroment; i++){
         object2->owner = object2->objectId.idx;
     }

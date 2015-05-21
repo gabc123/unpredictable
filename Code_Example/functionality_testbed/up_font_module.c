@@ -45,6 +45,10 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
         
         
     }
+    struct up_vec3 clearColor = {0};
+    if (color != NULL) {
+        up_shader_update_font_color(shaderprog,&clearColor);
+    }
     
 }
 

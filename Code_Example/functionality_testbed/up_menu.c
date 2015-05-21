@@ -28,6 +28,7 @@
 #include "up_sdl_redirect.h"  //mouse event handlingr
 
 
+
 // magnus
 struct up_menu_button
 {
@@ -45,7 +46,7 @@ struct up_menu_button
 #define UP_SCREEN_HIGHT 800
 
 // magnus
-struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map *keymap, struct up_vec3 pos,int hight,int width,struct up_vec3 textScale)
+struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map *keymap, struct up_vec3 pos,int hight,int width,struct up_vec3 textScale,float step)
 {
     int count = 0;
     int i = 0;
@@ -62,9 +63,9 @@ struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map
     }
     struct up_mesh *mesh = up_mesh_menu_Botton();
     
-    struct up_texture_data *textureButton = up_load_texture("placeholder.png");
+    struct up_texture_data *textureButton = up_load_texture("button_keybind");
     if(textureButton == NULL){
-        textureButton = up_loadImage_withAlpha("lala.png");
+        textureButton = up_load_texture("lala.png");
     }
     
     for (i = 0; i < count; i++) {
@@ -73,7 +74,7 @@ struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map
         buttonArray[i].textScale = textScale;
         
         buttonArray[i].pos = pos;
-        pos.y -= 0.02;
+        pos.y -= step;
         buttonArray[i].width = width;
         buttonArray[i].hight = hight;
         
@@ -81,6 +82,7 @@ struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map
         buttonArray[i].tex = textureButton;
         
     }
+    *numkey = count;
     return buttonArray;
 }
 
@@ -106,7 +108,9 @@ void up_drawbutton(struct shader_module *shaderprog,struct up_menu_button *butto
     up_texture_bind(button->tex, 2);
     up_draw_mesh(button->mesh);
     
-    up_displayText(button->text,button->text_len,&button->pos,&button->textScale,fonts,shaderprog,0,color);
+    struct up_vec3 text_pos = button->pos;
+    text_pos.z -= 0.01;
+    up_displayText(button->text,button->text_len,&text_pos,&button->textScale,fonts,shaderprog,0,color);
     
 }
 
@@ -167,19 +171,36 @@ struct userData{
     int keypress;
 };
 
+struct keybinding_state
+{
+    int change_key;
+    int bind_key;
+};
+
+int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *keymap,struct up_menu_button *buttonArray,int numButtons,struct keybinding_state *bindstate);
+
 
 int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar,
                         struct navigationState *soundToggle, struct navigationState *musicToogle,
                         struct userData *user_data, struct soundLib *sound);
 
 
-int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
+int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_key_map *keymap){
 
     int status=1;
     
     //THEME MUSIC
     
     up_music(0, -1, sound);
+    
+    int numKeyBindings = 0;
+    struct up_vec3 keybind_pos = {0.0, 0.8 , 0.1};
+    struct up_vec3 keytextscale = {0.025,0.025,0.025};
+    
+    struct up_vec3 keyButton_color = {0.0, 0.0, 0.0};
+    struct up_menu_button *keybinding_buttonArray = up_generate_settings_button(&numKeyBindings, keymap, keybind_pos, 25, 100, keytextscale, 0.1);
+    
+    struct keybinding_state keybindState = {0};
     
     //IMAGE LOADING
     up_matrix4_t identity = up_matrix4identity();
@@ -323,7 +344,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
     struct up_vec3 testtextpos2 = {-1.0, -0.55, 0};
 
     
-    
+    int i = 0;  //used for loops
     
     
     // MENU LOOP
@@ -333,8 +354,13 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
 
         UP_renderBackground();                      //Clears the buffer and results an empty window.
         UP_shader_bind(shaderprog);                 //
-
-        status = up_menuEventHandler(&navigation, &loginBar, &soundToggle, &musicToggle, &user_data, sound);
+        if (navigation.state != keyBindings) {
+            status = up_menuEventHandler(&navigation, &loginBar, &soundToggle, &musicToggle, &user_data, sound);
+        }else
+        {
+            status = up_keyBindingEvent(&navigation, keymap, keybinding_buttonArray, numKeyBindings,&keybindState);
+        }
+        
         
         //STATUS FLAG FOR MAIN GAME LOOP
         if (status==2) {
@@ -399,7 +425,13 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
                 up_draw_mesh(settingsOverlay);
                 
                 break;
+            case keyBindings:
                 
+                for (i = 0; i < numKeyBindings; i++) {
+                    up_drawbutton(shaderprog, &keybinding_buttonArray[i], fonts, &keyButton_color);
+                }
+                
+                break;
             default:
                 break;
         }
@@ -411,12 +443,62 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound){
 
     }
 
-
+    up_generate_settings_freebuttons(keybinding_buttonArray);
 
     return status;
 }
 
+//int up_checkButtonClick(struct up_menu_button *button,int mouse_x,int mouse_y)
 
+int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *keymap,struct up_menu_button *buttonArray,int numButtons,struct keybinding_state *bindstate)
+{
+    int flag = 1;
+    SDL_Event event;
+    int x = 0;
+    int y = 0;
+    int i = 0;
+    
+    
+    while(SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT)
+        {
+            flag = 0;
+        }
+        
+        if(event.type == SDL_KEYUP)
+        {
+            // escape key, this will exit the keybinding state
+            if (event.key.keysym.sym == 27) {
+                navigation->state= settings;
+                return flag;
+            }
+            
+            if (bindstate->change_key == 1) {
+                
+                keymap[bindstate->bind_key].key = event.key.keysym.sym;
+                strcpy(buttonArray[bindstate->bind_key].text ,SDL_GetKeyName(keymap[bindstate->bind_key].key));
+                buttonArray[bindstate->bind_key].text_len = (int)strlen(buttonArray[bindstate->bind_key].text);
+                bindstate->change_key = 0; // key set
+            }
+            
+        }
+        if(event.type == SDL_MOUSEBUTTONDOWN && (event.button.button == SDL_BUTTON_LEFT))
+        {
+            SDL_GetMouseState(&x, &y);
+            for (i = 0; (i < numButtons) && (keymap[i].key != 0); i++)
+            {
+                if (up_checkButtonClick(&buttonArray[i], x, y)) {
+                    bindstate->bind_key = i;
+                    bindstate->change_key = 1;
+                    //SDL_Delay(10); // so the button that is down rigth now is not used
+                }
+            }
+        }
+            
+    }
+    return flag;
+}
 int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar,
                         struct navigationState *soundToggle, struct navigationState *musicToogle,
                         struct userData *user_data, struct soundLib *sound)
@@ -479,9 +561,6 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                         user_data->username[user_data->keypress] = '\0';
                     }
                 }
-
-
-
 
             }
 

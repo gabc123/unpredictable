@@ -89,8 +89,10 @@ int main(int argc, char const *argv[])
     //Init sound
     struct soundLib *sound= up_setupSound();
 
+    struct up_key_map *keymap = up_key_remapping_setup();
+    
     // start the menu, and display it
-    status=up_menu(shader_menu, sound);
+    status=up_menu(shader_menu, sound,keymap);
 
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
@@ -98,7 +100,7 @@ int main(int argc, char const *argv[])
     printf("past assets\n");
     //up_generate_asteroidBelt(idensity,maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight)
 
-    struct up_key_map *keymap = up_key_remapping_setup();
+    
     
     // this is the start ship, initilazing the startin positions
     struct up_objectInfo tmp_ship = {0};
