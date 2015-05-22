@@ -110,6 +110,10 @@ void up_drawbutton(struct shader_module *shaderprog,struct up_menu_button *butto
     
     struct up_vec3 text_pos = button->pos;
     text_pos.z -= 0.01;
+    if (button->text_len > 2) {
+        text_pos.x -= scale.x*button->text_len/10;
+    }
+    
     up_displayText(button->text,button->text_len,&text_pos,&button->textScale,fonts,shaderprog,0,color);
     
 }
@@ -429,6 +433,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 
                 for (i = 0; i < numKeyBindings; i++) {
                     up_drawbutton(shaderprog, &keybinding_buttonArray[i], fonts, &keyButton_color);
+           
                 }
                 
                 break;

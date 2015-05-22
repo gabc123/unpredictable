@@ -149,6 +149,9 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
     
     struct up_objectInfo *tmpObject = NULL;
     int packet_read = up_readNetworkDatabuffer(objUpdate, max);
+    
+    
+    
     int i = 0;
     
     struct up_vec3 pos = {0};
@@ -160,6 +163,15 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
     
     for (i = 0; i < packet_read; i++) {
         up_network_action_packetDecode(&objUpdate[i], &states[i], &pos, &speed, &angle, &bankangle, &timestape);
+        
+//        switch (states[i].objectID.type) {
+//            case up_ship_type:
+//                <#statements#>
+//                break;
+//                
+//            default:
+//                break;
+//        }
         
         tmpObject = up_unit_objAtIndex(states[i].objectID.type, states[i].objectID.idx);
         if (tmpObject == NULL) {
