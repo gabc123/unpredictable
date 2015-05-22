@@ -269,6 +269,7 @@ void *up_server_account_send_thread(void *parm)
  *******************************************************/
 void *up_server_gamplay_reciveing_thread(void *parm)
 {
+    printf("Gameplay server recive thread online");
     struct up_server_connection_info * server_con = (struct up_server_connection_info *)parm;
     
     struct sockaddr_in client_sock;
@@ -370,6 +371,7 @@ static int up_server_send_toAll(struct up_server_connection_info * server_con, s
 
 void *up_server_gameplay_send_thread(void *parm)
 {
+    printf("Gameplay server send thread online");
     struct up_server_connection_info * server_con = (struct up_server_connection_info *)parm;
     int length = UP_SEND_OBJECT_LENGTH;
     struct objUpdateInformation local_data[UP_SEND_OBJECT_LENGTH];
