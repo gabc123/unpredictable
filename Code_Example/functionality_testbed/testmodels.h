@@ -11,5 +11,6 @@ struct up_mesh *up_meshLoginOverlay();
 struct up_mesh *up_meshQuitwindow();
 struct up_mesh *up_cogWheel();
 struct up_mesh *up_settingsOverlay();
+struct up_mesh *up_keybindingsOverlay();
 
 #endif

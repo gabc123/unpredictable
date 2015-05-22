@@ -196,14 +196,26 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     
     up_music(0, -1, sound);
     
+    
+    //KEYBINDINGS
+    
+    //BUTTONS
     int numKeyBindings = 0;
-    struct up_vec3 keybind_pos = {0.0, 0.8 , 0.1};
+    struct up_vec3 keybind_pos = {0.23, 0.6 , 0.1};
     struct up_vec3 keytextscale = {0.025,0.025,0.025};
     
     struct up_vec3 keyButton_color = {0.0, 0.0, 0.0};
+
     struct up_menu_button *keybinding_buttonArray = up_generate_settings_button(&numKeyBindings, keymap, keybind_pos, 25, 100, keytextscale, 0.1);
     
     struct keybinding_state keybindState = {0};
+    
+    //DESCRIPTION
+    
+    struct up_vec3 keybindDescription_pos = {-0.1, 0.6 , 0.1};
+    struct up_vec3 keyDescription_scale = {0.025,0.025,0.025};
+    
+    struct up_vec3 keyDescription_color = {1.0, 1.0, 1.0};
     
     //IMAGE LOADING
     up_matrix4_t identity = up_matrix4identity();
@@ -236,6 +248,11 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
         textureSettingsOverlay = up_loadImage_withAlpha("lala.png");
     }
     
+    struct up_texture_data *textureKeybindingsOverlay = up_load_texture("keybindingsOverlay.png");
+    if(textureKeybindingsOverlay == NULL){
+        textureKeybindingsOverlay = up_loadImage_withAlpha("lala.png");
+    }
+    
 
     //TRANSFORMS
     up_matrix4_t transformLoginRegisterBottons;
@@ -244,6 +261,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrix4_t transformQuiteWindow;
     up_matrix4_t transformCogWheel;
     up_matrix4_t transformSettingsOverlay;
+    up_matrix4_t transformKeybindingsOverlay;
 
     //TRANSLATION TRANSFORMS
     up_matrix4_t translationLoginRegisterButtons;
@@ -251,6 +269,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrix4_t translationQuiteWindow;
     up_matrix4_t translationCogWheel;
     up_matrix4_t translationSettingsOverlay;
+    up_matrix4_t translationKeybindingsOverlay;
 
     //MESH LOADING
     struct up_mesh *background = up_meshMenuBackground();
@@ -260,6 +279,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     struct up_mesh *quiteWindow = up_meshQuitwindow();
     struct up_mesh *cogWheel = up_cogWheel();
     struct up_mesh *settingsOverlay = up_settingsOverlay();
+    struct up_mesh *keybindingsOverlay = up_keybindingsOverlay();
     
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
@@ -323,6 +343,18 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrixModel(&translationSettingsOverlay, &scale5.pos, &scale5.rot, &scale5.scale);
     
     up_getModelViewPerspective(&transformSettingsOverlay, &translationSettingsOverlay, &identity, &identity);
+    
+    
+    //KEYBINDINGS OVERLAY
+    
+    struct up_modelRepresentation scale6={{0,0,0},     //scaling
+                                         {0,0,0},
+                                        {1,1,1}};
+    
+    up_matrixModel(&translationKeybindingsOverlay, &scale6.pos, &scale6.rot, &scale6.scale);
+    
+    up_getModelViewPerspective(&transformKeybindingsOverlay, &translationKeybindingsOverlay, &identity, &identity);
+    
     
     //NAVIGATION
     struct navigationState navigation;
@@ -430,9 +462,18 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 break;
             case keyBindings:
                 
+                UP_shader_update(shaderprog, &translationKeybindingsOverlay);
+                up_texture_bind(textureKeybindingsOverlay, 4);
+                up_draw_mesh(keybindingsOverlay);
+                
                 for (i = 0; i < numKeyBindings; i++) {
                     up_drawbutton(shaderprog, &keybinding_buttonArray[i], fonts, &keyButton_color);
-           
+                    
+                    
+                    keybindDescription_pos= keybinding_buttonArray[i].pos;
+                    keybindDescription_pos.x += -0.5;
+                    
+                    up_displayText(keymap[i].name, (unsigned int)strlen(keymap[i].name), &keybindDescription_pos , &keyDescription_scale, fonts, shaderprog, 0, &keyDescription_color);
                 }
                 
                 break;
