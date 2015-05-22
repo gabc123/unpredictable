@@ -218,8 +218,8 @@ void up_key_function_stop_bankleft(struct up_eventState *currentEvent,struct up_
 
 // Name , what key activates it, function for keyDown event, function for keyUp event
 struct up_key_map internal_keymap[] =
-{{"Forward",SDLK_w                      , &up_key_function_forward , &up_key_function_stop_forward},
-    {"Backward",SDLK_s                  , &up_key_function_backward , &up_key_function_stop_backward},
+{{"Move Forward",SDLK_w                      , &up_key_function_forward , &up_key_function_stop_forward},
+    {"Move Backward",SDLK_s                  , &up_key_function_backward , &up_key_function_stop_backward},
     {"Turn Left",SDLK_a                 , &up_key_function_turnLeft , &up_key_function_stop_turnleft},
     {"Turn Rigth",SDLK_d                , &up_key_function_turnRigth , &up_key_function_stop_turnrigth},
     {"Bank Left",SDLK_q                 , &up_key_function_bankLeft , &up_key_function_stop_bankleft},

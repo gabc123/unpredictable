@@ -15,7 +15,7 @@
 #include "up_assets.h"
 
 // this uncomment the following define to enable presentation special toggle functions
-//#define UP_PRESENTATION_MODE
+#define UP_PRESENTATION_MODE
 
 typedef struct up_skyBox{
     
