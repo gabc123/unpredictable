@@ -245,12 +245,12 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     
     struct up_texture_data *textureSettingsOverlay = up_load_texture("settings.png");
     if(textureSettingsOverlay == NULL){
-        textureSettingsOverlay = up_loadImage_withAlpha("lala.png");
+        textureSettingsOverlay = up_load_texture("lala.png");
     }
     
     struct up_texture_data *textureKeybindingsOverlay = up_load_texture("keybindingsOverlay.png");
     if(textureKeybindingsOverlay == NULL){
-        textureKeybindingsOverlay = up_loadImage_withAlpha("lala.png");
+        textureKeybindingsOverlay = up_load_texture("lala.png");
     }
     
 
