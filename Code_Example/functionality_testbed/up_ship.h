@@ -7,16 +7,25 @@
 
 struct up_collision
 {
-    int object1[100];
-    int object2[100];
-    int nrCollisions;
+    int object1;
+    int object2;
+    int nrObj1;
+    int nrObj2;
 };
 
 struct up_allCollisions
 {
-    struct up_collision projectileEnviroment;
-    struct up_collision projectileShip;
-    struct up_collision shipEnviroment;
+    struct up_collision projectileEnviroment[100];
+    struct up_collision projectileShip[100];
+    struct up_collision shipEnviroment[100];
+    struct up_collision enviromentEnviroment[100];
+    struct up_collision shipShip[100];
+    //current number of objects in each array
+    int nrProjectileEnviroment;
+    int nrProjectileShip;
+    int nrShipEnviroment;
+    int nrEnviromentEnviroment;
+    int nrShipShip;
 };
 
 enum up_none
@@ -62,7 +71,9 @@ enum collisionType
 {
     shipEnviroment,
     projectileShip,
-    projectileEnviroment
+    projectileEnviroment,
+    enviromentEnviroment,
+    shipShip
 };
 struct up_actionState
 {
@@ -92,6 +103,16 @@ struct up_eventState
     struct up_shootingFlag flags;
 };
 
+struct up_key_map
+{
+    char name[25];
+    SDL_Keycode key;
+    void (*keyDown_func)(struct up_eventState *currentEvent,struct up_actionState *objectAction);
+    void (*keyUp_func)(struct up_eventState *currentEvent,struct up_actionState *objectAction);
+};
+
+struct up_key_map *up_key_remapping_setup();
+
 void up_checkCollision(struct up_allCollisions *allcollisions);
 void up_handleCollision(struct up_allCollisions *allcollisions);
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
@@ -109,7 +130,7 @@ double up_getFrameTimeDelta();
 unsigned int up_getFrameRate();
 
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent);
-int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction);
+int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction,struct up_key_map *up_keymap);
 
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship);
 #endif

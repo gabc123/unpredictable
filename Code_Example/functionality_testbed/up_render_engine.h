@@ -14,6 +14,9 @@
 #include "up_shader_module.h"
 #include "up_assets.h"
 
+// this uncomment the following define to enable presentation special toggle functions
+//#define UP_PRESENTATION_MODE
+
 typedef struct up_skyBox{
     
     struct up_texture_data *textureId;
@@ -22,6 +25,12 @@ typedef struct up_skyBox{
         
 }up_skyBox_t;
 
+#ifdef UP_PRESENTATION_MODE
+void up_toggle_wireframe();
+void up_toggle_ambientLigth();
+void up_toggle_directionalLigth();
+void up_toggle_allLigth();
+#endif
 
 void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArray,struct up_objectInfo *objectArray,int count,
                      up_matrix4_t *viewPerspectivMatrix,struct shader_module *shaderprog,struct up_assets *assets,up_skyBox_t *skyBox);

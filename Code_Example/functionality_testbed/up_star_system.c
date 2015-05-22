@@ -7,6 +7,7 @@
 //
 
 #include "up_star_system.h"
+#include "up_assets.h"
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,18 +44,18 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
 {
 
     srand((unsigned)time(NULL));
-    struct up_objectInfo asteroid;
+    struct up_objectInfo asteroid = up_asset_createObjFromId(2);
+    asteroid.objectId.type = up_environment_type;
     float angle=0;
     float height=0;
     float radius=0;
     float dx=0;
     float dy=0;
-    float scale;
+    float scale = 0;
 
     int i=0;
 
-    asteroid.modelId = 2;
-    asteroid.objectId.type = up_environment_type;
+    
 
     for(i=0; i<density; i++){
 
@@ -69,10 +70,10 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
         asteroid.pos.x = radius * dx;
         asteroid.pos.y = radius * dy;
         asteroid.pos.z = height;
-        scale = 1.0; //+ ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * 0.5f ;
-        asteroid.scale.x = scale;
-        asteroid.scale.y = scale;
-        asteroid.scale.z = scale;
+        //scale = 0.02; //+ ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * 0.5f ;
+        asteroid.scale.x += scale;
+        asteroid.scale.y += scale;
+        asteroid.scale.z += scale;
 
 
         if(up_unit_add(up_environment_type,asteroid)==0){

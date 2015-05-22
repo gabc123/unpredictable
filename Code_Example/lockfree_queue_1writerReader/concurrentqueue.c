@@ -1,8 +1,7 @@
 #include "up_concurrent_test.h"
 
 
-#define UP_BUFFER_1 0
-#define UP_BUFFER_2 1
+
 
 #define UP_LIKELY_TEST
 
@@ -55,21 +54,30 @@ still doing a full write, but only the id is read, the cpu has a max L2 read rat
     other:  blockalloc 8160, standard, fullcopy read off: 1.85 GB/s
  */
 
-#define UP_UNITTEST_TESTFOR_SECONDS 10
+#define UP_UNITTEST_TESTFOR_SECONDS 40
+
+#define UP_UNITTEST_DUBBLE_BUFFER_OFF
+
 
 #define UP_UNITTEST_BLOCKALLOC_SIZE 8160
 #define UP_UNITTEST_PACKET_PADDING_SIZE 456
 #define UP_UNITTEST_READ_DELAY 5
+#define UP_UNITTEST_CONCURENCY_QUEUE_LENGTH 2000
+
 
 #define UP_UNITTEST_FULL_COPY_READ
-//#define UP_UNITTEST_FULL_COPY_WRITE
+#define UP_UNITTEST_FULL_COPY_WRITE
 
 
-#define UP_BLOCKALLOC_TEST
+//#define UP_BLOCKALLOC_TEST
 //#define UP_CACHLINE_TEST
 //#define UP_STANDARD_TEST
 //#define UP_MIDDLEPADDING_TEST
 //#define UP_SMALLOBJ_TEST
+
+
+
+
 
 
 #ifdef UP_CACHLINE_TEST
@@ -123,7 +131,13 @@ struct up_linkElement
 //    int buffer_loc;
 //};
 
-
+#ifdef UP_UNITTEST_DUBBLE_BUFFER_OFF
+#define UP_BUFFER_1 0
+#define UP_BUFFER_2 0
+#else
+#define UP_BUFFER_1 0
+#define UP_BUFFER_2 1
+#endif
 // dubble buffer, where the buffer is made of a linklist for dynamic size
 // its lockfree and theadsafe
 // created by magnus brain
@@ -151,7 +165,11 @@ static void linkElement_recycle(struct up_linkElement * fromLink,struct up_linkE
 int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
 {
     // move the writer to the other buffer
+#ifdef UP_UNITTEST_DUBBLE_BUFFER_OFF
+    int reader = UP_BUFFER_1;
+#else
     int reader = internal_concurrentQueue->reader;
+#endif
     struct up_linkElement *first = NULL;
     struct up_linkElement *last = NULL;
     struct up_linkElement *tmpLink = NULL;
@@ -160,19 +178,23 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
     // change the writerhead atomicly so the writer will work on the other
     // linklist buffer,(it do not matter if the last node change between operations,
     // the writer look for the end always, it only matter that it is set atmoicly )
-    
+
+#ifndef UP_UNITTEST_DUBBLE_BUFFER_OFF
     //SDL_AtomicSet(&internal_concurrentQueue->writer_head, reader);
     internal_concurrentQueue->writer_head = reader;
     
     // change the reader variable so it matches current state
     reader = (reader == UP_BUFFER_1) ? UP_BUFFER_2 : UP_BUFFER_1;
+#endif
     
     first = internal_concurrentQueue->first[reader];
     last = internal_concurrentQueue->last[reader];
     
     // it is empty
     if (first == last || first == NULL) {
+#ifndef UP_UNITTEST_DUBBLE_BUFFER_OFF
         internal_concurrentQueue->reader = reader;  //change the reader position so we can get data on other que
+#endif
         return 0;
     }
     
@@ -187,6 +209,7 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
     }
     
     if (current == NULL) {
+        return 0;
         //weired
     }
     // if current == last, then the while loop never gets executed
@@ -197,7 +220,11 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
     // notice that the last element never gets reaped
     // this is becouse we do not want to have a empty queue,
     // some one needs to be first/last to be able to connect to
+#ifndef UP_UNITTEST_DUBBLE_BUFFER_OFF
     while ((current->next != NULL) && (count < length) ) {
+#else
+     while ((current->next != NULL) && (count < length) && (current != last)) {
+#endif
         tmpLink = current;
 
 #ifdef UP_UNITTEST_FULL_COPY_READ
@@ -226,13 +253,17 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
 #endif
         current->obj.id = 0; // id 0 is a dummy id for no data to be read
         //we set the new last link so we can attache the writer on the correct spot
+        countRead = count;
+
+#ifndef UP_UNITTEST_DUBBLE_BUFFER_OFF
         internal_concurrentQueue->last[reader] = current;
         
-        countRead = count;
         
+
         // notice that we do not update reader if we run out of data space
         // this is only done if we intende to change queue nexte cycle
         internal_concurrentQueue->reader = reader;
+#endif
     }
     
  
@@ -255,18 +286,22 @@ int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)
     newData->obj.id = data->id;
 #endif
     newData->next = NULL;
+
     struct up_linkElement *currentLast = NULL;
-    int whatBuffer = -1;
+
+#ifdef UP_UNITTEST_DUBBLE_BUFFER_OFF
+    currentLast = internal_concurrentQueue->last[UP_BUFFER_1];
+    int whatBuffer = UP_BUFFER_1;
+#else
     int check = 0;
+    int whatBuffer = -1;
+#endif
+    
+    
     int counter_failed = 0;
+#ifndef UP_UNITTEST_DUBBLE_BUFFER_OFF
     do {
-        /*if (whatBuffer != (check = SDL_AtomicGet(&internal_concurrentQueue->writer_head))) {
-            currentLast = internal_concurrentQueue->last[check];
-            whatBuffer = check;
-        }else
-        {
-            currentLast = currentLast->next;
-        }*/
+
         if (whatBuffer != ((check = internal_concurrentQueue->writer_head))) {
             currentLast = internal_concurrentQueue->last[check];
             whatBuffer = check;
@@ -280,9 +315,21 @@ int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)
             }
             
         }
-        
-    }while (SDL_AtomicCASPtr((void *)&currentLast->next, NULL, newData) == SDL_FALSE);
 
+
+
+    }while (SDL_AtomicCASPtr((void *)&currentLast->next, NULL, newData) == SDL_FALSE);
+#else
+    while (SDL_AtomicCASPtr((void *)&currentLast->next, NULL, newData) == SDL_FALSE)
+    {
+        currentLast = currentLast->next;
+        counter_failed++;
+        if (counter_failed > 5000) {
+            printf("counter failed: %d",counter_failed);
+            counter_failed = 0;
+        }
+    }
+#endif
     internal_concurrentQueue->last[whatBuffer] = newData;
     return 1;
 }
@@ -471,8 +518,8 @@ int up_concurrentQueue_start_setup()
     }
     internal_concurrentQueue->first[UP_BUFFER_1] = link1;
     internal_concurrentQueue->last[UP_BUFFER_1] = link1;
-    
-    
+
+#ifndef UP_UNITTEST_DUBBLE_BUFFER_OFF
     struct up_linkElement *link2 = linkElement_alloc();
     if (link2 == NULL) {
         UP_ERROR_MSG("malloc failed");
@@ -484,6 +531,7 @@ int up_concurrentQueue_start_setup()
     internal_concurrentQueue->reader = UP_BUFFER_1;
     //SDL_AtomicSet(&internal_concurrentQueue->writer_head, UP_BUFFER_2);
     internal_concurrentQueue->writer_head = UP_BUFFER_2;
+#endif
     return 1;
     
 }
@@ -564,6 +612,7 @@ void up_concurrentQueue_shutdown_deinit()
 struct up_unitTest_data
 {
     int *bat_signal;
+    int *start_signal;
     long int numOperWriter;
     long int numOperReader;
 };
@@ -573,12 +622,17 @@ static int up_unitTest_concurency_queue_producer(void *data)
     struct up_unitTest_data *data_ptr = (struct up_unitTest_data*)data;
     
     int *bat_signal = data_ptr->bat_signal;
-    
+    int *start_signal = data_ptr->start_signal;
     struct objUpdateInformation local_data;
     //SDL_Delay(200);
     int data_Generated= 0;
 
+    
     printf("\nproducer active\n");
+    while (*start_signal == 0) {
+        SDL_Delay(1);
+    }
+    
     while (*bat_signal != 1)
     {
         //local_data.id = rand();
@@ -605,15 +659,20 @@ static int up_unitTest_concurency_queue_consumer(void *data)
     struct up_unitTest_data *data_ptr = (struct up_unitTest_data*)data;
     
     int *bat_signal = data_ptr->bat_signal;
+    int *start_signal = data_ptr->start_signal;
 
-#define UP_UNITTEST_CONCURENCY_QUEUE_LENGTH 2000
     struct objUpdateInformation local_data[UP_UNITTEST_CONCURENCY_QUEUE_LENGTH];
     int length = UP_UNITTEST_CONCURENCY_QUEUE_LENGTH;
-#undef UP_UNITTEST_CONCURENCY_QUEUE_LENGTH
+
     int data_processed = 0;
     int data_read = 0;
     int failed_read = 0;
     printf("\nconsumer active\n");
+    
+    while (*start_signal == 0) {
+        SDL_Delay(1);
+    }
+    
     while (*bat_signal != 1)
     {
         
@@ -686,9 +745,11 @@ void up_unitTest_concurency_queue_spsc()
     SDL_Thread *producer = NULL;
     SDL_Thread *consumer = NULL;
     int bat_signal = 0; // =)
+    int start_signal = 0;
     
     struct up_unitTest_data data;
     data.bat_signal = &bat_signal;
+    data.start_signal = &start_signal;
     data.numOperReader = 0;
     data.numOperWriter = 0;
     
@@ -706,6 +767,8 @@ void up_unitTest_concurency_queue_spsc()
         UP_ERROR_MSG_STR("create_thread faild", SDL_GetError());
         
     }
+    SDL_Delay(200);
+    start_signal = 1;
     SDL_Delay(UP_UNITTEST_TESTFOR_SECONDS*1000);
     bat_signal = 1;
     

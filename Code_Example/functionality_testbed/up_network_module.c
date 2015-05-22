@@ -14,6 +14,7 @@
 #include <string.h>
 #include "up_thread_utilities.h"
 #include "up_error.h"
+#include "up_network_packet_utilities.h"
 
 #define UP_NETWORK_SIZE 100
 
@@ -149,54 +150,55 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
     struct up_objectInfo *tmpObject = NULL;
     int packet_read = up_readNetworkDatabuffer(objUpdate, max);
     int i = 0;
-    int j = 0;
+    
+    struct up_vec3 pos = {0};
+    float speed;
+    float angle;
+    float bankangle;
+    int timestape;
+    
+    
     for (i = 0; i < packet_read; i++) {
-        states[j] = objUpdate[i].data.action;
-        j++;
-        if ((playerId == states[i].objectID.idx) && (states[i].objectID.type = up_ship_type)) {
-            j--;
-            continue;   // we already know our own position
-        }
+        up_network_action_packetDecode(&objUpdate[i], &states[i], &pos, &speed, &angle, &bankangle, &timestape);
+        
         tmpObject = up_unit_objAtIndex(states[i].objectID.type, states[i].objectID.idx);
         if (tmpObject == NULL) {
-            j--;
+            printf("\nRecive packet coruppted");
             continue;
         }
-        tmpObject->pos = objUpdate[i].data.pos;
-        tmpObject->speed = objUpdate[i].data.speed;
-        tmpObject->angle = objUpdate[i].data.angle;
-        tmpObject->bankAngle = objUpdate[i].data.bankAngle;
-        
+        if (states[i].objectID.type == up_ship_type && states[i].objectID.idx == playerId) {
+            continue;
+        }
+        // TODO: timedalation
+        // this is a temporary solution
+        tmpObject->pos = pos;
+        tmpObject->speed = speed;
+        tmpObject->angle = angle;
+        tmpObject->bankAngle = bankangle;
+        //objUpdate[i].id;
+    
     }
     
-    return j;
+    
+    
+    return 0;
     
 }
 
 void up_network_sendNewMovement(struct up_actionState *states, Pthread_listen_datapipe_t *socket_data)
 {
     struct up_objectInfo *object = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
-    struct up_packed_data data;
-    data.action = *states;
-    data.angle = object->angle;
-    data.bankAngle = object->bankAngle;
-    data.pos = object->pos;
-    data.speed = object->speed;
-    data.timestamp = 0;
-    data.turnSpeed = object->turnSpeed;
-    
-    struct objUpdateInformation objUpdate;
-    objUpdate.data = data;
-    objUpdate.id = states->objectID.idx;
+    struct objUpdateInformation updateobject;
+
+    int len = up_network_action_packetEncode(&updateobject, states, object->pos, object->speed, object->angle, object->bankAngle, 0);
+    updateobject.length = len;
     
     UDPsocket socket = socket_data->udpSocket;
     UDPpacket *packet = socket_data->sendPacket;
     packet->address.host = socket_data->addr.host;
     packet->address.port = socket_data->addr.port;
     
-    int len = up_copyObjectIntoBuffer(&objUpdate, packet->data);
-    len = len;
-    packet->len = len;
+    packet->len = up_copyObjectIntoBuffer(&updateobject, packet->data);
     SDLNet_UDP_Send(socket, -1, packet);
     
 }
@@ -218,16 +220,9 @@ int up_network_recive(void *arg)
         SDL_Delay(1);
 
         if (SDLNet_UDP_Recv(socket,packet)){
-           /*
-            printf("UDP Packet incoming\n");
-            printf("\tChan:    %d\n", packet->channel);
-            //printf("\tData:    %s\n", (char *)packet->data);
-            printf("\tLen:     %d\n", packet->len);
-            printf("\tMaxlen:  %d\n", packet->maxlen);
-            printf("\tStatus:  %d\n", packet->status);
-            printf("\tAddress: %x %x\n", packet->address.host, packet->address.port);
-            */
+            printf("\n pack recv: ");
             if (packet->len >= sizeof(local_data.data)) {
+                printf("pack processing ");
                 up_copyBufferIntoObject(packet->data,&local_data);
                 
                 up_writeToNetworkDatabuffer(&local_data);

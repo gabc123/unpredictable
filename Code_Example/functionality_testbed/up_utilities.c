@@ -244,7 +244,7 @@ static int up_generic_list_add(struct up_generic_list *list,void *data)
 
 static void up_generic_list_getElement(struct up_generic_list *list,void *data,unsigned int atIndex)
 {
-    if (list->count >= list->capacity) {
+    if (atIndex >= list->capacity) {
         UP_ERROR_MSG("outofbounds access");
         return;
     }

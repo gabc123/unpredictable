@@ -102,7 +102,8 @@ int up_readNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInfor
     }
     
     if (current == NULL) {
-        //weired
+        //weired, somehow last came before first
+        return 0;
     }
     // if current == last, then the while loop never gets executed
     // so this make sure this is not null at the end of the function.

@@ -52,6 +52,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
 	struct up_mesh *mesh =&(internal_state.mesh[internal_state.mesh_count]);
 	mesh->vertex_count = vertex_count;
     mesh->index_count = index_count;
+    mesh->drawMode = GL_TRIANGLES;
     printf("mesh->vertex_count:%d \n",mesh->vertex_count);
 
 
@@ -143,6 +144,17 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
     return mesh;
 }
 
+// used to enable diffrent draw modes
+void up_draw_mesh_speciall(struct up_mesh *mesh,int drawMode)
+{
+    glBindVertexArray(mesh->vertexArrayObj);
+    
+    //glDrawArrays(GL_TRIANGLES,0,mesh->vertex_count);
+    glDrawElementsBaseVertex(drawMode, mesh->index_count, GL_UNSIGNED_INT, 0, 0);
+    //glDrawElementsBaseVertex(mesh->drawMode, mesh->index_count, GL_UNSIGNED_INT, 0, 0);
+    
+    glBindVertexArray(0);	//fri gör
+}
 
 void up_draw_mesh(struct up_mesh *mesh)
 {
@@ -150,6 +162,7 @@ void up_draw_mesh(struct up_mesh *mesh)
 
 	//glDrawArrays(GL_TRIANGLES,0,mesh->vertex_count);
     glDrawElementsBaseVertex(GL_TRIANGLES, mesh->index_count, GL_UNSIGNED_INT, 0, 0);
+    //glDrawElementsBaseVertex(mesh->drawMode, mesh->index_count, GL_UNSIGNED_INT, 0, 0);
 
 	glBindVertexArray(0);	//fri gör
 }

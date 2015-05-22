@@ -139,26 +139,67 @@ struct up_mesh *up_meshBotton(float imageX, float imageY, float screenPosX, floa
 {
     /// setup the vertexs and the tex coords, this is done like this for debbuging reasons
     // texture coordinates, 0,0 is bottom left, 1,1 is top right
-
+    
     imageX=imageX*0.5;
     imageY=imageY*0.5;
-
-   // screenPosX=screenPosX*0.01;
+    
+    // screenPosX=screenPosX*0.01;
     //screenPosY=screenPosY*0.01;
-
+    
     struct up_vec2 tex[] = {
         {0.0f + imageX, 0.0f + imageY},
         {1.0f + imageX, 0.0f + imageY},
         {0.0f + imageX, 0.5f + imageY},
         {1.0f + imageX, 0.5f + imageY}
     };
-
+    
     // this is the posisions of the vertexes
     struct up_vec3 pos[] = {
         {-0.28f + screenPosX, -0.1f + screenPosY, 0.1f},   // bottomleft 0
         {0.28f + screenPosX, -0.1f + screenPosY, 0.1f},   //bottom right 1
         {-0.28f + screenPosX, 0.1f + screenPosY, 0.1f},  //topleft 2
         {0.28f + screenPosX, 0.1f + screenPosY, 0.1f}   //topright 3
+    };
+    
+    
+    unsigned int indexArray[] = {1,2,0,1,3,2};  //binds togheter two triangels into one square
+    
+    // left over from debugging. fills the vertex array with pos and tex
+    struct up_vertex vertex[4];
+    int i = 0;
+    for (i = 0; i < 4; i++) {
+        vertex[i].pos = pos[i];
+        vertex[i].texCoord = tex[i];
+        vertex[i].normals.x = 0;
+        vertex[i].normals.y = 0;
+        vertex[i].normals.z = 0;
+    }
+    /////////////
+    printf("vertex start\n");
+    struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
+    printf("Mesh finnished\n");
+    return mesh;
+}
+
+
+// magnus test
+struct up_mesh *up_mesh_menu_Botton()
+{
+
+
+    struct up_vec2 tex[] = {
+        {0.0f, 0.0f},
+        {1.0f, 0.0f},
+        {0.0f, 0.5f},
+        {1.0f, 0.5f}
+    };
+
+    // this is the posisions of the vertexes
+    struct up_vec3 pos[] = {
+        {-1.0f, -1.0f, 0.0f},   // bottomleft 0
+        {1.0f, -1.0f, 0.0f},   //bottom right 1
+        {-1.0f, 1.0f, 0.0f},  //topleft 2
+        {1.0f, 1.0f, 0.0f}   //topright 3
     };
 
 

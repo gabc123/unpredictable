@@ -53,7 +53,7 @@ int main(int argc, char const *argv[])
     struct shader_module *shaderprog;
     shaderprog = UP_Shader_new("shadertest",1);
     printf("Shader finnished\n");
-    
+
     // if we failed to load the primary shaders, there is no game to play
     // so do program cleanup and exit
     if (shaderprog == NULL) {
@@ -73,25 +73,26 @@ int main(int argc, char const *argv[])
         shader_menu = shaderprog;
     }
     printf("Shader menu finnished\n");
-    
-    
+
+
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
 
     int totalNumObjects = max_ship_count + max_projectile_count + max_enviroment_count + max_others_count;
     struct up_transformationContainer *transformationArray = malloc(sizeof(struct up_transformationContainer)*totalNumObjects);
     if (transformationArray == NULL) {
         UP_ERROR_MSG("transformation array malloc failure");
-
     }
 
 
-    
+
 
     //Init sound
     struct soundLib *sound= up_setupSound();
 
+    struct up_key_map *keymap = up_key_remapping_setup();
+    
     // start the menu, and display it
-    status=up_menu(shader_menu, sound);
+    status=up_menu(shader_menu, sound,keymap);
 
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
@@ -99,6 +100,8 @@ int main(int argc, char const *argv[])
     printf("past assets\n");
     //up_generate_asteroidBelt(idensity,maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight)
 
+    
+    
     // this is the start ship, initilazing the startin positions
     struct up_objectInfo tmp_ship = {0};
     tmp_ship.pos.x = 440;
@@ -135,7 +138,7 @@ int main(int argc, char const *argv[])
     up_generate_randomize_satellite(40);        //satellite
     up_generate_randomize_spaceMine(80);        //space mine
 
-    
+
     struct up_font_assets *font_assets = up_font_start_setup();  //load font to inteface startup
     //up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
 
@@ -170,7 +173,7 @@ int main(int argc, char const *argv[])
 
     up_health_bar_t healthBar;
     healthBar = healthbar_creation();
-    
+
     up_stats_index_t interface_info = up_create_statsObject();
 
 
@@ -178,7 +181,7 @@ int main(int argc, char const *argv[])
 
 
 
-    
+
 
     // loads skybox shaders and fill out the structure
     up_skyBox_t skyBox;
@@ -222,7 +225,7 @@ int main(int argc, char const *argv[])
     while(status)
     {
         up_updateFrameTickRate();
-        status = UP_eventHandler(&currentEvent,&shipAction);
+        status = UP_eventHandler(&currentEvent,&shipAction,keymap);
 
 
         //upnewtwork_getNewMovement(&ship);          // retrive any updates from the network
@@ -240,7 +243,7 @@ int main(int argc, char const *argv[])
         up_handleCollision(&allcollisions);
 
         up_update_camera(&cam, ship);
-        
+
         up_moveHealthBar(shipIndex,healthBar);
         up_interface_placement(&cam,interface_info);
 
@@ -255,14 +258,15 @@ int main(int argc, char const *argv[])
         up_getViewPerspective(&viewPerspectivMatrix,&viewMatrix,&perspectiveMatrix);
 
         up_updateMatrix(transformationArray, &viewPerspectivMatrix, objectArray, numObjects);
-        
-        
+
+
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
-        
-        up_gamePlayInterface(font_assets,shader_menu,&stats);
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
 
+        up_gamePlayInterface(font_assets,shader_menu,&stats);
+
+        UP_openGLupdate();
 
     }
     printf("Ended main loop\n");

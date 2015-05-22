@@ -11,7 +11,6 @@
 
 #include "up_ship.h"
 #include "up_vertex.h"
-#include "up_server.h"
 #include "up_thread_utilities.h"
 
 int up_network_action_packetEncode(struct objUpdateInformation *object,
