@@ -472,7 +472,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     
                     
                     keybindDescription_pos= keybinding_buttonArray[i].pos;
-                    keybindDescription_pos.x += -0.3;
+                    keybindDescription_pos.x += -0.5;
                     
                     up_displayText(keymap[i].name, (unsigned int)strlen(keymap[i].name), &keybindDescription_pos , &keyDescription_scale, fonts, shaderprog, 0, &keyDescription_color);
                 }
