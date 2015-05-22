@@ -69,6 +69,7 @@ up_stats_index_t up_create_statsObject()
         interfaceObj[i] = up_asset_createObjFromId(count);
         interfaceObj[i].angle = 0;
         interfaceObject.interfaceIndex[i] = up_unit_add(up_others_type,interfaceObj[i]);
+        
         count++;
     }
 

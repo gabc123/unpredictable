@@ -12,13 +12,6 @@ struct up_collision
     int nrCollisions;
 };
 
-struct up_collision
-{
-    int object1[100];
-    int object2[100];
-    int nrCollisions;
-};
-
 struct up_allCollisions
 {
     struct up_collision projectileEnviroment;
