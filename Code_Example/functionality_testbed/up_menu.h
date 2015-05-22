@@ -13,7 +13,8 @@
 #include "up_music.h"
 #include "up_shader_module.h"
 #include "up_ship.h"
+#include "up_assets.h"
 
-int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_key_map *keymap);
+int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_key_map *keymap,struct up_font_assets *fonts);
 
 #endif /* defined(__Unpredictable__up_menu__) */

@@ -9,7 +9,6 @@
 #include "up_menu.h"
 #include <stdio.h>
 #include "up_initGraphics.h"
-#include "up_assets.h"
 #include "up_utilities.h"
 #include "up_texture_module.h"
 #include "up_ship.h"
@@ -189,7 +188,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                         struct userData *user_data, struct soundLib *sound);
 
 
-int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_key_map *keymap){
+int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_key_map *keymap,struct up_font_assets *fonts){
 
     int status=1;
     
@@ -300,7 +299,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
 
 
     //FONT
-    struct up_font_assets *fonts = up_font_start_setup();
+    //struct up_font_assets *fonts = up_font_start_setup();
     struct up_vec3 textpos = {-0.17, 0.045, 0};
     struct up_vec3 textscale = {0.025,0.025,0.025};
 
