@@ -93,6 +93,7 @@ void up_generate_randomize_satellite(int density){
     struct up_objectInfo ship;
     satellite.modelId = 7;
     ship.modelId = 0;
+    satellite.objectId.idx = 0;
     satellite.objectId.type = up_others_type;
     ship.objectId.type = up_environment_type;
     int i=0;
@@ -129,6 +130,7 @@ void up_generate_randomize_spaceMine(int density){
     srand((unsigned)time(NULL));
     struct up_objectInfo mine;
     mine.modelId = 9;
+    mine.objectId.idx = 0;
     mine.objectId.type = up_environment_type;
 
     int i=0;
@@ -136,6 +138,7 @@ void up_generate_randomize_spaceMine(int density){
 
         mine.pos.x = (float)((rand()%1000) - 500);
         mine.pos.y = (float)((rand()%1000) - 500);
+        mine.pos.z = 40;    // so we have a start value
 
         mine.scale.x=1;
         mine.scale.y=1;

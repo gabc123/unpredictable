@@ -91,6 +91,7 @@ static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
     if(image.pixelData == NULL)
     {
         UP_ERROR_MSG("malloc failure");
+        return NULL;
     }
 
     // we want to load the image data into our own buffer

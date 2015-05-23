@@ -66,6 +66,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
 
     struct up_vec2 *textureCoord = malloc(sizeof(struct up_vec2) * mesh->vertex_count);
     if (textureCoord == NULL) {
+        free(positions);
         UP_ERROR_MSG("malloc failed, textureCoord");
         return NULL;
     }
@@ -73,6 +74,8 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
 
     struct up_vec3 *normals = malloc(sizeof(struct up_vec3) * mesh->vertex_count);
     if (normals == NULL) {
+        free(positions);
+        free(textureCoord);
         UP_ERROR_MSG("malloc failed, textureCoord");
         return NULL;
     }

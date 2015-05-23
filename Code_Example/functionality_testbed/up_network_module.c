@@ -37,6 +37,7 @@ static void generic_copyElement(unsigned int element_size,unsigned char *destina
 unsigned int up_copyObjectIntoBuffer(struct objUpdateInformation *object,unsigned char *buffer)
 {
     unsigned int data_len = sizeof(object->data);
+    data_len = (data_len > object->length) ? object->length : data_len;
     generic_copyElement(data_len,buffer,(unsigned char *)&object->data);
     return data_len;
 }
@@ -44,6 +45,7 @@ unsigned int up_copyObjectIntoBuffer(struct objUpdateInformation *object,unsigne
 unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInformation *object)
 {
     unsigned int data_len = sizeof(object->data);
+    data_len = (data_len > object->length) ? object->length : data_len;
     generic_copyElement(data_len,(unsigned char *)&object->data,buffer);
     return data_len;
 }
@@ -228,6 +230,10 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
 void up_network_sendNewMovement(struct up_actionState *states, Pthread_listen_datapipe_t *socket_data)
 {
     struct up_objectInfo *object = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
+    if (object == NULL) {
+        printf("send packet corrupted");
+        return;
+    }
     struct objUpdateInformation updateobject;
 
     int len = up_network_action_packetEncode(&updateobject, states, object->pos, object->speed, object->angle, object->bankAngle, 0);
@@ -261,8 +267,9 @@ int up_network_recive(void *arg)
 
         if (SDLNet_UDP_Recv(socket,packet)){
             printf("\n pack recv: ");
-            if (packet->len >= sizeof(local_data.data)) {
+            if (packet->len <= sizeof(local_data.data)) {
                 printf("pack processing len %d ", packet->len);
+                local_data.length = packet->len;
                 up_copyBufferIntoObject(packet->data,&local_data);
                 
                 up_writeToNetworkDatabuffer(&local_data);

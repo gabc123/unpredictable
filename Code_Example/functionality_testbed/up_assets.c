@@ -229,6 +229,7 @@ struct up_assets *up_assets_start_setup()
     struct up_assets *assets = malloc(sizeof(struct up_assets));
     if (assets == NULL) {
         UP_ERROR_MSG("failure in assets");
+        return NULL;
     }
     assets->numobjects = up_mesh_list_count(meshArray);
 

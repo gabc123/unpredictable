@@ -97,7 +97,11 @@ struct up_objModel *up_loadObjModel(const char *filename)
 
     }while(text <= objFile.text + objFile.length -1 );
 
-
+    // safty check
+    finalList = NULL;
+    if (count != 0) {
+        finalList = malloc(sizeof(struct up_vertex) * count );
+    }
     finalList = malloc(sizeof(struct up_vertex) * count );
     if(finalList == NULL)
     {
@@ -105,6 +109,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
            free(tex);
            free(pos);
            free(norm);
+           up_textHandler_free(&objFile);
            return NULL;
     }
 
@@ -145,12 +150,15 @@ struct up_objModel *up_loadObjModel(const char *filename)
     struct up_objModel *result = malloc(sizeof(struct up_objModel));
     if (result == NULL) {
         UP_ERROR_MSG("malloc fail");
+    }else
+    {
+        result->index_length = num_face;
+        result->indexArray = face_indexList;
+        result->vertex_length = count;
+        result->vertex = finalList;
     }
 
-    result->index_length = num_face;
-    result->indexArray = face_indexList;
-    result->vertex_length = count;
-    result->vertex = finalList;
+    
 
     free(pos);
     free(tex);

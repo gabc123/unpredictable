@@ -62,6 +62,9 @@ int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_
 void up_unit_shutdown_deinit();
 
 int up_unit_add(enum up_object_type type,struct up_objectInfo object);
+int up_unit_remove(enum up_object_type type,int index);
+
+int up_unit_isActive(struct up_objectInfo *object);
 
 struct up_objectInfo *up_unit_objAtIndex(enum up_object_type type,int index);
 

@@ -315,13 +315,13 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object1 = up_unit_objAtIndex(up_ship_type, allcollisions->shipEnviroment[i].object1);
         object2 = up_unit_objAtIndex(up_environment_type, allcollisions->shipEnviroment[i].object2);
         if (object1 == NULL){
-            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
-            printf("itemnr: %d\n", i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
-            printf("itemnr: %d\n", i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            //printf("itemnr: %d\n", i);
             continue;
         }
 
@@ -336,13 +336,13 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object1 = up_unit_objAtIndex(up_projectile_type, allcollisions->projectileEnviroment[i].object1);
         object2 = up_unit_objAtIndex(up_environment_type, allcollisions->projectileEnviroment[i].object2);
         if (object1 == NULL){
-            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
-            printf("itemnr: %d\n", i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
-            printf("itemnr: %d\n", i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            //printf("itemnr: %d\n", i);
             continue;
         }
 
@@ -351,6 +351,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
+        up_unit_remove(up_projectile_type, object1->objectId.idx);
 
     }
 
@@ -358,14 +359,14 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object1 = up_unit_objAtIndex(up_projectile_type, allcollisions->projectileShip[i].object1);
         object2 = up_unit_objAtIndex(up_ship_type, allcollisions->projectileShip[i].object2);
         if (object1 == NULL){
-            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
-            printf("itemnr: %d\n", i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            //printf("itemnr: %d\n", i);
             continue;
         }
 
         if (object2 ==NULL){
-            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
-            printf("itemnr: %d\n", i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            //printf("itemnr: %d\n", i);
             continue;
         }
 
@@ -374,6 +375,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
+        
 
     }
 
@@ -381,13 +383,13 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object1 = up_unit_objAtIndex(up_environment_type, allcollisions->enviromentEnviroment[i].object1);
         object2 = up_unit_objAtIndex(up_environment_type, allcollisions->enviromentEnviroment[i].object2);
         if (object1 == NULL){
-            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
-            printf("itemnr: %d\n", i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_STR("tried accesing nonexisting object\n",SDL_GetError());
-            printf("itemnr: %d\n", i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            //printf("itemnr: %d\n", i);
             continue;
         }
         //2 static object on top of eachother result in no collision
@@ -431,7 +433,7 @@ void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2,
     float xlengthModel1, ylengthModel1, zlengthModel1;
     float xlengthModel2, ylengthModel2, zlengthModel2;
     float distanceX, distanceY, distanceZ;
-
+    
     struct Hitbox hitModel1 ={
         object1[nrObj1].pos.x+1.0, object1[nrObj1].pos.y+1.0, object1[nrObj1].pos.z+1.0,
         object1[nrObj1].pos.x-1.0,  object1[nrObj1].pos.y-1.0,  object1[nrObj1].pos.z-1.0};
@@ -520,7 +522,15 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
 
     //checks ships vs enviroment
     for(i=0; i < totalShips; i++){
+        // no need to check ship if not active
+        if (!up_unit_isActive(&ships[i])) {
+            continue;
+        }
         for(j=0; j < totalObjects; j++){
+            // no need to check ship if not active
+            if (!up_unit_isActive(&enviroment[j])) {
+                continue;
+            }
             x = ships[i].pos.x - enviroment[j].pos.x;
             y = ships[i].pos.y - enviroment[j].pos.y;
             z = ships[i].pos.z - enviroment[j].pos.z;
@@ -533,7 +543,15 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
     }
     //projectile vs enviroment
     for(i=0; i < totalProjectiles; i++){
+        // no need to check ship if not active
+        if (!up_unit_isActive(&projectile[i])) {
+            continue;
+        }
         for(j=0; j < totalObjects; j++){
+            // no need to check ship if not active
+            if (!up_unit_isActive(&enviroment[j])) {
+                continue;
+            }
             x = projectile[i].pos.x - enviroment[j].pos.x;
             y = projectile[i].pos.y - enviroment[j].pos.y;
             z = projectile[i].pos.z - enviroment[j].pos.z;
@@ -546,23 +564,39 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
     }
     //projectile vs ship
     for(i=0; i < totalShips; i++){
+        // no need to check ship if not active
+        if (!up_unit_isActive(&ships[i])) {
+            continue;
+        }
         for(j=0; j < totalProjectiles; j++){
-                if(ships[i].objectId.idx != projectile[j].owner){
-                    x = ships[i].pos.x - projectile[j].pos.x;
-                    y = ships[i].pos.y - projectile[j].pos.y;
-                    z = ships[i].pos.z - projectile[j].pos.z;
-                    distance = sqrt((x*x)+(y*y)+(z*z));
-
-                    if(distance <2){
-                         testCollision(projectile, ships, j, i, allcollisions, projectileShip);
-                    }
+            // no need to check ship if not active
+            if (!up_unit_isActive(&projectile[j])) {
+                continue;
+            }
+            if(ships[i].objectId.idx != projectile[j].owner){
+                x = ships[i].pos.x - projectile[j].pos.x;
+                y = ships[i].pos.y - projectile[j].pos.y;
+                z = ships[i].pos.z - projectile[j].pos.z;
+                distance = sqrt((x*x)+(y*y)+(z*z));
+                
+                if(distance <2){
+                    testCollision(projectile, ships, j, i, allcollisions, projectileShip);
                 }
+            }
         }
     }
 
     //enviroment vs enviroment
     for(i=0; i < totalObjects; i++){
+        // no need to check ship if not active
+        if (!up_unit_isActive(&enviroment[i])) {
+            continue;
+        }
         for(j=0; j < totalObjects; j++){
+            // no need to check ship if not active
+            if (!up_unit_isActive(&enviroment[j])) {
+                continue;
+            }
             if(i != j){
                     x = enviroment[i].pos.x - enviroment[j].pos.x;
                     y = enviroment[i].pos.y - enviroment[j].pos.y;
@@ -618,7 +652,9 @@ void up_updateMovements()
     int i = 0;
     for (i = 0; i < numObjects; i++) {
         objlocal = &objectArray[i];
-
+        if (!up_unit_isActive(objlocal)) {
+            continue;
+        }
         objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
         objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
@@ -627,6 +663,9 @@ void up_updateMovements()
     objectArray = up_unit_getAllObj(up_projectile_type,&numObjects);
     for (i = 0; i < numObjects; i++) {
         objlocal = &objectArray[i];
+        if (!up_unit_isActive(objlocal)) {
+            continue;
+        }
 
         objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
@@ -636,6 +675,9 @@ void up_updateMovements()
     objectArray = up_unit_getAllObj(up_environment_type,&numObjects);
     for (i = 0; i < numObjects; i++) {
         objlocal = &objectArray[i];
+        if (!up_unit_isActive(objlocal)) {
+            continue;
+        }
 
         objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
@@ -645,6 +687,9 @@ void up_updateMovements()
     objectArray = up_unit_getAllObj(up_others_type,&numObjects);
     for (i = 0; i < numObjects; i++) {
         objlocal = &objectArray[i];
+        if (!up_unit_isActive(objlocal)) {
+            continue;
+        }
 
         objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
@@ -904,6 +949,10 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
 
     //local playership update
     localObject = up_unit_objAtIndex(playerShip->objectID.type,playerShip->objectID.idx);
+    if (localObject == NULL) {
+        // the ship has been destroyed
+        return ;
+    }
     up_moveObj(localObject, playerShip, frameDelta);
     up_createProjectile(localObject, playerShip,funkarEj, sound);
 }

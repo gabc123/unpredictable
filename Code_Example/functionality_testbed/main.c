@@ -129,7 +129,11 @@ int main(int argc, char const *argv[])
     stillObj.objectId.type = up_others_type;
 
     struct up_objectInfo *ship = up_unit_objAtIndex(up_ship_type,shipIndex);
-
+    if (ship == NULL) {
+        UP_ERROR_MSG("ship do not exist, use loner ship");
+        ship = &tmp_ship;
+    }
+    
     up_unit_add(up_environment_type,stillObj);
 
     up_generate_sun();
@@ -265,7 +269,7 @@ int main(int argc, char const *argv[])
 
     }
     printf("Ended main loop\n");
-
+    free(transformationArray);
     //cleanup and release all data (notice the reverse order of setup)
     UP_Shader_delete();
     up_unit_shutdown_deinit();
