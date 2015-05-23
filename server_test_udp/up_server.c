@@ -25,13 +25,20 @@
 #define UP_SEND_OBJECT_LENGTH 100
 #define UP_SEND_BUFFER_DATA_SIZE 400
 
+struct up_client_info
+{
+    struct sockaddr_in client_addr;
+    int lastStamp;  // when a client sends data to the server this gets set
+};
+
 struct up_server_connection_info
 {
     int shutdown;
     int socket_server;
     struct sockaddr_in server_info;
     int connected_clients;
-    struct sockaddr_in client_infoArray[UP_MAX_CLIENTS];
+    struct up_client_info
+ client_infoArray[UP_MAX_CLIENTS];
     struct up_thread_queue *queue;
 };
 
@@ -291,7 +298,7 @@ void *up_server_gamplay_reciveing_thread(void *parm)
         }
 
         for (i = 0; i < server_con->connected_clients; i++) {
-            if(server_con->client_infoArray[i].sin_addr.s_addr == client_sock.sin_addr.s_addr)
+            if(server_con->client_infoArray[i].client_addr.sin_addr.s_addr == client_sock.sin_addr.s_addr)
             {
                 break;
             }
@@ -303,7 +310,9 @@ void *up_server_gamplay_reciveing_thread(void *parm)
             if (i >=  UP_MAX_CLIENTS) {
                 continue;
             }
-            server_con->client_infoArray[i] = client_sock;
+            server_con->client_infoArray[i].client_addr = client_sock;
+            server_con->client_infoArray[i].lastStamp = 0;
+            
             printf("\nUser connected: %s",inet_ntoa(client_sock.sin_addr));
             userId = i;
             server_con->connected_clients++;
@@ -330,19 +339,27 @@ void *up_server_gamplay_reciveing_thread(void *parm)
 static int up_server_send_bufferRead_spinloop(struct objUpdateInformation *local_data,int length,struct up_server_connection_info * server_con)
 {
     int packet_read =0;
-    int spin_counter = 0;
+    int spin_counter = 0;   // this is used to prevent the cpu from spining at 100 %cpu
+    int breakout_counter = 0;   // we exit the function after a while
     while (packet_read <= 0)
     {
-        packet_read = up_readNetworkDatabuffer(server_con->queue,local_data, length);
         spin_counter++;
         usleep(100);
         if (spin_counter > 2000) {
-            usleep(1000);
             if (server_con->shutdown) {
                 return 0;
             }
+            
+            breakout_counter++;
+            if (breakout_counter > 10) {
+                return 0;
+            }
+            
             spin_counter = 0;
+            usleep(1000);
         }
+        
+        packet_read = up_readNetworkDatabuffer(server_con->queue,local_data, length);
     }
     return packet_read;
 }
@@ -353,12 +370,14 @@ static int up_server_send_toAll(struct up_server_connection_info * server_con, s
     
     int packet_idx = 0;
     int client_idx = 0;
-    
+    struct up_client_info *clientInfo = NULL;
     int dataToSend_len = 0;
     for (packet_idx = 0; packet_idx < packet_read; packet_idx++) {
         dataToSend_len = local_data[packet_idx].length;
         for (client_idx = 0; client_idx < server_con->connected_clients; client_idx++) {
-            if (sendto(server_con->socket_server, local_data[packet_idx].data, dataToSend_len, 0, (struct sockaddr *)&server_con->client_infoArray[client_idx], client_sock_len) == -1) {
+            
+            clientInfo = &server_con->client_infoArray[client_idx];
+            if (sendto(server_con->socket_server, local_data[packet_idx].data, dataToSend_len, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {
                 printf("sendTo error");
                 break;
             }

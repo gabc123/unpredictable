@@ -262,7 +262,7 @@ int up_network_recive(void *arg)
         if (SDLNet_UDP_Recv(socket,packet)){
             printf("\n pack recv: ");
             if (packet->len >= sizeof(local_data.data)) {
-                printf("pack processing ");
+                printf("pack processing len %d ", packet->len);
                 up_copyBufferIntoObject(packet->data,&local_data);
                 
                 up_writeToNetworkDatabuffer(&local_data);
