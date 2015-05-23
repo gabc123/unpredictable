@@ -90,9 +90,10 @@ int main(int argc, char const *argv[])
     struct soundLib *sound= up_setupSound();
 
     struct up_key_map *keymap = up_key_remapping_setup();
+    struct up_font_assets *font_assets = up_font_start_setup();  //load font to inteface startup
     
     // start the menu, and display it
-    status=up_menu(shader_menu, sound,keymap);
+    status=up_menu(shader_menu, sound,keymap,font_assets);
 
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
@@ -139,7 +140,9 @@ int main(int argc, char const *argv[])
     up_generate_randomize_spaceMine(80);        //space mine
 
 
-    struct up_font_assets *font_assets = up_font_start_setup();  //load font to inteface startup
+    
+    
+    
     //up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
 
     // all the 4by4 matrix that are needed to place the model at the right location and with the right perspective
@@ -176,13 +179,6 @@ int main(int argc, char const *argv[])
 
     up_stats_index_t interface_info = up_create_statsObject();
 
-
-    //up_matrix4_t identity = up_matrix4identity();
-
-
-
-
-
     // loads skybox shaders and fill out the structure
     up_skyBox_t skyBox;
     skyBox.textureId = up_cubeMapTexture_load();
@@ -204,12 +200,18 @@ int main(int argc, char const *argv[])
     // starts the main game loop
     up_matrix4_t viewPerspectivMatrix;
 
-
-    struct up_actionState network_states_data[50];
-    int max_network_states = 50;
-    int i = 0;
+    int map_maxPlayers = 20;
     struct up_actionState noState = {0};
-    for (i = 0; i < max_network_states; i++) {
+    
+    struct up_actionState *network_states_data = malloc(sizeof(struct up_actionState)*map_maxPlayers);
+    if (network_states_data == NULL) {
+        UP_ERROR_MSG("failed network_state malloc");
+        network_states_data = &noState;
+        map_maxPlayers = 0;
+    }
+    
+    int i = 0;
+    for (i = 0; i < map_maxPlayers; i++) {
         network_states_data[i] = noState;
     }
     int network_state_recived = 0;
@@ -227,17 +229,10 @@ int main(int argc, char const *argv[])
         up_updateFrameTickRate();
         status = UP_eventHandler(&currentEvent,&shipAction,keymap);
 
-
-        //upnewtwork_getNewMovement(&ship);          // retrive any updates from the network
-
-        //up_newtwork_getNewMovement(&ship);          // retrive any updates from the network
-
-        //up_updatShipMatrixModel(&modelMatrix,&model,ship); // creates the modelMatrix for the ship
-        //up_updateShipMovment(ship);
         up_network_sendNewMovement(&shipAction, connection_data);
-        network_state_recived = up_network_getNewMovement(network_states_data, max_network_states,shipIndex);
+        network_state_recived = up_network_getNewMovement(network_states_data, map_maxPlayers,shipIndex);
 
-        up_update_actions(&shipAction, network_states_data, network_state_recived,&funkarEj, sound);
+        up_update_actions(&shipAction, network_states_data, map_maxPlayers,&funkarEj, sound);
         up_updateMovements();
         up_checkCollision(&allcollisions);
         up_handleCollision(&allcollisions);

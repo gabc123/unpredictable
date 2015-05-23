@@ -48,7 +48,7 @@ struct up_imageformat
     GLenum format;
 };
 
-struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
+static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
 {
     char rgb_imageFile[30];
     char alphaChannelFile[30];

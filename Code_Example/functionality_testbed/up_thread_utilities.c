@@ -91,13 +91,19 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
     // so this make sure this is not null at the end of the function.
     tmpLink = first;
     
+    int i = 0;
     // walk the linklist until the last link
     // notice that the last element never gets reaped
     // this is becouse we do not want to have a empty queue,
     // some one needs to be first/last to be able to connect to
     while ((current->next != NULL) && (count < length) ) {
         tmpLink = current;
-        data[count] = tmpLink->obj;
+        data[count].id = tmpLink->obj.id;
+        data[count].length = tmpLink->obj.length;
+        for (i = 0; i < tmpLink->obj.length; i++) {
+            data[count].data[i] = tmpLink->obj.data[i];
+        }
+        //data[count] = tmpLink->obj;
         count++;
         current = tmpLink->next;
         
@@ -137,7 +143,14 @@ int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)
     if (newData == NULL) {
         return 0;
     }
-    newData->obj = *data;
+    
+    // if msg is short we do not need to copy the whole buffer
+    int i = 0;
+    newData->obj.id = data->id;
+    newData->obj.length = data->length;
+    for (i = 0; i < data->length; i++) {
+        newData->obj.data[i] = data->data[i];
+    }
     newData->next = NULL;
     struct up_linkElement *currentLast = NULL;
     int whatBuffer = -1;

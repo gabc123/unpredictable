@@ -219,19 +219,19 @@ void up_key_function_stop_bankleft(struct up_eventState *currentEvent,struct up_
 
 // Name , what key activates it, function for keyDown event, function for keyUp event
 struct up_key_map internal_keymap[] =
-{{"Forward",SDLK_w                      , &up_key_function_forward , &up_key_function_stop_forward},
-    {"Backward",SDLK_s                  , &up_key_function_backward , &up_key_function_stop_backward},
-    {"Turn Left",SDLK_a                 , &up_key_function_turnLeft , &up_key_function_stop_turnleft},
-    {"Turn Rigth",SDLK_d                , &up_key_function_turnRigth , &up_key_function_stop_turnrigth},
-    {"Bank Left",SDLK_q                 , &up_key_function_bankLeft , &up_key_function_stop_bankleft},
-    {"Bank Right",SDLK_e                , &up_key_function_bankRigth, &up_key_function_stop_bankrigth},
+{{"Move forward",SDLK_w                      , &up_key_function_forward , &up_key_function_stop_forward},
+    {"Move backward",SDLK_s                  , &up_key_function_backward , &up_key_function_stop_backward},
+    {"Turn left",SDLK_a                 , &up_key_function_turnLeft , &up_key_function_stop_turnleft},
+    {"Turn rigth",SDLK_d                , &up_key_function_turnRigth , &up_key_function_stop_turnrigth},
+    {"Bank left",SDLK_q                 , &up_key_function_bankLeft , &up_key_function_stop_bankleft},
+    {"Bank right",SDLK_e                , &up_key_function_bankRigth, &up_key_function_stop_bankrigth},
     {"Zoom in",SDLK_r                   , &up_key_function_zoomin, &up_key_function_noop},
     {"Zoom out",SDLK_f                  , &up_key_function_zoomout, &up_key_function_noop},
     // demonstration code to toggle diffrent propertys
 #ifdef UP_PRESENTATION_MODE
     {"Toggle wireframe",SDLK_t          , &up_key_function_toggle_wireframe, &up_key_function_noop},
-    {"Toggle ambiant Ligth",SDLK_y      , &up_key_function_toggle_ambient, &up_key_function_noop},
-    {"Toggle Directional Ligth",SDLK_u  , &up_key_function_toggle_dirligth, &up_key_function_noop},
+    {"Toggle amb. ligth",SDLK_y      , &up_key_function_toggle_ambient, &up_key_function_noop},
+    {"Toggle dir. ligth",SDLK_u  , &up_key_function_toggle_dirligth, &up_key_function_noop},
     {"Toggle ligth",SDLK_i              , &up_key_function_toggle_ligth, &up_key_function_noop},
 #endif
     {"Fire bullet",SDLK_SPACE           , &up_key_function_firebullet, &up_key_function_stop_firebullet},

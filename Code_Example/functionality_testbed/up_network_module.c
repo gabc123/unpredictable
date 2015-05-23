@@ -141,47 +141,87 @@ void up_network_shutdown_deinit(Pthread_listen_datapipe_t *p)
    
 }
 
+static int up_network_updateShipUnit(struct up_actionState *states,struct up_packet_movement *movment, int playerId)
+{
+    
+    if (states->objectID.idx == playerId) {
+        states->objectID.idx = 0; // index special means no update
+        return 1;
+    }
+    
+    struct up_objectInfo *tmpObject = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
+    if (tmpObject == NULL) {
+        printf("\nRecive packet coruppted");
+        return 0;
+    }
+    
+    // TODO: timedalation
+    // this is a temporary solution
+    tmpObject->pos = movment->pos;
+    tmpObject->speed = movment->speed;
+    tmpObject->angle = movment->angle;
+    tmpObject->bankAngle = movment->bankangle;
+    //objUpdate[i].id;
+    return 1;
+}
+
+static int up_network_updateObject(struct up_packet_movement *movment)
+{
+    struct up_objectInfo *tmpObject = up_unit_objAtIndex(movment->objectID.type, movment->objectID.idx);
+    if (tmpObject == NULL) {
+        printf("\nRecive packet coruppted");
+        return 0;
+    }
+    
+    // TODO: timedalation
+    // this is a temporary solution
+    tmpObject->pos = movment->pos;
+    tmpObject->speed = movment->speed;
+    tmpObject->angle = movment->angle;
+    tmpObject->bankAngle = movment->bankangle;
+    //objUpdate[i].id;
+    return 1;
+}
+
 #define UP_OBJECT_BUFFER_READ_LENGTH 60
+
+
+
 int up_network_getNewMovement(struct up_actionState *states,int max,int playerId)
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
     
-    struct up_objectInfo *tmpObject = NULL;
+
     int packet_read = up_readNetworkDatabuffer(objUpdate, max);
+
+    struct up_actionState tmp_states = {0};
+    struct up_packet_movement movment = {0};
+    
     int i = 0;
-    
-    struct up_vec3 pos = {0};
-    float speed;
-    float angle;
-    float bankangle;
-    int timestape;
-    
+    int timestamp = 0;
+
+    int success = 0;
     
     for (i = 0; i < packet_read; i++) {
-        up_network_action_packetDecode(&objUpdate[i], &states[i], &pos, &speed, &angle, &bankangle, &timestape);
         
-        tmpObject = up_unit_objAtIndex(states[i].objectID.type, states[i].objectID.idx);
-        if (tmpObject == NULL) {
-            printf("\nRecive packet coruppted");
-            continue;
+        switch (objUpdate[i].data[0]) {
+            case  UP_PACKET_ACTION_FLAG:
+                up_network_action_packetDecode(&objUpdate[i], &tmp_states, &movment, &timestamp);
+                success = up_network_updateShipUnit(&tmp_states,&movment,playerId);
+                if (success) {
+                    states[tmp_states.objectID.idx] = tmp_states;
+                }
+                break;
+            case UP_PACKET_OBJECTMOVE_FLAG:
+                up_network_objectmove_packetDecode(&objUpdate[i], &movment, &timestamp);
+                up_network_updateObject(&movment);
+                break;
+            default:
+                break;
         }
-        if (states[i].objectID.type == up_ship_type && states[i].objectID.idx == playerId) {
-            continue;
-        }
-        // TODO: timedalation
-        // this is a temporary solution
-        tmpObject->pos = pos;
-        tmpObject->speed = speed;
-        tmpObject->angle = angle;
-        tmpObject->bankAngle = bankangle;
-        //objUpdate[i].id;
-    
     }
-    
-    
-    
-    return 0;
+    return max; //check all player slots
     
 }
 

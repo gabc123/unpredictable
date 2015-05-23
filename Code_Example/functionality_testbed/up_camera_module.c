@@ -81,9 +81,11 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
         y = cam->center.y - allObj[i].pos.y;
         distance=sqrt((x*x)+(y*y));
 
-        if(distance<view)
+        // shipIdx 0 is reserved for ship thats not active
+        if(distance<view && (allObj[i].objectId.idx != 0))
+        {
             in_cam[j++]=allObj[i];
-
+        }
     }
 
     allObj = up_unit_getAllObj(up_projectile_type,&totalObject);
