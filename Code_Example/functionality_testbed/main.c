@@ -221,12 +221,14 @@ int main(int argc, char const *argv[])
     int network_state_recived = 0;
     Pthread_listen_datapipe_t *connection_data = up_network_start_setup();
 
-    up_player_stats_t stats;
-    stats.current_health = 90;
-    stats.current_armor = 40;
-    stats.weapons.missile = 5;
-    stats.weapons.bullets = 100;
-    stats.weapons.laser = 50;
+    struct up_player_stats player_stats;
+    player_stats.current_health = 100;
+    player_stats.max_health = 100;
+    player_stats.current_armor = 100;
+    player_stats.max_armor = 100;
+    player_stats.weapons.missile = 5;
+    player_stats.weapons.bullets = 100;
+    player_stats.weapons.laser = 50;
 
     while(status)
     {
@@ -240,10 +242,10 @@ int main(int argc, char const *argv[])
         up_updateMovements();
         up_checkCollision(&allcollisions);
         up_handleCollision(&allcollisions);
-
+        up_check_law(&allcollisions, &player_stats, shipIndex);
         up_update_camera(&cam, ship);
 
-        up_moveHealthBar(shipIndex,healthBar);
+        up_moveHealthBar(shipIndex,healthBar,&player_stats);
         up_interface_placement(&cam,interface_info);
 
 
@@ -263,7 +265,7 @@ int main(int argc, char const *argv[])
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
 
-        up_gamePlayInterface(font_assets,shader_menu,&stats);
+        up_gamePlayInterface(font_assets,shader_menu,&player_stats);
 
         UP_openGLupdate();
 
