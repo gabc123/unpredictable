@@ -908,21 +908,42 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     up_moveObj(localObject, playerShip, frameDelta);
     up_createProjectile(localObject, playerShip,funkarEj, sound);
 }
+static void take_damage(struct up_player_stats *stats,int damage){
+    stats->current_armor -= damage;
+    if(stats->current_armor < 0){
+        stats->current_health += stats->current_armor;
+        stats->current_armor = 0;
+    }
+    
+    stats->current_health = (stats->current_health > 0) ? stats->current_health : 0;
 
-//void up_check_law(struct up_allCollisions *colision, up_player_stats_t *stats)                         //"Den checkar :P "
-//{
-//    
-//    int i=0;
-//    
-//    for(i=0; i<(colision->shipEnviroment.nrCollisions + colision->projectileShip.nrCollisions + colision->projectileEnviroment.nrCollisions); i++){
-//        
-//        if(colision->shipEnviroment.object1 == ){
-//        
-//        }
-//    }
-//    
-//    
-//    
-//    
-//}
+}
+
+void up_check_law(struct up_allCollisions *colision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
+{
+    
+    int i=0;
+    
+    for(i=0; i<colision->nrShipEnviroment; i++){
+        
+        if(colision->shipEnviroment[i].object1 == playerId){
+            
+            take_damage(stats,7);
+
+        }
+    }
+    
+    for(i=0; i<colision->nrProjectileShip; i++){
+        
+        if(colision->shipEnviroment[i].object1 == playerId){
+            
+            take_damage(stats,7);
+            
+        }
+    }
+    
+    
+    
+}
+
 

@@ -5,6 +5,7 @@
 #include "up_modelRepresentation.h"
 #include "up_music.h"
 
+
 struct up_collision
 {
     int object1;
@@ -133,4 +134,8 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent);
 int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction,struct up_key_map *up_keymap);
 
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship);
+
+struct up_player_stats;
+
+void up_check_law(struct up_allCollisions *colision, struct up_player_stats *stats, int playerId);   //health terminator
 #endif

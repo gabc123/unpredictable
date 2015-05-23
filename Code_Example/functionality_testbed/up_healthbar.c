@@ -37,9 +37,9 @@ up_health_bar_t healthbar_creation()
 }
 
 
-void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red)
+void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_player_stats *player_stats)
 {
-    int healthLevel = 70;
+    float healthLevel = ((float)player_stats->current_health/player_stats->max_health)*2.0;
     
     struct up_objectInfo *ship_pos = up_unit_objAtIndex(up_ship_type,ship_id);
 
@@ -54,9 +54,8 @@ void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red)
     healthRed->pos.y = ship_pos->pos.y+7;
     healthRed->pos.z = ship_pos->pos.z;
     
-
-    healthGreen->scale.x = ((float)healthLevel/100)*2;
-    
+    healthGreen->scale.x = healthLevel;
+        
 }
 
 up_stats_index_t up_create_statsObject()
@@ -112,7 +111,7 @@ void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObje
 
 
 
-void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program,up_player_stats_t *stats){
+void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program,struct up_player_stats *stats){
     
     struct up_vec3 pos;
     struct up_vec3 scale;
