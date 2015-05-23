@@ -41,10 +41,10 @@ void up_mesh_shutdown_deinit()
 
 struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned int *indexArray,int index_count)
 {
-	printf("Vertex count %d\n", vertex_count);
-    printf("Internal internal_state.mesh_count :%d \n",internal_state.mesh_count);
-    printf("Internal internal_state.mesh_size :%d \n",internal_state.mesh_size);
-	if(internal_state.mesh_count >= internal_state.mesh_size)
+	
+    printf("Internal mesh_count :%d/%d \n",internal_state.mesh_count,internal_state.mesh_size);
+    printf("Vertex count %d Loading", vertex_count);
+    if(internal_state.mesh_count >= internal_state.mesh_size)
 	{
 		UP_ERROR_MSG("Full mesh \n");
 	}
@@ -53,7 +53,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
 	mesh->vertex_count = vertex_count;
     mesh->index_count = index_count;
     mesh->drawMode = GL_TRIANGLES;
-    printf("mesh->vertex_count:%d \n",mesh->vertex_count);
+    printf(".");
 
 
 
@@ -62,7 +62,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
         UP_ERROR_MSG("malloc failed, positions");
         return NULL;
     }
-    printf("after pos coord malloc\n");
+    printf(".");
 
     struct up_vec2 *textureCoord = malloc(sizeof(struct up_vec2) * mesh->vertex_count);
     if (textureCoord == NULL) {
@@ -70,7 +70,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
         UP_ERROR_MSG("malloc failed, textureCoord");
         return NULL;
     }
-    printf("after text coord malloc\n");
+    printf(".");
 
     struct up_vec3 *normals = malloc(sizeof(struct up_vec3) * mesh->vertex_count);
     if (normals == NULL) {
@@ -79,7 +79,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
         UP_ERROR_MSG("malloc failed, textureCoord");
         return NULL;
     }
-    printf("after normal coord malloc\n");
+    printf(".");
     
     int i = 0;
     for (i = 0; i< mesh->vertex_count; i++) {
@@ -91,9 +91,9 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
         normals[i] = vertex[i].normals;
     }
     GLuint vertexBufferId[MESH_BUFFER_COUNT];
-    printf("after vertex segmetion malloc\n");
+    printf(".");
     glGenVertexArrays(1, &mesh->vertexArrayObj);
-    printf("after genvertex \n");
+    printf(".");
     glBindVertexArray(mesh->vertexArrayObj);
 
     
@@ -143,7 +143,8 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
     free(positions);
     free(textureCoord);
     free(normals);
-	printf("Internal internal_state.mesh_count :%d \n",internal_state.mesh_count);
+    printf("\n");
+	//printf(" mesh_count :%d \n",internal_state.mesh_count);
     return mesh;
 }
 

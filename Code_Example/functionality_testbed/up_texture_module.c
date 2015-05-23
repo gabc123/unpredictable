@@ -73,7 +73,7 @@ static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
         return NULL;
     }else
     {
-        fprintf(stderr, "loaded texture: %s \n",rgb_imageFile);
+        fprintf(stderr, "loaded texture: %s ",rgb_imageFile);
     }
 
     int bytesPerPixel = tex->format->BytesPerPixel;
@@ -81,7 +81,7 @@ static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
     int number_pixels = tex->w * tex->h;
     int total_size = number_pixels * bytesPerPixel; //rgba
 
-    printf("Loading rgb part %s with bytes per pixels %d\n",rgb_imageFile,bytesPerPixel);
+    printf("bytes per pixels %d\n",bytesPerPixel);
 
     image.totalByteSize = number_pixels * 4; //Always make room for the alpha channel
     image.width = tex->w;

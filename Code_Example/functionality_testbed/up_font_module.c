@@ -111,9 +111,9 @@ static struct up_mesh *up_meshLetters(int letterIndex)
         vertex[i].normals.z = 0;
     }
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     return mesh;
 }
 
