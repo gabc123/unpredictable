@@ -211,7 +211,7 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
         switch (objUpdate[i].data[0]) {
             case  UP_PACKET_ACTION_FLAG:
                 up_network_action_packetDecode(&objUpdate[i], &tmp_states, &movment, &timestamp);
-                printf("recv: %d\n",timestamp);
+                //printf("recv: %d\n",timestamp);
                 success = up_network_updateShipUnit(&tmp_states,&movment,playerId);
                 if (success) {
                     states[tmp_states.objectID.idx] = tmp_states;
@@ -241,7 +241,7 @@ void up_network_sendNewMovement(struct up_actionState *states, struct up_network
     }
     struct objUpdateInformation updateobject;
     int timestamp = SDL_GetTicks();
-    printf("send timestamp: %d\n",timestamp);
+    //printf("send timestamp: %d\n",timestamp);
     int len = up_network_action_packetEncode(&updateobject, states, object->pos, object->speed, object->angle, object->bankAngle, timestamp);
     updateobject.length = len;
     
