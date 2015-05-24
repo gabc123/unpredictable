@@ -43,7 +43,8 @@ void up_generate_sun()
 void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight)
 {
 
-    srand((unsigned)time(NULL));
+    //srand((unsigned)time(NULL));
+    srand(42);  // same map every time
     struct up_objectInfo asteroid = up_asset_createObjFromId(2);
     asteroid.objectId.type = up_environment_type;
     float angle=0;

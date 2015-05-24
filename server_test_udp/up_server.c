@@ -524,6 +524,44 @@ void *up_server_gameplay_send_thread(void *parm)
  * and get information of the thingy
  *******************************************************/
 
+static int up_server_display_users(struct up_server_connection_info *server_info, const char *name)
+{
+    struct up_client_info *client = NULL;
+    char strAddress[INET_ADDRSTRLEN];
+    int num_active = 0;
+    printf("\n*********************\n");
+    printf("Users conneced on %s socket:\n",name);
+    printf("idx\tip\tport\theartbeet\n");
+    
+    int i = 0;
+    for (i = 0; i < server_info->connected_clients; i++) {
+        client = &server_info->client_infoArray[i];
+        if (client->active != 0) {
+            num_active++;
+            inet_ntop(AF_INET, &(client->client_addr.sin_addr), strAddress, INET_ADDRSTRLEN);
+            printf("%d\t%s\t%d\t%d\n",i ,strAddress,ntohs(client->client_addr.sin_port),client->heartbeat);
+        }
+    }
+    printf("Active: %d\n",num_active);
+    return num_active;
+}
+
+void up_server_command_show_online(struct internal_server_state *server_state)
+{
+    //fflush(stdout);// so we dont mix diffrent threads output
+    struct up_server_connection_info *server_account = NULL;
+    struct up_server_connection_info *server_gameplay = NULL;
+    int numOnline = 0;
+    
+    server_account = server_state->server_account;
+    numOnline += up_server_display_users(server_account,"Account");
+    
+    server_gameplay = server_state->server_gameplay;
+    numOnline += up_server_display_users(server_gameplay, "GamePlay");
+    printf("Totol users online: %d\n\n",numOnline);
+    fflush(stdout);
+}
+
 void up_server_run(struct internal_server_state *server_state)
 {
     int flag = 1;
@@ -537,6 +575,10 @@ void up_server_run(struct internal_server_state *server_state)
         
             flag = 0;
         }
+        if (strstr(commands, "show_online") != NULL) {
+            up_server_command_show_online(server_state);
+        }
+
         
     }
 }
