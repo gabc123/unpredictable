@@ -115,6 +115,10 @@ int up_readNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInfor
     // this is becouse we do not want to have a empty queue,
     // some one needs to be first/last to be able to connect to
     while ((current->next != NULL) && (count < length) ) {
+        if (current->obj.id == 0) {
+            current = current->next;
+            continue;
+        }
         tmpLink = current;
         data[count].id = tmpLink->obj.id;
         data[count].length = tmpLink->obj.length;
@@ -127,39 +131,27 @@ int up_readNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInfor
         
     }
     
-    
-    
-    // move the first pointer to the correct location for continued reading
-    queue->live_chain->first[reader] = current;
-    int countRead = count;
-    count++; // walk to the last element
-    //if the whole buffer gets consumed we need to set a new last link
-    if (count < length) {
+    // we want to read the last link also but not remove it, if there is room
+    if ((current->next == NULL) && (count < length) && (current->obj.id != 0)) {
         
         data[count].id = current->obj.id;
         data[count].length = current->obj.length;
         for (i = 0; i < current->obj.length; i++) {
             data[count].data[i] = current->obj.data[i];
         }
-        //data[count] = current->obj;
+        current->obj.id = 0;
+        count++;
         
-        current->obj.id = 0; // id 0 is a dummy id for no data to be read
-        //we set the new last link so we can attache the writer on the correct spot
-        queue->live_chain->last[reader] = current;
-        
-        countRead = count;
-        
-        // notice that we do not update reader if we run out of data space
-        // this is only done if we intende to change queue nexte cycle
-        queue->live_chain->reader = reader;
     }
     
+    // move the first pointer to the correct location for continued reading
+    queue->live_chain->first[reader] = current;
     
     // this repurpouse the link chain to be used again
     // reducing memory overhead, and waste
     linkElement_recycle(queue,first,tmpLink);
     
-    return countRead; //succsess
+    return count; //succsess
 }
 
 int up_writeToNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInformation *data)
@@ -171,7 +163,9 @@ int up_writeToNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateIn
     
     // if msg is short we do not need to copy the whole buffer
     int i = 0;
-    newData->obj.id = data->id;
+    // 0 == no data
+    newData->obj.id = (data->id != 0) ? data->id : 1;
+    
     newData->obj.length = data->length;
     for (i = 0; i < data->length; i++) {
         newData->obj.data[i] = data->data[i];

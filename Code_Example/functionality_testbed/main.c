@@ -219,7 +219,7 @@ int main(int argc, char const *argv[])
         network_states_data[i] = noState;
     }
     int network_state_recived = 0;
-    Pthread_listen_datapipe_t *connection_data = up_network_start_setup();
+    struct up_network_datapipe *connection_data = up_network_start_setup();
 
     struct up_player_stats player_stats;
     player_stats.current_health = 100;
@@ -236,7 +236,7 @@ int main(int argc, char const *argv[])
         status = UP_eventHandler(&currentEvent,&shipAction,keymap);
 
         up_network_sendNewMovement(&shipAction, connection_data);
-        network_state_recived = up_network_getNewMovement(network_states_data, map_maxPlayers,shipIndex);
+        network_state_recived = up_network_getNewMovement(network_states_data, map_maxPlayers,shipIndex,connection_data);
 
         up_update_actions(&shipAction, network_states_data, map_maxPlayers,&funkarEj, sound);
         up_updateMovements();

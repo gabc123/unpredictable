@@ -109,12 +109,25 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
         
     }
     
+    // we want to read the last link also but not remove it, if there is room
+    if ((current->next == NULL) && (count < length) && (current->obj.id != 0)) {
+        
+        data[count].id = current->obj.id;
+        data[count].length = current->obj.length;
+        for (i = 0; i < current->obj.length; i++) {
+            data[count].data[i] = current->obj.data[i];
+        }
+        current->obj.id = 0;
+        count++;
+        
+    }
     
     
     // move the first pointer to the correct location for continued reading
     internal_concurrentQueue->first[reader] = current;
-    int countRead = count;
-    count++; // walk to the last element
+    
+    //int countRead = count;
+    /*count++; // walk to the last element
     //if the whole buffer gets consumed we need to set a new last link
     if (count < length) {
         data[count] = current->obj;
@@ -128,13 +141,13 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
         // this is only done if we intende to change queue nexte cycle
         internal_concurrentQueue->reader = reader;
     }
-    
+    */
     
     // this repurpouse the link chain to be used again
     // reducing memory overhead, and waste
     linkElement_recycle(first,tmpLink);
     
-    return countRead; //succsess
+    return count; //succsess
 }
 
 int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)

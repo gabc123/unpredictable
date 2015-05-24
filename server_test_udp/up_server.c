@@ -96,10 +96,11 @@ static int up_server_hearbeat_send(int socket_server,struct up_client_info *clie
 {
     unsigned char buffer[64];
     int length = up_network_heartbeat_packetEncode(buffer, 10);
-    unsigned int client_sock_len = sizeof(*client);
+    unsigned int client_sock_len = sizeof(client->client_addr);
     
-    if (sendto(socket_server, buffer, length, 0, (struct sockaddr *)client, client_sock_len) == -1) {
+    if (sendto(socket_server, buffer, length, 0, (struct sockaddr *)&client->client_addr, client_sock_len) == -1) {
         printf("heartbeat sendTo error");
+        fflush(stdout);
         return 0;
     }
     return 1;
@@ -109,6 +110,7 @@ static int up_server_remove_client(struct up_client_info *client)
 {
     //remove client
     printf("\nUser disconnected: %s",inet_ntoa(client->client_addr.sin_addr));
+    fflush(stdout);
     // problematic, if server started to send, and account thread see active = 0
     // and account writes partally over client_addr , we may have a problem
     // the result will be that the server_send gets error , but we can liv with that
@@ -188,6 +190,7 @@ void *up_server_account_reciveing_thread(void *parm)
         }
 
         if ((msglen > 5) && (msglen < UP_QUEUE_DATA_SIZE)) {
+            local_data.id = 1;  // if it is 0 then the packet will be skipped
             local_data.length = (int)msglen;
             generic_copyElement((unsigned int)msglen, local_data.data, recvBuff);
             up_writeToNetworkDatabuffer(server_con->queue,&local_data);
@@ -367,14 +370,23 @@ void *up_server_gamplay_reciveing_thread(void *parm)
         }
 
         for (i = 0; i < server_con->connected_clients; i++) {
+            
             if(server_con->client_infoArray[i].client_addr.sin_addr.s_addr == client_sock.sin_addr.s_addr)
             {
                 server_con->client_infoArray[i].heartbeat = 0;  //reset every loop
+                // temporary if fix
+                if (server_con->client_infoArray[i].active == 0) {
+                    server_con->client_infoArray[i].client_addr = client_sock;
+                    server_con->client_infoArray[i].lastStamp = 0;
+                    server_con->client_infoArray[i].heartbeat = 0;
+                    server_con->client_infoArray[i].active = 1;
+                }
+                server_con->client_infoArray[i].active = 1;
                 break;
             }
         }
         
-        userId = i;
+        //userId = i;
         
         if (i == server_con->connected_clients ) {
             if (i >=  UP_MAX_CLIENTS) {
@@ -386,12 +398,13 @@ void *up_server_gamplay_reciveing_thread(void *parm)
             server_con->client_infoArray[i].active = 1;
             
             printf("\nUser connected: %s",inet_ntoa(client_sock.sin_addr));
-            userId = i;
+            fflush(stdout);
+            userId = i + 1; // must be greater then 0
             server_con->connected_clients++;
         }
         
         if ((msglen > 5) && (msglen < UP_QUEUE_DATA_SIZE + 1)) {
-            local_data.id = userId;
+            local_data.id = 1;
             local_data.length = (int)msglen;
             generic_copyElement((unsigned int)msglen, local_data.data, recvBuff);
             up_writeToNetworkDatabuffer(server_con->queue,&local_data);
@@ -443,18 +456,28 @@ static int up_server_send_toAll(struct up_server_connection_info * server_con, s
     int packet_idx = 0;
     int client_idx = 0;
     struct up_client_info *clientInfo = NULL;
-    int dataToSend_len = 0;
+    
+    unsigned char *data = NULL;
+    int data_len = 0;
     for (packet_idx = 0; packet_idx < packet_read; packet_idx++) {
-        dataToSend_len = local_data[packet_idx].length;
+        data_len = local_data[packet_idx].length;
+        data = local_data[packet_idx].data;
+        if (data_len < 2 || data == NULL) {
+            continue;
+        }
         for (client_idx = 0; client_idx < server_con->connected_clients; client_idx++) {
             
             clientInfo = &server_con->client_infoArray[client_idx];
             if (clientInfo->active != 0) {
-                if (sendto(server_con->socket_server, local_data[packet_idx].data, dataToSend_len, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {
+                if (sendto(server_con->socket_server, data, (unsigned int)data_len, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {
+                    printf("\nserver sendTo error");
+                    perror("send");
+                }
+                /*if (sendto(server_con->socket_server, local_data[packet_idx].data, local_data[packet_idx].length, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {
                     printf("\nserver sendTo error");
                     perror("send");
                     break;
-                }
+                }*/
                 
             }
             
@@ -476,15 +499,17 @@ void *up_server_gameplay_send_thread(void *parm)
 
     while (server_con->shutdown == 0) {
         
-        packet_read = up_server_send_bufferRead_spinloop(local_data, length, server_con);
+        packet_read = up_server_send_bufferRead_spinloop(&local_data[0], length, server_con);
         
         if (server_con->shutdown) {
             break;
         }
         
         // TODO: decode data and check if correct
+        if (packet_read > 0) {
+            up_server_send_toAll(server_con, &local_data[0], packet_read);
+        }
         
-        up_server_send_toAll(server_con, local_data, packet_read);
         
     }
     
