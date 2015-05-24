@@ -27,6 +27,37 @@ static void generic_copyElement(unsigned int element_size,unsigned char *destina
     }
 }
 
+
+
+int up_network_heartbeat_packetEncode(unsigned char *data,int timestamp)
+{
+    int read_pos = 0;
+    data[read_pos] = UP_PACKET_HEARTBEAT_FLAG;
+    read_pos++;
+    
+    int timestamp_len = sizeof(timestamp);
+    generic_copyElement(timestamp_len,&data[read_pos],(unsigned char *)&timestamp);
+    read_pos += timestamp_len;
+    
+    return read_pos; //return length of packet
+}
+
+int up_network_heartbeat_packetDecode(unsigned char *data,int *timestamp)
+{
+    int read_pos = 0;
+    if (data[read_pos] !=  UP_PACKET_HEARTBEAT_FLAG) {
+        return 0;
+    }
+    read_pos++;
+    
+    int timestamp_len = sizeof(*timestamp);
+    generic_copyElement(timestamp_len, (unsigned char *)timestamp,&data[read_pos]);
+    read_pos += timestamp_len;
+    
+    return read_pos; //return length of packet
+}
+
+
 static int packet_loacationMovement_encode(unsigned char *data,struct up_vec3 pos,
                                            float speed,float angle,float bankangle)
 {
@@ -143,7 +174,7 @@ int up_network_objectmove_packetDecode(struct objUpdateInformation *object,
 
     read_pos += packet_loacationMovement_decode(&object->data[read_pos], movement);
     
-    int timestamp_len = sizeof(timestamp);
+    int timestamp_len = sizeof(*timestamp);
     generic_copyElement(timestamp_len, (unsigned char *)timestamp,&object->data[read_pos]);
     read_pos += timestamp_len;
     movement->timestamp = *timestamp;
@@ -229,7 +260,7 @@ int up_network_action_packetDecode(struct objUpdateInformation *object,
     
     read_pos += packet_loacationMovement_decode(&object->data[read_pos], movement);
     
-    int timestamp_len = sizeof(timestamp);
+    int timestamp_len = sizeof(*timestamp);
     generic_copyElement(timestamp_len, (unsigned char *)timestamp,&object->data[read_pos]);
     read_pos += timestamp_len;
     movement->timestamp = *timestamp;

@@ -135,7 +135,14 @@ int up_readNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInfor
     count++; // walk to the last element
     //if the whole buffer gets consumed we need to set a new last link
     if (count < length) {
-        data[count] = current->obj;
+        
+        data[count].id = current->obj.id;
+        data[count].length = current->obj.length;
+        for (i = 0; i < current->obj.length; i++) {
+            data[count].data[i] = current->obj.data[i];
+        }
+        //data[count] = current->obj;
+        
         current->obj.id = 0; // id 0 is a dummy id for no data to be read
         //we set the new last link so we can attache the writer on the correct spot
         queue->live_chain->last[reader] = current;

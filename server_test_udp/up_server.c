@@ -8,6 +8,7 @@
 
 #include "up_server.h"
 #include "up_thread_utilities.h"
+#include "up_network_packet_utilities.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,6 +30,8 @@ struct up_client_info
 {
     struct sockaddr_in client_addr;
     int lastStamp;  // when a client sends data to the server this gets set
+    int heartbeat; // every time we recive a msg this gets set to zero
+    int active;
 };
 
 struct up_server_connection_info
@@ -37,8 +40,7 @@ struct up_server_connection_info
     int socket_server;
     struct sockaddr_in server_info;
     int connected_clients;
-    struct up_client_info
- client_infoArray[UP_MAX_CLIENTS];
+    struct up_client_info client_infoArray[UP_MAX_CLIENTS];
     struct up_thread_queue *queue;
 };
 
@@ -83,6 +85,77 @@ unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInfo
 
 //static struct up_server_connection_info *up_server_socket_start();
 
+/******************************************************
+ * heartbeat
+ * every client has a counter that is reset every time sends msg to server
+ * this function incresses that timmer and if it gets to high it sends a heartbeat
+ * after the a delay and timmer still to high it removes the client from list
+ *******************************************************/
+
+static int up_server_hearbeat_send(int socket_server,struct up_client_info *client)
+{
+    unsigned char buffer[64];
+    int length = up_network_heartbeat_packetEncode(buffer, 10);
+    unsigned int client_sock_len = sizeof(*client);
+    
+    if (sendto(socket_server, buffer, length, 0, (struct sockaddr *)client, client_sock_len) == -1) {
+        printf("heartbeat sendTo error");
+        return 0;
+    }
+    return 1;
+}
+
+static int up_server_remove_client(struct up_client_info *client)
+{
+    //remove client
+    printf("\nUser disconnected: %s",inet_ntoa(client->client_addr.sin_addr));
+    // problematic, if server started to send, and account thread see active = 0
+    // and account writes partally over client_addr , we may have a problem
+    // the result will be that the server_send gets error , but we can liv with that
+    // hopfully...
+    client->active = 0;
+    client->heartbeat = 0;
+    return 1;
+}
+
+
+void *up_server_heartbeat(void *parm)
+{
+    printf("Gameplay server send thread online");
+    struct up_server_connection_info * server_con = (struct up_server_connection_info *)parm;
+    int i = 0;
+    struct up_client_info *client = NULL;
+    while (server_con->shutdown == 0) {
+        usleep(1000);
+        
+        // loops over all clients and incresses the heartbeat counter
+        // check if we need to send a heartbeat to the client and sends it if needed,
+        // if heartbeat counter gets too high then the client gets droped
+        for (i = 0; i < server_con->connected_clients; i++) {
+            client = &server_con->client_infoArray[i];
+            if(client->active != 1)
+            {
+                continue;
+            }
+            
+            // add then check if heartbeat need to be send or client dropped
+            client->heartbeat++;
+            if (client->heartbeat == 1000) {   // one secound
+                up_server_hearbeat_send(server_con->socket_server, client);
+            }
+            
+            if (client->heartbeat > 5000) {    // 5 secounds -> disconect
+                up_server_remove_client(client);
+                
+            }
+            
+        }
+        
+        
+    }
+    
+    return NULL;
+}
 
 
 /******************************************************
@@ -91,10 +164,6 @@ unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInfo
  * and where the information get passed to along,
  * and finaly send to all the users
  *******************************************************/
-
-#define UP_REGISTRATE_FLAG (unsigned char)1
-#define UP_LOGIN_FLAG (unsigned char)2
-#define UP_USER_PASS_FLAG (unsigned char)4
 
 void *up_server_account_reciveing_thread(void *parm)
 {
@@ -300,6 +369,7 @@ void *up_server_gamplay_reciveing_thread(void *parm)
         for (i = 0; i < server_con->connected_clients; i++) {
             if(server_con->client_infoArray[i].client_addr.sin_addr.s_addr == client_sock.sin_addr.s_addr)
             {
+                server_con->client_infoArray[i].heartbeat = 0;  //reset every loop
                 break;
             }
         }
@@ -312,6 +382,8 @@ void *up_server_gamplay_reciveing_thread(void *parm)
             }
             server_con->client_infoArray[i].client_addr = client_sock;
             server_con->client_infoArray[i].lastStamp = 0;
+            server_con->client_infoArray[i].heartbeat = 0;
+            server_con->client_infoArray[i].active = 1;
             
             printf("\nUser connected: %s",inet_ntoa(client_sock.sin_addr));
             userId = i;
@@ -366,7 +438,7 @@ static int up_server_send_bufferRead_spinloop(struct objUpdateInformation *local
 
 static int up_server_send_toAll(struct up_server_connection_info * server_con, struct objUpdateInformation *local_data, int packet_read)
 {
-    unsigned int client_sock_len = sizeof(server_con->client_infoArray[0]);
+    unsigned int client_sock_len = sizeof(server_con->client_infoArray[0].client_addr);
     
     int packet_idx = 0;
     int client_idx = 0;
@@ -377,10 +449,15 @@ static int up_server_send_toAll(struct up_server_connection_info * server_con, s
         for (client_idx = 0; client_idx < server_con->connected_clients; client_idx++) {
             
             clientInfo = &server_con->client_infoArray[client_idx];
-            if (sendto(server_con->socket_server, local_data[packet_idx].data, dataToSend_len, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {
-                printf("sendTo error");
-                break;
+            if (clientInfo->active != 0) {
+                if (sendto(server_con->socket_server, local_data[packet_idx].data, dataToSend_len, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {
+                    printf("\nserver sendTo error");
+                    perror("send");
+                    break;
+                }
+                
             }
+            
         }
         
     }
@@ -475,6 +552,14 @@ static struct up_server_connection_info *up_server_account_start(unsigned int po
     if (server == NULL) {
         UP_ERROR_MSG("malloc failure");
     }
+    
+    int i = 0;
+    for (i = 0; i < UP_MAX_CLIENTS; i++) {
+        server->client_infoArray[i].active = 0;
+        server->client_infoArray[i].heartbeat = 0;
+    }
+    
+    server->connected_clients = 0;
     server->shutdown = 0;
     server->socket_server = socket_server;
     server->server_info = sock_server;
@@ -516,6 +601,14 @@ static struct up_server_connection_info *up_server_gameplay_start(unsigned int p
     if (server == NULL) {
         UP_ERROR_MSG("malloc failure");
     }
+    
+    int i = 0;
+    for (i = 0; i < UP_MAX_CLIENTS; i++) {
+        server->client_infoArray[i].active = 0;
+        server->client_infoArray[i].heartbeat = 0;
+    }
+    
+    server->connected_clients = 0;
     server->shutdown = 0;
     server->socket_server = socket_server;
     server->server_info = sock_server;
@@ -526,6 +619,7 @@ static struct up_server_connection_info *up_server_gameplay_start(unsigned int p
 }
 
 // starts the threads and recive and store
+#define UP_SERVER_GAMEPLAY_THREAD_COUNT 3
 struct internal_server_state *up_server_startup()
 {
     if(!up_concurrentQueue_start_setup())
@@ -544,12 +638,13 @@ struct internal_server_state *up_server_startup()
     }
     
     // here start gameplay server and can now be used for fun
-    pthread_t *server_gameplay_thread = malloc(sizeof(pthread_t)*2);
+    pthread_t *server_gameplay_thread = malloc(sizeof(pthread_t)*UP_SERVER_GAMEPLAY_THREAD_COUNT);
     if (server_gameplay_thread == NULL) {
         UP_ERROR_MSG("malloc failure");
     }
-    pthread_create(&server_gameplay_thread[0],NULL,&up_server_gamplay_reciveing_thread,server_gameplay);
-    pthread_create(&server_gameplay_thread[1],NULL,&up_server_gameplay_send_thread,server_gameplay);
+    pthread_create(&server_gameplay_thread[0],NULL,&up_server_gamplay_reciveing_thread,server_gameplay);    //recv thread
+    pthread_create(&server_gameplay_thread[1],NULL,&up_server_gameplay_send_thread,server_gameplay);        //send thread
+    pthread_create(&server_gameplay_thread[2],NULL,&up_server_heartbeat,server_gameplay);                   // heartbeat
     
     // too keep track of all threads and servers running we need to return
     struct internal_server_state *server_state = malloc(sizeof(struct internal_server_state));
@@ -592,7 +687,7 @@ void up_server_shutdown_cleanup(struct internal_server_state *server_state)
 {
     close(server_state->server_gameplay->socket_server); // do this first to force a faile on all connections
     int i = 0;
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < UP_SERVER_GAMEPLAY_THREAD_COUNT; i++) {
         pthread_join(server_state->server_gameplay_thread[i], NULL);
     }
     

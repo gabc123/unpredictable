@@ -13,10 +13,20 @@
 #include "up_vertex.h"
 #include "up_thread_utilities.h"
 
+// account flags
+#define UP_REGISTRATE_FLAG (unsigned char)1
+#define UP_LOGIN_FLAG (unsigned char)2
+#define UP_USER_PASS_FLAG (unsigned char)4
 
+
+// gameplay flags
 #define UP_PACKET_ACTION_FLAG (unsigned char)10
 #define UP_PACKET_OBJECTMOVE_FLAG (unsigned char)11
 #define UP_PACKET_PLAYER_HEALTHSTATS_FLAG (unsigned char)12
+
+// maintenance flags
+#define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
+
 
 struct up_packet_movement
 {
@@ -27,6 +37,10 @@ struct up_packet_movement
     float bankangle;
     int timestamp;
 };
+
+
+int up_network_heartbeat_packetEncode(unsigned char *data,int timestamp);
+int up_network_heartbeat_packetDecode(unsigned char *data,int *timestamp);
 
 
 int up_network_objectmove_packetEncode(struct objUpdateInformation *object,
