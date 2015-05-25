@@ -380,6 +380,8 @@ void *up_server_gamplay_reciveing_thread(void *parm)
                     server_con->client_infoArray[i].lastStamp = 0;
                     server_con->client_infoArray[i].heartbeat = 0;
                     server_con->client_infoArray[i].active = 1;
+                    printf("\nUser connected: %s",inet_ntoa(client_sock.sin_addr));
+                    fflush(stdout);
                 }
                 server_con->client_infoArray[i].active = 1;
                 break;
