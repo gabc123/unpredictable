@@ -42,7 +42,9 @@ struct up_modelData
     char obj[MODELLENGTH];
     char tex[MODELLENGTH];
     struct up_vec3 scale;
-
+    struct Hitbox hitbox;
+    float turnSpeed;
+    float maxLength;
 };
 
 /*fallback mesh*/
@@ -87,7 +89,7 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     obj.scale.x = 1;
     obj.scale.y = 1;
     obj.scale.z = 1;
-    
+
     obj.modelId = modelId;
 
     //internal_assets is a static global
@@ -162,7 +164,7 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
 
 /*Reads assets to be loaded from a file*/
 //Sebastian
-// magnus error handeling
+//magnus error handeling
 static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray)
 {
     struct UP_textHandler thafile = up_loadAssetFile("objIndex");
@@ -170,7 +172,7 @@ static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list
         UP_ERROR_MSG("Failed to load objindex");
         return 0;   // failed ti a load objindex
     }
-    
+
     struct up_vec3 scaleOne = {1.0, 1.0, 1.0};
     struct up_modelData item; //stores the information of the object
     char *text = thafile.text;
@@ -188,11 +190,26 @@ static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list
             printf("end of file objIndex\n");
             break;
         }
-        sscanf(row,"%f %f %f %s %s", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex);
+        sscanf(row,"%f %f %f %s %s %f", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex, &item.turnSpeed);
+        row = up_token_parser(text, &text, endLine, strlen(endLine));
+        if(row == NULL)
+        {
+            //UP_ERROR_MSG("ERROR, obj String could not be found in loadObjects");
+            printf("end of file objIndex\n");
+            break;
+        }
+        sscanf(row,"%f %f %f %f %f %f", &item.hitbox.xmax, &item.hitbox.ymax, &item.hitbox.zmax, &item.hitbox.xmin, &item.hitbox.ymin, &item.hitbox.zmin);
         if(up_process_asset(meshArray,textureArray,&item) == 0)
         {
             item.scale = scaleOne; // there has been a error , set scale to one
         }
+
+        if(item.maxLength < fabsf(item.hitbox.xmax)) item.maxLength = item.hitbox.xmax;
+        if(item.maxLength < fabsf(item.hitbox.ymax)) item.maxLength = item.hitbox.ymax;
+        if(item.maxLength < fabsf(item.hitbox.zmax)) item.maxLength = item.hitbox.zmax;
+        if(item.maxLength < fabsf(item.hitbox.xmin)) item.maxLength = item.hitbox.xmin;
+        if(item.maxLength < fabsf(item.hitbox.ymin)) item.maxLength = item.hitbox.ymin;
+        if(item.maxLength < fabsf(item.hitbox.zmin)) item.maxLength = item.hitbox.zmin;
 
         up_vec3_list_add(scaleArray, &item.scale);
 
@@ -210,6 +227,7 @@ struct up_assets *up_assets_start_setup()
     struct up_generic_list *meshArray = up_mesh_list_new(10);
     struct up_generic_list *textureArray = up_texture_list_new(10);
     struct up_generic_list *scaleArray= up_vec3_list_new(10);
+
 
     // the first model is always a default model  that is used if
     // a missing obj file or texture is found

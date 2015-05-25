@@ -376,7 +376,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
-        
+
 
     }
 
@@ -407,11 +407,11 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
             object1->speed = object1->speed/2;
        }
     }
-    
+
     if (object2 == NULL) {
         return;
     }
-    
+
     for(i=0; i < allcollisions->nrEnviromentEnviroment; i++){
         object2->owner = object2->objectId.idx;
     }
@@ -434,7 +434,7 @@ void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2,
     float xlengthModel1, ylengthModel1, zlengthModel1;
     float xlengthModel2, ylengthModel2, zlengthModel2;
     float distanceX, distanceY, distanceZ;
-    
+
     struct Hitbox hitModel1 ={
         object1[nrObj1].pos.x+1.0, object1[nrObj1].pos.y+1.0, object1[nrObj1].pos.z+1.0,
         object1[nrObj1].pos.x-1.0,  object1[nrObj1].pos.y-1.0,  object1[nrObj1].pos.z-1.0};
@@ -451,6 +451,11 @@ void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2,
     ylengthModel2 = hitModel2.ymax - hitModel2.ymin;
     zlengthModel2 = hitModel2.zmax - hitModel2.zmin;
 
+/*
+    xlengthModel1 = object1->collisionbox.xmax - object1->collisionbox.xmin;
+    xlengthModel1 = object1->collisionbox.ymax - object1->collisionbox.ymin;
+    xlengthModel1 = object1->collisionbox.zmax - object1->collisionbox.zmin;
+*/
     distanceX = fabsf(object2[nrObj2].pos.x - object1[nrObj1].pos.x);
     distanceY = fabsf(object2[nrObj2].pos.y - object1[nrObj1].pos.y);
     distanceZ = fabsf(object2[nrObj2].pos.z - object1[nrObj1].pos.z);
@@ -579,7 +584,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 y = ships[i].pos.y - projectile[j].pos.y;
                 z = ships[i].pos.z - projectile[j].pos.z;
                 distance = sqrt((x*x)+(y*y)+(z*z));
-                
+
                 if(distance <2){
                     testCollision(projectile, ships, j, i, allcollisions, projectileShip);
                 }
@@ -704,7 +709,6 @@ void up_updateMovements()
 //revised by magnus
 void up_updateShipMovment(struct up_objectInfo *ship)
 {
-
     ship->dir.x = sinf(ship->angle);
     ship->dir.y = cosf(ship->angle);
     ship->dir.z = 0;
@@ -966,56 +970,56 @@ static void take_damage(struct up_player_stats *stats,int damage){
         stats->current_health += stats->current_armor;
         stats->current_armor = 0;
     }
-    
+
     stats->current_health = (stats->current_health > 0) ? stats->current_health : 0;
 
 }
 
 void up_check_law(struct up_allCollisions *collision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
 {
-    
-    
+
+
     int i=0;
     int other_shipId;
     struct up_objectInfo *other_object = NULL;
     struct up_objectInfo *player_object = NULL;
-    
+
     other_shipId = collision->shipShip[i].object2;
     player_object = up_unit_objAtIndex(up_ship_type, playerId);
-    
+
     for(i=0; i<collision->nrShipEnviroment; i++){
-        
+
         if(collision->shipEnviroment[i].object1 == playerId){
-            
+
             take_damage(stats,7);
 
         }
     }
-    
+
     for(i=0; i<collision->nrShipShip; i++){
-        
+
         if(collision->shipShip[i].object1 == playerId){
             other_shipId = collision->shipShip[i].object2;
             other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
-            
+
             if(other_object->modelId == player_object->modelId){
                 take_damage(stats,5);
             }
         }
     }
-    
+
 //    for(i=0; collision->nrProjectileShip; i++){
 //        if(collision->projectileShip[i].object2 == playerId){
 //            other_shipId = collision->projectileShip[i].object1;
 //            other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
-//            
+//
 //            if (other_object->modelId ) {
 //                <#statements#>
 //            }
 //        }
 //    }
-    
-    
+
+
 }
 
 
