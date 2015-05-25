@@ -14,6 +14,7 @@
 #include "up_shader_module.h"
 #include "up_ship.h"
 #include "up_assets.h"
+#include "sha256.h"
 
 int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_key_map *keymap,struct up_font_assets *fonts);
 

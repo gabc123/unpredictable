@@ -36,8 +36,11 @@ int main(int argc, char const *argv[])
     printf("opengl window setup done\n");
 
     //up_network_start_setup();
-
-
+    char hashed_text[200]={0};
+    char text[200]={"Magnus1991"};
+    
+    int length = (int)strlen(text);
+    up_hashPassword(hashed_text,text,length);
 
     int mesh_capacity = 500;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models

@@ -30,7 +30,7 @@ void up_network_shutdown_deinit();
 int up_network_getNewMovement(struct up_actionState *states,int max,int playerId,struct up_network_datapipe *socket_data);
 void up_network_sendNewMovement(struct up_actionState *states, struct up_network_datapipe *socket_data);
 
-
+int up_hashPassword();
 
 
 #endif /* defined(__testprojectshader__up_network_module__) */
