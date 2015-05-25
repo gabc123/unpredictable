@@ -23,14 +23,22 @@ struct up_network_datapipe {
     IPaddress addr;
 };
 
-struct up_network_datapipe *up_network_start_setup();
-void up_network_shutdown_deinit();
+struct up_network_account_data
+{
+    int playerId;
+    int something;  //add all data that should be included here
+};
+
+struct up_network_datapipe *up_network_start_gameplay_setup();
+struct up_network_datapipe *up_network_start_account_setup();
+
+void up_network_shutdown_deinit(struct up_network_datapipe *p);
 
 
 int up_network_getNewMovement(struct up_actionState *states,int max,int playerId,struct up_network_datapipe *socket_data);
 void up_network_sendNewMovement(struct up_actionState *states, struct up_network_datapipe *socket_data);
 
-
-
+int up_network_getAccountData(struct up_network_account_data *data,int max,struct up_network_datapipe *socket_data);
+int up_network_registerAccount(char *username, char *password,int length, struct up_network_datapipe *socket_data );
 
 #endif /* defined(__testprojectshader__up_network_module__) */

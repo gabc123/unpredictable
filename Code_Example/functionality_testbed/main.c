@@ -92,9 +92,15 @@ int main(int argc, char const *argv[])
     struct up_key_map *keymap = up_key_remapping_setup();
     struct up_font_assets *font_assets = up_font_start_setup();  //load font to inteface startup
 
+    struct up_network_datapipe *account_connection = up_network_start_account_setup();
     // start the menu, and display it
-    status=up_menu(shader_menu, sound,keymap,font_assets);
+    status=up_menu(shader_menu, sound,keymap,font_assets,account_connection);
 
+    // do map loading on the account connection
+    
+    // then exit
+    up_network_shutdown_deinit(account_connection);
+    
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
@@ -219,7 +225,7 @@ int main(int argc, char const *argv[])
         network_states_data[i] = noState;
     }
     int network_state_recived = 0;
-    struct up_network_datapipe *connection_data = up_network_start_setup();
+    struct up_network_datapipe *connection_data = up_network_start_gameplay_setup();
 
     struct up_player_stats player_stats;
     player_stats.current_health = 100;

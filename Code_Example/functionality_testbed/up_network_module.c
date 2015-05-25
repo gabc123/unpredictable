@@ -19,7 +19,8 @@
 #define UP_NETWORK_SIZE 100
 
 
-int up_network_recive(void *information);
+int up_network_gameplay_recive(void *arg);
+int up_network_account_recive(void *arg);
 void up_network_sendHeartbeat(struct up_network_datapipe *socket_data);
 
 // warning:
@@ -52,7 +53,9 @@ unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInfo
 }
 
 
-struct up_network_datapipe *up_network_start_setup()                               // used to be main
+
+
+static struct up_network_datapipe *up_network_start_setup(int port)                               // used to be main
 {
     struct up_network_datapipe *p = malloc(sizeof(struct up_network_datapipe));
     if (p == NULL) {
@@ -115,7 +118,7 @@ struct up_network_datapipe *up_network_start_setup()                            
     
                                                             // resolving conection between host and destination address, sending data throuh port 5001
     
-    success=SDLNet_ResolveHost(&p->addr, ip_address, 22422);
+    success=SDLNet_ResolveHost(&p->addr, ip_address, port);
     if(success==-1){
         printf("Error: Could not fill out ip address");
     }
@@ -127,13 +130,26 @@ struct up_network_datapipe *up_network_start_setup()                            
     p->sendPacket =   SDLNet_AllocPacket(1024);                                                      // allocate and resize a single udp packet
     
                                                             // creates thread for the server
-    p->recive_thread=SDL_CreateThread(up_network_recive,"up_network_recive",p);
+    //p->recive_thread=SDL_CreateThread(up_network_recive,"up_network_recive",p);
     
     
     
     return p;
 }
 
+struct up_network_datapipe *up_network_start_gameplay_setup()
+{
+    struct up_network_datapipe * server_pipe = up_network_start_setup(22422);
+    server_pipe->recive_thread = SDL_CreateThread(up_network_gameplay_recive,"up_network_gameplay_recive",server_pipe);
+    return server_pipe;
+}
+
+struct up_network_datapipe *up_network_start_account_setup()
+{
+    struct up_network_datapipe * server_pipe = up_network_start_setup(44244);
+    server_pipe->recive_thread = SDL_CreateThread(up_network_account_recive,"up_network_account_recive",server_pipe);
+    return server_pipe;
+}
 
 
 void up_network_shutdown_deinit(struct up_network_datapipe *p)
@@ -237,6 +253,10 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
     
 }
 
+
+
+
+
 void up_network_sendNewMovement(struct up_actionState *states, struct up_network_datapipe *socket_data)
 {
     struct up_objectInfo *object = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
@@ -274,7 +294,7 @@ void up_network_sendHeartbeat(struct up_network_datapipe *socket_data)
 }
 
 
-int up_network_recive(void *arg)
+int up_network_gameplay_recive(void *arg)
 {
     struct up_network_datapipe *p=(struct up_network_datapipe *)arg;
    
@@ -314,12 +334,81 @@ int up_network_recive(void *arg)
     return 1;
 }
 
-#define UP_USERPASS 21
-#define UP_REGISTRATE_FLAG (unsigned char)1
-#define UP_LOGIN_FLAG (unsigned char)2
-#define UP_USER_PASS_FLAG (unsigned char)4
+int up_network_account_recive(void *arg)
+{
+    struct up_network_datapipe *p=(struct up_network_datapipe *)arg;
+    
+    UDPsocket socket = p->udpSocket;
+    UDPpacket *packet = SDLNet_AllocPacket(1024);
+    struct objUpdateInformation local_data = {0};
+    struct up_thread_queue *queue = p->queue;
+    packet->address.host = p->addr.host;
+    packet->address.port = p->addr.port;
+    
+    unsigned int len = 0;
+    
+    while(p->online){
+        SDL_Delay(1);
+        
+        if (SDLNet_UDP_Recv(socket,packet)){
+            //printf("\n pack recv: ");
+            len = packet->len;
+            if ((3 <= len ) && (len <= sizeof(local_data.data))) {
+                //printf("pack processing len %d ", packet->len);
+                local_data.id = 1; //cant be zero
+                local_data.length = packet->len;
+                up_copyBufferIntoObject(packet->data,&local_data);
+                
+                up_writeToNetworkDatabuffer(queue,&local_data);
+            }
+            
+        }
+        
+        
+        
+        //SDL_Delay(1);
+        
+    }
+    
+    SDLNet_FreePacket(packet);
+    return 1;
+}
 
-int up_network_registerAccount(char username[UP_USERPASS], char password[UP_USERPASS], struct up_network_datapipe *socket_data )
+#define UP_USERPASS 21
+
+int up_network_getAccountData(struct up_network_account_data *data,int max,struct up_network_datapipe *socket_data)
+{
+    struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
+    max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
+    
+    
+    int packet_read = up_readNetworkDatabuffer(socket_data->queue,objUpdate, max);
+    
+
+    int i = 0;
+    
+    for (i = 0; i < packet_read; i++) {
+        
+        switch (objUpdate[i].data[0]) {
+            case  UP_LOGIN_FLAG:
+                // do stuff, like decode packet and store it in data
+                
+                break;
+            case UP_MAP_DATA_FLAG:
+                // do stuff, and so on
+                break;
+            case UP_PACKET_HEARTBEAT_FLAG:  // keep this, so we dont lose the connection
+                up_network_sendHeartbeat(socket_data);
+                break;
+            default:
+                break;
+        }
+    }
+    return max; //check all player slots
+    
+}
+
+int up_network_registerAccount(char *username, char *password,int length, struct up_network_datapipe *socket_data )
 {
     int i,writeSpace = 0;
     unsigned char messageToServer[768];
