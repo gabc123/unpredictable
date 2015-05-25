@@ -222,15 +222,15 @@ struct up_mesh *up_mesh_menu_Botton()
     return mesh;
 }
 
-struct up_mesh *up_meshLoginOverlay()
+struct up_mesh *up_meshLoginOverlay(float maximumY, float minimumY)
 {
     /// setup the vertexs and the tex coords, this is done like this for debbuging reasons
     // texture coordinates, 0,0 is bottom left, 1,1 is top right
     struct up_vec2 tex[] = {
-        {0.0f, 0.0f},
-        {1.0f, 0.0f},
-        {0.0f, 1.0f},
-        {1.0f, 1.0f}
+        {0.0f, minimumY},
+        {1.0f, minimumY},
+        {0.0f, maximumY},
+        {1.0f, maximumY}
     };
 
     // this is the posisions of the vertexes

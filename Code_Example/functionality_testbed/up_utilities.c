@@ -17,7 +17,7 @@
  if found then it will replace the char with \0
  and return the start address, and also set nextString to the next seq
  if not found then it will return NULL
- 
+
  Parameters:
  char *srcString : NULL terminated string that will be tokenized (is destructiv) (need to be on heap)
  char **nextString : Will be set to the next part of the string after the first token
@@ -26,7 +26,7 @@
  Return:
  returns a pointer to the start of the token string, it will be set to NULL if failure
  (nextString will be repointed at the next string in case of sucsess)
- 
+
  inspired-by C library function - strtok(),
  */
 char *up_token_parser(char *srcString,char **nextString,char *delimiter,unsigned long delimiter_length)
@@ -75,13 +75,13 @@ char *up_token_parser(char *srcString,char **nextString,char *delimiter,unsigned
  delete: frees all the data in the list and the list,
  transferOwnership: this will return a pointer to a array of size count with the data,
  this operation will destroy the list making it unusable, this means that you will have to remember to free the memory yourself.
- 
+
  add: add a given element to the end of the list
  set: sets new value for the element at index in list, (index < count)
  get: get the value at the element index and fills it in data (index < count)
- 
+
  count: return the current size of the list
- 
+
  *****************************************************************/
 
 struct up_generic_list
@@ -133,10 +133,10 @@ static struct up_generic_list *up_generic_list_new(unsigned int element_size,uns
     }
     list->count = 0;
     list->element_size = element_size;
-    
+
     // So we do not instantly need to realloc new mamory for the first add
     start_capacity = (start_capacity < 4) ? 16 : start_capacity;
-    
+
     void *data = malloc(element_size * start_capacity);
     if (data == NULL) {
         UP_ERROR_MSG("malloc fail data");
@@ -163,7 +163,7 @@ static void up_generic_list_delete(struct up_generic_list *list)
 
 static void *up_generic_list_transferOwnership(struct up_generic_list **list)
 {
-    
+
     struct up_generic_list *list_tmp = *list;
     *list = NULL;
     void *data = list_tmp->data;
@@ -172,7 +172,7 @@ static void *up_generic_list_transferOwnership(struct up_generic_list **list)
     list_tmp->count = 0;
     list_tmp->element_size = 0;
     free(list_tmp);
-    
+
     return data;
 }
 
@@ -191,7 +191,7 @@ static int generic_list_resize(struct up_generic_list *list)
 {
     //if realloc fails we dont want to lose track of the memory
     void *tmp_data = list->data;
-    
+
     unsigned int newCapacity = (unsigned int)((double)list->capacity * UP_GENERIC_LIST_RESIZE_FACTOR);
     void *new_data = realloc(list->data, newCapacity * list->element_size);
     if (new_data == NULL) {
@@ -226,7 +226,7 @@ static int up_generic_list_add(struct up_generic_list *list,void *data)
             return 0;
         }
     }
-    
+
     //evil stuff
     // need to cast to char (byte) to do pointer math
     // void * math is not allowed
@@ -234,7 +234,7 @@ static int up_generic_list_add(struct up_generic_list *list,void *data)
     // move to the correct location
     base = base + list->element_size * list->count;
     char *source = (char*)data;
-    
+
     // copy the data into the lists memmory block
     generic_copyElement(list->element_size,base,source);
     list->count++;
@@ -277,10 +277,10 @@ static void up_generic_list_setElement(struct up_generic_list *list,void *data,u
 }
 
 /*****************************************************
- 
+
     wrapper functions to hide the generic list
     they work by calling the generic version
-    and only pass the data along, 
+    and only pass the data along,
     the compiler should be smart enguoh to remove it
  *****************************************************/
 
@@ -399,7 +399,6 @@ struct up_vertex *up_vertex_list_transferOwnership(struct up_generic_list **list
 }
 
 // information
-
 unsigned int up_vertex_list_count(struct up_generic_list *list)
 {
     return up_generic_list_count(list);

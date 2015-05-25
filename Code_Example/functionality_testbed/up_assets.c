@@ -170,7 +170,7 @@ static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list
     struct UP_textHandler thafile = up_loadAssetFile("objIndex");
     if (thafile.text == NULL) {
         UP_ERROR_MSG("Failed to load objindex");
-        return 0;   // failed ti a load objindex
+        return 0;   // failed to a load objindex
     }
 
     struct up_vec3 scaleOne = {1.0, 1.0, 1.0};
@@ -190,7 +190,7 @@ static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list
             printf("end of file objIndex\n");
             break;
         }
-        sscanf(row,"%f %f %f %s %s %f", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex, &item.turnSpeed);
+        sscanf(row,"%f %f %f %s %s", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex);
         row = up_token_parser(text, &text, endLine, strlen(endLine));
         if(row == NULL)
         {

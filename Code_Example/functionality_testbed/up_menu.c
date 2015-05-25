@@ -4,7 +4,7 @@
 //
 //  Created by Zetterman on 2015-04-28.
 //  Copyright (c) 2015 Zetterman. All rights reserved.
-//
+//  NOTERA, allt som inte står specifierat att det är gjort av någon annan är gjort av Joachim
 
 #include "up_menu.h"
 #include <stdio.h>
@@ -139,6 +139,7 @@ enum menu_states
 {
     mainMenu,
     loginMenu,
+    registerMenu,
     usernameBar,
     quitWindow,
     settings,
@@ -148,8 +149,8 @@ enum menu_states
 
 enum loginBar_state
 {
-    writeOn,
-    writeOff
+    username,
+    password
 };
 
 enum soundEffect_state{
@@ -174,7 +175,8 @@ struct navigationState{
 struct userData{
     char username[UP_LIMIT];
     char password[UP_LIMIT];
-    int keypress;
+    int keypressUsername;
+    int keypressPassword;
 };
 
 struct keybinding_state
@@ -231,7 +233,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     if (textureBottonLogin==NULL) {
         textureBottonLogin = up_load_texture("lala.png");
     }
-    struct up_texture_data *textureLoginOverlay = up_load_texture("placeholder-login2.png");
+    struct up_texture_data *textureLoginOverlay = up_load_texture("registerUser.png");
     if (textureLoginOverlay==NULL) {
         textureLoginOverlay = up_load_texture("lala.png");
     }
@@ -265,6 +267,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrix4_t transformCogWheel;
     up_matrix4_t transformSettingsOverlay;
     up_matrix4_t transformKeybindingsOverlay;
+    up_matrix4_t transformRegisterOverlay;
+    
 
     //TRANSLATION TRANSFORMS
     up_matrix4_t translationLoginRegisterButtons;
@@ -273,16 +277,19 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrix4_t translationCogWheel;
     up_matrix4_t translationSettingsOverlay;
     up_matrix4_t translationKeybindingsOverlay;
+    up_matrix4_t translationRegisterOverlay;
 
     //MESH LOADING
     struct up_mesh *background = up_meshMenuBackground();
     struct up_mesh *bottonLogin1 =up_meshBotton(0,0.95,0,0); //(float imageX, float imageY, float screenPosX, float screenPosY)
     struct up_mesh *bottonLogin2 =up_meshBotton(0,0.1,0,-0.25);
-    struct up_mesh *overlay = up_meshLoginOverlay();
+    struct up_mesh *overlay = up_meshLoginOverlay(0.84, 0.0);
     struct up_mesh *quiteWindow = up_meshQuitwindow();
     struct up_mesh *cogWheel = up_cogWheel();
     struct up_mesh *settingsOverlay = up_settingsOverlay();
     struct up_mesh *keybindingsOverlay = up_keybindingsOverlay();
+    struct up_mesh *registerOverlay = up_meshLoginOverlay(1.0, 0.0);
+
     
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
@@ -297,17 +304,22 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     //BACKGROUND
     up_getModelViewPerspective(&transformBackground, &identity, &identity, &identity);
 
-    //LOGIN OVERLAY
+    //LOGIN/REGISTER OVERLAY
     struct up_modelRepresentation scale2 ={{0,0,0},     //no scale (yet)
                                            {0,0,0},
                                            {0.95,0.95,0.95}};
 
-
+    
+        //LOGIN
     up_matrixModel(&translationLoginOverlay, &scale2.pos, &scale2.rot, &scale2.scale);
 
     up_getModelViewPerspective(&transformLoginOverlay, &translationLoginOverlay, &identity, &identity);
-
-
+    
+        //REGISTER
+    
+    up_matrixModel(&translationRegisterOverlay, &scale2.pos, &scale2.rot, &scale2.scale);
+    
+    up_getModelViewPerspective(&transformRegisterOverlay, &translationRegisterOverlay, &identity, &identity);
 
     //QUIT WINDOW
 
@@ -320,11 +332,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
 
     up_getModelViewPerspective(&transformQuiteWindow, &translationQuiteWindow, &identity, &identity);
 
-
-    //FONT
-    //struct up_font_assets *fonts = up_font_start_setup();
-    struct up_vec3 textpos = {-0.17, 0.045, 0};
-    struct up_vec3 textscale = {0.025,0.025,0.025};
+    
+    
 
     //COGWHEEL
     
@@ -366,20 +375,28 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     struct navigationState musicToggle;
 
     navigation.state = mainMenu;
-    loginBar.status = writeOff;
+    loginBar.status = username;
     soundToggle.toggle = soundOn;
     musicToggle.toogle2 = musicOn;
+    navigation.status=username;
     
-
+    //FONT USERNAME/PASSWORD
+    //struct up_font_assets *fonts = up_font_start_setup();
+    struct up_vec3 textposusername = {-0.17, 0.045, 0};
+    struct up_vec3 textscale = {0.025,0.025,0.025};
+    
+    struct up_vec3 textpospassword = {-0.17, -0.155, 0};
 
     //USER DATA
     struct userData user_data;
-    user_data.keypress=0;
+    user_data.keypressPassword=0;
+    user_data.keypressUsername=0;
 
-    char *teststr1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO";
-    char *teststr2 = "PQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¢";
-    struct up_vec3 testtextpos1 = {-1.0, -0.50, 0};
-    struct up_vec3 testtextpos2 = {-1.0, -0.55, 0};
+   // char *teststr1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO";
+   // char *teststr2 = "PQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~¢";
+    char *passwordstr = "**********************";
+   // struct up_vec3 testtextpos1 = {-1.0, -0.50, 0};
+   // struct up_vec3 testtextpos2 = {-1.0, -0.55, 0};
 
     
     int i = 0;  //used for loops
@@ -433,17 +450,32 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 up_texture_bind(textureLoginOverlay, 3);
                 up_draw_mesh(overlay);
 
-
-                if (navigation.status == writeOn) {
-                    up_displayText(user_data.username, user_data.keypress, &textpos, &textscale, fonts, shaderprog,0,NULL);
-                    up_displayText(teststr1, (int)strlen(teststr1), &testtextpos1, &textscale, fonts, shaderprog,0,NULL);
-                    up_displayText(teststr2, (int)strlen(teststr2), &testtextpos2, &textscale, fonts, shaderprog,0,NULL);
-
+                
+                if (navigation.status == username) {
+                    up_displayText(user_data.username, user_data.keypressUsername, &textposusername, &textscale, fonts, shaderprog,0,NULL);
+                   // up_displayText(teststr1, (int)strlen(teststr1), &testtextpos1, &textscale, fonts, shaderprog,0,NULL);
+                    //up_displayText(teststr2, (int)strlen(teststr2), &testtextpos2, &textscale, fonts, shaderprog,0,NULL);
+                    
+                    //printf("username state\n");
+                }
+                else if (navigation.status == password){
+                    up_displayText(passwordstr, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
+                    //printf("password state\n");
                 }
 
 
                 break;
-
+                
+            case registerMenu:
+                
+                UP_shader_update(shaderprog, &transformRegisterOverlay);
+                up_texture_bind(textureLoginOverlay, 3);
+                up_draw_mesh(registerOverlay);
+                
+                
+                break;
+                
+                
             case quitWindow:
 
                 UP_shader_update(shaderprog, &transformQuiteWindow);
@@ -551,7 +583,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                         struct navigationState *soundToggle, struct navigationState *musicToogle,
                         struct userData *user_data, struct soundLib *sound)
 {
-
+    
     int flag = 1;
     int x,y;
     float xf,yf;
@@ -588,45 +620,103 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
 
         if(event.type == SDL_KEYUP)
         {
-            if ((navigation->status == writeOn) && (user_data->keypress <= 30)) {
+            
+            printf("%d\n", event.key.keysym.sym);
+            
+            if ((navigation->status == username) && (user_data->keypressUsername <= 30)) {
 
                 //int data = event.key.keysym.sym;
                 //printf("%d \n", data);
 
                 if ((event.key.keysym.sym > 32) && ( event.key.keysym.sym < 127)) { // from a to z
-                    user_data->username[user_data->keypress] = event.key.keysym.sym;
-                    user_data->keypress++;
+                    user_data->username[user_data->keypressUsername] = event.key.keysym.sym;
+                    user_data->keypressUsername++;
                 }
-                if (event.key.keysym.sym == 32) {  //FOR TESTING, SPACE ERASES ALL
+                else if (event.key.keysym.sym == 32) {  //FOR TESTING, SPACE ERASES ALL
                     user_data->username[UP_LIMIT - 1] = '\0';
                     printf("%s\n",user_data->username);
-                    user_data->keypress = 0;
+                    user_data->keypressUsername = 0;
                 }
-                if (event.key.keysym.sym == 8){  //BACKSPACE
-                    if (user_data->keypress != 0) {
-                        user_data->keypress = user_data->keypress - 1;
+                else if (event.key.keysym.sym == 8){  //BACKSPACE
+                    if (user_data->keypressUsername != 0) {
+                        user_data->keypressUsername = user_data->keypressUsername - 1;
 
-                        user_data->username[user_data->keypress] = '\0';
+                        user_data->username[user_data->keypressUsername] = '\0';
+                    }
+                }
+                
+
+                
+            }
+            
+            
+            if ((navigation->status == password) && (user_data->keypressPassword <= 30)) {
+                
+                //int data = event.key.keysym.sym;
+                //printf("%d \n", data);
+                
+                if ((event.key.keysym.sym > 32) && ( event.key.keysym.sym < 127)) { // from a to z
+                    user_data->password[user_data->keypressPassword] = event.key.keysym.sym;
+                    user_data->keypressPassword++;
+                }
+                else if (event.key.keysym.sym == 32) {  //FOR TESTING, SPACE ERASES ALL
+                    user_data->password[UP_LIMIT - 1] = '\0';
+                    printf("%s\n",user_data->password);
+                    user_data->keypressPassword = 0;
+                }
+                else if (event.key.keysym.sym == 8){  //BACKSPACE
+                    if (user_data->keypressPassword != 0) {
+                        user_data->keypressPassword = user_data->keypressPassword - 1;
+                        
+                        user_data->password[user_data->keypressPassword] = '\0';
                     }
                 }
 
+                
             }
+            
+            
+            if (event.key.keysym.sym == 9){  //TAB
+                
+                if (navigation->status == username) {
+                    navigation->status = password;
+                }
+                else if (navigation->status == password) {
+                    navigation->status = username;
+                }
 
+            }
+            
+            if (event.key.keysym.sym == 13){  //ENTER TO EXIT
+                
+                if (navigation->status == username) {
+                    flag = 2;
+                }
+                else if (navigation->status == password) {
+                    flag = 2;
+                }
+                
+            }
+            
             if (event.key.keysym.sym == 27) {
 
                 if (navigation->state == mainMenu) {
                     navigation->state= quitWindow;
                 }
 
-                if (navigation->state == loginMenu) {
+                else if (navigation->state == loginMenu) {
                     navigation->state= mainMenu;
                 }
                 
-                if (navigation->state == settings) {
+                else if (navigation->state == registerMenu) {
                     navigation->state= mainMenu;
                 }
                 
-                if (navigation->state == keyBindings) {
+                else if (navigation->state == settings) {
+                    navigation->state= mainMenu;
+                }
+                
+                else if (navigation->state == keyBindings) {
                     navigation->state= settings;
                 }
             }
@@ -642,7 +732,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                     xf=(float)x/width*2-1;
                     yf=-(float)y/height*2+1;
 
-                    printf("X AND Y COORDINATES: %f %f , real x %d y %d\n", xf, yf,x,y); //test print
+                    //printf("X AND Y COORDINATES: %f %f , real x %d y %d\n", xf, yf,x,y); //test print
 
 
                     //LOGIN BOTTON
@@ -654,24 +744,48 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                             }
                         }
                     }
+                    
+                    //LOGIN USERNAME BAR
+                    
+                    if(xf > -0.196875 && xf < 0.200000){        //coordinates of login screen
+                        if(yf > 0.088636 && yf < 0.177273){
+                            
+                            if(navigation->state == loginMenu){
+                                navigation->status=username;
+                            }
+                        }
+                    }
+                    
+                    
+                    //LOGIN PASSWORD BAR
+                    
+                    if(xf > -0.200000 && xf < 0.196875){        //coordinates of login screen
+                        if(yf > -0.090909 && yf < -0.004545){
+                            
+                            if(navigation->state == loginMenu){
+                                navigation->status=password;
+                            }
+                        }
+                    }
+                    
 
                     //REGISTER BOTTON
                     if(xf > -0.137500 && xf < 0.140625){        //coordinates of registration screen
                         if(yf > -0.068182 && yf < 0.015909){
 
                             if (navigation->state == mainMenu){
-                                printf("Register botton clicked!\n");
-                                flag=2;
+                                navigation->state=registerMenu;
                             }
                         }
                     }
 
+                    
                     //WRITE IN LOGIN BAR
                     if(xf > -0.198438 && xf < 0.195312){
                         if(yf > 0.093182 && yf < 0.175000){
 
                             if (navigation->state == loginMenu){
-                                navigation->status=writeOn;
+                                navigation->status=username;
                             }
                         }
                     }
