@@ -472,13 +472,13 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
         object2[nrObj2].pos.x+1.0, object2[nrObj2].pos.y+1.0, object2[nrObj2].pos.z+1.0,
         object2[nrObj2].pos.x-1.0,  object2[nrObj2].pos.y-1.0,  object2[nrObj2].pos.z-1.0};
 
-    xlengthModel1 = hitModel1.xmax - hitModel1.xmin;
-    ylengthModel1 = hitModel1.ymax - hitModel1.ymin;
-    zlengthModel1 = hitModel1.zmax - hitModel1.zmin;
-
-    xlengthModel2 = hitModel2.xmax - hitModel2.xmin;
-    ylengthModel2 = hitModel2.ymax - hitModel2.ymin;
-    zlengthModel2 = hitModel2.zmax - hitModel2.zmin;
+    xlengthModel1 = hitModel1.max.x - hitModel1.min.x;
+    ylengthModel1 = hitModel1.max.y - hitModel1.min.y;
+    zlengthModel1 = hitModel1.max.z - hitModel1.min.z;
+    
+    xlengthModel2 = hitModel2.max.x - hitModel2.min.x;
+    ylengthModel2 = hitModel2.max.y - hitModel2.min.y;
+    zlengthModel2 = hitModel2.max.z - hitModel2.min.z;
 
 /*
     xlengthModel1 = object1->collisionbox.xmax - object1->collisionbox.xmin;

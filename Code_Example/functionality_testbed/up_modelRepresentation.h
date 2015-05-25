@@ -13,12 +13,8 @@
 #include "up_type.h"
 
 struct Hitbox{
-    float xmax;
-    float ymax;
-    float zmax;
-    float xmin;
-    float ymin;
-    float zmin;
+    struct up_vec3 max;
+    struct up_vec3 min;
 };
 
 struct shipMovement
