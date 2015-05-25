@@ -41,9 +41,9 @@ struct up_mesh *meshTriangleShip()
         vertex[i].normals.z = 0;
     }
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     return mesh;
 }
 
@@ -85,9 +85,9 @@ struct up_mesh *meshPyramidShip()
     struct up_vertex *vertex = up_vertex_list_transferOwnership(&list);
 
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, pyramid_pos_size,pyramid_indexArray, pyramid_index_size);
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     free(vertex);
     return mesh;
 }
@@ -129,9 +129,9 @@ struct up_mesh *up_meshMenuBackground()
         vertex[i].normals.z = 0;
     }
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     return mesh;
 }
 
@@ -175,9 +175,9 @@ struct up_mesh *up_meshBotton(float imageX, float imageY, float screenPosX, floa
         vertex[i].normals.z = 0;
     }
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     return mesh;
 }
 
@@ -216,9 +216,9 @@ struct up_mesh *up_mesh_menu_Botton()
         vertex[i].normals.z = 0;
     }
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     return mesh;
 }
 
@@ -255,9 +255,9 @@ struct up_mesh *up_meshLoginOverlay()
         vertex[i].normals.z = 0;
     }
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     return mesh;
 }
 
@@ -294,9 +294,9 @@ struct up_mesh *up_meshQuitwindow()
         vertex[i].normals.z = 0;
     }
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     return mesh;
 }
 
@@ -334,9 +334,9 @@ struct up_mesh *up_cogWheel()
         vertex[i].normals.z = 0;
     }
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     return mesh;
 }
 
@@ -373,9 +373,9 @@ struct up_mesh *up_settingsOverlay()
         vertex[i].normals.z = 0;
     }
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     return mesh;
 }
 
@@ -412,8 +412,8 @@ struct up_mesh *up_keybindingsOverlay()
         vertex[i].normals.z = 0;
     }
     /////////////
-    printf("vertex start\n");
+    printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
-    printf("Mesh finnished\n");
+    //printf("Mesh finnished\n");
     return mesh;
 }

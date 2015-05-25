@@ -46,6 +46,13 @@ void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_playe
     struct up_objectInfo *healthGreen = up_unit_objAtIndex(up_others_type,green_and_red.greenIndex);
     struct up_objectInfo *healthRed = up_unit_objAtIndex(up_others_type,green_and_red.redIndex);
 
+    // if the healthbar has been removed , just exit
+    if ((ship_pos == NULL) ||
+        (healthGreen == NULL) ||
+        (healthRed == NULL)) {
+        return;
+    }
+    
     healthGreen->pos.x = ship_pos->pos.x-1;
     healthGreen->pos.y = ship_pos->pos.y+7;
     healthGreen->pos.z = ship_pos->pos.z;
@@ -84,6 +91,10 @@ void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObje
     
     for(i=0; i<5; i++){
         interfaceObj[i] = up_unit_objAtIndex(up_others_type,interfaceObject.interfaceIndex[i]);
+        if (interfaceObj[i] == NULL) {
+            printf("Healthbar missing\n");
+            return;
+        }
         interfaceObj[i]->pos = cam->eye;
     }
     

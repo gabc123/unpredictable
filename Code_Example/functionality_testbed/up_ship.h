@@ -8,6 +8,7 @@
 
 struct up_collision
 {
+    
     int object1;
     int object2;
     int nrObj1;

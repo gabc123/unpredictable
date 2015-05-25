@@ -20,6 +20,7 @@
 
 
 int up_network_recive(void *information);
+void up_network_sendHeartbeat(struct up_network_datapipe *socket_data);
 
 // warning:
 // this function copy the data from source into destination,
@@ -37,6 +38,7 @@ static void generic_copyElement(unsigned int element_size,unsigned char *destina
 unsigned int up_copyObjectIntoBuffer(struct objUpdateInformation *object,unsigned char *buffer)
 {
     unsigned int data_len = sizeof(object->data);
+    data_len = (data_len > object->length) ? object->length : data_len;
     generic_copyElement(data_len,buffer,(unsigned char *)&object->data);
     return data_len;
 }
@@ -44,14 +46,15 @@ unsigned int up_copyObjectIntoBuffer(struct objUpdateInformation *object,unsigne
 unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInformation *object)
 {
     unsigned int data_len = sizeof(object->data);
+    data_len = (data_len > object->length) ? object->length : data_len;
     generic_copyElement(data_len,(unsigned char *)&object->data,buffer);
     return data_len;
 }
 
 
-Pthread_listen_datapipe_t *up_network_start_setup()                               // used to be main
+struct up_network_datapipe *up_network_start_setup()                               // used to be main
 {
-    Pthread_listen_datapipe_t *p = malloc(sizeof(Pthread_listen_datapipe_t));
+    struct up_network_datapipe *p = malloc(sizeof(struct up_network_datapipe));
     if (p == NULL) {
         UP_ERROR_MSG("network setup failed malloc");
         return NULL;
@@ -128,7 +131,7 @@ Pthread_listen_datapipe_t *up_network_start_setup()                             
 
 
 
-void up_network_shutdown_deinit(Pthread_listen_datapipe_t *p)
+void up_network_shutdown_deinit(struct up_network_datapipe *p)
 {
     p->online = 0;
     SDL_Delay(100); // make sure that the recive thread has ended before we shut down all other stuff
@@ -187,7 +190,7 @@ static int up_network_updateObject(struct up_packet_movement *movment)
 
 
 
-int up_network_getNewMovement(struct up_actionState *states,int max,int playerId)
+int up_network_getNewMovement(struct up_actionState *states,int max,int playerId,struct up_network_datapipe *socket_data)
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
@@ -208,6 +211,7 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
         switch (objUpdate[i].data[0]) {
             case  UP_PACKET_ACTION_FLAG:
                 up_network_action_packetDecode(&objUpdate[i], &tmp_states, &movment, &timestamp);
+                //printf("server pimg ms: %d\n",(SDL_GetTicks() - timestamp));
                 success = up_network_updateShipUnit(&tmp_states,&movment,playerId);
                 if (success) {
                     states[tmp_states.objectID.idx] = tmp_states;
@@ -217,6 +221,9 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
                 up_network_objectmove_packetDecode(&objUpdate[i], &movment, &timestamp);
                 up_network_updateObject(&movment);
                 break;
+            case UP_PACKET_HEARTBEAT_FLAG:
+                up_network_sendHeartbeat(socket_data);
+                break;
             default:
                 break;
         }
@@ -225,12 +232,17 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
     
 }
 
-void up_network_sendNewMovement(struct up_actionState *states, Pthread_listen_datapipe_t *socket_data)
+void up_network_sendNewMovement(struct up_actionState *states, struct up_network_datapipe *socket_data)
 {
     struct up_objectInfo *object = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
+    if (object == NULL) {
+        printf("send packet corrupted");
+        return;
+    }
     struct objUpdateInformation updateobject;
-
-    int len = up_network_action_packetEncode(&updateobject, states, object->pos, object->speed, object->angle, object->bankAngle, 0);
+    int timestamp = SDL_GetTicks();
+    //printf("send timestamp: %d\n",timestamp);
+    int len = up_network_action_packetEncode(&updateobject, states, object->pos, object->speed, object->angle, object->bankAngle, timestamp);
     updateobject.length = len;
     
     UDPsocket socket = socket_data->udpSocket;
@@ -243,10 +255,23 @@ void up_network_sendNewMovement(struct up_actionState *states, Pthread_listen_da
     
 }
 
+void up_network_sendHeartbeat(struct up_network_datapipe *socket_data)
+{
+   
+    UDPsocket socket = socket_data->udpSocket;
+    UDPpacket *packet = socket_data->sendPacket;
+    packet->address.host = socket_data->addr.host;
+    packet->address.port = socket_data->addr.port;
+    
+    packet->len = up_network_heartbeat_packetEncode(packet->data, 11);
+    SDLNet_UDP_Send(socket, -1, packet);
+    
+}
+
 
 int up_network_recive(void *arg)
 {
-    Pthread_listen_datapipe_t *p=(Pthread_listen_datapipe_t *)arg;
+    struct up_network_datapipe *p=(struct up_network_datapipe *)arg;
    
     UDPsocket socket = p->udpSocket;
     UDPpacket *packet = SDLNet_AllocPacket(1024);
@@ -255,14 +280,18 @@ int up_network_recive(void *arg)
     packet->address.host = p->addr.host;
     packet->address.port = p->addr.port;
     
+    unsigned int len = 0;
     
     while(p->online){
         SDL_Delay(1);
 
         if (SDLNet_UDP_Recv(socket,packet)){
-            printf("\n pack recv: ");
-            if (packet->len >= sizeof(local_data.data)) {
-                printf("pack processing ");
+            //printf("\n pack recv: ");
+            len = packet->len;
+            if ((3 <= len ) && (len <= sizeof(local_data.data))) {
+                //printf("pack processing len %d ", packet->len);
+                local_data.id = 1; //cant be zero
+                local_data.length = packet->len;
                 up_copyBufferIntoObject(packet->data,&local_data);
                 
                 up_writeToNetworkDatabuffer(&local_data);
@@ -272,7 +301,7 @@ int up_network_recive(void *arg)
         
         
         
-        SDL_Delay(1);
+        //SDL_Delay(1);
 
     }
     
@@ -285,7 +314,7 @@ int up_network_recive(void *arg)
 #define UP_LOGIN_FLAG (unsigned char)2
 #define UP_USER_PASS_FLAG (unsigned char)4
 
-int up_network_registerAccount(char username[UP_USERPASS], char password[UP_USERPASS], Pthread_listen_datapipe_t *socket_data )
+int up_network_registerAccount(char username[UP_USERPASS], char password[UP_USERPASS], struct up_network_datapipe *socket_data )
 {
     int i,writeSpace = 0;
     unsigned char messageToServer[768];

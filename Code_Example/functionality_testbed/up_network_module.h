@@ -12,7 +12,7 @@
 #include "up_modelRepresentation.h"
 #include "up_ship.h"
 
-struct pthread_listen_datapipe{
+struct up_network_datapipe {
     SDL_Thread *recive_thread;
     int online;
     UDPsocket udpSocket;
@@ -21,14 +21,12 @@ struct pthread_listen_datapipe{
     IPaddress addr;
 };
 
-typedef struct pthread_listen_datapipe Pthread_listen_datapipe_t;
-
-Pthread_listen_datapipe_t *up_network_start_setup();
+struct up_network_datapipe *up_network_start_setup();
 void up_network_shutdown_deinit();
 
 
-int up_network_getNewMovement(struct up_actionState *states,int max,int playerId);
-void up_network_sendNewMovement(struct up_actionState *states, Pthread_listen_datapipe_t *socket_data);
+int up_network_getNewMovement(struct up_actionState *states,int max,int playerId,struct up_network_datapipe *socket_data);
+void up_network_sendNewMovement(struct up_actionState *states, struct up_network_datapipe *socket_data);
 
 
 

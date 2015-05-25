@@ -61,6 +61,7 @@ struct UP_textHandler up_loadShaderFile(const char * filename)
 
     FILE *fp = fopen(filename,"r");
     if (fp == NULL) {
+        free(data);
         UP_ERROR_MSG_STR("fopen failed, file:",filename);
 
         return zero;

@@ -120,7 +120,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 2;
+    shipIndex = 4;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -129,7 +129,11 @@ int main(int argc, char const *argv[])
     stillObj.objectId.type = up_others_type;
 
     struct up_objectInfo *ship = up_unit_objAtIndex(up_ship_type,shipIndex);
-
+    if (ship == NULL) {
+        UP_ERROR_MSG("ship do not exist, use loner ship");
+        ship = &tmp_ship;
+    }
+    
     up_unit_add(up_environment_type,stillObj);
 
     up_generate_sun();
@@ -215,7 +219,7 @@ int main(int argc, char const *argv[])
         network_states_data[i] = noState;
     }
     int network_state_recived = 0;
-    Pthread_listen_datapipe_t *connection_data = up_network_start_setup();
+    struct up_network_datapipe *connection_data = up_network_start_setup();
 
     struct up_player_stats player_stats;
     player_stats.current_health = 100;
@@ -232,7 +236,7 @@ int main(int argc, char const *argv[])
         status = UP_eventHandler(&currentEvent,&shipAction,keymap);
 
         up_network_sendNewMovement(&shipAction, connection_data);
-        network_state_recived = up_network_getNewMovement(network_states_data, map_maxPlayers,shipIndex);
+        network_state_recived = up_network_getNewMovement(network_states_data, map_maxPlayers,shipIndex,connection_data);
 
         up_update_actions(&shipAction, network_states_data, map_maxPlayers,&funkarEj, sound);
         up_updateMovements();
@@ -267,7 +271,7 @@ int main(int argc, char const *argv[])
 
     }
     printf("Ended main loop\n");
-
+    free(transformationArray);
     //cleanup and release all data (notice the reverse order of setup)
     UP_Shader_delete();
     up_unit_shutdown_deinit();

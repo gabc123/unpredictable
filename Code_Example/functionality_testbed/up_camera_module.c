@@ -64,7 +64,9 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
     view = 0.7 * height;
 
     for(i=0;i<totalObject;i++){
-
+        if (!up_unit_isActive(&allObj[i])) {
+            continue;
+        }
         x = cam->center.x - allObj[i].pos.x;
         y = cam->center.y - allObj[i].pos.y;
         distance=sqrt((x*x)+(y*y));
@@ -76,7 +78,9 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
 
     allObj = up_unit_getAllObj(up_ship_type,&totalObject);
     for(i=0;i<totalObject;i++){
-
+        if (!up_unit_isActive(&allObj[i])) {
+            continue;
+        }
         x = cam->center.x - allObj[i].pos.x;
         y = cam->center.y - allObj[i].pos.y;
         distance=sqrt((x*x)+(y*y));
@@ -91,7 +95,9 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
     allObj = up_unit_getAllObj(up_projectile_type,&totalObject);
 
     for(i=0;i<totalObject;i++){
-
+        if (!up_unit_isActive(&allObj[i])) {
+            continue;
+        }
         x = cam->center.x - allObj[i].pos.x;
         y = cam->center.y - allObj[i].pos.y;
         distance=sqrt((x*x)+(y*y));
@@ -103,7 +109,9 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
 
     allObj = up_unit_getAllObj(up_others_type,&totalObject);
     for(i=0;i<totalObject;i++){
-
+        if (!up_unit_isActive(&allObj[i])) {
+            continue;
+        }
         x = cam->center.x - allObj[i].pos.x;
         y = cam->center.y - allObj[i].pos.y;
 

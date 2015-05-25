@@ -53,6 +53,9 @@ struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map
     {
         count++;
     }
+    if (count <=0) {
+        return NULL;
+    }
     
     struct up_menu_button *buttonArray = malloc(sizeof(struct up_menu_button) * count);
     if (buttonArray == NULL)
