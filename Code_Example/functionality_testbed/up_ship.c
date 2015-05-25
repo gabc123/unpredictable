@@ -376,7 +376,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
-
+        
 
     }
 
@@ -407,11 +407,11 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
             object1->speed = object1->speed/2;
        }
     }
-
+    
     if (object2 == NULL) {
         return;
     }
-
+    
     for(i=0; i < allcollisions->nrEnviromentEnviroment; i++){
         object2->owner = object2->objectId.idx;
     }
@@ -434,7 +434,7 @@ void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2,
     float xlengthModel1, ylengthModel1, zlengthModel1;
     float xlengthModel2, ylengthModel2, zlengthModel2;
     float distanceX, distanceY, distanceZ;
-
+    
     struct Hitbox hitModel1 ={
         object1[nrObj1].pos.x+1.0, object1[nrObj1].pos.y+1.0, object1[nrObj1].pos.z+1.0,
         object1[nrObj1].pos.x-1.0,  object1[nrObj1].pos.y-1.0,  object1[nrObj1].pos.z-1.0};
@@ -584,7 +584,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 y = ships[i].pos.y - projectile[j].pos.y;
                 z = ships[i].pos.z - projectile[j].pos.z;
                 distance = sqrt((x*x)+(y*y)+(z*z));
-
+                
                 if(distance <2){
                     testCollision(projectile, ships, j, i, allcollisions, projectileShip);
                 }
@@ -709,6 +709,7 @@ void up_updateMovements()
 //revised by magnus
 void up_updateShipMovment(struct up_objectInfo *ship)
 {
+
     ship->dir.x = sinf(ship->angle);
     ship->dir.y = cosf(ship->angle);
     ship->dir.z = 0;
@@ -760,8 +761,8 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
     char ammoName[NAMESIZE]="\0";
     char *newLineFinder = "\n";
     char *textRead;
-    int tmp1 = 0,tmp2 = 0,tmp3 = 0;
-
+    int cooldown = 0,speed = 0,ammo = 0,damage = 0;
+    
     struct UP_textHandler cdText = up_loadWeaponStatsFile("CoolDown.weapon");
 
     if(cdText.text == NULL)
@@ -788,30 +789,33 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
         {
             printf("found :\n");
             lineReader++;
-            sscanf(lineReader,"%d/%d/%d/%s",&tmp1,&tmp2,&tmp3,ammoName);
+            sscanf(lineReader,"%d/%d/%d/%d/%s",&cooldown,&speed,&ammo,&damage,ammoName);
         }
-
-        printf("%d %d %d %s",tmp1,tmp2,tmp3,ammoName);
-
+        
+        printf("%d %d %d %d %s",cooldown,speed,ammo,damage,ammoName);
+        
         if(strcmp(ammoName,"bullet")==0)
         {
-            currentEvent->flags.bulletFlag.coolDown = tmp1;
-            currentEvent->flags.bulletFlag.ammunitionSpeed = tmp2;
-            currentEvent->flags.bulletFlag.ammunition = tmp3;
+            currentEvent->flags.bulletFlag.coolDown = cooldown;
+            currentEvent->flags.bulletFlag.ammunitionSpeed = speed;
+            currentEvent->flags.bulletFlag.ammunition = ammo;
+            currentEvent->flags.bulletFlag.damage = damage;
         }
 
         else if(strcmp(ammoName,"missile")==0)
         {
-            currentEvent->flags.missileFlag.coolDown = tmp1;
-            currentEvent->flags.missileFlag.ammunitionSpeed = tmp2;
-            currentEvent->flags.missileFlag.ammunition = tmp3;
+            currentEvent->flags.missileFlag.coolDown = cooldown;
+            currentEvent->flags.missileFlag.ammunitionSpeed = speed;
+            currentEvent->flags.missileFlag.ammunition = ammo;
+            currentEvent->flags.missileFlag.damage = damage;
         }
 
         else if(strcmp(ammoName,"lazer")==0)
         {
-            currentEvent->flags.laserFlag.coolDown = tmp1;
-            currentEvent->flags.laserFlag.ammunitionSpeed = tmp2;
-            currentEvent->flags.laserFlag.ammunition = tmp3;
+            currentEvent->flags.laserFlag.coolDown = cooldown;
+            currentEvent->flags.laserFlag.ammunitionSpeed = speed;
+            currentEvent->flags.laserFlag.ammunition = ammo;
+            currentEvent->flags.laserFlag.damage = damage;
         }
 
     }while(textRead <= cdText.text + cdText.length - 1);
@@ -970,56 +974,65 @@ static void take_damage(struct up_player_stats *stats,int damage){
         stats->current_health += stats->current_armor;
         stats->current_armor = 0;
     }
-
+    
     stats->current_health = (stats->current_health > 0) ? stats->current_health : 0;
 
 }
 
 void up_check_law(struct up_allCollisions *collision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
 {
-
-
+    
+    
     int i=0;
     int other_shipId;
     struct up_objectInfo *other_object = NULL;
     struct up_objectInfo *player_object = NULL;
-
+    
     other_shipId = collision->shipShip[i].object2;
     player_object = up_unit_objAtIndex(up_ship_type, playerId);
-
+    
     for(i=0; i<collision->nrShipEnviroment; i++){
-
+        
         if(collision->shipEnviroment[i].object1 == playerId){
-
+            
             take_damage(stats,7);
 
         }
+        if (other_object == NULL) {
+            continue;
+        }
     }
-
+    
     for(i=0; i<collision->nrShipShip; i++){
-
+        
         if(collision->shipShip[i].object1 == playerId){
             other_shipId = collision->shipShip[i].object2;
             other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
-
+            
+            if (other_object == NULL) {
+                continue;
+            }
             if(other_object->modelId == player_object->modelId){
                 take_damage(stats,5);
             }
         }
     }
-
-//    for(i=0; collision->nrProjectileShip; i++){
-//        if(collision->projectileShip[i].object2 == playerId){
-//            other_shipId = collision->projectileShip[i].object1;
-//            other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
-//
-//            if (other_object->modelId ) {
-//                <#statements#>
-//            }
-//        }
-//    }
-
-
+    
+    for(i=0; i<collision->nrProjectileShip; i++){
+        if(collision->projectileShip[i].object2 == playerId){
+            other_shipId = collision->projectileShip[i].object1;
+            other_object = up_unit_objAtIndex(up_projectile_type, other_shipId);
+            
+            if (other_object == NULL) {
+                continue;
+            }
+            if (other_object->modelId ) {
+                take_damage(stats,30 );
+            }
+        }
+    }
+    
+    
 }
 
 

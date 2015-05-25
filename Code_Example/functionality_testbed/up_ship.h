@@ -91,6 +91,7 @@ struct cooldownTimer
     unsigned int coolDown;
     unsigned int ammunitionSpeed;
     int ammunition;
+    int damage;
 };
 
 struct up_shootingFlag

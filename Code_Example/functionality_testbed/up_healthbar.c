@@ -208,7 +208,7 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
     pos.x = 0.87;
     pos.y = -0.68;
     
-    length = (int)strlen(ship_bullet);                                          //missile
+    length = (int)strlen(ship_missile);                                          //missile
     
     if(stats->weapons.missile <= 30){
         color.x = 20.118;
@@ -226,7 +226,7 @@ void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_modul
     pos.x = 0.87;
     pos.y = -0.758;
     
-    length = (int)strlen(ship_bullet);                                          //laser
+    length = (int)strlen(ship_laser);                                          //laser
     
     if(stats->weapons.laser <= 30){
         color.x = 20.118;
