@@ -16,6 +16,7 @@
 #include "up_star_system.h"
 #include "up_healthbar.h"
 #include "up_music.h"
+#include "up_skyBox.h"
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
