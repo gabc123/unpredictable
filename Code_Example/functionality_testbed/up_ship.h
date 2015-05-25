@@ -88,7 +88,8 @@ struct cooldownTimer
 {
     unsigned int startTime;
     unsigned int coolDown;
-    unsigned int amunitionSpeed;
+    unsigned int ammunitionSpeed;
+    int ammunition;
 };
 
 struct up_shootingFlag
@@ -97,6 +98,7 @@ struct up_shootingFlag
     struct cooldownTimer bulletFlag;
     struct cooldownTimer missileFlag;
     struct cooldownTimer laserFlag;
+    
 };
 
 struct up_eventState
