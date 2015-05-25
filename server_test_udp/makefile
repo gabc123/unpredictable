@@ -12,7 +12,7 @@ else
 	endif
 endif
 
-objects = main.o up_network_packet_utilities.o up_server.o up_thread_utilities.o up_vertex.o
+objects = main.o up_network_packet_utilities.o up_server.o up_thread_utilities.o up_vertex.o up_server_gameplay.o up_server_account.o
 
 game_server : $(objects)
 	gcc -o game_server.out $(objects) $(CFLAGS)
