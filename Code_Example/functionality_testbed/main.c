@@ -94,18 +94,24 @@ int main(int argc, char const *argv[])
 
     struct up_key_map *keymap = up_key_remapping_setup();
     struct up_font_assets *font_assets = up_font_start_setup();  //load font to inteface startup
-    
-    // start the menu, and display it
-    status=up_menu(shader_menu, sound,keymap,font_assets);
 
+    struct up_network_datapipe *account_connection = up_network_start_account_setup();
+    // start the menu, and display it
+    status=up_menu(shader_menu, sound,keymap,font_assets,account_connection);
+
+    // do map loading on the account connection
+    
+    // then exit
+    up_network_shutdown_deinit(account_connection);
+    
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
     printf("past assets\n");
     //up_generate_asteroidBelt(idensity,maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight)
 
-    
-    
+
+
     // this is the start ship, initilazing the startin positions
     struct up_objectInfo tmp_ship = {0};
     tmp_ship.pos.x = 440;
@@ -123,7 +129,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 3;
+    shipIndex = 1;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -136,7 +142,7 @@ int main(int argc, char const *argv[])
         UP_ERROR_MSG("ship do not exist, use loner ship");
         ship = &tmp_ship;
     }
-    
+
     up_unit_add(up_environment_type,stillObj);
 
     up_generate_sun();
@@ -147,9 +153,9 @@ int main(int argc, char const *argv[])
     up_generate_randomize_spaceMine(80);        //space mine
 
 
-    
-    
-    
+
+
+
     //up_matrix4_t transform2 ;//= up_matrixModel(&model.pos, &model.rot, &model.scale);
 
     // all the 4by4 matrix that are needed to place the model at the right location and with the right perspective
@@ -209,20 +215,20 @@ int main(int argc, char const *argv[])
 
     int map_maxPlayers = 20;
     struct up_actionState noState = {0};
-    
+
     struct up_actionState *network_states_data = malloc(sizeof(struct up_actionState)*map_maxPlayers);
     if (network_states_data == NULL) {
         UP_ERROR_MSG("failed network_state malloc");
         network_states_data = &noState;
         map_maxPlayers = 0;
     }
-    
+
     int i = 0;
     for (i = 0; i < map_maxPlayers; i++) {
         network_states_data[i] = noState;
     }
     int network_state_recived = 0;
-    struct up_network_datapipe *connection_data = up_network_start_setup();
+    struct up_network_datapipe *connection_data = up_network_start_gameplay_setup();
 
     struct up_player_stats player_stats;
     player_stats.current_health = 100;

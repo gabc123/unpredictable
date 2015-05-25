@@ -34,17 +34,18 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
 
     
     int i = 0;
+
+        
     for (i = 0; i< length; i++) {
-         // flyttar os 1 plats
+        // flyttar os 1 plats
         up_matrixModel(&transform,&localpos,&rot,scale);
         UP_shader_update(shaderprog,&transform);
         index = text_string[i] - 22;
         up_draw_mesh(&fonts->letters[index]);
         //up_draw_mesh(fonts->); // skriver ut c
         localpos.x += 0.0225 + step;
-        
-        
     }
+    
     struct up_vec3 clearColor = {0};
     if (color != NULL) {
         up_shader_update_font_color(shaderprog,&clearColor);
