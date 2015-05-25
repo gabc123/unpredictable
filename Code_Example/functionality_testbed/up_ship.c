@@ -316,12 +316,12 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object1 = up_unit_objAtIndex(up_ship_type, allcollisions->shipEnviroment[i].object1);
         object2 = up_unit_objAtIndex(up_environment_type, allcollisions->shipEnviroment[i].object2);
         if (object1 == NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
@@ -337,12 +337,12 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object1 = up_unit_objAtIndex(up_projectile_type, allcollisions->projectileEnviroment[i].object1);
         object2 = up_unit_objAtIndex(up_environment_type, allcollisions->projectileEnviroment[i].object2);
         if (object1 == NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
@@ -360,13 +360,13 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object1 = up_unit_objAtIndex(up_projectile_type, allcollisions->projectileShip[i].object1);
         object2 = up_unit_objAtIndex(up_ship_type, allcollisions->projectileShip[i].object2);
         if (object1 == NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
 
         if (object2 ==NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
@@ -384,12 +384,12 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object1 = up_unit_objAtIndex(up_environment_type, allcollisions->enviromentEnviroment[i].object1);
         object2 = up_unit_objAtIndex(up_environment_type, allcollisions->enviromentEnviroment[i].object2);
         if (object1 == NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
@@ -408,20 +408,21 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
        }
     }
 
-    if (object2 == NULL) {
+
+  /*  if (object2 == NULL) {
         return;
     }
-
+*/
     for(i=0; i < allcollisions->nrShipShip; i++){
         object1 = up_unit_objAtIndex(up_ship_type, allcollisions->shipShip[i].object1);
         object2 = up_unit_objAtIndex(up_ship_type, allcollisions->shipShip[i].object2);
         if (object1 == NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
@@ -457,7 +458,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
 
 //Sebastian + Tobias 2015-05-12
 //checks objects collisionboxes too see whether a hit has occured or not
-void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int nrObj1, int nrObj2, struct up_allCollisions *allcollisions, int typeCollision)
+static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int nrObj1, int nrObj2, struct up_allCollisions *allcollisions, int typeCollision)
 {
     float xlengthModel1, ylengthModel1, zlengthModel1;
     float xlengthModel2, ylengthModel2, zlengthModel2;
@@ -481,8 +482,8 @@ void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2,
 
 /*
     xlengthModel1 = object1->collisionbox.xmax - object1->collisionbox.xmin;
-    xlengthModel1 = object1->collisionbox.ymax - object1->collisionbox.ymin;
-    xlengthModel1 = object1->collisionbox.zmax - object1->collisionbox.zmin;
+    ylengthModel1 = object1->collisionbox.ymax - object1->collisionbox.ymin;
+    zlengthModel1 = object1->collisionbox.zmax - object1->collisionbox.zmin;
 */
     distanceX = fabsf(object2[nrObj2].pos.x - object1[nrObj1].pos.x);
     distanceY = fabsf(object2[nrObj2].pos.y - object1[nrObj1].pos.y);
