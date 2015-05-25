@@ -57,7 +57,7 @@ static int up_internal_object_init(struct internal_object *internal_obj,enum up_
     }
 
     
-    internal_obj->count = 0;
+    internal_obj->count = 1;
     internal_obj->objects = objArray;
     internal_obj->size = max_count;
     
