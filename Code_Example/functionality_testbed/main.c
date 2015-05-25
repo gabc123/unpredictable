@@ -190,7 +190,7 @@ int main(int argc, char const *argv[])
     up_stats_index_t interface_info = up_create_statsObject();
 
     // loads skybox shaders and fill out the structure
-    up_skyBox_t skyBox;
+    struct up_skyBox skyBox;
     skyBox.textureId = up_cubeMapTexture_load();
     skyBox.skyBox = UP_Shader_new("skybox",2);
     skyBox.mesh = &assets->meshArray[3];
@@ -269,10 +269,11 @@ int main(int argc, char const *argv[])
 
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
 
-        up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
+        up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets);
 
         up_gamePlayInterface(font_assets,shader_menu,&player_stats);
 
+        up_skybox_render(&skyBox,&cam,&viewPerspectivMatrix);
         UP_openGLupdate();
 
     }

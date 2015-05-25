@@ -66,7 +66,7 @@ int up_allLigth_state()
 
 // magnus, this renders the scene
 void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArray,struct up_objectInfo *objectArray,int count,
-                     up_matrix4_t *viewPerspectivMatrix,struct shader_module *shaderprog,struct up_assets *assets,up_skyBox_t *skyBox)
+                     up_matrix4_t *viewPerspectivMatrix,struct shader_module *shaderprog,struct up_assets *assets)
 {
 
     struct up_mesh *mesh = NULL;//&assets->meshArray[1];
@@ -159,33 +159,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
 
     }
     
-//    UP_shader_bind(skyBox->skyBox);
-//    
-//    // skybox is the backround therefor its always going to be farest away. we dont need any skybuffer.inspiration
-//    GLint previousFaceValue;
-//    glGetIntegerv(GL_CULL_FACE_MODE, &previousFaceValue);
-//    GLint previousDepthValue;
-//    glGetIntegerv(GL_DEPTH_FUNC, &previousDepthValue);
-//    
-//    glCullFace(GL_FRONT);
-//    glDepthFunc(GL_LEQUAL);
-//    
-//    struct up_vec3 skyBoxPosition = {0};
-//    struct up_vec3 skyBoxRotation = {0};
-//    struct up_vec3 skyBoxScale = {4000,0,0};
-//    up_matrix4_t skyBoxModel;
-//    
-//    up_matrixModel(&skyBoxModel, &skyBoxPosition, &skyBoxRotation, &skyBoxScale);
-//    up_matrix4_t skyBox_mvp = {0};
-//    up_matrix4Multiply(&skyBox_mvp, &skyBoxModel, viewPerspectivMatrix);
-//    
-//    
-//    UP_shader_update(skyBox->skyBox, &skyBox_mvp);
-//    glBindTexture(GL_TEXTURE_CUBE_MAP, skyBox->textureId->textureId);
-//
-//    up_draw_mesh(skyBox->mesh);
-//    glCullFace(previousFaceValue);
-//    glDepthFunc(previousDepthValue);
+
     
      // this swaps the render and window buffer , displaying it on screen
 }
