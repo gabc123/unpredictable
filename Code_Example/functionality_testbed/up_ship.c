@@ -451,6 +451,11 @@ void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2,
     ylengthModel2 = hitModel2.ymax - hitModel2.ymin;
     zlengthModel2 = hitModel2.zmax - hitModel2.zmin;
 
+/*
+    xlengthModel1 = object1->collisionbox.xmax - object1->collisionbox.xmin;
+    xlengthModel1 = object1->collisionbox.ymax - object1->collisionbox.ymin;
+    xlengthModel1 = object1->collisionbox.zmax - object1->collisionbox.zmin;
+*/
     distanceX = fabsf(object2[nrObj2].pos.x - object1[nrObj1].pos.x);
     distanceY = fabsf(object2[nrObj2].pos.y - object1[nrObj1].pos.y);
     distanceZ = fabsf(object2[nrObj2].pos.z - object1[nrObj1].pos.z);
@@ -759,15 +764,15 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
     int cooldown = 0,speed = 0,ammo = 0,damage = 0;
     
     struct UP_textHandler cdText = up_loadWeaponStatsFile("CoolDown.weapon");
-    
+
     if(cdText.text == NULL)
     {
         UP_ERROR_MSG("Failed to open the cooldown file.");
         return;
     }
     textRead = cdText.text;
-    
-    
+
+
     do
     {
         lineReader = up_token_parser(textRead,&textRead,newLineFinder,strlen(newLineFinder));
@@ -779,7 +784,7 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
         if (lineReader[0] == '#') {
             continue;
         }
-        
+
         if(*lineReader==':')
         {
             printf("found :\n");
@@ -796,7 +801,7 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
             currentEvent->flags.bulletFlag.ammunition = ammo;
             currentEvent->flags.bulletFlag.damage = damage;
         }
-        
+
         else if(strcmp(ammoName,"missile")==0)
         {
             currentEvent->flags.missileFlag.coolDown = cooldown;
@@ -804,7 +809,7 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
             currentEvent->flags.missileFlag.ammunition = ammo;
             currentEvent->flags.missileFlag.damage = damage;
         }
-        
+
         else if(strcmp(ammoName,"lazer")==0)
         {
             currentEvent->flags.laserFlag.coolDown = cooldown;
@@ -812,9 +817,9 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
             currentEvent->flags.laserFlag.ammunition = ammo;
             currentEvent->flags.laserFlag.damage = damage;
         }
-        
+
     }while(textRead <= cdText.text + cdText.length - 1);
-    
+
     up_textHandler_free(&cdText);
 }
 
@@ -993,6 +998,9 @@ void up_check_law(struct up_allCollisions *collision,struct up_player_stats *sta
             take_damage(stats,7);
 
         }
+        if (other_object == NULL) {
+            continue;
+        }
     }
     
     for(i=0; i<collision->nrShipShip; i++){
@@ -1001,22 +1009,28 @@ void up_check_law(struct up_allCollisions *collision,struct up_player_stats *sta
             other_shipId = collision->shipShip[i].object2;
             other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
             
+            if (other_object == NULL) {
+                continue;
+            }
             if(other_object->modelId == player_object->modelId){
                 take_damage(stats,5);
             }
         }
     }
     
-//    for(i=0; collision->nrProjectileShip; i++){
-//        if(collision->projectileShip[i].object2 == playerId){
-//            other_shipId = collision->projectileShip[i].object1;
-//            other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
-//            
-//            if (other_object->modelId ) {
-//                <#statements#>
-//            }
-//        }
-//    }
+    for(i=0; i<collision->nrProjectileShip; i++){
+        if(collision->projectileShip[i].object2 == playerId){
+            other_shipId = collision->projectileShip[i].object1;
+            other_object = up_unit_objAtIndex(up_projectile_type, other_shipId);
+            
+            if (other_object == NULL) {
+                continue;
+            }
+            if (other_object->modelId ) {
+                take_damage(stats,30 );
+            }
+        }
+    }
     
     
 }
