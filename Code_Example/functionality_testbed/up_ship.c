@@ -376,7 +376,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
-        
+
 
     }
 
@@ -407,14 +407,43 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
             object1->speed = object1->speed/2;
        }
     }
-    
+
     if (object2 == NULL) {
         return;
     }
-    
-    for(i=0; i < allcollisions->nrEnviromentEnviroment; i++){
-        object2->owner = object2->objectId.idx;
+
+    for(i=0; i < allcollisions->nrShipShip; i++){
+        object1 = up_unit_objAtIndex(up_ship_type, allcollisions->shipShip[i].object1);
+        object2 = up_unit_objAtIndex(up_ship_type, allcollisions->shipShip[i].object2);
+        if (object1 == NULL){
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            //printf("itemnr: %d\n", i);
+            continue;
+        }
+        if (object2 ==NULL){
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
+            //printf("itemnr: %d\n", i);
+            continue;
+        }
+        //2 static object on top of eachother result in no collision
+        if(object1->speed == 0 && object2->speed == 0)
+            continue;
+
+        if(object1->objectId.idx != object2->owner && object2->objectId.idx != object1->owner){
+            object2->owner = object1->objectId.idx;
+            object2->dir = object1->dir;
+            object2->pos.x += 5*object1->dir.x;
+            object2->pos.y += 5*object1->dir.y;
+            object2->speed = object1->speed*3/4;
+            object1->speed = object1->speed/2;
+        }
     }
+
+    if (object2 == NULL) {
+        return;
+    }
+
+
     /*
     enum up_object_type
     {
@@ -430,11 +459,10 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
 //checks objects collisionboxes too see whether a hit has occured or not
 void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int nrObj1, int nrObj2, struct up_allCollisions *allcollisions, int typeCollision)
 {
-
     float xlengthModel1, ylengthModel1, zlengthModel1;
     float xlengthModel2, ylengthModel2, zlengthModel2;
     float distanceX, distanceY, distanceZ;
-    
+
     struct Hitbox hitModel1 ={
         object1[nrObj1].pos.x+1.0, object1[nrObj1].pos.y+1.0, object1[nrObj1].pos.z+1.0,
         object1[nrObj1].pos.x-1.0,  object1[nrObj1].pos.y-1.0,  object1[nrObj1].pos.z-1.0};
@@ -503,6 +531,13 @@ void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2,
                     allcollisions->enviromentEnviroment[allcollisions->nrEnviromentEnviroment].object2 = object2[nrObj2].objectId.idx;
                     allcollisions->enviromentEnviroment[allcollisions->nrEnviromentEnviroment++].nrObj2 = nrObj2;
                     break;
+                //ship ship
+                case shipShip:
+                    //printf("shipship\n");
+                    allcollisions->shipShip[allcollisions->nrShipShip].object1 = object1[nrObj1].objectId.idx;
+                    allcollisions->shipShip[allcollisions->nrShipShip].nrObj1 = nrObj1;
+                    allcollisions->shipShip[allcollisions->nrShipShip].object2 = object2[nrObj2].objectId.idx;
+                    allcollisions->shipShip[allcollisions->nrShipShip++].nrObj2 = nrObj2;
 
                 }
             }
@@ -512,7 +547,7 @@ void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2,
 //Sebastian 2015-05-08
 void up_checkCollision(struct up_allCollisions *allcollisions){
 
-    int i, j, totalShips = 0, totalObjects = 0, totalProjectiles;
+    int i, j, totalShips = 0, totalObjects = 0, totalProjectiles = 0;
     float distance=0, x=0, y=0, z=0;
 
     allcollisions->nrProjectileEnviroment = 0;
@@ -542,7 +577,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             z = ships[i].pos.z - enviroment[j].pos.z;
             distance = sqrt((x*x)+(y*y)+(z*z));
 
-            if(distance <30){
+            if(distance < 30/*ships[i].maxLength*/){
                 testCollision(ships, enviroment, i, j, allcollisions, shipEnviroment);
             }
         }
@@ -563,7 +598,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             z = projectile[i].pos.z - enviroment[j].pos.z;
             distance = sqrt((x*x)+(y*y)+(z*z));
 
-            if(distance <30){
+            if(distance < 30 /*ships[i].maxLength*/){
                 testCollision(projectile, enviroment, i, j, allcollisions, projectileEnviroment);
             }
         }
@@ -584,8 +619,8 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 y = ships[i].pos.y - projectile[j].pos.y;
                 z = ships[i].pos.z - projectile[j].pos.z;
                 distance = sqrt((x*x)+(y*y)+(z*z));
-                
-                if(distance <2){
+
+                if(distance < 30/*ships[i].maxLength*/){
                     testCollision(projectile, ships, j, i, allcollisions, projectileShip);
                 }
             }
@@ -609,13 +644,36 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                     z = enviroment[i].pos.z - enviroment[j].pos.z;
                     distance = sqrt((x*x)+(y*y)+(z*z));
 
-                    if(distance <2){
+                    if(distance <30 /*ships[i].maxLength*/){
                          testCollision(enviroment, enviroment, j, i, allcollisions, enviromentEnviroment);
                     }
             }
         }
     }
 
+    //ship vs ship
+    for(i=0; i < totalShips; i++){
+        // no need to check ship if not active
+        if (!up_unit_isActive(&ships[i])) {
+            continue;
+        }
+        for(j=0; j < totalShips; j++){
+            // no need to check ship if not active
+            if (!up_unit_isActive(&ships[j])) {
+                continue;
+            }
+            if( i != j){
+                x = ships[i].pos.x - ships[j].pos.x;
+                y = ships[i].pos.y - ships[j].pos.y;
+                z = ships[i].pos.z - ships[j].pos.z;
+                distance = sqrt((x*x)+(y*y)+(z*z));
+
+                if(distance <30 /*ships[i].maxLength*/){
+                    testCollision(ships, ships, i, j, allcollisions, shipShip);
+                }
+            }
+        }
+    }
 }
 
 //Magnus
@@ -762,7 +820,7 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
     char *newLineFinder = "\n";
     char *textRead;
     int cooldown = 0,speed = 0,ammo = 0,damage = 0;
-    
+
     struct UP_textHandler cdText = up_loadWeaponStatsFile("CoolDown.weapon");
 
     if(cdText.text == NULL)
@@ -791,9 +849,9 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
             lineReader++;
             sscanf(lineReader,"%d/%d/%d/%d/%s",&cooldown,&speed,&ammo,&damage,ammoName);
         }
-        
+
         printf("%d %d %d %d %s",cooldown,speed,ammo,damage,ammoName);
-        
+
         if(strcmp(ammoName,"bullet")==0)
         {
             currentEvent->flags.bulletFlag.coolDown = cooldown;
@@ -974,27 +1032,27 @@ static void take_damage(struct up_player_stats *stats,int damage){
         stats->current_health += stats->current_armor;
         stats->current_armor = 0;
     }
-    
+
     stats->current_health = (stats->current_health > 0) ? stats->current_health : 0;
 
 }
 
 void up_check_law(struct up_allCollisions *collision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
 {
-    
-    
+
+
     int i=0;
     int other_shipId;
     struct up_objectInfo *other_object = NULL;
     struct up_objectInfo *player_object = NULL;
-    
+
     other_shipId = collision->shipShip[i].object2;
     player_object = up_unit_objAtIndex(up_ship_type, playerId);
-    
+
     for(i=0; i<collision->nrShipEnviroment; i++){
-        
+
         if(collision->shipEnviroment[i].object1 == playerId){
-            
+
             take_damage(stats,7);
 
         }
@@ -1002,13 +1060,13 @@ void up_check_law(struct up_allCollisions *collision,struct up_player_stats *sta
             continue;
         }
     }
-    
+
     for(i=0; i<collision->nrShipShip; i++){
-        
+
         if(collision->shipShip[i].object1 == playerId){
             other_shipId = collision->shipShip[i].object2;
             other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
-            
+
             if (other_object == NULL) {
                 continue;
             }
@@ -1017,12 +1075,12 @@ void up_check_law(struct up_allCollisions *collision,struct up_player_stats *sta
             }
         }
     }
-    
+
     for(i=0; i<collision->nrProjectileShip; i++){
         if(collision->projectileShip[i].object2 == playerId){
             other_shipId = collision->projectileShip[i].object1;
             other_object = up_unit_objAtIndex(up_projectile_type, other_shipId);
-            
+
             if (other_object == NULL) {
                 continue;
             }
@@ -1031,8 +1089,8 @@ void up_check_law(struct up_allCollisions *collision,struct up_player_stats *sta
             }
         }
     }
-    
-    
+
+
 }
 
 

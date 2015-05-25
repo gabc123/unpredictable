@@ -52,6 +52,7 @@ struct up_objectInfo
     float speed;
     float acceleration;
     struct Hitbox collisionbox;
+    int maxLength;
     int owner;
 };
 

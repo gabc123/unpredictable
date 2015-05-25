@@ -27,6 +27,16 @@
 // maintenance flags
 #define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
 
+// warning:
+// this function copy the data from source into destination,
+// this function is pure evil and copy raw byte data of element_size,
+// thid function do not check if destination and source is pointing to valid data
+// and it do not do any bound checking
+void generic_copyElement(unsigned int element_size,unsigned char *destination,unsigned char *source);
+
+unsigned int up_copyObjectIntoBuffer(struct objUpdateInformation *object,unsigned char *buffer);
+unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInformation *object);
+
 
 struct up_packet_movement
 {
