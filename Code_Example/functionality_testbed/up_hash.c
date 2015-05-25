@@ -13,7 +13,7 @@
 
 // takes in password or usrName and puts it in hashed_text
 
-int up_hashText(char hashed_text[],char text[],int length){
+int up_hashText(char *hashed_text,char *text,int length){
     //printf("hash : %s\n ", text);
     //some good number value
     BYTE hash[SHA256_BLOCK_SIZE] = {0xba,0x78,0x16,0xbf,0x8f,0x01,0xcf,0xea,0x41,0x41,0x40,0xde,0x5d,0xae,0x22,0x23,
