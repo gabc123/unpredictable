@@ -19,12 +19,26 @@
 // this function is pure evil and copy raw byte data of element_size,
 // thid function do not check if destination and source is pointing to valid data
 // and it do not do any bound checking
-static void generic_copyElement(unsigned int element_size,unsigned char *destination,unsigned char *source)
+void generic_copyElement(unsigned int element_size,unsigned char *destination,unsigned char *source)
 {
     unsigned char *end = destination + element_size;
     for (; destination < end; destination++,source++) {
         *destination = *source;
     }
+}
+
+unsigned int up_copyObjectIntoBuffer(struct objUpdateInformation *object,unsigned char *buffer)
+{
+    unsigned int data_len = sizeof(object->data);
+    generic_copyElement(data_len,buffer,(unsigned char *)&object->data);
+    return data_len;
+}
+
+unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInformation *object)
+{
+    unsigned int data_len = sizeof(object->data);
+    generic_copyElement(data_len,(unsigned char *)&object->data,buffer);
+    return data_len;
 }
 
 
