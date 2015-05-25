@@ -993,6 +993,9 @@ void up_check_law(struct up_allCollisions *collision,struct up_player_stats *sta
             take_damage(stats,7);
 
         }
+        if (other_object == NULL) {
+            continue;
+        }
     }
     
     for(i=0; i<collision->nrShipShip; i++){
@@ -1001,22 +1004,28 @@ void up_check_law(struct up_allCollisions *collision,struct up_player_stats *sta
             other_shipId = collision->shipShip[i].object2;
             other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
             
+            if (other_object == NULL) {
+                continue;
+            }
             if(other_object->modelId == player_object->modelId){
                 take_damage(stats,5);
             }
         }
     }
     
-//    for(i=0; collision->nrProjectileShip; i++){
-//        if(collision->projectileShip[i].object2 == playerId){
-//            other_shipId = collision->projectileShip[i].object1;
-//            other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
-//            
-//            if (other_object->modelId ) {
-//                <#statements#>
-//            }
-//        }
-//    }
+    for(i=0; i<collision->nrProjectileShip; i++){
+        if(collision->projectileShip[i].object2 == playerId){
+            other_shipId = collision->projectileShip[i].object1;
+            other_object = up_unit_objAtIndex(up_projectile_type, other_shipId);
+            
+            if (other_object == NULL) {
+                continue;
+            }
+            if (other_object->modelId ) {
+                take_damage(stats,30 );
+            }
+        }
+    }
     
     
 }
