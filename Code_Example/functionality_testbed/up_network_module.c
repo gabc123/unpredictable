@@ -67,14 +67,19 @@ struct up_network_datapipe *up_network_start_setup()                            
     char ip_address[20];
     int success;
     
+    if (up_concurrentQueue_start_setup() == 0) {
+        UP_ERROR_MSG("queue startup failed");
+    }
                                                             //need to be started early to make sure that it is up and running before the main game loop begins
-    if(up_concurrentQueue_start_setup()==0)                 //recived queu buffert so that important coordinates does not rewrites
+    struct up_thread_queue *queue = up_concurrentQueue_new();
+    if(queue == NULL)                 //recived queu buffert so that important coordinates does not rewrites
     {
         UP_ERROR_MSG("failed queue startup");
     }
     else{
         printf("Success queue");
     }
+    p->queue = queue;
     
     FILE *fp=fopen(file,"r");                               // open file, read the content, scans the file and push it into the array
     if (fp == NULL) {
@@ -196,7 +201,7 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
     
 
-    int packet_read = up_readNetworkDatabuffer(objUpdate, max);
+    int packet_read = up_readNetworkDatabuffer(socket_data->queue,objUpdate, max);
 
     struct up_actionState tmp_states = {0};
     struct up_packet_movement movment = {0};
@@ -276,7 +281,7 @@ int up_network_recive(void *arg)
     UDPsocket socket = p->udpSocket;
     UDPpacket *packet = SDLNet_AllocPacket(1024);
     struct objUpdateInformation local_data = {0};
-    
+    struct up_thread_queue *queue = p->queue;
     packet->address.host = p->addr.host;
     packet->address.port = p->addr.port;
     
@@ -294,7 +299,7 @@ int up_network_recive(void *arg)
                 local_data.length = packet->len;
                 up_copyBufferIntoObject(packet->data,&local_data);
                 
-                up_writeToNetworkDatabuffer(&local_data);
+                up_writeToNetworkDatabuffer(queue,&local_data);
             }
         
         }

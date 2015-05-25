@@ -11,9 +11,11 @@
 #include "up_sdl_redirect.h"
 #include "up_modelRepresentation.h"
 #include "up_ship.h"
+#include "up_thread_utilities.h"
 
 struct up_network_datapipe {
     SDL_Thread *recive_thread;
+    struct up_thread_queue *queue;
     int online;
     UDPsocket udpSocket;
     //UDPpacket *packet;
