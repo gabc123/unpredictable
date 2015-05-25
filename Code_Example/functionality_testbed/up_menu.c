@@ -621,7 +621,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
         if(event.type == SDL_KEYUP)
         {
             
-            //printf("%d\n", event.key.keysym.sym);
+            printf("%d\n", event.key.keysym.sym);
             
             if ((navigation->status == username) && (user_data->keypressUsername <= 30)) {
 
@@ -686,7 +686,17 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                 }
 
             }
-           
+            
+            if (event.key.keysym.sym == 13){  //ENTER TO EXIT
+                
+                if (navigation->status == username) {
+                    flag = 2;
+                }
+                else if (navigation->status == password) {
+                    flag = 2;
+                }
+                
+            }
             
             if (event.key.keysym.sym == 27) {
 
