@@ -208,8 +208,8 @@ int up_unit_add(enum up_object_type type,struct up_objectInfo object)
 
 static struct up_objectInfo *unit_objAtIndex(struct internal_object * objects, int index){
 
-    if(objects->count <= index){
-        UP_ERROR_MSG("try to access object out of bound");
+    if(objects->count <= index || index < 0){
+        UP_ERROR_MSG_INT("try to access object out of bound",index);
         return NULL;
     }
     struct up_objectInfo *obj = &objects->objects[index];

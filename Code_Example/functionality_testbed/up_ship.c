@@ -756,18 +756,18 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
     char ammoName[NAMESIZE]="\0";
     char *newLineFinder = "\n";
     char *textRead;
-    int tmp1 = 0,tmp2 = 0,tmp3 = 0;
-
+    int cooldown = 0,speed = 0,ammo = 0,damage = 0;
+    
     struct UP_textHandler cdText = up_loadWeaponStatsFile("CoolDown.weapon");
-
+    
     if(cdText.text == NULL)
     {
         UP_ERROR_MSG("Failed to open the cooldown file.");
         return;
     }
     textRead = cdText.text;
-
-
+    
+    
     do
     {
         lineReader = up_token_parser(textRead,&textRead,newLineFinder,strlen(newLineFinder));
@@ -779,39 +779,42 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
         if (lineReader[0] == '#') {
             continue;
         }
-
+        
         if(*lineReader==':')
         {
             printf("found :\n");
             lineReader++;
-            sscanf(lineReader,"%d/%d/%d/%s",&tmp1,&tmp2,&tmp3,ammoName);
+            sscanf(lineReader,"%d/%d/%d/%d/%s",&cooldown,&speed,&ammo,&damage,ammoName);
         }
-
-        printf("%d %d %d %s",tmp1,tmp2,tmp3,ammoName);
-
+        
+        printf("%d %d %d %d %s",cooldown,speed,ammo,damage,ammoName);
+        
         if(strcmp(ammoName,"bullet")==0)
         {
-            currentEvent->flags.bulletFlag.coolDown = tmp1;
-            currentEvent->flags.bulletFlag.ammunitionSpeed = tmp2;
-            currentEvent->flags.bulletFlag.ammunition = tmp3;
+            currentEvent->flags.bulletFlag.coolDown = cooldown;
+            currentEvent->flags.bulletFlag.ammunitionSpeed = speed;
+            currentEvent->flags.bulletFlag.ammunition = ammo;
+            currentEvent->flags.bulletFlag.damage = damage;
         }
-
+        
         else if(strcmp(ammoName,"missile")==0)
         {
-            currentEvent->flags.missileFlag.coolDown = tmp1;
-            currentEvent->flags.missileFlag.ammunitionSpeed = tmp2;
-            currentEvent->flags.missileFlag.ammunition = tmp3;
+            currentEvent->flags.missileFlag.coolDown = cooldown;
+            currentEvent->flags.missileFlag.ammunitionSpeed = speed;
+            currentEvent->flags.missileFlag.ammunition = ammo;
+            currentEvent->flags.missileFlag.damage = damage;
         }
-
+        
         else if(strcmp(ammoName,"lazer")==0)
         {
-            currentEvent->flags.laserFlag.coolDown = tmp1;
-            currentEvent->flags.laserFlag.ammunitionSpeed = tmp2;
-            currentEvent->flags.laserFlag.ammunition = tmp3;
+            currentEvent->flags.laserFlag.coolDown = cooldown;
+            currentEvent->flags.laserFlag.ammunitionSpeed = speed;
+            currentEvent->flags.laserFlag.ammunition = ammo;
+            currentEvent->flags.laserFlag.damage = damage;
         }
-
+        
     }while(textRead <= cdText.text + cdText.length - 1);
-
+    
     up_textHandler_free(&cdText);
 }
 
