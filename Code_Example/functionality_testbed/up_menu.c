@@ -586,11 +586,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 
                 connectFlag=7;
                 
-                while (connectFlag == 0) { //waiting for server
+                //connectFlag = accountData->serverResponse;
                     
-                    connectFlag = accountData->serverResponse;
-                    
-                }
+        
                 
                 //CONNECTION SUCCESS
                 if (connectFlag == LOGINSUCESS ) {

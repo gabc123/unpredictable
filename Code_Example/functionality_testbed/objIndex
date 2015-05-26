@@ -1,11 +1,11 @@
 0.5 1.0 1.0 starShipMagnus.obj starShipMagnus.png
 1.0 1.0 1.0 1.0 1.0 1.0
 1.0 1.0 1.0 astriod.obj astriod.png
-1.0 1.0 1.0 1.0 1.0 1.0
-50.0 50.0 50.0 sun.obj sun.png
-0.0 0.0 0.0 0.0 0.0 0.0
+1.0 2.0 2.0 2.0 2.0 2.0 2.0
+10.0 10.0 10.0 sun.obj sun.png
+1.0 2.0 2.0 2.0 2.0 2.0 2.0
 2.0 2.0 2.0 missile.obj missile.png
-2.0 2.0 2.0 2.0 2.0 2.0
+1.0 2.0 2.0 2.0 2.0 2.0 2.0
 6.0 2.0 2.0 red_health.obj red_health.png
 2.0 2.0 2.0 2.0 2.0 2.0
 6.0 3.0 3.0 green_health.obj green_health.png
@@ -23,5 +23,4 @@
 0.2 0.2 0.2 missile_interface.obj bullet_interface.png
 2.0 2.0 2.0 2.0 2.0 2.0
 0.2 0.2 0.2 laser_interface.obj bullet_interface.png
-2.0 2.0 2.0 2.0 2.0 2.0
-
+1.0 2.0 2.0 2.0 2.0 2.0 2.0
