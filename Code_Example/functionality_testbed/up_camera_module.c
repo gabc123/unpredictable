@@ -26,9 +26,9 @@ void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
     cam->center.x=ship->pos.x;
     cam->center.y=ship->pos.y;
     cam->center.z=ship->pos.z;
-    cam->eye.x=ship->pos.x;
-    cam->eye.y=ship->pos.y;
-    cam->eye.z=ship->pos.z - 80 + zoom;
+    cam->eye.x=ship->pos.x + ship->dir.x * zoom*10;
+    cam->eye.y=ship->pos.y + ship->dir.y * zoom*10;
+    cam->eye.z=ship->pos.z -10;
 
     //cam->eye=ship->
 }
@@ -61,7 +61,7 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
     height = up_returnCamHeight(cam);
 
     //value 0.7 comes from tan(70/2) where 70 is the set field of view of the camera
-    view = 0.7 * height;
+    view = 0.7 * height * 20;
 
     for(i=0;i<totalObject;i++){
         if (!up_unit_isActive(&allObj[i])) {

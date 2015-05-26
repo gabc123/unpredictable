@@ -326,12 +326,12 @@ struct up_texture_data *up_cubeMapTexture_load(){
         return NULL;
     }
     
-    SDL_Surface *texF = IMG_Load("lala.png");
-    SDL_Surface *texT = IMG_Load("lala.png");
-    SDL_Surface *texG = IMG_Load("lala.png");
-    SDL_Surface *texR = IMG_Load("lala.png");
-    SDL_Surface *texL = IMG_Load("lala.png");
-    SDL_Surface *texB = IMG_Load("lala.png");
+    SDL_Surface *texF = IMG_Load("space10.png");
+    SDL_Surface *texT = IMG_Load("space10.png");
+    SDL_Surface *texG = IMG_Load("space10.png"); //front
+    SDL_Surface *texR = IMG_Load("space10.png");
+    SDL_Surface *texL = IMG_Load("space10.png");
+    SDL_Surface *texB = IMG_Load("space10.png");
     
     
     if(texF == NULL) {

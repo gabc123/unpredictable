@@ -164,7 +164,7 @@ int main(int argc, char const *argv[])
     // first 3 values are the camera position,
     // the next 3 value is where it looking at
     // the last 3 values is what is up and what is down
-    struct up_camera cam = {{0,0,30},{0,0,1},{0,1,0}};
+    struct up_camera cam = {{0,0,30},{0,0,1},{0,0,-1}};
 
     // generate the view matrix
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);

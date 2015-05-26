@@ -61,8 +61,8 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
     for(i=0; i<density; i++){
 
         angle = minAngle + ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * (maxAngle - minAngle);
-        //height = minHeight + ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * (maxHeight - minHeight);
-        height = 40;
+        height = minHeight + ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * (maxHeight - minHeight);
+        //height = 40;
         radius = innerEdge + ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * (outerEdge - innerEdge);
 
         dx = cosf(angle);
