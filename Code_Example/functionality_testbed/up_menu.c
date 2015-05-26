@@ -153,8 +153,14 @@ enum menu_states
 
 enum loginBar_state
 {
-    username,
-    password
+    usernameLogin,
+    passwordLogin
+};
+
+enum registerBar_state
+{
+    usernameRegister,
+    passwordRegister
 };
 
 enum soundEffect_state{
@@ -177,7 +183,8 @@ enum ship_select{
 
 struct navigationState{
     enum menu_states state;
-    enum loginBar_state status;
+    enum loginBar_state loginbar;
+    enum registerBar_state registerbar;
     enum soundEffect_state toggleSound;
     enum music_state toogleMusic;
     enum ship_select shipSelect;
@@ -448,9 +455,11 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                                           {0,0,0},
                                           {1.0,1.0,1.0}};
     
+    
     up_matrixModel(&translationShipBlue, &scale9.pos, &scale9.rot, &scale9.scale);
     
     up_getModelViewPerspective(&transformShipBlue, &translationShipBlue, &identity, &identity);
+    scale9.pos.x = -scale9.pos.x;
     
     up_matrixModel(&translationShipRed, &scale9.pos, &scale9.rot, &scale9.scale);
     
@@ -462,7 +471,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     struct navigationState navigation;
 
     navigation.state = mainMenu;
-    navigation.status = username;
+    navigation.loginbar = usernameLogin;
+    navigation.registerbar = usernameRegister;
     navigation.toggleSound = soundOn;
     navigation.toogleMusic = musicOn;
 
@@ -492,7 +502,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
 #define UP_ACCOUNT_DATA_MAX 5
     struct up_network_account_data accountData[UP_ACCOUNT_DATA_MAX];
     int packet_read = 0;
-    
+    int haveSentReg = 0;
     // MENU LOOP
     while(status)
     {
@@ -567,35 +577,35 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 up_draw_mesh(registerOverlay);
                 
                 
+                up_displayText(user_data.username, user_data.keypressUsername, &textposusername, &textscale, fonts, shaderprog,0,NULL);
+                
+                up_displayText(user_data.password, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
+                
+                
                 break;
-            /*
-             // and then maby do someting like this...
-             case sendingRegistartion:
-                    up_network_registerAccount(<#char *username#>, <#char *password#>, <#int length#>, <#struct up_network_datapipe *socket_data#>)
-                break;
-             */
                 
             case connecting:
                 
                 connectFlag=7;
                 
-                while (connectFlag == 0) { //waiting for server
+                //connectFlag = accountData->serverResponse;
                     
-                    connectFlag = accountData->serverResponse;
-                    
-                }
+        
                 
                 //CONNECTION SUCCESS
                 if (connectFlag == LOGINSUCESS ) {
                     
                     
-                    //navigation.state = shipSelect;
+                    
                     
                     UP_shader_update(shaderprog, &transformConnectionSuccess);
                     up_texture_bind(textureConnectionStatus, 3);
                     up_draw_mesh(connectionSuccess);
                     
-                    SDL_Delay(5000);
+                    
+                    navigation.state = shipSelect;
+                    
+                    //SDL_Delay(5000);
                 
                 }
                 //CONNECTION FAILED
@@ -605,7 +615,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_texture_bind(textureConnectionStatus, 3);
                     up_draw_mesh(connectionFailed);
                     
-                    SDL_Delay(500);
+                    //SDL_Delay(500);
                     
                     navigation.state = loginMenu;
                     
@@ -618,11 +628,17 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 
             case registering:
                 
-                while (registerFlag == 0) { //waiting for server
-                    
-                    registerFlag = accountData->serverResponse;
-
+                if (accountData->noResponse || !haveSentReg) {
+                    up_network_registerAccount(user_data.username, user_data.password, UP_LIMIT, network_connection);
+                    accountData->noResponse = 0;
+                    haveSentReg = 1;
                 }
+                
+                
+                
+
+                registerFlag = accountData->serverResponse;
+
                 
                 //REGISTERING SUCCESS
                 if (registerFlag == REGSUCESSS ) {
@@ -631,7 +647,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_texture_bind(textureRegisterStatus, 3);
                     up_draw_mesh(registerSuccess);
                     
-                    SDL_Delay(500);
+                    //SDL_Delay(500);
+                    
+                    navigation.state = loginMenu;
                     
                     status=2;
                 }
@@ -642,7 +660,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_texture_bind(textureRegisterStatus, 3);
                     up_draw_mesh(registerFailed);
                     
-                    SDL_Delay(500);
+                    //SDL_Delay(500);
                     
                     navigation.state = loginMenu;
                     registerFlag=0;
@@ -812,9 +830,14 @@ int up_menuEventHandler(struct navigationState *navigation,
         if(event.type == SDL_KEYUP)
         {
             
-            printf("%d\n", event.key.keysym.sym);
+            //printf("%d\n", event.key.keysym.sym);
             
-            if ((navigation->status == username) && (user_data->keypressUsername <= 30)) {
+            
+            
+            
+            
+            
+            if ((navigation->loginbar == usernameLogin) && (user_data->keypressUsername <= 30)) {
 
                 //int data = event.key.keysym.sym;
                 //printf("%d \n", data);
@@ -836,12 +859,10 @@ int up_menuEventHandler(struct navigationState *navigation,
                     }
                 }
                 
-
-                
             }
             
             
-            if ((navigation->status == password) && (user_data->keypressPassword <= 30)) {
+            if ((navigation->loginbar == passwordLogin) && (user_data->keypressPassword <= 30)) {
                 
                 //int data = event.key.keysym.sym;
                 //printf("%d \n", data);
@@ -869,11 +890,22 @@ int up_menuEventHandler(struct navigationState *navigation,
             
             if (event.key.keysym.sym == 9){  //TAB
                 
-                if (navigation->status == username) {
-                    navigation->status = password;
+                
+                if (navigation->state == loginMenu) {
+                    if (navigation->loginbar == usernameLogin) {
+                        navigation->loginbar = passwordLogin;
+                    }
+                    else if (navigation->loginbar == passwordLogin) {
+                        navigation->loginbar = usernameLogin;
+                    }
                 }
-                else if (navigation->status == password) {
-                    navigation->status = username;
+                if (navigation->state==registerMenu) {
+                    if (navigation->registerbar == usernameRegister) {
+                        navigation->registerbar = passwordRegister;
+                    }
+                    else if (navigation->registerbar == passwordRegister) {
+                        navigation->registerbar = usernameRegister;
+                    }
                 }
 
             }
@@ -881,24 +913,24 @@ int up_menuEventHandler(struct navigationState *navigation,
             if (event.key.keysym.sym == 13){  //ENTER
                 
                 if (navigation->state == loginMenu) {
-                    if (navigation->status == username) {
+                    if (navigation->loginbar == usernameLogin) {
                         navigation->state = connecting;
                     }
-                    else if (navigation->status == password) {
+                    else if (navigation->loginbar == passwordLogin) {
                         navigation->state = connecting;
                     }
                 }
                 if (navigation->state == registerMenu) {
-                    if (navigation->status == username) {
+                    if (navigation->registerbar == usernameRegister) {
                         navigation->state = registering;
                     }
-                    else if (navigation->status == password) {
+                    else if (navigation->registerbar == passwordRegister) {
                         navigation->state = registering;
                     }
                 }
             }
             
-            if (event.key.keysym.sym == 27) {
+            if (event.key.keysym.sym == 27) { // ESC
 
                 if (navigation->state == mainMenu) {
                     navigation->state= quitWindow;
@@ -933,7 +965,7 @@ int up_menuEventHandler(struct navigationState *navigation,
                     yf=-(float)y/height*2+1;
 
                     //printf("X AND Y COORDINATES: %f %f , real x %d y %d\n", xf, yf,x,y); //test print
-                    
+                    //INstead of checking the keypress first it should check the state of the navigation and then check the where the keypress where placed at
                     
                     if (navigation->state == shipSelect) {
                         
@@ -962,7 +994,7 @@ int up_menuEventHandler(struct navigationState *navigation,
                         if(yf > 0.088636 && yf < 0.177273){
                             
                             if(navigation->state == loginMenu){
-                                navigation->status=username;
+                                navigation->loginbar=usernameLogin;
                             }
                         }
                     }
@@ -974,7 +1006,7 @@ int up_menuEventHandler(struct navigationState *navigation,
                         if(yf > -0.090909 && yf < -0.004545){
                             
                             if(navigation->state == loginMenu){
-                                navigation->status=password;
+                                navigation->loginbar=passwordLogin;
                             }
                         }
                     }
@@ -998,7 +1030,7 @@ int up_menuEventHandler(struct navigationState *navigation,
                         if(yf > 0.093182 && yf < 0.175000){
 
                             if (navigation->state == loginMenu){
-                                navigation->status=username;
+                                navigation->loginbar=usernameLogin;
                             }
                         }
                     }

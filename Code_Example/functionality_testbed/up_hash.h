@@ -9,6 +9,6 @@
 #ifndef __up_game__up_hash__
 #define __up_game__up_hash__
 
-#include <stdio.h>
+int up_hashText(char *hashed_text,char *text,int length);
 
 #endif /* defined(__up_game__up_hash__) */
