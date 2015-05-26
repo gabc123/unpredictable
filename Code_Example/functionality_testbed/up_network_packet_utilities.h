@@ -17,7 +17,10 @@
 #define UP_REGISTRATE_FLAG (unsigned char)1
 #define UP_LOGIN_FLAG (unsigned char)2
 #define UP_USER_PASS_FLAG (unsigned char)4
-#define UP_MAP_DATA_FLAG (unsigned char)5
+#define REGSUCESSS (unsigned char) 5
+#define REGFAILED (unsigned char) 6
+#define LOGINSUCESS (unsigned char) 7
+#define LOGINFAILED (unsigned char) 8
 
 
 // gameplay flags
@@ -27,6 +30,7 @@
 
 // maintenance flags
 #define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
+#define UP_MAP_DATA_FLAG (unsigned char)50
 
 
 struct up_packet_movement
