@@ -577,16 +577,10 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 
                 up_displayText(user_data.username, user_data.keypressUsername, &textposusername, &textscale, fonts, shaderprog,0,NULL);
                 
-                up_displayText(passwordstr, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
+                up_displayText(user_data.password, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
                 
                 
                 break;
-            /*
-             // and then maby do someting like this...
-             case sendingRegistartion:
-                    up_network_registerAccount(<#char *username#>, <#char *password#>, <#int length#>, <#struct up_network_datapipe *socket_data#>)
-                break;
-             */
                 
             case connecting:
                 
@@ -608,7 +602,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_texture_bind(textureConnectionStatus, 3);
                     up_draw_mesh(connectionSuccess);
                     
-                    SDL_Delay(5000);
+                    //SDL_Delay(5000);
                 
                 }
                 //CONNECTION FAILED
@@ -618,7 +612,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_texture_bind(textureConnectionStatus, 3);
                     up_draw_mesh(connectionFailed);
                     
-                    SDL_Delay(500);
+                    //SDL_Delay(500);
                     
                     navigation.state = loginMenu;
                     
@@ -630,6 +624,10 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 break;
                 
             case registering:
+                
+
+                up_network_registerAccount(user_data.username, user_data.password, UP_LIMIT, network_connection);
+                
                 
                 while (registerFlag == 0) { //waiting for server
                     
@@ -644,7 +642,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_texture_bind(textureRegisterStatus, 3);
                     up_draw_mesh(registerSuccess);
                     
-                    SDL_Delay(500);
+                    //SDL_Delay(500);
                     
                     status=2;
                 }
@@ -655,7 +653,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_texture_bind(textureRegisterStatus, 3);
                     up_draw_mesh(registerFailed);
                     
-                    SDL_Delay(500);
+                    //SDL_Delay(500);
                     
                     navigation.state = loginMenu;
                     registerFlag=0;
@@ -960,7 +958,7 @@ int up_menuEventHandler(struct navigationState *navigation,
                     yf=-(float)y/height*2+1;
 
                     //printf("X AND Y COORDINATES: %f %f , real x %d y %d\n", xf, yf,x,y); //test print
-                    
+                    //INstead of checking the keypress first it should check the state of the navigation and then check the where the keypress where placed at
                     
                     if (navigation->state == shipSelect) {
                         
