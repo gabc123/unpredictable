@@ -455,9 +455,11 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                                           {0,0,0},
                                           {1.0,1.0,1.0}};
     
+    
     up_matrixModel(&translationShipBlue, &scale9.pos, &scale9.rot, &scale9.scale);
     
     up_getModelViewPerspective(&transformShipBlue, &translationShipBlue, &identity, &identity);
+    scale9.pos.x = -scale9.pos.x;
     
     up_matrixModel(&translationShipRed, &scale9.pos, &scale9.rot, &scale9.scale);
     
@@ -500,7 +502,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
 #define UP_ACCOUNT_DATA_MAX 5
     struct up_network_account_data accountData[UP_ACCOUNT_DATA_MAX];
     int packet_read = 0;
-    
+    int haveSentReg = 0;
     // MENU LOOP
     while(status)
     {
@@ -626,15 +628,17 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 
             case registering:
                 
-
-                up_network_registerAccount(user_data.username, user_data.password, UP_LIMIT, network_connection);
-                
-                
-                while (registerFlag == 0) { //waiting for server
-                    
-                    registerFlag = accountData->serverResponse;
-
+                if (accountData->noResponse || !haveSentReg) {
+                    up_network_registerAccount(user_data.username, user_data.password, UP_LIMIT, network_connection);
+                    accountData->noResponse = 0;
+                    haveSentReg = 1;
                 }
+                
+                
+                
+
+                registerFlag = accountData->serverResponse;
+
                 
                 //REGISTERING SUCCESS
                 if (registerFlag == REGSUCESSS ) {

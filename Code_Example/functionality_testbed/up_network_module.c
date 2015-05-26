@@ -400,6 +400,7 @@ int up_network_getAccountData(struct up_network_account_data *data,int max,struc
                 break;
             case UP_PACKET_HEARTBEAT_FLAG:  // keep this, so we dont lose the connection
                 up_network_sendHeartbeat(socket_data);
+                data->noResponse = 1;
                 break;
             default:
                 break;
