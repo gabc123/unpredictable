@@ -13,7 +13,7 @@
 #include "up_modelRepresentation.h"
 #include "up_matrixTransforms.h"
 #include "up_assets.h"
-
+#include <math.h>
 
 
 up_health_bar_t healthbar_creation()
@@ -37,7 +37,7 @@ up_health_bar_t healthbar_creation()
 }
 
 
-void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_player_stats *player_stats)
+void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_player_stats *player_stats,struct up_camera *cam)
 {
     float healthLevel = ((float)player_stats->current_health/player_stats->max_health)*2.0;
     
@@ -60,6 +60,18 @@ void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_playe
     healthRed->pos.x = ship_pos->pos.x-5;
     healthRed->pos.y = ship_pos->pos.y+15;
     healthRed->pos.z = ship_pos->pos.z;
+    
+    float xPoint =  cam->eye.x - cam->center.x;
+    float yPoint =  cam->eye.y - cam->center.y;
+    
+    float tmp=0;
+    float tanResult = yPoint / xPoint;
+    tanResult = tanf(tanResult);
+    
+    tmp = 180 - tanResult;
+    
+    healthGreen->dir.x = tmp;
+    healthRed->dir.y = tmp;
     
     healthGreen->scale.x = healthLevel;
         
@@ -99,12 +111,12 @@ void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObje
     }
     
     
-    interfaceObj[0]->pos.x += 3;             //interface plus
-    interfaceObj[0]->pos.y -= 2.3;
+    interfaceObj[0]->pos.x += 5;             //interface plus
+    interfaceObj[0]->pos.y -= 4.3;
     interfaceObj[0]->pos.z += 6;
 
-    interfaceObj[1]->pos.x += 3.01;          //inteface shield
-    interfaceObj[1]->pos.y -= 2.55;
+    interfaceObj[1]->pos.x += 5.01;          //inteface shield
+    interfaceObj[1]->pos.y -= 4.55;
     interfaceObj[1]->pos.z += 6;
     
     interfaceObj[2]->pos.x -= 2.77;             //interface bullet

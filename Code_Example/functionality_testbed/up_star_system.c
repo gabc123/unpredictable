@@ -130,7 +130,7 @@ void up_generate_randomize_spaceMine(int density){
 
     srand((unsigned)time(NULL));
     struct up_objectInfo mine;
-    mine.modelId = 9;
+    mine.modelId = 8;
     mine.objectId.idx = 0;
     mine.objectId.type = up_environment_type;
 

@@ -44,7 +44,7 @@ struct up_player_stats{
 
 
 up_health_bar_t healthbar_creation();                           //creates healthbar
-void up_moveHealthBar(int ship_id,up_health_bar_t healing,struct up_player_stats *player_stats);      //puts the right position for it
+void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_player_stats *player_stats,struct up_camera *cam); //puts the right position for it
 
 up_stats_index_t up_create_statsObject();
 void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObject);

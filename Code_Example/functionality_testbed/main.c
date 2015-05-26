@@ -250,7 +250,7 @@ int main(int argc, char const *argv[])
         up_check_law(&allcollisions, &player_stats, shipIndex);
         up_update_camera(&cam, ship);
 
-        up_moveHealthBar(shipIndex,healthBar,&player_stats);
+        up_moveHealthBar(shipIndex,healthBar,&player_stats, &cam);
         up_interface_placement(&cam,interface_info);
 
 
