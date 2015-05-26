@@ -17,6 +17,13 @@
 #define UP_REGISTRATE_FLAG (unsigned char)1
 #define UP_LOGIN_FLAG (unsigned char)2
 #define UP_USER_PASS_FLAG (unsigned char)4
+#define UP_USERPASS 21
+#define UP_USER_NAME_PASS_MAX 255
+
+#define REGSUCESSS (unsigned char) 5
+#define REGFAILED (unsigned char) 6
+#define LOGINSUCESS (unsigned char) 7
+#define LOGINFAILED (unsigned char) 8
 
 
 // gameplay flags
