@@ -136,7 +136,7 @@ int up_logInToAccount(struct up_account_information *account_validation, unsigne
     }
 
      fclose(fp);
-    return LOGINSUCESS;
+    return LOGINSUCCESS;
 }
 
 //Tobias 26-05-2015
@@ -154,7 +154,7 @@ int up_registrateAccount(struct up_account_information *account_validation, unsi
     fp = fopen(userFilePath, "w");
     fprintf(fp,"%s\n",userFilePath);
     fclose(fp);
-    return REGSUCESSS;
+    return REGSUCCESS;
 }
 
 //Tobias 
