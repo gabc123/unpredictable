@@ -233,6 +233,8 @@ void *up_server_account_send_thread(void *parm)
     int packet_read = 0;
     
     int spin_counter = 0;
+    int clientId = 0;
+    int returnFlag=0;
     
     
     unsigned char dataBuffer[UP_SEND_BUFFER_DATA_SIZE];
@@ -264,14 +266,19 @@ void *up_server_account_send_thread(void *parm)
         
         for (i = 0; i < packet_read; i++) {
             
-            if(!up_account_msg_parser(&account_validation,local_data[i].data))
+            returnFlag = up_account_msg_parser(&account_validation,local_data[i].data);
+            if(returnFlag==NULL)
             {
                 printf("\nPacket corrupted");
                 continue;
             }
+            clientId = up_server_addUser(server_state->server_gameplay, &server_con->client_infoArray[local_data[i].id].client_addr);
+            
+            dataToSend_len = up_network_logInRegistrate_packetEncode(dataBuffer, clientId, returnFlag);
+
             clientInfo = &server_con->client_infoArray[local_data[i].id];
             if (clientInfo->active != 0) {
-                if (sendto(server_con->socket_server,dataBuffer , dataToSend_len, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {
+                if (sendto(server_con->socket_server, dataBuffer, dataToSend_len, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {
                     printf("\nserver sendTo error");
                     perror("send");
                 }
