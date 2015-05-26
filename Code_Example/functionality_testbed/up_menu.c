@@ -153,8 +153,14 @@ enum menu_states
 
 enum loginBar_state
 {
-    username,
-    password
+    usernameLogin,
+    passwordLogin
+};
+
+enum registerBar_state
+{
+    usernameRegister,
+    passwordRegister
 };
 
 enum soundEffect_state{
@@ -177,7 +183,8 @@ enum ship_select{
 
 struct navigationState{
     enum menu_states state;
-    enum loginBar_state status;
+    enum loginBar_state loginbar;
+    enum registerBar_state registerbar;
     enum soundEffect_state toggleSound;
     enum music_state toogleMusic;
     enum ship_select shipSelect;
@@ -462,7 +469,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     struct navigationState navigation;
 
     navigation.state = mainMenu;
-    navigation.status = username;
+    navigation.loginbar = usernameLogin;
+    navigation.registerbar = usernameRegister;
     navigation.toggleSound = soundOn;
     navigation.toogleMusic = musicOn;
 
@@ -565,6 +573,11 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 UP_shader_update(shaderprog, &transformRegisterOverlay);
                 up_texture_bind(textureLoginOverlay, 3);
                 up_draw_mesh(registerOverlay);
+                
+                
+                up_displayText(user_data.username, user_data.keypressUsername, &textposusername, &textscale, fonts, shaderprog,0,NULL);
+                
+                up_displayText(passwordstr, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
                 
                 
                 break;
@@ -812,9 +825,14 @@ int up_menuEventHandler(struct navigationState *navigation,
         if(event.type == SDL_KEYUP)
         {
             
-            printf("%d\n", event.key.keysym.sym);
+            //printf("%d\n", event.key.keysym.sym);
             
-            if ((navigation->status == username) && (user_data->keypressUsername <= 30)) {
+            
+            
+            
+            
+            
+            if ((navigation->loginbar == usernameLogin) && (user_data->keypressUsername <= 30)) {
 
                 //int data = event.key.keysym.sym;
                 //printf("%d \n", data);
@@ -836,12 +854,10 @@ int up_menuEventHandler(struct navigationState *navigation,
                     }
                 }
                 
-
-                
             }
             
             
-            if ((navigation->status == password) && (user_data->keypressPassword <= 30)) {
+            if ((navigation->loginbar == passwordLogin) && (user_data->keypressPassword <= 30)) {
                 
                 //int data = event.key.keysym.sym;
                 //printf("%d \n", data);
@@ -869,11 +885,22 @@ int up_menuEventHandler(struct navigationState *navigation,
             
             if (event.key.keysym.sym == 9){  //TAB
                 
-                if (navigation->status == username) {
-                    navigation->status = password;
+                
+                if (navigation->state == loginMenu) {
+                    if (navigation->loginbar == usernameLogin) {
+                        navigation->loginbar = passwordLogin;
+                    }
+                    else if (navigation->loginbar == passwordLogin) {
+                        navigation->loginbar = usernameLogin;
+                    }
                 }
-                else if (navigation->status == password) {
-                    navigation->status = username;
+                if (navigation->state==registerMenu) {
+                    if (navigation->registerbar == usernameRegister) {
+                        navigation->registerbar = passwordRegister;
+                    }
+                    else if (navigation->registerbar == passwordRegister) {
+                        navigation->registerbar = usernameRegister;
+                    }
                 }
 
             }
@@ -881,24 +908,24 @@ int up_menuEventHandler(struct navigationState *navigation,
             if (event.key.keysym.sym == 13){  //ENTER
                 
                 if (navigation->state == loginMenu) {
-                    if (navigation->status == username) {
+                    if (navigation->loginbar == usernameLogin) {
                         navigation->state = connecting;
                     }
-                    else if (navigation->status == password) {
+                    else if (navigation->loginbar == passwordLogin) {
                         navigation->state = connecting;
                     }
                 }
                 if (navigation->state == registerMenu) {
-                    if (navigation->status == username) {
+                    if (navigation->registerbar == usernameRegister) {
                         navigation->state = registering;
                     }
-                    else if (navigation->status == password) {
+                    else if (navigation->registerbar == passwordRegister) {
                         navigation->state = registering;
                     }
                 }
             }
             
-            if (event.key.keysym.sym == 27) {
+            if (event.key.keysym.sym == 27) { // ESC
 
                 if (navigation->state == mainMenu) {
                     navigation->state= quitWindow;
@@ -962,7 +989,7 @@ int up_menuEventHandler(struct navigationState *navigation,
                         if(yf > 0.088636 && yf < 0.177273){
                             
                             if(navigation->state == loginMenu){
-                                navigation->status=username;
+                                navigation->loginbar=usernameLogin;
                             }
                         }
                     }
@@ -974,7 +1001,7 @@ int up_menuEventHandler(struct navigationState *navigation,
                         if(yf > -0.090909 && yf < -0.004545){
                             
                             if(navigation->state == loginMenu){
-                                navigation->status=password;
+                                navigation->loginbar=passwordLogin;
                             }
                         }
                     }
@@ -998,7 +1025,7 @@ int up_menuEventHandler(struct navigationState *navigation,
                         if(yf > 0.093182 && yf < 0.175000){
 
                             if (navigation->state == loginMenu){
-                                navigation->status=username;
+                                navigation->loginbar=usernameLogin;
                             }
                         }
                     }
