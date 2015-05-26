@@ -20,6 +20,7 @@
 #include "up_matrixTransforms.h"
 #include "up_music.h"
 #include "up_error.h"
+#include "up_network_packet_utilities.h"
 
 #define UP_LIMIT 30
 
@@ -143,7 +144,10 @@ enum menu_states
     usernameBar,
     quitWindow,
     settings,
-    keyBindings
+    keyBindings,
+    connecting,
+    registering,
+    shipSelect
 
 };
 
@@ -165,11 +169,18 @@ enum music_state{
     musicOff
 };
 
+enum ship_select{
+    redShip,
+    blueShip
+    
+};
+
 struct navigationState{
     enum menu_states state;
     enum loginBar_state status;
-    enum soundEffect_state toggle;
-    enum music_state toogle2;
+    enum soundEffect_state toggleSound;
+    enum music_state toogleMusic;
+    enum ship_select shipSelect;
 };
 
 struct userData{
@@ -188,8 +199,7 @@ struct keybinding_state
 int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *keymap,struct up_menu_button *buttonArray,int numButtons,struct keybinding_state *bindstate);
 
 
-int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar,
-                        struct navigationState *soundToggle, struct navigationState *musicToogle,
+int up_menuEventHandler(struct navigationState *navigation,
                         struct userData *user_data, struct soundLib *sound);
 
 
@@ -258,6 +268,20 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
         textureKeybindingsOverlay = up_load_texture("lala.png");
     }
     
+    struct up_texture_data *textureConnectionStatus = up_load_texture("connecting.png");
+    if(textureConnectionStatus == NULL){
+        textureConnectionStatus = up_load_texture("lala.png");
+    }
+    
+    struct up_texture_data *textureRegisterStatus = up_load_texture("register.png");
+    if(textureRegisterStatus == NULL){
+        textureRegisterStatus = up_load_texture("lala.png");
+    }
+    
+    struct up_texture_data *textureShipSelection = up_load_texture("shipPic.png");
+    if(textureShipSelection == NULL){
+        textureShipSelection = up_load_texture("lala.png");
+    }
 
     //TRANSFORMS
     up_matrix4_t transformLoginRegisterBottons;
@@ -269,6 +293,14 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrix4_t transformKeybindingsOverlay;
     up_matrix4_t transformRegisterOverlay;
     
+    up_matrix4_t transformConnectionSuccess;
+    up_matrix4_t transformConnectionFalied;
+    up_matrix4_t transformRegisterSuccess;
+    up_matrix4_t transformRegisterFailed;
+    
+    up_matrix4_t transformShipBlue;
+    up_matrix4_t transformShipRed;
+    
 
     //TRANSLATION TRANSFORMS
     up_matrix4_t translationLoginRegisterButtons;
@@ -278,7 +310,15 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrix4_t translationSettingsOverlay;
     up_matrix4_t translationKeybindingsOverlay;
     up_matrix4_t translationRegisterOverlay;
-
+    
+    up_matrix4_t translationConnectionSuccess;
+    up_matrix4_t translationConnectionFailed;
+    up_matrix4_t translationRegisterSuccess;
+    up_matrix4_t translationRegisterFailed;
+    
+    up_matrix4_t translationShipBlue;
+    up_matrix4_t translationShipRed;
+    
     //MESH LOADING
     struct up_mesh *background = up_meshMenuBackground();
     struct up_mesh *bottonLogin1 =up_meshBotton(0,0.95,0,0); //(float imageX, float imageY, float screenPosX, float screenPosY)
@@ -289,8 +329,15 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     struct up_mesh *settingsOverlay = up_settingsOverlay();
     struct up_mesh *keybindingsOverlay = up_keybindingsOverlay();
     struct up_mesh *registerOverlay = up_meshLoginOverlay(1.0, 0.0);
-
     
+    struct up_mesh *connectionSuccess = up_connectionOverlay(1.0, 0.5);
+    struct up_mesh *connectionFailed= up_connectionOverlay(0.5, 0.0);
+    struct up_mesh *registerSuccess = up_registerOverlay(1.0, 0.5);
+    struct up_mesh *registerFailed = up_registerOverlay(0.5, 0.0);
+    
+    struct up_mesh *redShip = up_shipSelection(1.0, 0.0, 0.1, 0.2);
+    struct up_mesh *blueShip = up_shipSelection(0.5, 0.0, -0.1, -0.5);
+
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
                                           {0,0,0},
@@ -366,20 +413,59 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrixModel(&translationKeybindingsOverlay, &scale6.pos, &scale6.rot, &scale6.scale);
     
     up_getModelViewPerspective(&transformKeybindingsOverlay, &translationKeybindingsOverlay, &identity, &identity);
+
+    //CONNECTING //REGISTER
     
+    struct up_modelRepresentation scale7={{0,0,0},     //scaling
+                                          {0,0,0},
+                                          {0.6,0.7,0.6}};
+    
+            //Success
+    up_matrixModel(&translationConnectionSuccess, &scale7.pos, &scale7.rot, &scale7.scale);
+    
+    up_getModelViewPerspective(&transformConnectionSuccess, &translationConnectionSuccess, &identity, &identity);
+    
+            //Failed
+    up_matrixModel(&translationConnectionFailed, &scale7.pos, &scale7.rot, &scale7.scale);
+    
+    up_getModelViewPerspective(&transformConnectionFalied, &translationConnectionFailed, &identity, &identity);
+    
+            //success
+    up_matrixModel(&translationRegisterSuccess, &scale7.pos, &scale7.rot, &scale7.scale);
+    
+    up_getModelViewPerspective(&transformRegisterSuccess, &translationRegisterSuccess, &identity, &identity);
+    
+            //failed
+    up_matrixModel(&translationRegisterFailed, &scale7.pos, &scale7.rot, &scale7.scale);
+    
+    up_getModelViewPerspective(&transformRegisterFailed, &translationRegisterFailed, &identity, &identity);
+    
+    
+    
+    //SHIP SELECTION
+    
+    struct up_modelRepresentation scale9={{0,0,0},     //scaling
+                                          {0,0,0},
+                                          {1.0,1.0,1.0}};
+    
+    up_matrixModel(&translationShipBlue, &scale9.pos, &scale9.rot, &scale9.scale);
+    
+    up_getModelViewPerspective(&transformShipBlue, &translationShipBlue, &identity, &identity);
+    
+    up_matrixModel(&translationShipRed, &scale9.pos, &scale9.rot, &scale9.scale);
+    
+    up_getModelViewPerspective(&transformShipRed, &translationShipRed, &identity, &identity);
+    
+
     
     //NAVIGATION
     struct navigationState navigation;
-    struct navigationState loginBar;
-    struct navigationState soundToggle;
-    struct navigationState musicToggle;
 
     navigation.state = mainMenu;
-    loginBar.status = username;
-    soundToggle.toggle = soundOn;
-    musicToggle.toogle2 = musicOn;
-    navigation.status=username;
-    
+    navigation.status = username;
+    navigation.toggleSound = soundOn;
+    navigation.toogleMusic = musicOn;
+
     //FONT USERNAME/PASSWORD
     //struct up_font_assets *fonts = up_font_start_setup();
     struct up_vec3 textposusername = {-0.17, 0.045, 0};
@@ -400,10 +486,13 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
 
     
     int i = 0;  //used for loops
+    int connectFlag = 0;
+    int registerFlag = 0;
     
 #define UP_ACCOUNT_DATA_MAX 5
     struct up_network_account_data accountData[UP_ACCOUNT_DATA_MAX];
     int packet_read = 0;
+    
     // MENU LOOP
     while(status)
     {
@@ -412,7 +501,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
         UP_renderBackground();                      //Clears the buffer and results an empty window.
         UP_shader_bind(shaderprog);                 //
         if (navigation.state != keyBindings) {
-            status = up_menuEventHandler(&navigation, &loginBar, &soundToggle, &musicToggle, &user_data, sound);
+            status = up_menuEventHandler(&navigation, &user_data, sound);
         }else
         {
             status = up_keyBindingEvent(&navigation, keymap, keybinding_buttonArray, numKeyBindings,&keybindState);
@@ -422,16 +511,20 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
         // expande struct up_network_account_data with the type of information you need to get from network
         packet_read = up_network_getAccountData(accountData, UP_ACCOUNT_DATA_MAX, network_connection);
         
+        
+        
         //STATUS FLAG FOR MAIN GAME LOOP
         if (status==2) {
             break;
         }
         
+        
+        
         //BACKGROUND
         UP_shader_update(shaderprog,&transformBackground);
         up_texture_bind(textureMenuBackground, 1);
         up_draw_mesh(background);
-
+        
 
         switch (navigation.state) {
             case mainMenu:
@@ -447,6 +540,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 up_texture_bind(textureCogWheel, 3);
                 up_draw_mesh(cogWheel);
                 
+                
+                
                 break;
 
             case loginMenu:
@@ -456,18 +551,12 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 up_draw_mesh(overlay);
 
                 
-                if (navigation.status == username) {
-                    up_displayText(user_data.username, user_data.keypressUsername, &textposusername, &textscale, fonts, shaderprog,0,NULL);
+                up_displayText(user_data.username, user_data.keypressUsername, &textposusername, &textscale, fonts, shaderprog,0,NULL);
                    // up_displayText(teststr1, (int)strlen(teststr1), &testtextpos1, &textscale, fonts, shaderprog,0,NULL);
                     //up_displayText(teststr2, (int)strlen(teststr2), &testtextpos2, &textscale, fonts, shaderprog,0,NULL);
-                    
-                    //printf("username state\n");
-                }
-                else if (navigation.status == password){
-                    up_displayText(passwordstr, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
-                    //printf("password state\n");
-                }
-
+                
+                up_displayText(passwordstr, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
+            
 
                 break;
                 
@@ -485,6 +574,99 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_network_registerAccount(<#char *username#>, <#char *password#>, <#int length#>, <#struct up_network_datapipe *socket_data#>)
                 break;
              */
+                
+            case connecting:
+                
+                connectFlag=7;
+                
+                while (connectFlag == 0) { //waiting for server
+                    
+                    connectFlag = accountData->serverResponse;
+                    
+                }
+                
+                //CONNECTION SUCCESS
+                if (connectFlag == LOGINSUCESS ) {
+                    
+                    
+                    //navigation.state = shipSelect;
+                    
+                    UP_shader_update(shaderprog, &transformConnectionSuccess);
+                    up_texture_bind(textureConnectionStatus, 3);
+                    up_draw_mesh(connectionSuccess);
+                    
+                    SDL_Delay(5000);
+                
+                }
+                //CONNECTION FAILED
+                else if (connectFlag == LOGINFAILED){
+                    
+                    UP_shader_update(shaderprog, &transformConnectionFalied);
+                    up_texture_bind(textureConnectionStatus, 3);
+                    up_draw_mesh(connectionFailed);
+                    
+                    SDL_Delay(500);
+                    
+                    navigation.state = loginMenu;
+                    
+                }
+                else {
+                    printf("Connection flag error, not valid outcome \n");
+                }
+                
+                break;
+                
+            case registering:
+                
+                while (registerFlag == 0) { //waiting for server
+                    
+                    registerFlag = accountData->serverResponse;
+
+                }
+                
+                //REGISTERING SUCCESS
+                if (registerFlag == REGSUCESSS ) {
+                    
+                    UP_shader_update(shaderprog, &transformRegisterSuccess);
+                    up_texture_bind(textureRegisterStatus, 3);
+                    up_draw_mesh(registerSuccess);
+                    
+                    SDL_Delay(500);
+                    
+                    status=2;
+                }
+                //REGISTERING FAILED
+                else if (registerFlag == REGFAILED){
+                    
+                    UP_shader_update(shaderprog, &transformRegisterFailed);
+                    up_texture_bind(textureRegisterStatus, 3);
+                    up_draw_mesh(registerFailed);
+                    
+                    SDL_Delay(500);
+                    
+                    navigation.state = loginMenu;
+                    registerFlag=0;
+                    
+                }
+                else {
+                    printf("Register flag error, not valid outcome \n");
+                    
+                }
+                
+                break;
+                
+            case shipSelect:
+                
+                UP_shader_update(shaderprog, &transformShipBlue);
+                up_texture_bind(textureShipSelection, 2);
+                up_draw_mesh(blueShip);
+                
+                UP_shader_update(shaderprog, &transformShipRed);
+                up_texture_bind(textureShipSelection, 2);
+                up_draw_mesh(redShip);
+                
+                break;
+                
                 
             case quitWindow:
 
@@ -589,8 +771,7 @@ int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *key
     }
     return flag;
 }
-int up_menuEventHandler(struct navigationState *navigation, struct navigationState *loginBar,
-                        struct navigationState *soundToggle, struct navigationState *musicToogle,
+int up_menuEventHandler(struct navigationState *navigation,
                         struct userData *user_data, struct soundLib *sound)
 {
     
@@ -697,15 +878,24 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
 
             }
             
-            if (event.key.keysym.sym == 13){  //ENTER TO EXIT
+            if (event.key.keysym.sym == 13){  //ENTER
                 
-                if (navigation->status == username) {
-                    flag = 2;
+                if (navigation->state == loginMenu) {
+                    if (navigation->status == username) {
+                        navigation->state = connecting;
+                    }
+                    else if (navigation->status == password) {
+                        navigation->state = connecting;
+                    }
                 }
-                else if (navigation->status == password) {
-                    flag = 2;
+                if (navigation->state == registerMenu) {
+                    if (navigation->status == username) {
+                        navigation->state = registering;
+                    }
+                    else if (navigation->status == password) {
+                        navigation->state = registering;
+                    }
                 }
-                
             }
             
             if (event.key.keysym.sym == 27) {
@@ -743,7 +933,18 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                     yf=-(float)y/height*2+1;
 
                     //printf("X AND Y COORDINATES: %f %f , real x %d y %d\n", xf, yf,x,y); //test print
-
+                    
+                    
+                    if (navigation->state == shipSelect) {
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                    }
+                    
 
                     //LOGIN BOTTON
                     if(xf > -0.137500 && xf < 0.140625){        //coordinates of login screen
@@ -785,6 +986,8 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
 
                             if (navigation->state == mainMenu){
                                 navigation->state=registerMenu;
+                                
+                                flag=2;
                             }
                         }
                     }
@@ -844,16 +1047,16 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                             
                             if(navigation->state == settings){
                                 
-                                if (soundToggle->toggle == soundOn) {
+                                if (navigation->toggleSound == soundOn) {
                                     sound->toogleSoundEffects=0;
-                                    soundToggle->toggle= soundOff;
+                                    navigation->toggleSound= soundOff;
                                     
                                     //printf("Sound OFF\n");
                                 }
                                 
-                                else if(soundToggle->toggle == soundOff){
+                                else if(navigation->toggleSound == soundOff){
                                     sound->toogleSoundEffects=1;
-                                    soundToggle->toggle= soundOn;
+                                    navigation->toggleSound= soundOn;
                                     
                                     up_music(1, 0, sound);
                                     
@@ -871,17 +1074,17 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                             
                             if (navigation->state == settings) {
                                 
-                                if (musicToogle->toogle2 == musicOn) {
+                                if (navigation->toogleMusic == musicOn) {
                                     sound->toogleThemeMusic = 0;
-                                    musicToogle->toogle2 = musicOff;
+                                    navigation->toogleMusic = musicOff;
                                     
                                     Mix_HaltChannel(0);
                                     
                                     //printf("music OFF\n");
                                 }
-                                else if (musicToogle->toogle2 == musicOff){
+                                else if (navigation->toogleMusic == musicOff){
                                     sound->toogleThemeMusic = 1;
-                                    musicToogle->toogle2 = musicOn;
+                                    navigation->toogleMusic = musicOn;
                                     
                                     up_music(0, -1, sound);
                                     

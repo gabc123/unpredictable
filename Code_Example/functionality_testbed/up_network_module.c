@@ -374,7 +374,7 @@ int up_network_account_recive(void *arg)
     return 1;
 }
 
-#define UP_USERPASS 21
+
 
 int up_network_getAccountData(struct up_network_account_data *data,int max,struct up_network_datapipe *socket_data)
 {
@@ -408,7 +408,7 @@ int up_network_getAccountData(struct up_network_account_data *data,int max,struc
     
 }
 
-int up_network_registerAccount(char *username, char *password,int length, struct up_network_datapipe *socket_data )
+int up_network_registerAccount(char *username, char *password, int length, struct up_network_datapipe *socket_data)
 {
     int i,writeSpace = 0;
     unsigned char messageToServer[768];

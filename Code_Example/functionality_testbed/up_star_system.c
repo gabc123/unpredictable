@@ -90,22 +90,15 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
 void up_generate_randomize_satellite(int density){
 
     srand((unsigned)time(NULL));
-    struct up_objectInfo satellite;
-    struct up_objectInfo ship;
-    satellite.modelId = 7;
-    ship.modelId = 0;
-    satellite.objectId.idx = 0;
+    struct up_objectInfo satellite = up_asset_createObjFromId(7);
+    satellite.objectId.idx = 1;
     satellite.objectId.type = up_others_type;
-    ship.objectId.type = up_environment_type;
     int i=0;
     for(i=0; i<density; i++){
 
-        ship.pos.x = satellite.pos.x = (float)((rand()%1000) - 500);
-        ship.pos.y =satellite.pos.y = (float)((rand()%1000) - 500);
+        satellite.pos.x = (float)((rand()%1000) - 500);
+        satellite.pos.y = (float)((rand()%1000) - 500);
 
-        ship.scale.x =1;
-        ship.scale.y =1;
-        ship.scale.z =1;
         satellite.scale.x=1;
         satellite.scale.y=1;
         satellite.scale.z=1;
@@ -115,10 +108,6 @@ void up_generate_randomize_satellite(int density){
             break;
         }
 
-        if(up_unit_add(up_ship_type,ship)==0){
-            UP_ERROR_MSG("could not add ship");
-            break;
-        }
     }
 
 
@@ -129,9 +118,7 @@ void up_generate_randomize_satellite(int density){
 void up_generate_randomize_spaceMine(int density){
 
     srand((unsigned)time(NULL));
-    struct up_objectInfo mine;
-    mine.modelId = 8;
-    mine.objectId.idx = 0;
+    struct up_objectInfo mine = up_asset_createObjFromId(8);
     mine.objectId.type = up_environment_type;
 
     int i=0;

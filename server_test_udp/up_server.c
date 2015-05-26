@@ -31,7 +31,7 @@ int up_server_addUser(struct up_server_connection_info *server,struct sockaddr_i
 {
     int i = 0;
     struct up_client_info *client = NULL;
-    for (i = 0; i < server->connected_clients; i++) {
+    for (i = 1; i < server->connected_clients; i++) {
         client = &server->client_infoArray[i];
         if (client->slot_empty == 1 && client->active == 0) {
             client->client_addr.sin_addr.s_addr = client_addr->sin_addr.s_addr; // only transfer ip addrees
@@ -239,7 +239,7 @@ static struct up_server_connection_info *up_server_account_start(unsigned int po
         server->client_infoArray[i].heartbeat = 0;
     }
     
-    server->connected_clients = 0;
+    server->connected_clients = 2;
     server->shutdown = 0;
     server->socket_server = socket_server;
     server->server_info = sock_server;
@@ -288,7 +288,7 @@ static struct up_server_connection_info *up_server_gameplay_start(unsigned int p
         server->client_infoArray[i].heartbeat = 0;
     }
     
-    server->connected_clients = 0;
+    server->connected_clients = 2;
     server->shutdown = 0;
     server->socket_server = socket_server;
     server->server_info = sock_server;
