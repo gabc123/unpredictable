@@ -143,7 +143,9 @@ enum menu_states
     usernameBar,
     quitWindow,
     settings,
-    keyBindings
+    keyBindings,
+    connecting,
+    registering
 
 };
 
@@ -258,6 +260,16 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
         textureKeybindingsOverlay = up_load_texture("lala.png");
     }
     
+    struct up_texture_data *textureConnectionStatus = up_load_texture("connecting.png");
+    if(textureConnectionStatus == NULL){
+        textureConnectionStatus = up_load_texture("lala.png");
+    }
+    
+    struct up_texture_data *textureRegisterStatus = up_load_texture("register.png");
+    if(textureRegisterStatus == NULL){
+        textureRegisterStatus = up_load_texture("lala.png");
+    }
+    
 
     //TRANSFORMS
     up_matrix4_t transformLoginRegisterBottons;
@@ -268,6 +280,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrix4_t transformSettingsOverlay;
     up_matrix4_t transformKeybindingsOverlay;
     up_matrix4_t transformRegisterOverlay;
+    up_matrix4_t transformConnectionStatus;
+    up_matrix4_t transformRegisterStatus;
+    
     
 
     //TRANSLATION TRANSFORMS
@@ -278,7 +293,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrix4_t translationSettingsOverlay;
     up_matrix4_t translationKeybindingsOverlay;
     up_matrix4_t translationRegisterOverlay;
-
+    up_matrix4_t translationConnectionStatus;
+    up_matrix4_t translationRegisterStatus;
+    
     //MESH LOADING
     struct up_mesh *background = up_meshMenuBackground();
     struct up_mesh *bottonLogin1 =up_meshBotton(0,0.95,0,0); //(float imageX, float imageY, float screenPosX, float screenPosY)
@@ -289,7 +306,17 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     struct up_mesh *settingsOverlay = up_settingsOverlay();
     struct up_mesh *keybindingsOverlay = up_keybindingsOverlay();
     struct up_mesh *registerOverlay = up_meshLoginOverlay(1.0, 0.0);
-
+    
+    struct up_mesh *connectionSuccess = up_connectionOverlay(1.0, 0.8);
+    struct up_mesh *connectionBadData = up_connectionOverlay(1.0, 0.8);
+    struct up_mesh *connectionUsernameUnknown = up_connectionOverlay(1.0, 0.8);
+    struct up_mesh *connectionPassword = up_connectionOverlay(1.0, 0.8);
+    struct up_mesh *connectionWrong = up_connectionOverlay(1.0, 0.8); //something went wrong
+    
+    struct up_mesh *registerSuccess = up_registerOverlay(1.0, 1.0);
+    struct up_mesh *registerUsernameTaken = up_registerOverlay(1.0, 1.0);
+    struct up_mesh *registerBadData = up_registerOverlay(1.0, 1.0);
+    struct up_mesh *registerWrong = up_registerOverlay(1.0, 1.0); //something went wrong
     
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
@@ -366,6 +393,26 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     up_matrixModel(&translationKeybindingsOverlay, &scale6.pos, &scale6.rot, &scale6.scale);
     
     up_getModelViewPerspective(&transformKeybindingsOverlay, &translationKeybindingsOverlay, &identity, &identity);
+
+    //CONNECTING
+    
+    struct up_modelRepresentation scale7={{0,0,0},     //scaling
+                                          {0,0,0},
+                                          {0.6,0.7,0.6}};
+    
+    up_matrixModel(&translationConnectionStatus, &scale7.pos, &scale7.rot, &scale7.scale);
+    
+    up_getModelViewPerspective(&transformConnectionStatus, &translationConnectionStatus, &identity, &identity);
+    
+    //REGISTER
+    
+    struct up_modelRepresentation scale8={{0,0,0},     //scaling
+                                          {0,0,0},
+                                          {0.6,0.7,0.6}};
+    
+    up_matrixModel(&translationRegisterStatus, &scale8.pos, &scale8.rot, &scale8.scale);
+    
+    up_getModelViewPerspective(&transformRegisterStatus, &translationRegisterStatus, &identity, &identity);
     
     
     //NAVIGATION
@@ -400,6 +447,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
 
     
     int i = 0;  //used for loops
+    int connectFlag = 0;
+    
+    int registerFlag = 0;
     
     
     // MENU LOOP
@@ -475,6 +525,134 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 
                 break;
                 
+            case connecting:
+                
+                while (connectFlag == 0) { //waiting for server
+                
+                    
+                //connectFlag = (int) &serverStatus()
+                
+                    
+                    
+                }
+                
+                //CONNECTION SUCCESS
+                if (connectFlag == 1 ) {
+                    
+                    UP_shader_update(shaderprog, &transformConnectionStatus);
+                    up_texture_bind(textureConnectionStatus, 3);
+                    up_draw_mesh(connectionSuccess);
+                    
+                    
+                    
+                    status=2;
+                    connectFlag = 1;
+                }
+                //BAD DATA
+                else if (connectFlag == 2){
+                    
+                        
+                        
+                    navigation.state = loginMenu;
+                    connectFlag = 1;
+
+                }
+                //UNKNOWN USERNAME
+                else if (connectFlag == 3){
+                        
+                        
+                        
+                        
+                    navigation.state = loginMenu;
+                    connectFlag = 1;
+                        
+                }
+                //WRONG PASSWORD
+                else if (connectFlag == 4){
+                        
+                        
+                        
+                        
+                    navigation.state = loginMenu;
+                    connectFlag = 1;
+                }
+                //SOMETHING WENT WRONG
+                else if (connectFlag == 5){
+                        
+                        
+                        
+                        
+                    navigation.state = loginMenu;
+                    connectFlag = 1;
+                }
+                else {
+                    printf("Connection flag error, not valid outcome \n");
+                        
+                }
+                
+                break;
+                
+            case registering:
+                
+                while (registerFlag == 0) { //waiting for server
+                    
+                    
+                    //registerFlag = (int) &serverStatus()
+                    
+                    
+                    
+                }
+                
+                //CONNECTION SUCCESS
+                if (registerFlag == 1 ) {
+                    
+                    UP_shader_update(shaderprog, &transformConnectionStatus);
+                    up_texture_bind(textureConnectionStatus, 3);
+                    up_draw_mesh(connectionSuccess);
+                    
+                    
+                    
+                    status=2;
+                }
+                //BAD DATA
+                else if (registerFlag == 2){
+                    
+                    
+                    
+                    navigation.state = loginMenu;
+                    
+                }
+                //UNKNOWN USERNAME
+                else if (registerFlag == 3){
+                    
+                    
+                    
+                    
+                    navigation.state = loginMenu;
+                    
+                }
+                //WRONG PASSWORD
+                else if (registerFlag == 4){
+                    
+                    
+                    
+                    
+                    navigation.state = loginMenu;
+                }
+                //SOMETHING WENT WRONG
+                else if (registerFlag == 5){
+                    
+                    
+                    
+                    
+                    navigation.state = loginMenu;
+                }
+                else {
+                    printf("Connection flag error, not valid outcome \n");
+                    
+                }
+                
+                break;
                 
             case quitWindow:
 
@@ -690,10 +868,10 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
             if (event.key.keysym.sym == 13){  //ENTER TO EXIT
                 
                 if (navigation->status == username) {
-                    flag = 2;
+                    navigation->state = connecting;
                 }
                 else if (navigation->status == password) {
-                    flag = 2;
+                    navigation->state = connecting;
                 }
                 
             }
