@@ -38,8 +38,6 @@ int main(int argc, char const *argv[])
 
     //up_network_start_setup();
 
-
-
     int mesh_capacity = 500;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
     up_texture_start_setup();               // opengl texture setup
@@ -98,10 +96,10 @@ int main(int argc, char const *argv[])
     status=up_menu(shader_menu, sound,keymap,font_assets,account_connection);
 
     // do map loading on the account connection
-    
+
     // then exit
     up_network_shutdown_deinit(account_connection);
-    
+
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
@@ -166,7 +164,7 @@ int main(int argc, char const *argv[])
     // first 3 values are the camera position,
     // the next 3 value is where it looking at
     // the last 3 values is what is up and what is down
-    struct up_camera cam = {{0,0,30},{0,0,1},{0,1,0}};
+    struct up_camera cam = {{0,0,30},{0,0,1},{0,0,-1}};
 
     // generate the view matrix
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);

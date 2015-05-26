@@ -41,4 +41,5 @@ void up_network_sendNewMovement(struct up_actionState *states, struct up_network
 int up_network_getAccountData(struct up_network_account_data *data,int max,struct up_network_datapipe *socket_data);
 int up_network_registerAccount(char *username, char *password,int length, struct up_network_datapipe *socket_data );
 
+int up_hashText(char *hashed_text,char *text,int length);
 #endif /* defined(__testprojectshader__up_network_module__) */

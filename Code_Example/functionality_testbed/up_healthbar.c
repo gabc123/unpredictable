@@ -53,12 +53,12 @@ void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_playe
         return;
     }
     
-    healthGreen->pos.x = ship_pos->pos.x-1;
-    healthGreen->pos.y = ship_pos->pos.y+7;
+    healthGreen->pos.x = ship_pos->pos.x-5;
+    healthGreen->pos.y = ship_pos->pos.y+15;
     healthGreen->pos.z = ship_pos->pos.z;
 
-    healthRed->pos.x = ship_pos->pos.x-1;
-    healthRed->pos.y = ship_pos->pos.y+7;
+    healthRed->pos.x = ship_pos->pos.x-5;
+    healthRed->pos.y = ship_pos->pos.y+15;
     healthRed->pos.z = ship_pos->pos.z;
     
     healthGreen->scale.x = healthLevel;

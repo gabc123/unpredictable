@@ -8,9 +8,11 @@
 
 struct up_collision
 {
-    
+
     int object1;
     int object2;
+
+    //total number of collisions
     int nrObj1;
     int nrObj2;
 };
@@ -100,7 +102,7 @@ struct up_shootingFlag
     struct cooldownTimer bulletFlag;
     struct cooldownTimer missileFlag;
     struct cooldownTimer laserFlag;
-    
+
 };
 
 struct up_eventState
