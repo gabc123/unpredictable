@@ -125,7 +125,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 3;
+    shipIndex = 5;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
