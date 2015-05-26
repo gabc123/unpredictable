@@ -604,7 +604,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance < projectile[i].maxLength || distance < enviroment[j].maxLength){
-                printf("projectilelength%f, distance%f, enviroment%f\n",projectile[i].maxLength,distance,enviroment[j].maxLength);
+                //printf("projectilelength%f, distance%f, enviroment%f\n",projectile[i].maxLength,distance,enviroment[j].maxLength);
                 testCollision(projectile, enviroment, i, j, allcollisions, projectileEnviroment);
             }
         }
