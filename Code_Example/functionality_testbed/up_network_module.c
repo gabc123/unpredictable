@@ -392,16 +392,20 @@ int up_network_getAccountData(struct up_network_account_data *data,int max,struc
         
         switch (objUpdate[i].data[0]) {
             case  UP_LOGIN_FLAG:
+                up_network_logInRegistrate_packetDecode(&objUpdate[i].data[1], &data->playerId, &data->serverResponse);
+                
                 // do stuff, like decode packet and store it in data
                 
                 break;
-            case UP_MAP_DATA_FLAG:
+            case UP_REGISTRATE_FLAG:
+                up_network_logInRegistrate_packetDecode(&objUpdate[i].data[1], &data[i].playerId, &data[i].serverResponse);
+                
                 // do stuff, and so on
             
                 break;
             case UP_PACKET_HEARTBEAT_FLAG:  // keep this, so we dont lose the connection
                 up_network_sendHeartbeat(socket_data);
-                data->noResponse = 1;
+                data[i].noResponse = 1;
                 break;
             default:
                 break;
@@ -411,39 +415,38 @@ int up_network_getAccountData(struct up_network_account_data *data,int max,struc
     
 }
 
-int up_network_registerAccount(char *username, char *password, int length, struct up_network_datapipe *socket_data)
+static int up_network_accountManagement(unsigned char flag,char *username,unsigned char userLength, char *password, struct up_network_datapipe *socket_data)
 {
     int i,writeSpace = 0;
     unsigned char messageToServer[768];
-    unsigned char userLength = (unsigned char) strlen(username);
-
+    
     unsigned char hashedPass[SHA256_BLOCK_SIZE];
     
     up_hashText((char *)hashedPass,password,(int)strlen(password));
     unsigned char passLength = SHA256_BLOCK_SIZE;
     
-    messageToServer[writeSpace]=UP_REGISTRATE_FLAG;
+    messageToServer[writeSpace]=flag;
     writeSpace++;
     messageToServer[writeSpace]=UP_USER_PASS_FLAG;
     writeSpace++;
-
+    
     messageToServer[writeSpace++]=userLength;
-
+    
     for(i=0; i<userLength; i++)
     {
         messageToServer[writeSpace++]=username[i];
     }
     
     messageToServer[writeSpace++]=passLength;
-
+    
     for(i=0;i<passLength;i++)
     {
         messageToServer[writeSpace++]=password[i];
     }
-
+    
     messageToServer[writeSpace++]='\0';
-
-
+    
+    
     UDPsocket socket = socket_data->udpSocket;
     UDPpacket *packet = socket_data->sendPacket;
     packet->address.host = socket_data->addr.host;
@@ -453,5 +456,28 @@ int up_network_registerAccount(char *username, char *password, int length, struc
     packet->len = writeSpace;
     SDLNet_UDP_Send(socket, -1, packet);
     return 0;
+}
 
+int up_network_registerAccount(char *username, char *password, int length, struct up_network_datapipe *socket_data)
+{
+    unsigned char hashedPass[SHA256_BLOCK_SIZE];
+    up_hashText((char *)hashedPass,password,(int)strlen(password));
+    
+    unsigned char userLength = (unsigned char) strlen(username);
+    
+    up_network_accountManagement(UP_REGISTRATE_FLAG,username,userLength,(char *)hashedPass,socket_data);
+    return 0;
+
+}
+
+int up_network_loginAccount(char *username, char *password, int length, struct up_network_datapipe *socket_data)
+{
+    unsigned char hashedPass[SHA256_BLOCK_SIZE];
+    up_hashText((char *)hashedPass,password,(int)strlen(password));
+    
+    unsigned char userLength = (unsigned char) strlen(username);
+    
+    up_network_accountManagement(UP_LOGIN_FLAG,username,userLength,(char *)hashedPass,socket_data);
+    return 0;
+    
 }

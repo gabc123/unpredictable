@@ -499,12 +499,13 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     int connectFlag = 0;
     int registerFlag = 0;
     
-#define UP_ACCOUNT_DATA_MAX 5
+#define UP_ACCOUNT_DATA_MAX 1
     struct up_network_account_data accountData[UP_ACCOUNT_DATA_MAX];
     int packet_read = 0;
     int haveSentReg = 0;
+    int menu_exit_flag = 0;
     // MENU LOOP
-    while(status)
+    while(status && !menu_exit_flag)
     {
         up_updateFrameTickRate();
 
@@ -567,6 +568,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 
                 up_displayText(passwordstr, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
             
+                haveSentReg = 0;
 
                 break;
                 
@@ -580,18 +582,26 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 up_displayText(user_data.username, user_data.keypressUsername, &textposusername, &textscale, fonts, shaderprog,0,NULL);
                 
                 up_displayText(user_data.password, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
-                
+                haveSentReg = 0;
                 
                 break;
                 
             case connecting:
                 
-                connectFlag=7;
                 
-                //connectFlag = accountData->serverResponse;
-                    
-        
                 
+                if (accountData->noResponse || !haveSentReg) {
+                    up_network_loginAccount(user_data.username, user_data.password, UP_LIMIT, network_connection);
+                    accountData->noResponse = 0;
+                    haveSentReg += 1;
+                }
+                
+                connectFlag = accountData->serverResponse;
+                if (haveSentReg > 10) {
+                    printf("Failed to login 10 times");
+                    connectFlag=LOGINFAILED;
+                }
+                //connectFlag=7;
                 //CONNECTION SUCCESS
                 if (connectFlag == LOGINSUCESS ) {
                     
@@ -605,6 +615,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     
                     navigation.state = shipSelect;
                     
+                    menu_exit_flag = 1;
+                    continue;
                     //SDL_Delay(5000);
                 
                 }
@@ -617,11 +629,14 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     
                     //SDL_Delay(500);
                     
+                    
                     navigation.state = loginMenu;
+                    menu_exit_flag = 1;
+                    continue;
                     
                 }
                 else {
-                    printf("Connection flag error, not valid outcome \n");
+                    //printf("Connection flag error, not valid outcome \n");
                 }
                 
                 break;
@@ -631,7 +646,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 if (accountData->noResponse || !haveSentReg) {
                     up_network_registerAccount(user_data.username, user_data.password, UP_LIMIT, network_connection);
                     accountData->noResponse = 0;
-                    haveSentReg = 1;
+                    haveSentReg += 1;
                 }
                 
                 
@@ -639,6 +654,10 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
 
                 registerFlag = accountData->serverResponse;
 
+                if (haveSentReg > 10) {
+                    printf("Failed to login 10 times");
+                    registerFlag=REGFAILED;
+                }
                 
                 //REGISTERING SUCCESS
                 if (registerFlag == REGSUCESSS ) {
@@ -664,11 +683,13 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     
                     navigation.state = loginMenu;
                     registerFlag=0;
+                    menu_exit_flag = 1;
+                    continue;
                     
                 }
                 else {
-                    printf("Register flag error, not valid outcome \n");
-                    
+                    //printf("Register flag error, not valid outcome \n");
+                    // display reg thing
                 }
                 
                 break;
@@ -837,7 +858,8 @@ int up_menuEventHandler(struct navigationState *navigation,
             
             
             
-            if ((navigation->loginbar == usernameLogin) && (user_data->keypressUsername <= 30)) {
+            if (((navigation->loginbar == usernameLogin) && (user_data->keypressUsername < 30)) ||
+                ((navigation->registerbar == usernameRegister) && (user_data->keypressUsername < 30))){
 
                 //int data = event.key.keysym.sym;
                 //printf("%d \n", data);
@@ -862,7 +884,8 @@ int up_menuEventHandler(struct navigationState *navigation,
             }
             
             
-            if ((navigation->loginbar == passwordLogin) && (user_data->keypressPassword <= 30)) {
+            if (((navigation->loginbar == passwordLogin) && (user_data->keypressPassword < 30)) ||
+                ((navigation->registerbar == passwordRegister) && (user_data->keypressPassword < 30))){
                 
                 //int data = event.key.keysym.sym;
                 //printf("%d \n", data);
@@ -893,18 +916,22 @@ int up_menuEventHandler(struct navigationState *navigation,
                 
                 if (navigation->state == loginMenu) {
                     if (navigation->loginbar == usernameLogin) {
+                        navigation->registerbar = passwordRegister;
                         navigation->loginbar = passwordLogin;
                     }
                     else if (navigation->loginbar == passwordLogin) {
+                        navigation->registerbar = usernameRegister;
                         navigation->loginbar = usernameLogin;
                     }
                 }
                 if (navigation->state==registerMenu) {
                     if (navigation->registerbar == usernameRegister) {
                         navigation->registerbar = passwordRegister;
+                        navigation->loginbar = passwordLogin;
                     }
                     else if (navigation->registerbar == passwordRegister) {
                         navigation->registerbar = usernameRegister;
+                        navigation->loginbar = usernameLogin;
                     }
                 }
 
@@ -1019,7 +1046,7 @@ int up_menuEventHandler(struct navigationState *navigation,
                             if (navigation->state == mainMenu){
                                 navigation->state=registerMenu;
                                 
-                                flag=2;
+                                //flag=2;
                             }
                         }
                     }

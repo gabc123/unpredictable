@@ -114,9 +114,10 @@ struct up_account_information
 int up_logInToAccount(struct up_account_information *account_validation, unsigned char *data_parser)
 {
     char userFilePath[UP_FILEPATH_MAX] = "account_information/";
-    char passwordToCompWith[SHA256_BLOCK_SIZE] = {0};
+    //char passwordToCompWith[SHA256_BLOCK_SIZE] = {0};
+    char passwordCheck;
     int i;
-    strcat(userFilePath, account_validation->username);
+    strcat(userFilePath, (char *)account_validation->username);
     FILE *fp = fopen(userFilePath, "r");
     
     if(fp == NULL)
@@ -127,17 +128,16 @@ int up_logInToAccount(struct up_account_information *account_validation, unsigne
 
     for(i=0;i < SHA256_BLOCK_SIZE;i++)
     {
-        fscanf(fp, "%c", &passwordToCompWith[i]);
+        fscanf(fp, "%c", &passwordCheck);
+        if (account_validation->password[i] != passwordCheck) {
+            printf("Loginerror\n");
+            fflush(stdout);
+            fclose(fp);
+            return LOGINFAILED;
+        }
     }
     
-    if (strcmp(passwordToCompWith, account_validation->password) != 0)
-    {
-        printf("Loginerror\n");
-         fclose(fp);
-        return LOGINFAILED;
-    }
-
-     fclose(fp);
+    fclose(fp);
     return LOGINSUCESS;
 }
 
@@ -177,7 +177,7 @@ int up_parser_username_password(struct up_account_information *account_validatio
     
     user_length = data_parser[read_pos];
     printf("\nuser_length: %d",user_length);
-    
+    fflush(stdout);
     if (user_length > UP_USER_NAME_PASS_MAX - 1) {
         UP_ERROR_MSG("length is out of bounds");
         return 0;
@@ -189,9 +189,9 @@ int up_parser_username_password(struct up_account_information *account_validatio
     
     read_pos += user_length;
     pass_length = data_parser[read_pos];
-    printf("\nuser_length: %d",pass_length);
-    
-    if (pass_length >= UP_USER_NAME_PASS_MAX - 1) {
+    printf("\npass_length: %d",pass_length);
+    fflush(stdout);
+    if (pass_length > UP_USER_NAME_PASS_MAX - 1) {
         UP_ERROR_MSG("length is out of bounds");
         return 0;
     }
@@ -214,15 +214,21 @@ int up_account_msg_parser(struct up_account_information *account_validation,unsi
         return up_logInToAccount(account_validation,&data_parser[read_pos]);
     }
     
-    else if (data_parser[read_pos] == UP_REGISTRATE_FLAG) {
+    if (data_parser[read_pos] == UP_REGISTRATE_FLAG) {
         account_validation->current_task = UP_REGISTRATE_FLAG;
         read_pos++;
         up_parser_username_password(account_validation,&data_parser[read_pos]);
         return up_registrateAccount(account_validation,&data_parser[read_pos]);
 
     }
+    
+    if (data_parser[read_pos] == UP_PACKET_HEARTBEAT_FLAG) {
+        
+        return UP_PACKET_HEARTBEAT_FLAG;
+    }
  
     fprintf(stderr, "Unaccepted first flag on log in/registration process\n");
+    fflush(stdout);
     return 0;
 
 }
@@ -244,7 +250,7 @@ void *up_server_account_send_thread(void *parm)
     
     unsigned char dataBuffer[UP_SEND_BUFFER_DATA_SIZE];
     unsigned int dataToSend_len = 0;
-    unsigned int client_sock_len = sizeof(server_con->client_infoArray[0]);
+    unsigned int client_sock_len = sizeof(server_con->client_infoArray[0].client_addr);
     struct up_client_info *clientInfo = NULL;
     
     int i = 0;
@@ -277,6 +283,13 @@ void *up_server_account_send_thread(void *parm)
                 printf("\nPacket corrupted");
                 continue;
             }
+            
+            if(returnFlag==UP_PACKET_HEARTBEAT_FLAG)
+            {
+                
+                continue;
+            }
+            
             clientInfo = &server_con->client_infoArray[local_data[i].id];
             
             clientId = up_server_addUser(server_state->server_gameplay, &clientInfo->client_addr);
@@ -292,7 +305,7 @@ void *up_server_account_send_thread(void *parm)
             if (clientInfo->active != 0) {
                 if (sendto(server_con->socket_server, dataBuffer, dataToSend_len, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {
                     printf("\nserver sendTo error");
-                    perror("send");
+                    perror("send account");
                 }
                 
                 
