@@ -27,6 +27,7 @@ struct up_network_account_data
 {
     int playerId;
     unsigned char serverResponse;  //add all data that should be included here
+    int noResponse;
 };
 
 struct up_network_datapipe *up_network_start_gameplay_setup();

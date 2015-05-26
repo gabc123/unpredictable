@@ -112,6 +112,9 @@ int main(int argc, char const *argv[])
     struct up_objectInfo tmp_ship = {0};
     tmp_ship.pos.x = 440;
     tmp_ship.pos.z = 40;
+    tmp_ship.dir.x = 0.03;
+    tmp_ship.dir.y = 1.0;
+    tmp_ship.angle = 0.0;
     tmp_ship.modelId = 1;
     tmp_ship.objectId.type = up_ship_type;
     tmp_ship.turnSpeed = 1;
@@ -125,7 +128,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 3;
+    shipIndex = 5;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -165,7 +168,9 @@ int main(int argc, char const *argv[])
     // the next 3 value is where it looking at
     // the last 3 values is what is up and what is down
     struct up_camera cam = {{0,0,30},{0,0,1},{0,0,-1}};
-
+    up_cam_zoom(-3);
+    up_update_camera(&cam, ship);
+    
     // generate the view matrix
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
@@ -270,9 +275,10 @@ int main(int argc, char const *argv[])
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets);
 
+        up_skybox_render(&skyBox,&cam,&viewPerspectivMatrix);
         up_gamePlayInterface(font_assets,shader_menu,&player_stats);
 
-        up_skybox_render(&skyBox,&cam,&viewPerspectivMatrix);
+        
         UP_openGLupdate();
 
     }
