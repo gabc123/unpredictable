@@ -592,11 +592,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 
                 connectFlag=7;
                 
-                while (connectFlag == 0) { //waiting for server
+                //connectFlag = accountData->serverResponse;
                     
-                    connectFlag = accountData->serverResponse;
-                    
-                }
+        
                 
                 //CONNECTION SUCCESS
                 if (connectFlag == LOGINSUCESS ) {
@@ -608,7 +606,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_texture_bind(textureConnectionStatus, 3);
                     up_draw_mesh(connectionSuccess);
                     
-                    SDL_Delay(5000);
+                    //SDL_Delay(5000);
                 
                 }
                 //CONNECTION FAILED
@@ -618,7 +616,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_texture_bind(textureConnectionStatus, 3);
                     up_draw_mesh(connectionFailed);
                     
-                    SDL_Delay(500);
+                    //SDL_Delay(500);
                     
                     navigation.state = loginMenu;
                     

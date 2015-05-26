@@ -15,6 +15,7 @@
 #include "up_thread_utilities.h"
 #include "up_error.h"
 #include "up_network_packet_utilities.h"
+#include "sha256.h"
 
 #define UP_NETWORK_SIZE 100
 
@@ -413,8 +414,12 @@ int up_network_registerAccount(char *username, char *password, int length, struc
     int i,writeSpace = 0;
     unsigned char messageToServer[768];
     unsigned char userLength = (unsigned char) strlen(username);
-    unsigned char passLength = (unsigned char) strlen(password);
 
+    unsigned char hashedPass[SHA256_BLOCK_SIZE];
+    
+    up_hashText((char *)hashedPass,password,(int)strlen(password));
+    unsigned char passLength = SHA256_BLOCK_SIZE;
+    
     messageToServer[writeSpace]=UP_REGISTRATE_FLAG;
     writeSpace++;
     messageToServer[writeSpace]=UP_USER_PASS_FLAG;
