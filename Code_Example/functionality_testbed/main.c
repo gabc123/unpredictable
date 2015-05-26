@@ -96,10 +96,10 @@ int main(int argc, char const *argv[])
     status=up_menu(shader_menu, sound,keymap,font_assets,account_connection);
 
     // do map loading on the account connection
-    
+
     // then exit
     up_network_shutdown_deinit(account_connection);
-    
+
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
@@ -125,7 +125,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 1;
+    shipIndex = 3;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;

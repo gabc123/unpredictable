@@ -21,9 +21,7 @@ struct up_assets
     struct up_mesh *meshArray;
     struct up_texture_data *textureArray;
     struct up_vec3 *scaleArray;
-    struct up_vec3 *hitboxMaxArray;
-    struct up_vec3 *hitboxMinArray;
-    struct up_vec3 *hitboxDimArray;
+    struct up_vec3 *hitboxLengthArray;
 };
 
 #define UP_NUMBER_LETTER 106

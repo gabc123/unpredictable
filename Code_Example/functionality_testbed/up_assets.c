@@ -24,16 +24,10 @@ static struct up_assets *internal_assets=NULL;
 
 
 struct box{
-    float x1,y1,z1;
-    float x2,y2,z2;
+    float xmax,ymax,zmax;
+    float xmin,ymin,zmin;
 };
 
-struct Collisionbox
-{
-    int numbox;
-    struct box *boxarray;
-
-};
 /*stores information of the object*/
 //Sebastian
 struct up_modelData
@@ -41,7 +35,7 @@ struct up_modelData
     char obj[MODELLENGTH];
     char tex[MODELLENGTH];
     struct up_vec3 scale;
-    struct Hitbox hitbox;
+    struct box hitbox;
     float turnSpeed;
     float maxLength;
 };
@@ -88,14 +82,23 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     obj.scale.x = 1;
     obj.scale.y = 1;
     obj.scale.z = 1;
+    obj.collisionbox.length.x = 1;
+    obj.collisionbox.length.y = 1;
+    obj.collisionbox.length.z = 1;
 
     obj.modelId = modelId;
 
     //internal_assets is a static global
     obj.scale = internal_assets->scaleArray[modelId];
-    obj.collisionbox.max = internal_assets->hitboxMaxArray[modelId];
-    obj.collisionbox.max = internal_assets->hitboxMinArray[modelId];
-    fallbackHitbox(&obj);
+    obj.collisionbox.length = internal_assets->hitboxLengthArray[modelId];
+
+    printf("array x%f\ny%f\nz%f\n", obj.collisionbox.length.x,obj.collisionbox.length.y,obj.collisionbox.length.z);
+    obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.x)) ? obj.collisionbox.length.x : obj.maxLength;
+    obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.y)) ? obj.collisionbox.length.y : obj.maxLength;
+    obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.z)) ? obj.collisionbox.length.z : obj.maxLength;
+
+     printf("objmaxlength%f \n", obj.maxLength);
+    //fallbackHitbox(&obj);
 
     return obj;
 }
@@ -103,12 +106,10 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
 //magnus
 int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_modelData *item)
 {
-    int returnCode = 1, i;
+    int returnCode = 1;
     struct up_objModel *testObj = NULL;
     struct up_mesh *mesh = NULL;
     struct up_texture_data *texture = NULL;
-
-    float xmax=0, ymax=0, zmax=0, xmin=0, ymin=0, zmin=0;
 
     // set up the dummyobjects to be used in case of failure
     struct up_mesh dummyMesh;
@@ -118,26 +119,6 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
 
     //struct load item;
     testObj= up_loadObjModel(item->obj);
-    if (testObj != NULL) {
-        for(i=0; i< testObj->vertex_length; i++){
-            if(xmax<testObj->vertex[i].pos.x)
-                xmax=testObj->vertex[i].pos.x;
-            if(ymax<testObj->vertex[i].pos.y)
-                ymax=testObj->vertex[i].pos.y;
-            if(zmax<testObj->vertex[i].pos.z)
-                zmax=testObj->vertex[i].pos.z;
-            if(xmin>testObj->vertex[i].pos.x)
-                xmin=testObj->vertex[i].pos.x;
-            if(ymin>testObj->vertex[i].pos.y)
-                ymin=testObj->vertex[i].pos.y;
-            if(zmin<testObj->vertex[i].pos.z)
-                zmin=testObj->vertex[i].pos.z;
-        }
-    }
-
-
-    printf("xmax: %f ymax %f zmax %f xmin: %f ymin %f zmin %f\n", xmax,ymax,zmax, xmin,ymin,zmin);
-
     if (testObj !=NULL) {
         mesh = UP_mesh_new(testObj->vertex, testObj->vertex_length, testObj->indexArray, testObj->index_length);
         up_objModelFree(testObj);
@@ -168,9 +149,7 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
 static int loadObjects(struct up_generic_list *meshArray,
                        struct up_generic_list *textureArray,
                        struct up_generic_list *scaleArray,
-                       struct up_generic_list *hitboxMaxArray,
-                       struct up_generic_list *hitboxMinArray,
-                       struct up_generic_list *hitboxDimArray)
+                       struct up_generic_list *hitboxLengthArray)
 {
     struct UP_textHandler thafile = up_loadAssetFile("objIndex");
     if (thafile.text == NULL) {
@@ -183,9 +162,7 @@ static int loadObjects(struct up_generic_list *meshArray,
     char *text = thafile.text;
     char *endLine = "\n";
     char *row;
-    struct up_vec3 maxLength = {0};
-    float value1 = 0.0;
-    float value2 = 0.0;
+    struct up_vec3 boxLength;
     //    struct up_vec3 scale;
 
     /*reads from the file and stores read data*/
@@ -198,6 +175,11 @@ static int loadObjects(struct up_generic_list *meshArray,
             break;
         }
         sscanf(row,"%f %f %f %s %s", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex);
+        if(up_process_asset(meshArray,textureArray,&item) == 0)
+        {
+            item.scale = scaleOne; // there has been a error , set scale to one
+        }
+
         row = up_token_parser(text, &text, endLine, strlen(endLine));
         if(row == NULL)
         {
@@ -205,28 +187,14 @@ static int loadObjects(struct up_generic_list *meshArray,
             printf("end of file objIndex\n");
             break;
         }
-        sscanf(row,"%f %f %f %f %f %f", &item.hitbox.max.x, &item.hitbox.max.y, &item.hitbox.max.z, &item.hitbox.min.x, &item.hitbox.min.y, &item.hitbox.max.z);
-        if(up_process_asset(meshArray,textureArray,&item) == 0)
-        {
-            item.scale = scaleOne; // there has been a error , set scale to one
-        }
+        sscanf(row,"%f %f %f %f %f %f", &item.hitbox.xmax, &item.hitbox.ymax, &item.hitbox.zmax, &item.hitbox.xmin, &item.hitbox.ymin, &item.hitbox.zmin);
 
-        value1 = fabsf(item.hitbox.max.x);
-        value2 = fabsf(item.hitbox.min.x);
-        maxLength.x = (value1 > value2) ? value1 : value2;
-        
-        value1 = fabsf(item.hitbox.max.y);
-        value2 = fabsf(item.hitbox.min.y);
-        maxLength.y = (value1 > value2) ? value1 : value2;
-        
-        value1 = fabsf(item.hitbox.max.z);
-        value2 = fabsf(item.hitbox.min.z);
-        maxLength.z = (value1 > value2) ? value1 : value2;
-        
-        up_vec3_list_add(hitboxDimArray, &maxLength);
-        up_vec3_list_add(hitboxMaxArray, &item.hitbox.max);
-        up_vec3_list_add(hitboxMinArray, &item.hitbox.min);
-        
+        boxLength.x = fabsf(item.hitbox.xmax + item.hitbox.xmin)/2;
+        boxLength.y = fabsf(item.hitbox.ymax + item.hitbox.ymin)/2;
+        boxLength.z = fabsf(item.hitbox.zmax + item.hitbox.zmin)/2;
+        printf("boxlengthx:%f\ny:%f\nz:%f\n",boxLength.x,boxLength.y,boxLength.z);
+
+        up_vec3_list_add(hitboxLengthArray, &boxLength);
         up_vec3_list_add(scaleArray, &item.scale);
 
     }while(text <= thafile.text + thafile.length -1);
@@ -243,12 +211,7 @@ struct up_assets *up_assets_start_setup()
     struct up_generic_list *meshArray = up_mesh_list_new(10);
     struct up_generic_list *textureArray = up_texture_list_new(10);
     struct up_generic_list *scaleArray= up_vec3_list_new(10);
-    struct up_generic_list *hitboxMaxArray= up_vec3_list_new(10);
-    struct up_generic_list *hitboxMinArray= up_vec3_list_new(10);
-    struct up_generic_list *hitboxDimArray= up_vec3_list_new(10);
-    
-    
-
+    struct up_generic_list *hitboxLengthArray= up_vec3_list_new(10);
 
     // the first model is always a default model  that is used if
     // a missing obj file or texture is found
@@ -263,7 +226,7 @@ struct up_assets *up_assets_start_setup()
     up_vec3_list_add(scaleArray, &scale);
 
 
-    loadObjects(meshArray, textureArray, scaleArray,hitboxMaxArray,hitboxMinArray,hitboxDimArray);
+    loadObjects(meshArray, textureArray, scaleArray,hitboxLengthArray);
 
     struct up_assets *assets = malloc(sizeof(struct up_assets));
     if (assets == NULL) {
@@ -275,11 +238,9 @@ struct up_assets *up_assets_start_setup()
     assets->meshArray = up_mesh_list_transferOwnership(&meshArray);
     assets->textureArray = up_texture_list_transferOwnership(&textureArray);
     assets->scaleArray = up_vec3_list_transferOwnership(&scaleArray);
-    assets->hitboxMaxArray = up_vec3_list_transferOwnership(&hitboxMaxArray);
-    assets->hitboxMinArray = up_vec3_list_transferOwnership(&hitboxMinArray);
-    assets->hitboxDimArray = up_vec3_list_transferOwnership(&hitboxDimArray);
+    assets->hitboxLengthArray = up_vec3_list_transferOwnership(&hitboxLengthArray);
 
-    
+
     internal_assets = assets;
     return assets;
 }
@@ -289,8 +250,6 @@ void up_assets_shutdown_deinit(struct up_assets *assets)
     free(assets->meshArray);
     free(assets->textureArray);
     free(assets->scaleArray);
-    free(assets->hitboxMaxArray);
-    free(assets->hitboxMinArray);
-    free(assets->hitboxDimArray);
+    free(assets->hitboxLengthArray);
     free(assets);
 }

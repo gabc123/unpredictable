@@ -56,7 +56,7 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
 
     int i=0;
 
-    
+
 
     for(i=0; i<density; i++){
 

@@ -13,8 +13,7 @@
 #include "up_type.h"
 
 struct Hitbox{
-    struct up_vec3 max;
-    struct up_vec3 min;
+    struct up_vec3 length;
 };
 
 struct shipMovement
@@ -48,7 +47,7 @@ struct up_objectInfo
     float speed;
     float acceleration;
     struct Hitbox collisionbox;
-    int maxLength;
+    float maxLength;
     int owner;
 };
 

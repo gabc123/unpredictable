@@ -445,7 +445,6 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         return;
     }
 
-
     /*
     enum up_object_type
     {
@@ -461,39 +460,17 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
 //checks objects collisionboxes too see whether a hit has occured or not
 static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int nrObj1, int nrObj2, struct up_allCollisions *allcollisions, int typeCollision)
 {
-    float xlengthModel1, ylengthModel1, zlengthModel1;
-    float xlengthModel2, ylengthModel2, zlengthModel2;
+
     float distanceX, distanceY, distanceZ;
 
-    struct Hitbox hitModel1 ={
-        object1[nrObj1].pos.x+1.0, object1[nrObj1].pos.y+1.0, object1[nrObj1].pos.z+1.0,
-        object1[nrObj1].pos.x-1.0,  object1[nrObj1].pos.y-1.0,  object1[nrObj1].pos.z-1.0};
-
-    struct Hitbox hitModel2 = {
-        object2[nrObj2].pos.x+1.0, object2[nrObj2].pos.y+1.0, object2[nrObj2].pos.z+1.0,
-        object2[nrObj2].pos.x-1.0,  object2[nrObj2].pos.y-1.0,  object2[nrObj2].pos.z-1.0};
-
-    xlengthModel1 = hitModel1.max.x - hitModel1.min.x;
-    ylengthModel1 = hitModel1.max.y - hitModel1.min.y;
-    zlengthModel1 = hitModel1.max.z - hitModel1.min.z;
-    
-    xlengthModel2 = hitModel2.max.x - hitModel2.min.x;
-    ylengthModel2 = hitModel2.max.y - hitModel2.min.y;
-    zlengthModel2 = hitModel2.max.z - hitModel2.min.z;
-
-/*
-    xlengthModel1 = object1->collisionbox.xmax - object1->collisionbox.xmin;
-    ylengthModel1 = object1->collisionbox.ymax - object1->collisionbox.ymin;
-    zlengthModel1 = object1->collisionbox.zmax - object1->collisionbox.zmin;
-*/
     distanceX = fabsf(object2[nrObj2].pos.x - object1[nrObj1].pos.x);
     distanceY = fabsf(object2[nrObj2].pos.y - object1[nrObj1].pos.y);
     distanceZ = fabsf(object2[nrObj2].pos.z - object1[nrObj1].pos.z);
 
     //checks if the collisionboxes collides
-    if(distanceX <= xlengthModel1 || distanceX <= xlengthModel2)
-        if(distanceY <= ylengthModel1 ||distanceY <= ylengthModel2)
-            if(distanceZ <= zlengthModel1 || distanceZ <= zlengthModel2)
+    if(distanceX <= object1[nrObj1].collisionbox.length.x || distanceX <= object2[nrObj2].collisionbox.length.x)
+        if(distanceY <= object1[nrObj1].collisionbox.length.y ||distanceY <=object2[nrObj2].collisionbox.length.y)
+            if(distanceZ <= object1[nrObj1].collisionbox.length.z || distanceZ <= object2[nrObj2].collisionbox.length.z)
             {
                 //stores the id, arrayplacement by the type of collision
                 switch(typeCollision)
@@ -503,16 +480,16 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].nrObj1 = nrObj1;
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].object2 = object2[nrObj2].objectId.idx;
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment++].nrObj2 = nrObj2;
-                /*    printf("shipEnviroment\n");
+                    printf("shipEnviroment\n");
                     printf("object1Id read: %d\n", object1[nrObj1].objectId.idx);
                     printf("object2Id read: %d\n", object2[nrObj2].objectId.idx);
                     printf("object1id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object1);
                     printf("object2id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object2);
-                */
+
                     break;
                 //projectile enviroment
                 case projectileEnviroment:
-                    //printf("projectileEnviroment\n");
+                    printf("projectileEnviroment\n");
                     allcollisions->projectileEnviroment[allcollisions->nrProjectileEnviroment].object1 = object1[nrObj1].objectId.idx;
                     allcollisions->projectileEnviroment[allcollisions->nrProjectileEnviroment].nrObj1 = nrObj1;
                     allcollisions->projectileEnviroment[allcollisions->nrProjectileEnviroment].object2 = object2[nrObj2].objectId.idx;
@@ -520,7 +497,7 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                     break;
                 //projectile ship
                 case projectileShip:
-                    //printf("projectileShip\n");
+                    printf("projectileShip\n");
                     allcollisions->projectileShip[allcollisions->nrProjectileShip].object1 = object1[nrObj1].objectId.idx;
                     allcollisions->projectileShip[allcollisions->nrProjectileShip].nrObj1 = nrObj1;
                     allcollisions->projectileShip[allcollisions->nrProjectileShip].object2 = object2[nrObj2].objectId.idx;
@@ -535,7 +512,7 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                     break;
                 //ship ship
                 case shipShip:
-                    //printf("shipship\n");
+                    printf("shipship\n");
                     allcollisions->shipShip[allcollisions->nrShipShip].object1 = object1[nrObj1].objectId.idx;
                     allcollisions->shipShip[allcollisions->nrShipShip].nrObj1 = nrObj1;
                     allcollisions->shipShip[allcollisions->nrShipShip].object2 = object2[nrObj2].objectId.idx;
@@ -579,7 +556,8 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             z = ships[i].pos.z - enviroment[j].pos.z;
             distance = sqrt((x*x)+(y*y)+(z*z));
 
-            if(distance < 30/*ships[i].maxLength*/){
+            if(distance < ships[i].maxLength || distance < enviroment[j].maxLength){
+                  //  printf("distance = %f\nshiplength = %d\nenviroment = %d\n",distance,ships[i].maxLength,enviroment[j].maxLength);
                 testCollision(ships, enviroment, i, j, allcollisions, shipEnviroment);
             }
         }
@@ -600,7 +578,8 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             z = projectile[i].pos.z - enviroment[j].pos.z;
             distance = sqrt((x*x)+(y*y)+(z*z));
 
-            if(distance < 30 /*ships[i].maxLength*/){
+            if(distance < projectile[i].maxLength || distance < enviroment[j].maxLength){
+                //printf("projectilelength%f, distance%f, enviroment%f\n",projectile[i].maxLength,distance,enviroment[j].maxLength);
                 testCollision(projectile, enviroment, i, j, allcollisions, projectileEnviroment);
             }
         }
@@ -622,7 +601,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 z = ships[i].pos.z - projectile[j].pos.z;
                 distance = sqrt((x*x)+(y*y)+(z*z));
 
-                if(distance < 30/*ships[i].maxLength*/){
+                if(distance < projectile[i].maxLength || distance < ships[j].maxLength){
                     testCollision(projectile, ships, j, i, allcollisions, projectileShip);
                 }
             }
@@ -646,7 +625,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                     z = enviroment[i].pos.z - enviroment[j].pos.z;
                     distance = sqrt((x*x)+(y*y)+(z*z));
 
-                    if(distance <30 /*ships[i].maxLength*/){
+                    if(distance < enviroment[i].maxLength || distance < enviroment[j].maxLength){
                          testCollision(enviroment, enviroment, j, i, allcollisions, enviromentEnviroment);
                     }
             }
@@ -670,12 +649,13 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 z = ships[i].pos.z - ships[j].pos.z;
                 distance = sqrt((x*x)+(y*y)+(z*z));
 
-                if(distance <30 /*ships[i].maxLength*/){
+                if(distance < ships[i].maxLength || distance < ships[j].maxLength){
                     testCollision(ships, ships, i, j, allcollisions, shipShip);
                 }
             }
         }
     }
+
 }
 
 //Magnus
