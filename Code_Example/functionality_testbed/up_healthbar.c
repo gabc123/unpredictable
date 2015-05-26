@@ -54,27 +54,40 @@ void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_playe
     }
     
     healthGreen->pos.x = ship_pos->pos.x-5;
-    healthGreen->pos.y = ship_pos->pos.y+15;
-    healthGreen->pos.z = ship_pos->pos.z;
+    healthGreen->pos.y = ship_pos->pos.y;
+    healthGreen->pos.z = ship_pos->pos.z-5;
 
     healthRed->pos.x = ship_pos->pos.x-5;
-    healthRed->pos.y = ship_pos->pos.y+15;
-    healthRed->pos.z = ship_pos->pos.z;
+    healthRed->pos.y = ship_pos->pos.y;
+    healthRed->pos.z = ship_pos->pos.z-5;
     
-    float xPoint =  cam->eye.x - cam->center.x;
-    float yPoint =  cam->eye.y - cam->center.y;
+    healthGreen->dir.x = ship_pos->dir.x;
+    healthGreen->dir.y = ship_pos->dir.y;
+    healthRed->dir.x = ship_pos->dir.x;
+    healthRed->dir.y = ship_pos->dir.y;
     
-    float tmp=0;
-    float tanResult = yPoint / xPoint;
-    tanResult = tanf(tanResult);
     
-    tmp = 180 - tanResult;
+//    float xPoint =  cam->center.x - cam->eye.x;
+//    float yPoint =  cam->center.y - cam->eye.y;
+//    
+//    float tmp=0;
+//    float tanResult = yPoint / xPoint;
+//    tanResult = atanf(tanResult);
+//    
+//    tmp = M_PI/2 - tanResult;
+//    if(tmp < 0)
+//        tmp = M_PI-tanResult;
+//
+//    healthGreen->angle = (tmp + M_PI/2);
+//    healthRed->angle = (tmp +M_PI/2);
+//    
+//    if (healthRed->angle >= M_PI) {
+//        healthGreen-> angle = 0;
+//        healthRed-> angle = 0;
+//    }
     
-    healthGreen->dir.x = tmp;
-    healthRed->dir.y = tmp;
     
     healthGreen->scale.x = healthLevel;
-        
 }
 
 up_stats_index_t up_create_statsObject()
