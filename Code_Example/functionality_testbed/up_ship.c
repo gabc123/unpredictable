@@ -445,7 +445,6 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         return;
     }
 
-
     /*
     enum up_object_type
     {
@@ -461,34 +460,9 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
 //checks objects collisionboxes too see whether a hit has occured or not
 static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int nrObj1, int nrObj2, struct up_allCollisions *allcollisions, int typeCollision)
 {
-    /*
-    float xlengthModel1, ylengthModel1, zlengthModel1;
-    float xlengthModel2, ylengthModel2, zlengthModel2;
-    */
 
     float distanceX, distanceY, distanceZ;
-/*
-    struct Hitbox hitModel1 ={
-        object1[nrObj1].pos.x+1.0, object1[nrObj1].pos.y+1.0, object1[nrObj1].pos.z+1.0,
-        object1[nrObj1].pos.x-1.0,  object1[nrObj1].pos.y-1.0,  object1[nrObj1].pos.z-1.0};
 
-    struct Hitbox hitModel2 = {
-        object2[nrObj2].pos.x+1.0, object2[nrObj2].pos.y+1.0, object2[nrObj2].pos.z+1.0,
-        object2[nrObj2].pos.x-1.0,  object2[nrObj2].pos.y-1.0,  object2[nrObj2].pos.z-1.0};
-
-    xlengthModel1 = hitModel1.max.x - hitModel1.min.x;
-    ylengthModel1 = hitModel1.max.y - hitModel1.min.y;
-    zlengthModel1 = hitModel1.max.z - hitModel1.min.z;
-
-    xlengthModel2 = hitModel2.max.x - hitModel2.min.x;
-    ylengthModel2 = hitModel2.max.y - hitModel2.min.y;
-    zlengthModel2 = hitModel2.max.z - hitModel2.min.z;
-
-
-    xlengthModel1 = object1->collisionbox.xmax - object1->collisionbox.xmin;
-    ylengthModel1 = object1->collisionbox.ymax - object1->collisionbox.ymin;
-    zlengthModel1 = object1->collisionbox.zmax - object1->collisionbox.zmin;
-*/
     distanceX = fabsf(object2[nrObj2].pos.x - object1[nrObj1].pos.x);
     distanceY = fabsf(object2[nrObj2].pos.y - object1[nrObj1].pos.y);
     distanceZ = fabsf(object2[nrObj2].pos.z - object1[nrObj1].pos.z);
@@ -659,7 +633,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
     }
 
     //ship vs ship
-  /*  for(i=0; i < totalShips; i++){
+    for(i=0; i < totalShips; i++){
         // no need to check ship if not active
         if (!up_unit_isActive(&ships[i])) {
             continue;
@@ -681,7 +655,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
-    */
+
 }
 
 //Magnus

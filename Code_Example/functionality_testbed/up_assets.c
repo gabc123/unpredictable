@@ -175,6 +175,11 @@ static int loadObjects(struct up_generic_list *meshArray,
             break;
         }
         sscanf(row,"%f %f %f %s %s", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex);
+        if(up_process_asset(meshArray,textureArray,&item) == 0)
+        {
+            item.scale = scaleOne; // there has been a error , set scale to one
+        }
+
         row = up_token_parser(text, &text, endLine, strlen(endLine));
         if(row == NULL)
         {
@@ -183,10 +188,6 @@ static int loadObjects(struct up_generic_list *meshArray,
             break;
         }
         sscanf(row,"%f %f %f %f %f %f", &item.hitbox.xmax, &item.hitbox.ymax, &item.hitbox.zmax, &item.hitbox.xmin, &item.hitbox.ymin, &item.hitbox.zmin);
-        if(up_process_asset(meshArray,textureArray,&item) == 0)
-        {
-            item.scale = scaleOne; // there has been a error , set scale to one
-        }
 
         boxLength.x = fabsf(item.hitbox.xmax + item.hitbox.xmin)/2;
         boxLength.y = fabsf(item.hitbox.ymax + item.hitbox.ymin)/2;
