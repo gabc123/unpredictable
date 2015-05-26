@@ -249,7 +249,7 @@ int main(int argc, char const *argv[])
         up_updateMovements();
         up_checkCollision(&allcollisions);
         up_handleCollision(&allcollisions);
-        up_check_law(&allcollisions, &player_stats, shipIndex);
+        up_update_playerStats(&allcollisions, &player_stats, shipIndex);
         up_update_camera(&cam, ship);
 
         up_moveHealthBar(shipIndex,healthBar,&player_stats);

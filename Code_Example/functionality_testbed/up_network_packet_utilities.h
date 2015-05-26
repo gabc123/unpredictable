@@ -28,6 +28,7 @@
 // maintenance flags
 #define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
 
+#define UP_MAP_DATA_FLAG (unsigned char)50
 
 struct up_packet_movement
 {

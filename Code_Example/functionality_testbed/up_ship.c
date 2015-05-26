@@ -1039,7 +1039,7 @@ static void take_damage(struct up_player_stats *stats,int damage){
 
 }
 
-void up_check_law(struct up_allCollisions *collision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
+void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
 {
 
 
