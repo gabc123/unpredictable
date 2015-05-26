@@ -659,7 +659,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
     }
 
     //ship vs ship
-    for(i=0; i < totalShips; i++){
+  /*  for(i=0; i < totalShips; i++){
         // no need to check ship if not active
         if (!up_unit_isActive(&ships[i])) {
             continue;
@@ -681,6 +681,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
+    */
 }
 
 //Magnus
