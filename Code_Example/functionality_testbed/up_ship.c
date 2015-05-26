@@ -485,6 +485,7 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                     printf("object2Id read: %d\n", object2[nrObj2].objectId.idx);
                     printf("object1id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object1);
                     printf("object2id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object2);
+                    printf("nr shipenviroment %d\n", allcollisions->nrShipEnviroment);
 
                     break;
                 //projectile enviroment
@@ -529,6 +530,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
     int i, j, totalShips = 0, totalObjects = 0, totalProjectiles = 0;
     float distance=0, x=0, y=0, z=0;
 
+    //keeps track of total amount of collisions on current frame based on type
     allcollisions->nrProjectileEnviroment = 0;
     allcollisions->nrProjectileShip = 0;
     allcollisions->nrShipEnviroment = 0;
@@ -557,7 +559,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance < ships[i].maxLength || distance < enviroment[j].maxLength){
-                  //  printf("distance = %f\nshiplength = %d\nenviroment = %d\n",distance,ships[i].maxLength,enviroment[j].maxLength);
+              //  printf("distance = %f\nshiplength = %f\nenviroment = %f\n",distance,ships[i].maxLength,enviroment[j].maxLength);
                 testCollision(ships, enviroment, i, j, allcollisions, shipEnviroment);
             }
         }
@@ -579,7 +581,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance < projectile[i].maxLength || distance < enviroment[j].maxLength){
-                //printf("projectilelength%f, distance%f, enviroment%f\n",projectile[i].maxLength,distance,enviroment[j].maxLength);
+                printf("projectilelength%f, distance%f, enviroment%f\n",projectile[i].maxLength,distance,enviroment[j].maxLength);
                 testCollision(projectile, enviroment, i, j, allcollisions, projectileEnviroment);
             }
         }
@@ -601,7 +603,8 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 z = ships[i].pos.z - projectile[j].pos.z;
                 distance = sqrt((x*x)+(y*y)+(z*z));
 
-                if(distance < projectile[i].maxLength || distance < ships[j].maxLength){
+                if(distance < projectile[j].maxLength || distance < ships[i].maxLength){
+                    printf("projectilelength%f, distance%f, enviroment%f\n",projectile[j].maxLength,distance,ships[i].maxLength);
                     testCollision(projectile, ships, j, i, allcollisions, projectileShip);
                 }
             }
@@ -650,7 +653,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 distance = sqrt((x*x)+(y*y)+(z*z));
 
                 if(distance < ships[i].maxLength || distance < ships[j].maxLength){
-                    testCollision(ships, ships, i, j, allcollisions, shipShip);
+                    testCollision(ships, ships, j, i, allcollisions, shipShip);
                 }
             }
         }
