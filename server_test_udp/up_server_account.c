@@ -59,7 +59,7 @@ void *up_server_account_reciveing_thread(void *parm)
     return NULL;
 }
 
-#define UP_USER_NAME_PASS_MAX 21
+
 struct up_account_information
 {
     int current_task;
@@ -68,29 +68,50 @@ struct up_account_information
     char password[UP_USER_NAME_PASS_MAX];
 };
 
-int up_parser_username_passowrd(struct up_account_information *account_validation,unsigned char *data_parser)
+int up_registrateAccount(account_validation, &data_parser[read_pos]);
+{
+    FILE *fp;
+    fp = fopen("%s",account_validation->username,"r");
+    if(fp != NULL) {
+        printf(stderr, "Username in use");
+        return 0;
+    }
+
+    fp = fopen("%s",account_validation->username,"w";
+    fprintf(fp,"%s\n",account_validation->password);
+    fclose(fp);
+    return REGSUCESS;
+
+}
+
+int up_parser_username_password(struct up_account_information *account_validation,unsigned char *data_parser)
 {
     int user_length = 0;
     int pass_length = 0;
     int read_pos = 0;
+    
     if (data_parser[read_pos] != UP_USER_PASS_FLAG) {
         return 0;
     }
     read_pos++;
+
     
     user_length = data_parser[read_pos];
     printf("\nuser_length: %d",user_length);
+    
     if (user_length > UP_USER_NAME_PASS_MAX - 1) {
         UP_ERROR_MSG("length is out of bounds");
         return 0;
     }
     read_pos++;
+
     generic_copyElement(user_length, (unsigned char *)account_validation->username, &data_parser[read_pos]);
     account_validation->username[user_length] = '\0';
     
     read_pos += user_length;
     pass_length = data_parser[read_pos];
     printf("\nuser_length: %d",pass_length);
+    
     if (pass_length >= UP_USER_NAME_PASS_MAX - 1) {
         UP_ERROR_MSG("length is out of bounds");
         return 0;
@@ -99,29 +120,32 @@ int up_parser_username_passowrd(struct up_account_information *account_validatio
     
     generic_copyElement(pass_length, (unsigned char *)account_validation->password, &data_parser[read_pos]);
     account_validation->password[pass_length] = '\0';
-    
     return 1;
-    
 }
+
 
 int up_account_msg_parser(struct up_account_information *account_validation,unsigned char *data_parser)
 {
     int read_pos = 0;
+    //Checking whether the user wants to registrate och log in to an account
     if (data_parser[read_pos] == UP_LOGIN_FLAG) {
         account_validation->current_task = UP_LOGIN_FLAG;
         read_pos++;
-        return up_parser_username_passowrd(account_validation,&data_parser[read_pos]);
+        return up_parser_username_password(account_validation,&data_parser[read_pos]);
         
     }
     
-    if (data_parser[read_pos] == UP_REGISTRATE_FLAG) {
+    else if (data_parser[read_pos] == UP_REGISTRATE_FLAG) {
         account_validation->current_task = UP_REGISTRATE_FLAG;
         read_pos++;
-        return up_parser_username_passowrd(account_validation,&data_parser[read_pos]);
-        
+        up_parser_username_password(account_validation,&data_parser[read_pos]);
+        return up_registrateAccount(account_validation,&data_parser[read_pos]);
+
     }
-    
-    return 1;
+ 
+    printf(stderr, "Unaccepted first flag on log in/registration process\n");
+    return 0;
+
 }
 
 void *up_server_account_send_thread(void *parm)
