@@ -30,6 +30,7 @@ struct up_client_info
     int lastStamp;  // when a client sends data to the server this gets set
     int heartbeat; // every time we recive a msg this gets set to zero
     int active;
+    int slot_empty;
 };
 
 struct up_server_connection_info
@@ -50,6 +51,8 @@ struct internal_server_state
     struct up_server_connection_info *server_account;
 };
 
+//gives back the idx to be used by the user
+int up_server_addUser(struct up_server_connection_info *server,struct sockaddr_in *client_addr);
 struct internal_server_state *up_server_startup();
 void up_server_run(struct internal_server_state *server_state);
 void up_server_shutdown_cleanup(struct internal_server_state *server_state);

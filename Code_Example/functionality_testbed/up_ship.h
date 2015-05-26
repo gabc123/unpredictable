@@ -143,5 +143,5 @@ void shipMove(struct shipMovement *movement, struct up_objectInfo *ship);
 
 struct up_player_stats;
 
-void up_check_law(struct up_allCollisions *colision, struct up_player_stats *stats, int playerId);   //health terminator
+void up_update_playerStats(struct up_allCollisions *colision, struct up_player_stats *stats, int playerId);   //health terminator
 #endif

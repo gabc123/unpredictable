@@ -480,12 +480,11 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].nrObj1 = nrObj1;
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].object2 = object2[nrObj2].objectId.idx;
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment++].nrObj2 = nrObj2;
-                    printf("shipEnviroment\n");
-                    printf("object1Id read: %d\n", object1[nrObj1].objectId.idx);
-                    printf("object2Id read: %d\n", object2[nrObj2].objectId.idx);
-                    printf("object1id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object1);
-                    printf("object2id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object2);
-                    printf("nr shipenviroment %d\n", allcollisions->nrShipEnviroment);
+//                    printf("shipEnviroment\n");
+//                    printf("object1Id read: %d\n", object1[nrObj1].objectId.idx);
+//                    printf("object2Id read: %d\n", object2[nrObj2].objectId.idx);
+//                    printf("object1id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object1);
+//                    printf("object2id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object2);
 
                     break;
                 //projectile enviroment
@@ -564,6 +563,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
+  
     //projectile vs enviroment
     for(i=0; i < totalProjectiles; i++){
         // no need to check ship if not active
@@ -586,6 +586,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
+   
     //projectile vs ship
     for(i=0; i < totalShips; i++){
         // no need to check ship if not active
@@ -611,6 +612,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
         }
     }
 
+    /*
     //enviroment vs enviroment
     for(i=0; i < totalObjects; i++){
         // no need to check ship if not active
@@ -634,7 +636,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
-
+*/
     //ship vs ship
     for(i=0; i < totalShips; i++){
         // no need to check ship if not active
@@ -1022,7 +1024,7 @@ static void take_damage(struct up_player_stats *stats,int damage){
 
 }
 
-void up_check_law(struct up_allCollisions *collision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
+void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
 {
 
 
