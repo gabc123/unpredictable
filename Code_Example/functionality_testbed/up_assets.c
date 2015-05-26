@@ -196,9 +196,9 @@ static int loadObjects(struct up_generic_list *meshArray,
         }
         sscanf(row,"%f %f %f %f %f %f", &item.hitbox.xmax, &item.hitbox.ymax, &item.hitbox.zmax, &item.hitbox.xmin, &item.hitbox.ymin, &item.hitbox.zmin);
 
-        boxLength.x = fabsf(item.hitbox.xmax + item.hitbox.xmin)/2;
-        boxLength.y = fabsf(item.hitbox.ymax + item.hitbox.ymin)/2;
-        boxLength.z = fabsf(item.hitbox.zmax + item.hitbox.zmin)/2;
+        boxLength.x = fabsf(item.hitbox.xmax + item.hitbox.xmin) * item.scale.x/2;
+        boxLength.y = fabsf(item.hitbox.ymax + item.hitbox.ymin) * item.scale.x/2;
+        boxLength.z = fabsf(item.hitbox.zmax + item.hitbox.zmin) * item.scale.x/2;
         printf("boxlengthx:%f y:%f z:%f\n",boxLength.x,boxLength.y,boxLength.z);
 
         up_vec3_list_add(hitboxLengthArray, &boxLength);
