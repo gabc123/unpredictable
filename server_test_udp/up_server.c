@@ -26,9 +26,33 @@
 
 //static struct up_server_connection_info *up_server_socket_start();
 
-int up_server_addUser()
+//gives back the idx to be used by the user
+int up_server_addUser(struct up_server_connection_info *server,struct sockaddr_in *client_addr)
 {
-    return 0;
+    int i = 0;
+    struct up_client_info *client = NULL;
+    for (i = 1; i < server->connected_clients; i++) {
+        client = &server->client_infoArray[i];
+        if (client->slot_empty == 1 && client->active == 0) {
+            client->client_addr.sin_addr.s_addr = client_addr->sin_addr.s_addr; // only transfer ip addrees
+            client->heartbeat = 0;
+            client->slot_empty = 0;
+            return i;
+        }
+    }
+    if (server->connected_clients >= UP_MAX_CLIENTS) {
+        return 0;
+    }
+    
+    int idx = server->connected_clients;
+    
+    client = &server->client_infoArray[idx];
+    client->client_addr.sin_addr.s_addr = client_addr->sin_addr.s_addr; // only transfer ip addrees
+    client->heartbeat = 0;
+    client->slot_empty = 0;
+    client->active = 0;
+
+    return idx;
 }
 
 /******************************************************
@@ -63,6 +87,7 @@ static int up_server_remove_client(struct up_client_info *client)
     // hopfully...
     client->active = 0;
     client->heartbeat = 0;
+    client->slot_empty = 1;
     return 1;
 }
 
@@ -214,7 +239,7 @@ static struct up_server_connection_info *up_server_account_start(unsigned int po
         server->client_infoArray[i].heartbeat = 0;
     }
     
-    server->connected_clients = 0;
+    server->connected_clients = 2;
     server->shutdown = 0;
     server->socket_server = socket_server;
     server->server_info = sock_server;
@@ -263,7 +288,7 @@ static struct up_server_connection_info *up_server_gameplay_start(unsigned int p
         server->client_infoArray[i].heartbeat = 0;
     }
     
-    server->connected_clients = 0;
+    server->connected_clients = 2;
     server->shutdown = 0;
     server->socket_server = socket_server;
     server->server_info = sock_server;
@@ -276,6 +301,8 @@ static struct up_server_connection_info *up_server_gameplay_start(unsigned int p
 
 // starts the threads and recive and store
 #define UP_SERVER_GAMEPLAY_THREAD_COUNT 3
+#define UP_SERVER_ACCOUNT_THREAD_COUNT 3
+
 struct internal_server_state *up_server_startup()
 {
     if(!up_concurrentQueue_start_setup())
@@ -325,12 +352,13 @@ struct internal_server_state *up_server_startup()
     server_state->server_account = server_account;
     
     // here start gameplay server and can now be used for fun
-    pthread_t *server_account_thread = malloc(sizeof(pthread_t)*2);
+    pthread_t *server_account_thread = malloc(sizeof(pthread_t)*UP_SERVER_ACCOUNT_THREAD_COUNT);
     if (server_gameplay_thread == NULL) {
         UP_ERROR_MSG("malloc failure");
     }
     pthread_create(&server_account_thread[0],NULL,&up_server_account_reciveing_thread,server_state);
     pthread_create(&server_account_thread[1],NULL,&up_server_account_send_thread,server_state);
+    pthread_create(&server_account_thread[2],NULL,&up_server_heartbeat,server_state->server_account);
     
     
     server_state->server_account_thread = server_account_thread;
@@ -341,16 +369,26 @@ struct internal_server_state *up_server_startup()
 
 void up_server_shutdown_cleanup(struct internal_server_state *server_state)
 {
-    close(server_state->server_gameplay->socket_server); // do this first to force a faile on all connections
     close(server_state->server_account->socket_server);
+    close(server_state->server_gameplay->socket_server); // do this first to force a faile on all connections
+    
     int i = 0;
+    for (i = 0; i < UP_SERVER_ACCOUNT_THREAD_COUNT; i++) {
+        pthread_join(server_state->server_account_thread[i], NULL);
+    }
+    
     for (i = 0; i < UP_SERVER_GAMEPLAY_THREAD_COUNT; i++) {
         pthread_join(server_state->server_gameplay_thread[i], NULL);
     }
     
+    up_concurrentQueue_free(server_state->server_account->queue);
+    up_concurrentQueue_free(server_state->server_gameplay->queue);
     
     free(server_state->server_gameplay);
     free(server_state->server_gameplay_thread);
+    free(server_state->server_account);
+    free(server_state->server_account_thread);
+    
     
     up_concurrentQueue_shutdown_deinit();
     printf("\nserver cleanup done");

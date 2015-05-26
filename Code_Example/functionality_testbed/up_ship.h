@@ -8,9 +8,11 @@
 
 struct up_collision
 {
-    
+
     int object1;
     int object2;
+
+    //total number of collisions
     int nrObj1;
     int nrObj2;
 };
@@ -100,7 +102,7 @@ struct up_shootingFlag
     struct cooldownTimer bulletFlag;
     struct cooldownTimer missileFlag;
     struct cooldownTimer laserFlag;
-    
+
 };
 
 struct up_eventState
@@ -141,5 +143,5 @@ void shipMove(struct shipMovement *movement, struct up_objectInfo *ship);
 
 struct up_player_stats;
 
-void up_check_law(struct up_allCollisions *colision, struct up_player_stats *stats, int playerId);   //health terminator
+void up_update_playerStats(struct up_allCollisions *colision, struct up_player_stats *stats, int playerId);   //health terminator
 #endif
