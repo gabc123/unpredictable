@@ -16,6 +16,7 @@
 #include "up_star_system.h"
 #include "up_healthbar.h"
 #include "up_music.h"
+#include "up_skyBox.h"
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -36,8 +37,6 @@ int main(int argc, char const *argv[])
     printf("opengl window setup done\n");
 
     //up_network_start_setup();
-
-
 
     int mesh_capacity = 500;
     up_mesh_start_setup(mesh_capacity);    // opengl setup, and allocate memory for mesh_capacity number of models
@@ -92,9 +91,15 @@ int main(int argc, char const *argv[])
     struct up_key_map *keymap = up_key_remapping_setup();
     struct up_font_assets *font_assets = up_font_start_setup();  //load font to inteface startup
 
+    struct up_network_datapipe *account_connection = up_network_start_account_setup();
     // start the menu, and display it
-    status=up_menu(shader_menu, sound,keymap,font_assets);
+    status=up_menu(shader_menu, sound,keymap,font_assets,account_connection);
 
+    // do map loading on the account connection
+    
+    // then exit
+    up_network_shutdown_deinit(account_connection);
+    
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
@@ -159,7 +164,7 @@ int main(int argc, char const *argv[])
     // first 3 values are the camera position,
     // the next 3 value is where it looking at
     // the last 3 values is what is up and what is down
-    struct up_camera cam = {{0,0,30},{0,0,1},{0,1,0}};
+    struct up_camera cam = {{0,0,30},{0,0,1},{0,0,-1}};
 
     // generate the view matrix
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
@@ -184,7 +189,7 @@ int main(int argc, char const *argv[])
     up_stats_index_t interface_info = up_create_statsObject();
 
     // loads skybox shaders and fill out the structure
-    up_skyBox_t skyBox;
+    struct up_skyBox skyBox;
     skyBox.textureId = up_cubeMapTexture_load();
     skyBox.skyBox = UP_Shader_new("skybox",2);
     skyBox.mesh = &assets->meshArray[3];
@@ -219,7 +224,7 @@ int main(int argc, char const *argv[])
         network_states_data[i] = noState;
     }
     int network_state_recived = 0;
-    struct up_network_datapipe *connection_data = up_network_start_setup();
+    struct up_network_datapipe *connection_data = up_network_start_gameplay_setup();
 
     struct up_player_stats player_stats;
     player_stats.current_health = 100;
@@ -263,10 +268,11 @@ int main(int argc, char const *argv[])
 
         UP_renderBackground();                      //Clears the buffer and results an empty window. to prep for render
 
-        up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets,&skyBox);
+        up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets);
 
         up_gamePlayInterface(font_assets,shader_menu,&player_stats);
 
+        up_skybox_render(&skyBox,&cam,&viewPerspectivMatrix);
         UP_openGLupdate();
 
     }

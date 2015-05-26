@@ -195,7 +195,7 @@ int up_menuEventHandler(struct navigationState *navigation, struct navigationSta
                         struct userData *user_data, struct soundLib *sound);
 
 
-int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_key_map *keymap,struct up_font_assets *fonts){
+int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_key_map *keymap,struct up_font_assets *fonts,struct up_network_datapipe *network_connection){
 
     int status=1;
     
@@ -451,7 +451,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     
     int registerFlag = 0;
     
-    
+#define UP_ACCOUNT_DATA_MAX 5
+    struct up_network_account_data accountData[UP_ACCOUNT_DATA_MAX];
+    int packet_read = 0;
     // MENU LOOP
     while(status)
     {
@@ -466,6 +468,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
             status = up_keyBindingEvent(&navigation, keymap, keybinding_buttonArray, numKeyBindings,&keybindState);
         }
         
+        // this function retrives data from server and store it into accountData array, pack_read is how many it filled
+        // expande struct up_network_account_data with the type of information you need to get from network
+        packet_read = up_network_getAccountData(accountData, UP_ACCOUNT_DATA_MAX, network_connection);
         
         //STATUS FLAG FOR MAIN GAME LOOP
         if (status==2) {

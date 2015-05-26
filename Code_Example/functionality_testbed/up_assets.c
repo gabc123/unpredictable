@@ -22,7 +22,6 @@
 
 static struct up_assets *internal_assets=NULL;
 
-static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray);
 
 struct box{
     float x1,y1,z1;
@@ -94,7 +93,8 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
 
     //internal_assets is a static global
     obj.scale = internal_assets->scaleArray[modelId];
-
+    obj.collisionbox.max = internal_assets->hitboxMaxArray[modelId];
+    obj.collisionbox.max = internal_assets->hitboxMinArray[modelId];
     fallbackHitbox(&obj);
 
     return obj;
@@ -165,12 +165,17 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
 /*Reads assets to be loaded from a file*/
 //Sebastian
 //magnus error handeling
-static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_generic_list *scaleArray)
+static int loadObjects(struct up_generic_list *meshArray,
+                       struct up_generic_list *textureArray,
+                       struct up_generic_list *scaleArray,
+                       struct up_generic_list *hitboxMaxArray,
+                       struct up_generic_list *hitboxMinArray,
+                       struct up_generic_list *hitboxDimArray)
 {
     struct UP_textHandler thafile = up_loadAssetFile("objIndex");
     if (thafile.text == NULL) {
         UP_ERROR_MSG("Failed to load objindex");
-        return 0;   // failed ti a load objindex
+        return 0;   // failed to a load objindex
     }
 
     struct up_vec3 scaleOne = {1.0, 1.0, 1.0};
@@ -178,7 +183,9 @@ static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list
     char *text = thafile.text;
     char *endLine = "\n";
     char *row;
-
+    struct up_vec3 maxLength = {0};
+    float value1 = 0.0;
+    float value2 = 0.0;
     //    struct up_vec3 scale;
 
     /*reads from the file and stores read data*/
@@ -190,7 +197,7 @@ static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list
             printf("end of file objIndex\n");
             break;
         }
-        sscanf(row,"%f %f %f %s %s %f", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex, &item.turnSpeed);
+        sscanf(row,"%f %f %f %s %s", &item.scale.x, &item.scale.y, &item.scale.z, item.obj, item.tex);
         row = up_token_parser(text, &text, endLine, strlen(endLine));
         if(row == NULL)
         {
@@ -198,19 +205,28 @@ static int loadObjects(struct up_generic_list *meshArray, struct up_generic_list
             printf("end of file objIndex\n");
             break;
         }
-        sscanf(row,"%f %f %f %f %f %f", &item.hitbox.xmax, &item.hitbox.ymax, &item.hitbox.zmax, &item.hitbox.xmin, &item.hitbox.ymin, &item.hitbox.zmin);
+        sscanf(row,"%f %f %f %f %f %f", &item.hitbox.max.x, &item.hitbox.max.y, &item.hitbox.max.z, &item.hitbox.min.x, &item.hitbox.min.y, &item.hitbox.max.z);
         if(up_process_asset(meshArray,textureArray,&item) == 0)
         {
             item.scale = scaleOne; // there has been a error , set scale to one
         }
 
-        if(item.maxLength < fabsf(item.hitbox.xmax)) item.maxLength = item.hitbox.xmax;
-        if(item.maxLength < fabsf(item.hitbox.ymax)) item.maxLength = item.hitbox.ymax;
-        if(item.maxLength < fabsf(item.hitbox.zmax)) item.maxLength = item.hitbox.zmax;
-        if(item.maxLength < fabsf(item.hitbox.xmin)) item.maxLength = item.hitbox.xmin;
-        if(item.maxLength < fabsf(item.hitbox.ymin)) item.maxLength = item.hitbox.ymin;
-        if(item.maxLength < fabsf(item.hitbox.zmin)) item.maxLength = item.hitbox.zmin;
-
+        value1 = fabsf(item.hitbox.max.x);
+        value2 = fabsf(item.hitbox.min.x);
+        maxLength.x = (value1 > value2) ? value1 : value2;
+        
+        value1 = fabsf(item.hitbox.max.y);
+        value2 = fabsf(item.hitbox.min.y);
+        maxLength.y = (value1 > value2) ? value1 : value2;
+        
+        value1 = fabsf(item.hitbox.max.z);
+        value2 = fabsf(item.hitbox.min.z);
+        maxLength.z = (value1 > value2) ? value1 : value2;
+        
+        up_vec3_list_add(hitboxDimArray, &maxLength);
+        up_vec3_list_add(hitboxMaxArray, &item.hitbox.max);
+        up_vec3_list_add(hitboxMinArray, &item.hitbox.min);
+        
         up_vec3_list_add(scaleArray, &item.scale);
 
     }while(text <= thafile.text + thafile.length -1);
@@ -227,6 +243,11 @@ struct up_assets *up_assets_start_setup()
     struct up_generic_list *meshArray = up_mesh_list_new(10);
     struct up_generic_list *textureArray = up_texture_list_new(10);
     struct up_generic_list *scaleArray= up_vec3_list_new(10);
+    struct up_generic_list *hitboxMaxArray= up_vec3_list_new(10);
+    struct up_generic_list *hitboxMinArray= up_vec3_list_new(10);
+    struct up_generic_list *hitboxDimArray= up_vec3_list_new(10);
+    
+    
 
 
     // the first model is always a default model  that is used if
@@ -242,7 +263,7 @@ struct up_assets *up_assets_start_setup()
     up_vec3_list_add(scaleArray, &scale);
 
 
-    loadObjects(meshArray, textureArray, scaleArray);
+    loadObjects(meshArray, textureArray, scaleArray,hitboxMaxArray,hitboxMinArray,hitboxDimArray);
 
     struct up_assets *assets = malloc(sizeof(struct up_assets));
     if (assets == NULL) {
@@ -254,7 +275,11 @@ struct up_assets *up_assets_start_setup()
     assets->meshArray = up_mesh_list_transferOwnership(&meshArray);
     assets->textureArray = up_texture_list_transferOwnership(&textureArray);
     assets->scaleArray = up_vec3_list_transferOwnership(&scaleArray);
+    assets->hitboxMaxArray = up_vec3_list_transferOwnership(&hitboxMaxArray);
+    assets->hitboxMinArray = up_vec3_list_transferOwnership(&hitboxMinArray);
+    assets->hitboxDimArray = up_vec3_list_transferOwnership(&hitboxDimArray);
 
+    
     internal_assets = assets;
     return assets;
 }
@@ -264,5 +289,8 @@ void up_assets_shutdown_deinit(struct up_assets *assets)
     free(assets->meshArray);
     free(assets->textureArray);
     free(assets->scaleArray);
+    free(assets->hitboxMaxArray);
+    free(assets->hitboxMinArray);
+    free(assets->hitboxDimArray);
     free(assets);
 }

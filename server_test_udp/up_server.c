@@ -26,6 +26,11 @@
 
 //static struct up_server_connection_info *up_server_socket_start();
 
+int up_server_addUser()
+{
+    return 0;
+}
+
 /******************************************************
  * heartbeat
  * every client has a counter that is reset every time sends msg to server
