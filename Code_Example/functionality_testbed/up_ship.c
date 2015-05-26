@@ -613,7 +613,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
     }
 
     
-  /*  //enviroment vs enviroment
+    //enviroment vs enviroment
     for(i=0; i < totalObjects; i++){
         // no need to check ship if not active
         if (!up_unit_isActive(&enviroment[i])) {
@@ -636,8 +636,8 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
-*/
-  /*  //ship vs ship
+
+    //ship vs ship
     for(i=0; i < totalShips; i++){
         // no need to check ship if not active
         if (!up_unit_isActive(&ships[i])) {
@@ -660,7 +660,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
-*/
+
 }
 
 //Magnus
