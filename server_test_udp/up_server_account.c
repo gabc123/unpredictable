@@ -8,12 +8,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "up_error.h"
 #include "up_server_account.h"
 #include "up_thread_utilities.h"
 #include "up_network_packet_utilities.h"
 #include "up_server.h"
-#include <string.h>
+
 
 /******************************************************
  * account comunications
@@ -107,6 +108,7 @@ struct up_account_information
     char username[UP_USER_NAME_PASS_MAX];
     char password[UP_USER_NAME_PASS_MAX];
 };
+
 #define UP_FILEPATH_MAX 200
 //Tobias 26-05-2015
 int up_logInToAccount(struct up_account_information *account_validation, unsigned char *data_parser)

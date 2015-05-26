@@ -19,7 +19,7 @@
 // this function is pure evil and copy raw byte data of element_size,
 // thid function do not check if destination and source is pointing to valid data
 // and it do not do any bound checking
-void generic_copyElement(unsigned int element_size,unsigned char *destination,unsigned char *source)
+static void generic_copyElement(unsigned int element_size,unsigned char *destination,unsigned char *source)
 {
     unsigned char *end = destination + element_size;
     for (; destination < end; destination++,source++) {
@@ -27,20 +27,31 @@ void generic_copyElement(unsigned int element_size,unsigned char *destination,un
     }
 }
 
-unsigned int up_copyObjectIntoBuffer(struct objUpdateInformation *object,unsigned char *buffer)
+int up_network_logInRegistrate_packetEncode(unsigned char *data,int clientId, unsigned char regLogFlag)
 {
-    unsigned int data_len = sizeof(object->data);
-    generic_copyElement(data_len,buffer,(unsigned char *)&object->data);
-    return data_len;
+    int read_pos = 0;
+    data[read_pos] = regLogFlag;
+    read_pos++;
+    int clintIdSize = sizeof(clientId);
+    generic_copyElement(clintIdSize, &data[read_pos],(unsigned char *)&clientId);
+    
+    read_pos+=clintIdSize;
+    return read_pos;
 }
 
-unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInformation *object)
+int up_network_logInRegistrate_packetDecode(unsigned char *data,int *clientId, unsigned char *regLogFlag)
 {
-    unsigned int data_len = sizeof(object->data);
-    generic_copyElement(data_len,(unsigned char *)&object->data,buffer);
-    return data_len;
+    int read_pos = 0;
+    if(data[read_pos] != regLogFlag){
+        return 0;
+    }
+    read_pos++;
+    int clintIdSize = sizeof(clientId);
+    generic_copyElement(clintIdSize, (unsigned char *) clientId, &data[read_pos]);
+    
+    read_pos+=clintIdSize;
+    return read_pos;
 }
-
 
 
 int up_network_heartbeat_packetEncode(unsigned char *data,int timestamp)
