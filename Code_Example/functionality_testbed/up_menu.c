@@ -594,11 +594,14 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 if (connectFlag == LOGINSUCESS ) {
                     
                     
-                    //navigation.state = shipSelect;
+                    
                     
                     UP_shader_update(shaderprog, &transformConnectionSuccess);
                     up_texture_bind(textureConnectionStatus, 3);
                     up_draw_mesh(connectionSuccess);
+                    
+                    
+                    navigation.state = shipSelect;
                     
                     //SDL_Delay(5000);
                 
@@ -641,6 +644,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     up_draw_mesh(registerSuccess);
                     
                     //SDL_Delay(500);
+                    
+                    navigation.state = loginMenu;
                     
                     status=2;
                 }
