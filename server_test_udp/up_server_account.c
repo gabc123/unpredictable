@@ -13,6 +13,7 @@
 #include "up_thread_utilities.h"
 #include "up_network_packet_utilities.h"
 #include "up_server.h"
+#include <string.h>
 
 /******************************************************
  * account comunications
@@ -68,22 +69,54 @@ struct up_account_information
     char password[UP_USER_NAME_PASS_MAX];
 };
 
-int up_registrateAccount(account_validation, &data_parser[read_pos]);
+//Tobias 26-05-2015
+int up_logInToAccount(struct up_account_information *account_validation, &data_parser[read_pos])
 {
+    char userFilePath = "account_information/";
+    char passwordToCompWith[40] = 0; 
+    int i;
+    strcat(userFilePath, account_validation->username);
     FILE *fp;
-    fp = fopen("%s",account_validation->username,"r");
-    if(fp != NULL) {
-        printf(stderr, "Username in use");
-        return 0;
+    fopen("%s", userFilePath, "r");
+    
+    if(fp == NULL)
+    {
+        printf(stderr, "No username found\n");
+        return LOGINFAILED;
     }
 
-    fp = fopen("%s",account_validation->username,"w";
-    fprintf(fp,"%s\n",account_validation->password);
-    fclose(fp);
-    return REGSUCESS;
+    for(i=0;i<39;i++)
+    {
+        fscanf(fp, "%c", &passwordToCompWith[i]);
+    }
+    if (strcmp(passwordToCompWith, account_validation->password) != 0)
+    {
+        printf("Loginerror\n");
+        return LOGINFAILED;
+    }
 
+    return LOGINSUCESS;
 }
 
+//Tobias 26-05-2015
+int up_registrateAccount(struct up_account_information *account_validation, &data_parser[read_pos])
+{
+    char userFilePath = "account_information/"; 
+    strcat(userFilePath, account_validation->username);
+    FILE *fp;
+    fp = fopen("%s", userFilePath, "r");
+    if(fp != NULL) {
+        printf(stderr, "Username in use");
+        return REGFAILED;
+    }
+
+    fp = fopen("%s", userFilePath, "w";
+    fprintf(fp,"%s\n",userFilePath);
+    fclose(fp);
+    return REGSUCESS;
+}
+
+//Tobias 
 int up_parser_username_password(struct up_account_information *account_validation,unsigned char *data_parser)
 {
     int user_length = 0;
@@ -131,8 +164,8 @@ int up_account_msg_parser(struct up_account_information *account_validation,unsi
     if (data_parser[read_pos] == UP_LOGIN_FLAG) {
         account_validation->current_task = UP_LOGIN_FLAG;
         read_pos++;
-        return up_parser_username_password(account_validation,&data_parser[read_pos]);
-        
+        up_parser_username_password(account_validation,&data_parser[read_pos]);
+        return up_logInToAccount(account_validation,&data_parser[read_pos]);
     }
     
     else if (data_parser[read_pos] == UP_REGISTRATE_FLAG) {
@@ -196,6 +229,7 @@ void *up_server_account_send_thread(void *parm)
                 printf("\nPacket corrupted");
                 continue;
             }
+            
             
         }
         
