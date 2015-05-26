@@ -159,6 +159,13 @@ static int loadObjects(struct up_generic_list *meshArray,
 
     struct up_vec3 scaleOne = {1.0, 1.0, 1.0};
     struct up_modelData item; //stores the information of the object
+    item.hitbox.xmax = 1.0;
+    item.hitbox.ymax = 1.0;
+    item.hitbox.zmax = 1.0;
+    item.hitbox.xmin = 1.0;
+    item.hitbox.ymin = 1.0;
+    item.hitbox.zmin = 1.0;
+
     char *text = thafile.text;
     char *endLine = "\n";
     char *row;
@@ -192,7 +199,7 @@ static int loadObjects(struct up_generic_list *meshArray,
         boxLength.x = fabsf(item.hitbox.xmax + item.hitbox.xmin)/2;
         boxLength.y = fabsf(item.hitbox.ymax + item.hitbox.ymin)/2;
         boxLength.z = fabsf(item.hitbox.zmax + item.hitbox.zmin)/2;
-        printf("boxlengthx:%f\ny:%f\nz:%f\n",boxLength.x,boxLength.y,boxLength.z);
+        printf("boxlengthx:%f y:%f z:%f\n",boxLength.x,boxLength.y,boxLength.z);
 
         up_vec3_list_add(hitboxLengthArray, &boxLength);
         up_vec3_list_add(scaleArray, &item.scale);
@@ -200,7 +207,7 @@ static int loadObjects(struct up_generic_list *meshArray,
     }while(text <= thafile.text + thafile.length -1);
 
     up_textHandler_free(&thafile);
-    return 1; // sucess
+    return 1; // success
 
 }
 
@@ -224,6 +231,7 @@ struct up_assets *up_assets_start_setup()
     up_mesh_list_add(meshArray, mesh);
     up_texture_list_add(textureArray, texture);
     up_vec3_list_add(scaleArray, &scale);
+    up_vec3_list_add(hitboxLengthArray, &scale);
 
 
     loadObjects(meshArray, textureArray, scaleArray,hitboxLengthArray);
@@ -234,12 +242,10 @@ struct up_assets *up_assets_start_setup()
         return NULL;
     }
     assets->numobjects = up_mesh_list_count(meshArray);
-
     assets->meshArray = up_mesh_list_transferOwnership(&meshArray);
     assets->textureArray = up_texture_list_transferOwnership(&textureArray);
     assets->scaleArray = up_vec3_list_transferOwnership(&scaleArray);
     assets->hitboxLengthArray = up_vec3_list_transferOwnership(&hitboxLengthArray);
-
 
     internal_assets = assets;
     return assets;
