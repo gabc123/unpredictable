@@ -59,6 +59,11 @@ struct up_packet_movement
 int up_network_heartbeat_packetEncode(unsigned char *data,int timestamp);
 int up_network_heartbeat_packetDecode(unsigned char *data,int *timestamp);
 
+int up_network_logInRegistrate_packetEncode(unsigned char *data,int clientId, unsigned char *regLogFlag);
+int up_network_logInRegistrate_packetDecode(unsigned char *data,int *clientId, unsigned char *regLogFlag);
+
+
+
 
 int up_network_objectmove_packetEncode(struct objUpdateInformation *object,
                                        struct up_objectID objId,
