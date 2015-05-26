@@ -42,11 +42,10 @@ int up_network_logInRegistrate_packetEncode(unsigned char *data,int clientId, un
 int up_network_logInRegistrate_packetDecode(unsigned char *data,int *clientId, unsigned char *regLogFlag)
 {
     int read_pos = 0;
-    if(data[read_pos] != regLogFlag){
-        return 0;
-    }
+    *regLogFlag = data[read_pos];
+    
     read_pos++;
-    int clintIdSize = sizeof(clientId);
+    int clintIdSize = sizeof(*clientId);
     generic_copyElement(clintIdSize, (unsigned char *) clientId, &data[read_pos]);
     
     read_pos+=clintIdSize;

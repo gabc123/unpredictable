@@ -11,7 +11,7 @@
 #include "up_error.h"
 #include "up_ship.h"
 #include "up_vertex.h"
-//#include "up_server.h"
+#include "up_server.h"
 #include "up_thread_utilities.h"
 
 // warning:
@@ -19,7 +19,7 @@
 // this function is pure evil and copy raw byte data of element_size,
 // thid function do not check if destination and source is pointing to valid data
 // and it do not do any bound checking
-static void generic_copyElement(unsigned int element_size,unsigned char *destination,unsigned char *source)
+void generic_copyElement(unsigned int element_size,unsigned char *destination,unsigned char *source)
 {
     unsigned char *end = destination + element_size;
     for (; destination < end; destination++,source++) {
@@ -42,11 +42,10 @@ int up_network_logInRegistrate_packetEncode(unsigned char *data,int clientId, un
 int up_network_logInRegistrate_packetDecode(unsigned char *data,int *clientId, unsigned char *regLogFlag)
 {
     int read_pos = 0;
-    if(data[read_pos] != regLogFlag){
-        return 0;
-    }
+    *regLogFlag = data[read_pos];
+    
     read_pos++;
-    int clintIdSize = sizeof(clientId);
+    int clintIdSize = sizeof(*clientId);
     generic_copyElement(clintIdSize, (unsigned char *) clientId, &data[read_pos]);
     
     read_pos+=clintIdSize;

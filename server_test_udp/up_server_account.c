@@ -15,7 +15,7 @@
 #include "up_network_packet_utilities.h"
 #include "up_server.h"
 
-
+#define SHA256_BLOCK_SIZE 32
 /******************************************************
  * account comunications
  * this is where the information comes in to the server
@@ -114,7 +114,7 @@ struct up_account_information
 int up_logInToAccount(struct up_account_information *account_validation, unsigned char *data_parser)
 {
     char userFilePath[UP_FILEPATH_MAX] = "account_information/";
-    char passwordToCompWith[40] = {0};
+    char passwordToCompWith[SHA256_BLOCK_SIZE] = {0};
     int i;
     strcat(userFilePath, account_validation->username);
     FILE *fp = fopen(userFilePath, "r");
@@ -125,7 +125,7 @@ int up_logInToAccount(struct up_account_information *account_validation, unsigne
         return LOGINFAILED;
     }
 
-    for(i=0;i<39;i++)
+    for(i=0;i < SHA256_BLOCK_SIZE;i++)
     {
         fscanf(fp, "%c", &passwordToCompWith[i]);
     }
@@ -138,7 +138,7 @@ int up_logInToAccount(struct up_account_information *account_validation, unsigne
     }
 
      fclose(fp);
-    return LOGINSUCCESS;
+    return LOGINSUCESS;
 }
 
 //Tobias 26-05-2015
@@ -154,9 +154,12 @@ int up_registrateAccount(struct up_account_information *account_validation, unsi
     }
 
     fp = fopen(userFilePath, "w");
-    fprintf(fp,"%s\n",userFilePath);
+    int i = 0;
+    for (i = 0; i < SHA256_BLOCK_SIZE; i++) {
+        fprintf(fp,"%c",account_validation->password[i]);
+    }
     fclose(fp);
-    return REGSUCCESS;
+    return REGSUCESSS;
 }
 
 //Tobias 
@@ -269,16 +272,23 @@ void *up_server_account_send_thread(void *parm)
         for (i = 0; i < packet_read; i++) {
             
             returnFlag = up_account_msg_parser(&account_validation,local_data[i].data);
-            if(returnFlag==NULL)
+            if(returnFlag==0)
             {
                 printf("\nPacket corrupted");
                 continue;
             }
-            clientId = up_server_addUser(server_state->server_gameplay, &server_con->client_infoArray[local_data[i].id].client_addr);
-            
-            dataToSend_len = up_network_logInRegistrate_packetEncode(dataBuffer, clientId, returnFlag);
-
             clientInfo = &server_con->client_infoArray[local_data[i].id];
+            
+            clientId = up_server_addUser(server_state->server_gameplay, &clientInfo->client_addr);
+            
+            // the msg should start with if it was a login or registration request
+            dataToSend_len = 0;
+            dataBuffer[0] = local_data[i].data[0]; // if we gotten here then the flag is correct and can be used again
+            dataToSend_len++;
+            // encode the rest of the msg
+            dataToSend_len += up_network_logInRegistrate_packetEncode(&dataBuffer[dataToSend_len], clientId, returnFlag);
+
+            
             if (clientInfo->active != 0) {
                 if (sendto(server_con->socket_server, dataBuffer, dataToSend_len, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {
                     printf("\nserver sendTo error");
