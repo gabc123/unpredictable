@@ -61,7 +61,7 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
     height = up_returnCamHeight(cam);
 
     //value 0.7 comes from tan(70/2) where 70 is the set field of view of the camera
-    view = 0.7 * height * 20;
+    view = 0.7 * height * 40;
 
     for(i=0;i<totalObject;i++){
         if (!up_unit_isActive(&allObj[i])) {
