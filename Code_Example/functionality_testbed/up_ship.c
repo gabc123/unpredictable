@@ -413,6 +413,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         return;
     }
 */
+    /*
     for(i=0; i < allcollisions->nrShipShip; i++){
         object1 = up_unit_objAtIndex(up_ship_type, allcollisions->shipShip[i].object1);
         object2 = up_unit_objAtIndex(up_ship_type, allcollisions->shipShip[i].object2);
@@ -438,7 +439,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
             object2->speed = object1->speed*3/4;
             object1->speed = object1->speed/2;
         }
-    }
+    }*/
 
     if (object2 == NULL) {
         return;

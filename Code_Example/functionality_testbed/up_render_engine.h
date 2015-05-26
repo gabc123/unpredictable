@@ -17,13 +17,7 @@
 // this uncomment the following define to enable presentation special toggle functions
 #define UP_PRESENTATION_MODE
 
-typedef struct up_skyBox{
-    
-    struct up_texture_data *textureId;
-    struct up_mesh *mesh;
-    struct shader_module *skyBox;
-        
-}up_skyBox_t;
+
 
 #ifdef UP_PRESENTATION_MODE
 void up_toggle_wireframe();
@@ -33,6 +27,6 @@ void up_toggle_allLigth();
 #endif
 
 void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArray,struct up_objectInfo *objectArray,int count,
-                     up_matrix4_t *viewPerspectivMatrix,struct shader_module *shaderprog,struct up_assets *assets,up_skyBox_t *skyBox);
+                     up_matrix4_t *viewPerspectivMatrix,struct shader_module *shaderprog,struct up_assets *assets);
 
 #endif /* defined(__up_game__up_render_engine__) */

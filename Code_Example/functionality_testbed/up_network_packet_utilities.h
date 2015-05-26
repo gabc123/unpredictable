@@ -17,6 +17,7 @@
 #define UP_REGISTRATE_FLAG (unsigned char)1
 #define UP_LOGIN_FLAG (unsigned char)2
 #define UP_USER_PASS_FLAG (unsigned char)4
+#define UP_MAP_DATA_FLAG (unsigned char)5
 
 
 // gameplay flags
@@ -37,6 +38,8 @@ struct up_packet_movement
     float bankangle;
     int timestamp;
 };
+
+
 
 
 int up_network_heartbeat_packetEncode(unsigned char *data,int timestamp);
