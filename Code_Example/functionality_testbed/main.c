@@ -270,9 +270,10 @@ int main(int argc, char const *argv[])
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets);
 
+        up_skybox_render(&skyBox,&cam,&viewPerspectivMatrix);
         up_gamePlayInterface(font_assets,shader_menu,&player_stats);
 
-        up_skybox_render(&skyBox,&cam,&viewPerspectivMatrix);
+        
         UP_openGLupdate();
 
     }
