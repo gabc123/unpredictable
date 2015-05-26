@@ -27,11 +27,8 @@ void up_generate_map()
 void up_generate_sun()
 {
     struct up_objectInfo sun = {0};
-    sun.scale.x = 50;
-    sun.scale.y = 50;
-    sun.scale.z = 50;
-
-    sun.modelId = 3;
+    sun = up_asset_createObjFromId(3);
+    sun.pos.z = 40;
     sun.objectId.type = up_environment_type;
     if(up_unit_add(up_environment_type,sun)==0){
         UP_ERROR_MSG("could not add sun");
