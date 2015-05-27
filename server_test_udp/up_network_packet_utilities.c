@@ -11,7 +11,7 @@
 #include "up_error.h"
 #include "up_ship.h"
 #include "up_vertex.h"
-//#include "up_server.h"
+#include "up_server.h"
 #include "up_thread_utilities.h"
 
 // warning:
@@ -27,20 +27,30 @@ void generic_copyElement(unsigned int element_size,unsigned char *destination,un
     }
 }
 
-unsigned int up_copyObjectIntoBuffer(struct objUpdateInformation *object,unsigned char *buffer)
+int up_network_logInRegistrate_packetEncode(unsigned char *data,int clientId, unsigned char regLogFlag)
 {
-    unsigned int data_len = sizeof(object->data);
-    generic_copyElement(data_len,buffer,(unsigned char *)&object->data);
-    return data_len;
+    int read_pos = 0;
+    data[read_pos] = regLogFlag;
+    read_pos++;
+    int clintIdSize = sizeof(clientId);
+    generic_copyElement(clintIdSize, &data[read_pos],(unsigned char *)&clientId);
+    
+    read_pos+=clintIdSize;
+    return read_pos;
 }
 
-unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInformation *object)
+int up_network_logInRegistrate_packetDecode(unsigned char *data,int *clientId, unsigned char *regLogFlag)
 {
-    unsigned int data_len = sizeof(object->data);
-    generic_copyElement(data_len,(unsigned char *)&object->data,buffer);
-    return data_len;
+    int read_pos = 0;
+    *regLogFlag = data[read_pos];
+    
+    read_pos++;
+    int clintIdSize = sizeof(*clientId);
+    generic_copyElement(clintIdSize, (unsigned char *) clientId, &data[read_pos]);
+    
+    read_pos+=clintIdSize;
+    return read_pos;
 }
-
 
 
 int up_network_heartbeat_packetEncode(unsigned char *data,int timestamp)

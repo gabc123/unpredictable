@@ -27,6 +27,30 @@ static void generic_copyElement(unsigned int element_size,unsigned char *destina
     }
 }
 
+int up_network_logInRegistrate_packetEncode(unsigned char *data,int clientId, unsigned char regLogFlag)
+{
+    int read_pos = 0;
+    data[read_pos] = regLogFlag;
+    read_pos++;
+    int clintIdSize = sizeof(clientId);
+    generic_copyElement(clintIdSize, &data[read_pos],(unsigned char *)&clientId);
+    
+    read_pos+=clintIdSize;
+    return read_pos;
+}
+
+int up_network_logInRegistrate_packetDecode(unsigned char *data,int *clientId, unsigned char *regLogFlag)
+{
+    int read_pos = 0;
+    *regLogFlag = data[read_pos];
+    
+    read_pos++;
+    int clintIdSize = sizeof(*clientId);
+    generic_copyElement(clintIdSize, (unsigned char *) clientId, &data[read_pos]);
+    
+    read_pos+=clintIdSize;
+    return read_pos;
+}
 
 
 int up_network_heartbeat_packetEncode(unsigned char *data,int timestamp)
