@@ -996,13 +996,13 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
 
 //walled
 static void take_damage(struct up_player_stats *stats,int damage){
-//    stats->current_armor -= damage;
-//    if(stats->current_armor < 0){
-//        stats->current_health += stats->current_armor;
-//        stats->current_armor = 0;
-//    }
-//
-//    stats->current_health = (stats->current_health > 0) ? stats->current_health : 0;
+    stats->armor.current -= damage;
+    if(stats->armor.current < 0){
+        stats->health.current += stats->armor.current;
+        stats->armor.current = 0;
+    }
+
+    stats->health.current = (stats->health.current > 0) ? stats->health.current : 0;
 
 }
 //walled
