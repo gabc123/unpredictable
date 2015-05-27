@@ -464,7 +464,8 @@ int up_network_registerAccount(char *username, char *password, int length, struc
     up_hashText((char *)hashedPass,password,(int)strlen(password));
     
     unsigned char userLength = (unsigned char) strlen(username);
-    
+    username[userLength] = '\0';
+    userLength++;
     up_network_accountManagement(UP_REGISTRATE_FLAG,username,userLength,(char *)hashedPass,socket_data);
     return 0;
 
@@ -476,7 +477,8 @@ int up_network_loginAccount(char *username, char *password, int length, struct u
     up_hashText((char *)hashedPass,password,(int)strlen(password));
     
     unsigned char userLength = (unsigned char) strlen(username);
-    
+    username[userLength] = '\0';
+    userLength++;
     up_network_accountManagement(UP_LOGIN_FLAG,username,userLength,(char *)hashedPass,socket_data);
     return 0;
     

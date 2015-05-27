@@ -504,6 +504,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     int packet_read = 0;
     int haveSentReg = 0;
     int menu_exit_flag = 0;
+    int timmer_account = 0;
     // MENU LOOP
     while(status && !menu_exit_flag)
     {
@@ -591,16 +592,21 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 
                 
                 if (accountData->noResponse || !haveSentReg) {
-                    up_network_loginAccount(user_data.username, user_data.password, UP_LIMIT, network_connection);
+                    up_network_loginAccount(user_data.username, user_data.password, user_data.keypressUsername, network_connection);
                     accountData->noResponse = 0;
                     haveSentReg += 1;
+                    timmer_account = SDL_GetTicks();
+                    
                 }
                 
                 connectFlag = accountData->serverResponse;
-                if (haveSentReg > 10) {
+                if ((haveSentReg > 10) || (SDL_GetTicks() - timmer_account > 15000)) {
                     printf("Failed to login 10 times");
                     connectFlag=LOGINFAILED;
                 }
+                
+               
+                
                 //connectFlag=7;
                 //CONNECTION SUCCESS
                 if (connectFlag == LOGINSUCESS ) {
@@ -630,8 +636,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     //SDL_Delay(500);
                     
                     
-                    navigation.state = loginMenu;
-                    menu_exit_flag = 1;
+                    navigation.state = mainMenu;
+                    //menu_exit_flag = 1;
                     continue;
                     
                 }
@@ -642,11 +648,12 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 break;
                 
             case registering:
-                
                 if (accountData->noResponse || !haveSentReg) {
-                    up_network_registerAccount(user_data.username, user_data.password, UP_LIMIT, network_connection);
+                    user_data.username[user_data.keypressUsername] = '\0';
+                    up_network_registerAccount(user_data.username, user_data.password, user_data.keypressUsername, network_connection);
                     accountData->noResponse = 0;
                     haveSentReg += 1;
+                    timmer_account = SDL_GetTicks();
                 }
                 
                 
@@ -654,7 +661,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
 
                 registerFlag = accountData->serverResponse;
 
-                if (haveSentReg > 10) {
+                if ((haveSentReg > 10) || (SDL_GetTicks() - timmer_account > 15000)) {
                     printf("Failed to login 10 times");
                     registerFlag=REGFAILED;
                 }
@@ -668,7 +675,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     
                     //SDL_Delay(500);
                     
-                    navigation.state = loginMenu;
+                    navigation.state = mainMenu;
                     
                     status=2;
                 }
@@ -681,9 +688,9 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     
                     //SDL_Delay(500);
                     
-                    navigation.state = loginMenu;
+                    navigation.state = mainMenu;
                     registerFlag=0;
-                    menu_exit_flag = 1;
+                    //menu_exit_flag = 1;
                     continue;
                     
                 }
@@ -810,6 +817,8 @@ int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *key
     }
     return flag;
 }
+
+
 int up_menuEventHandler(struct navigationState *navigation,
                         struct userData *user_data, struct soundLib *sound)
 {
@@ -853,7 +862,26 @@ int up_menuEventHandler(struct navigationState *navigation,
             
             //printf("%d\n", event.key.keysym.sym);
             
-            
+            if (event.key.keysym.sym == 13){  //ENTER
+                
+                if (navigation->state == loginMenu) {
+                    if (navigation->loginbar == usernameLogin) {
+                        navigation->state = connecting;
+                    }
+                    else if (navigation->loginbar == passwordLogin) {
+                        navigation->state = connecting;
+                    }
+                }
+                if (navigation->state == registerMenu) {
+                    if (navigation->registerbar == usernameRegister) {
+                        navigation->state = registering;
+                    }
+                    else if (navigation->registerbar == passwordRegister) {
+                        navigation->state = registering;
+                    }
+                }
+                continue;
+            }
             
             
             
@@ -937,25 +965,7 @@ int up_menuEventHandler(struct navigationState *navigation,
 
             }
             
-            if (event.key.keysym.sym == 13){  //ENTER
-                
-                if (navigation->state == loginMenu) {
-                    if (navigation->loginbar == usernameLogin) {
-                        navigation->state = connecting;
-                    }
-                    else if (navigation->loginbar == passwordLogin) {
-                        navigation->state = connecting;
-                    }
-                }
-                if (navigation->state == registerMenu) {
-                    if (navigation->registerbar == usernameRegister) {
-                        navigation->state = registering;
-                    }
-                    else if (navigation->registerbar == passwordRegister) {
-                        navigation->state = registering;
-                    }
-                }
-            }
+            
             
             if (event.key.keysym.sym == 27) { // ESC
 
@@ -1034,6 +1044,7 @@ int up_menuEventHandler(struct navigationState *navigation,
                             
                             if(navigation->state == loginMenu){
                                 navigation->loginbar=passwordLogin;
+                                navigation->registerbar=passwordRegister;
                             }
                         }
                     }
@@ -1058,6 +1069,7 @@ int up_menuEventHandler(struct navigationState *navigation,
 
                             if (navigation->state == loginMenu){
                                 navigation->loginbar=usernameLogin;
+                                navigation->registerbar=usernameRegister;
                             }
                         }
                     }

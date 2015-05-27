@@ -145,7 +145,7 @@ int up_logInToAccount(struct up_account_information *account_validation, unsigne
 int up_registrateAccount(struct up_account_information *account_validation, unsigned char *data_parser)
 {
     char userFilePath[UP_FILEPATH_MAX] = "account_information/";
-    strcat(userFilePath, account_validation->username);
+    strcat(userFilePath, (char *)account_validation->username);
     FILE *fp = fopen(userFilePath, "r");
     if(fp != NULL) {
         fprintf(stderr, "Username in use");
@@ -291,8 +291,11 @@ void *up_server_account_send_thread(void *parm)
             }
             
             clientInfo = &server_con->client_infoArray[local_data[i].id];
+            clientId = 0;
+            if (returnFlag != REGSUCESSS) {
+                clientId = up_server_addUser(server_state->server_gameplay, &clientInfo->client_addr);
+            }
             
-            clientId = up_server_addUser(server_state->server_gameplay, &clientInfo->client_addr);
             
             // the msg should start with if it was a login or registration request
             dataToSend_len = 0;
