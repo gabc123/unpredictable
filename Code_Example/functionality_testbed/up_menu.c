@@ -147,7 +147,9 @@ enum menu_states
     keyBindings,
     connecting,
     registering,
-    shipSelect
+    shipSelect,
+    logRegFail,
+    logRegSuccess
 
 };
 
@@ -478,10 +480,14 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
 
     //FONT USERNAME/PASSWORD
     //struct up_font_assets *fonts = up_font_start_setup();
-    struct up_vec3 textposusername = {-0.17, 0.045, 0};
+    
     struct up_vec3 textscale = {0.025,0.025,0.025};
     
-    struct up_vec3 textpospassword = {-0.17, -0.155, 0};
+    struct up_vec3 textposusernameuse = {-0.17, 0.045, 0};
+    struct up_vec3 textpospassworduse = {-0.17, -0.155, 0};
+    
+    struct up_vec3 textposusernamereg =  {-0.17, -0.01, 0};
+    struct up_vec3 textpospasswordreg = {-0.17, -0.18, 0};
 
     //USER DATA
     struct userData user_data;
@@ -496,8 +502,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
 
     
     int i = 0;  //used for loops
-    int connectFlag = 0;
-    int registerFlag = 0;
+    int accountState = 0;
     
 #define UP_ACCOUNT_DATA_MAX 1
     struct up_network_account_data accountData[UP_ACCOUNT_DATA_MAX];
@@ -505,6 +510,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     int haveSentReg = 0;
     int menu_exit_flag = 0;
     int timmer_account = 0;
+    int timer_conReg = 0;
+    
     // MENU LOOP
     while(status && !menu_exit_flag)
     {
@@ -518,6 +525,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
         {
             status = up_keyBindingEvent(&navigation, keymap, keybinding_buttonArray, numKeyBindings,&keybindState);
         }
+        
+        accountData->serverResponse=0; //resets the serverresponse flags
         
         // this function retrives data from server and store it into accountData array, pack_read is how many it filled
         // expande struct up_network_account_data with the type of information you need to get from network
@@ -563,11 +572,11 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 up_draw_mesh(overlay);
 
                 
-                up_displayText(user_data.username, user_data.keypressUsername, &textposusername, &textscale, fonts, shaderprog,0,NULL);
+                up_displayText(user_data.username, user_data.keypressUsername, &textposusernameuse, &textscale, fonts, shaderprog,0,NULL);
                    // up_displayText(teststr1, (int)strlen(teststr1), &testtextpos1, &textscale, fonts, shaderprog,0,NULL);
                     //up_displayText(teststr2, (int)strlen(teststr2), &testtextpos2, &textscale, fonts, shaderprog,0,NULL);
                 
-                up_displayText(passwordstr, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
+                up_displayText(passwordstr, user_data.keypressPassword, &textpospassworduse, &textscale, fonts, shaderprog,0,NULL);
             
                 haveSentReg = 0;
 
@@ -580,16 +589,14 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 up_draw_mesh(registerOverlay);
                 
                 
-                up_displayText(user_data.username, user_data.keypressUsername, &textposusername, &textscale, fonts, shaderprog,0,NULL);
+                up_displayText(user_data.username, user_data.keypressUsername, &textposusernamereg, &textscale, fonts, shaderprog,0,NULL);
                 
-                up_displayText(user_data.password, user_data.keypressPassword, &textpospassword, &textscale, fonts, shaderprog,0,NULL);
+                up_displayText(passwordstr, user_data.keypressPassword, &textpospasswordreg, &textscale, fonts, shaderprog,0,NULL);
                 haveSentReg = 0;
                 
                 break;
                 
             case connecting:
-                
-                
                 
                 if (accountData->noResponse || !haveSentReg) {
                     up_network_loginAccount(user_data.username, user_data.password, user_data.keypressUsername, network_connection);
@@ -599,47 +606,26 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     
                 }
                 
-                connectFlag = accountData->serverResponse;
+                accountState = accountData->serverResponse;
+                printf("connecting %d\n", accountState);
+                
                 if ((haveSentReg > 10) || (SDL_GetTicks() - timmer_account > 15000)) {
                     printf("Failed to login 10 times");
-                    connectFlag=LOGINFAILED;
+                    accountState=LOGINFAILED;
                 }
+
+                timer_conReg = SDL_GetTicks();
                 
-               
                 
-                //connectFlag=7;
                 //CONNECTION SUCCESS
-                if (connectFlag == LOGINSUCESS ) {
+                if (accountState == LOGINSUCESS ) {
                     
-                    
-                    
-                    
-                    UP_shader_update(shaderprog, &transformConnectionSuccess);
-                    up_texture_bind(textureConnectionStatus, 3);
-                    up_draw_mesh(connectionSuccess);
-                    
-                    
-                    navigation.state = shipSelect;
-                    
-                    menu_exit_flag = 1;
-                    continue;
-                    //SDL_Delay(5000);
-                
+                    navigation.state = logRegSuccess;
                 }
                 //CONNECTION FAILED
-                else if (connectFlag == LOGINFAILED){
+                else if (accountState == LOGINFAILED){
                     
-                    UP_shader_update(shaderprog, &transformConnectionFalied);
-                    up_texture_bind(textureConnectionStatus, 3);
-                    up_draw_mesh(connectionFailed);
-                    
-                    //SDL_Delay(500);
-                    
-                    
-                    navigation.state = mainMenu;
-                    //menu_exit_flag = 1;
-                    continue;
-                    
+                    navigation.state = logRegFail;
                 }
                 else {
                     //printf("Connection flag error, not valid outcome \n");
@@ -648,6 +634,8 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 break;
                 
             case registering:
+                
+                
                 if (accountData->noResponse || !haveSentReg) {
                     user_data.username[user_data.keypressUsername] = '\0';
                     up_network_registerAccount(user_data.username, user_data.password, user_data.keypressUsername, network_connection);
@@ -656,50 +644,117 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                     timmer_account = SDL_GetTicks();
                 }
                 
+                accountState = accountData->serverResponse;
+                printf("reg %d\n", accountState);
                 
-                
-
-                registerFlag = accountData->serverResponse;
-
                 if ((haveSentReg > 10) || (SDL_GetTicks() - timmer_account > 15000)) {
                     printf("Failed to login 10 times");
-                    registerFlag=REGFAILED;
+                    accountState=REGFAILED;
+                    
+                    
                 }
                 
+                timer_conReg = SDL_GetTicks();
+                
                 //REGISTERING SUCCESS
-                if (registerFlag == REGSUCESSS ) {
+                if (accountState == REGSUCESSS ) {
+                    
+                    navigation.state = logRegSuccess;
+                    
+
+                }
+                //REGISTERING FAILED
+                else if (accountState == REGFAILED){
+                    
+                    navigation.state = logRegFail;
+                }
+                
+                break;
+            
+                
+            case logRegSuccess:
+                
+                
+                if (accountState == LOGINSUCESS) {
+                    
+                    UP_shader_update(shaderprog, &transformConnectionSuccess);
+                    up_texture_bind(textureConnectionStatus, 3);
+                    up_draw_mesh(connectionSuccess);
+                    
+                    if (SDL_GetTicks() - timer_conReg > 250) {
+                        
+                        navigation.state = mainMenu;
+                        timer_conReg = 0;
+                        menu_exit_flag = 1;
+                        accountState=0;
+                        
+                        continue;
+                    }
+
+                }
+                if (accountState == REGSUCESSS){
                     
                     UP_shader_update(shaderprog, &transformRegisterSuccess);
                     up_texture_bind(textureRegisterStatus, 3);
                     up_draw_mesh(registerSuccess);
                     
-                    //SDL_Delay(500);
-                    
-                    navigation.state = mainMenu;
-                    
-                    status=2;
+                    if (SDL_GetTicks() - timer_conReg > 1000) {
+                        
+                        navigation.state = mainMenu;
+                        timer_conReg = 0;
+                        accountState=0;
+                        
+                        break;
+                    }
+
                 }
-                //REGISTERING FAILED
-                else if (registerFlag == REGFAILED){
+                
+                
+                break;
+                
+            case logRegFail:
+                
+                
+                if (accountState == LOGINFAILED) {
+            
+                    
+                    UP_shader_update(shaderprog, &transformConnectionFalied);
+                    up_texture_bind(textureConnectionStatus, 3);
+                    up_draw_mesh(connectionFailed);
+                    
+                    
+                    if (SDL_GetTicks() - timer_conReg > 1000) {
+                        
+                        navigation.state = mainMenu;
+                        
+                        timer_conReg = 0;
+                        accountState=0;
+                        
+                        break;
+                    }
+
+                }
+                if (accountState == REGFAILED){
                     
                     UP_shader_update(shaderprog, &transformRegisterFailed);
                     up_texture_bind(textureRegisterStatus, 3);
                     up_draw_mesh(registerFailed);
                     
-                    //SDL_Delay(500);
+                    if (SDL_GetTicks() - timer_conReg > 1000) {
+                        
+                        navigation.state = mainMenu;
+                        accountState=0;
+                        timer_conReg = 0;
+                        //menu_exit_flag = 1;
+                        
+                        break;
+                    }
                     
-                    navigation.state = mainMenu;
-                    registerFlag=0;
-                    //menu_exit_flag = 1;
-                    continue;
-                    
-                }
-                else {
-                    //printf("Register flag error, not valid outcome \n");
-                    // display reg thing
                 }
                 
+                
                 break;
+                
                 
             case shipSelect:
                 
