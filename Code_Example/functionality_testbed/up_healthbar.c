@@ -16,256 +16,315 @@
 #include <math.h>
 
 
-up_health_bar_t healthbar_creation()
-{
-
-    up_health_bar_t green_and_red;
-
-    struct up_objectInfo healthBarGreen = up_asset_createObjFromId(6);
-    struct up_objectInfo healthBarRed = up_asset_createObjFromId(5);
-
-    
-    healthBarGreen.angle = 0;
-    healthBarRed.angle = 0;
-
-    green_and_red.greenIndex = up_unit_add(up_others_type,healthBarGreen);
-    green_and_red.redIndex = up_unit_add(up_others_type,healthBarRed);
-
-    return green_and_red;
-
-
-}
-
-
-void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_player_stats *player_stats,struct up_camera *cam)
-{
-    float healthLevel = ((float)player_stats->current_health/player_stats->max_health)*2.0;
-    
-    struct up_objectInfo *ship_pos = up_unit_objAtIndex(up_ship_type,ship_id);
-
-    struct up_objectInfo *healthGreen = up_unit_objAtIndex(up_others_type,green_and_red.greenIndex);
-    struct up_objectInfo *healthRed = up_unit_objAtIndex(up_others_type,green_and_red.redIndex);
-
-    // if the healthbar has been removed , just exit
-    if ((ship_pos == NULL) ||
-        (healthGreen == NULL) ||
-        (healthRed == NULL)) {
-        return;
-    }
-    
-    healthGreen->pos.x = ship_pos->pos.x-5;
-    healthGreen->pos.y = ship_pos->pos.y;
-    healthGreen->pos.z = ship_pos->pos.z-5;
-
-    healthRed->pos.x = ship_pos->pos.x-5;
-    healthRed->pos.y = ship_pos->pos.y;
-    healthRed->pos.z = ship_pos->pos.z-5;
-    
-    healthGreen->dir.x = ship_pos->dir.x;
-    healthGreen->dir.y = ship_pos->dir.y;
-    healthRed->dir.x = ship_pos->dir.x;
-    healthRed->dir.y = ship_pos->dir.y;
-    
-    
-//    float xPoint =  cam->center.x - cam->eye.x;
-//    float yPoint =  cam->center.y - cam->eye.y;
-//    
-//    float tmp=0;
-//    float tanResult = yPoint / xPoint;
-//    tanResult = atanf(tanResult);
-//    
-//    tmp = M_PI/2 - tanResult;
-//    if(tmp < 0)
-//        tmp = M_PI-tanResult;
+//up_health_bar_t healthbar_creation()
+//{
 //
-//    healthGreen->angle = (tmp + M_PI/2);
-//    healthRed->angle = (tmp +M_PI/2);
+//    up_health_bar_t green_and_red;
+//
+//    struct up_objectInfo healthBarGreen = up_asset_createObjFromId(6);
+//    struct up_objectInfo healthBarRed = up_asset_createObjFromId(5);
+//
 //    
-//    if (healthRed->angle >= M_PI) {
-//        healthGreen-> angle = 0;
-//        healthRed-> angle = 0;
+//    healthBarGreen.angle = 0;
+//    healthBarRed.angle = 0;
+//
+//    green_and_red.greenModelId = up_unit_add(up_others_type,healthBarGreen);
+//    green_and_red.redModelId = up_unit_add(up_others_type,healthBarRed);
+//
+//    return green_and_red;
+//
+//
+//}
+//
+//
+//void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_player_stats *player_stats,struct up_camera *cam)
+//{
+//    float healthLevel = ((float)player_stats->current_health/player_stats->max_health)*2.0;
+//    
+//    struct up_objectInfo *ship_pos = up_unit_objAtIndex(up_ship_type,ship_id);
+//
+//    struct up_objectInfo *healthGreen = up_unit_objAtIndex(up_others_type,green_and_red.greenModelId);
+//    struct up_objectInfo *healthRed = up_unit_objAtIndex(up_others_type,green_and_red.redModelId);
+//
+//    // if the healthbar has been removed , just exit
+//    if ((ship_pos == NULL) ||
+//        (healthGreen == NULL) ||
+//        (healthRed == NULL)) {
+//        return;
 //    }
-    
-    
-    healthGreen->scale.x = healthLevel;
-}
+//    
+//    healthGreen->pos.x = ship_pos->pos.x-5;
+//    healthGreen->pos.y = ship_pos->pos.y;
+//    healthGreen->pos.z = ship_pos->pos.z-5;
+//
+//    healthRed->pos.x = ship_pos->pos.x-5;
+//    healthRed->pos.y = ship_pos->pos.y;
+//    healthRed->pos.z = ship_pos->pos.z-5;
+//    
+//    healthGreen->scale.x = healthLevel;
+//}
 
-up_stats_index_t up_create_statsObject()
-{
-    up_stats_index_t interfaceObject;
-    struct up_objectInfo interfaceObj[10];
-    int i=0,count=9;
+
+
+
+
+
+
+
+//
+//up_stats_index_t up_create_statsObject()
+//{
+//    up_stats_index_t interfaceObject;
+//    struct up_objectInfo interfaceObj[10];
+//    int i=0,count=9;
+//    
+//    for(i=0; i<5; i++){
+//        interfaceObj[i] = up_asset_createObjFromId(count);
+//        interfaceObj[i].angle = 0;
+//        interfaceObject.interfaceIndex[i] = up_unit_add(up_others_type,interfaceObj[i]);
+//        
+//        count++;
+//    }
+//
+//
+//    return interfaceObject;
+//}
+
+
+//void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObject)
+//{
+//    
+
+//    int i;
+//    struct up_objectInfo *interfaceObj[5];
+//    
+//    for(i=0; i<5; i++){
+//        interfaceObj[i] = up_unit_objAtIndex(up_others_type,interfaceObject.interfaceIndex[i]);
+//        if (interfaceObj[i] == NULL) {
+//            printf("Healthbar missing\n");
+//            return;
+//        }
+//        interfaceObj[i]->pos = cam->eye;
+//    }
+//    
+//    
+//    interfaceObj[0]->pos.x += 5;             //interface plus
+//    interfaceObj[0]->pos.y -= 4.3;
+//    interfaceObj[0]->pos.z += 6;
+//
+//    interfaceObj[1]->pos.x += 5.01;          //inteface shield
+//    interfaceObj[1]->pos.y -= 4.55;
+//    interfaceObj[1]->pos.z += 6;
+//    
+//    interfaceObj[2]->pos.x -= 2.77;             //interface bullet
+//    interfaceObj[2]->pos.y -= 2.05;
+//    interfaceObj[2]->pos.z +=6;
+//    
+//    interfaceObj[3]->pos.x -= 2.77;             //interface missile
+//    interfaceObj[3]->pos.y -= 2.3;
+//    interfaceObj[3]->pos.z +=6;
+//    
+//    interfaceObj[4]->pos.x -= 2.77;             //interface laser
+//    interfaceObj[4]->pos.y -= 2.55;
+//    interfaceObj[4]->pos.z +=6;
+//}
+//
+////void up_interfaceHealthBar(up_health_bar_t green_and_red){
+//    int modelId = green_and_red.greenModelId;
+//    
+//    //modelId = objectArray[i].modelId;
+//    if (modelId >= assets->numobjects) {
+//        modelId = 0;
+//    }
+//    texture = &assets->textureArray[modelId];
+//    mesh = &assets->meshArray[modelId];
+//    
+//    transform = &modelViewPerspectiveArray[i].mvp;
+//    //model = &modelViewPerspectiveArray[i].model;
+//    up_texture_bind(texture, 0);
+//    
+//    UP_shader_update(shaderprog,transform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
+//    
+//    up_shader_update_modelWorld(shaderprog, model);
+//
+//}
+
+static void up_render_symbols(struct up_assets *assets,struct shader_module *shader_program,struct up_interface_symbols *symbolArray,int length){
     
-    for(i=0; i<5; i++){
-        interfaceObj[i] = up_asset_createObjFromId(count);
-        interfaceObj[i].angle = 0;
-        interfaceObject.interfaceIndex[i] = up_unit_add(up_others_type,interfaceObj[i]);
+    up_matrix4_t transform = up_matrix4identity();
+    struct up_vec3 rot = {0};
+    int modelId = 0;
+    struct up_texture_data *texture = NULL;
+    struct up_mesh *mesh;
+    
+    UP_shader_bind(shader_program);
+    int i=0;
+    for(i=0; i<length; i++){
         
-        count++;
-    }
-
-
-    return interfaceObject;
-}
-
-
-void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObject)
-{
-    int i;
-    struct up_objectInfo *interfaceObj[5];
-    
-    for(i=0; i<5; i++){
-        interfaceObj[i] = up_unit_objAtIndex(up_others_type,interfaceObject.interfaceIndex[i]);
-        if (interfaceObj[i] == NULL) {
-            printf("Healthbar missing\n");
-            return;
+        modelId = symbolArray[i].modelId;
+        if (modelId >= assets->numobjects) {
+            modelId = 0;
         }
-        interfaceObj[i]->pos = cam->eye;
+        texture = &assets->textureArray[modelId];
+        mesh = &assets->meshArray[modelId];
+        
+        up_matrixModel(&transform, &symbolArray[i].pos, &rot, &symbolArray[i].scale);
+        
+        up_texture_bind(texture, 0);
+        
+        UP_shader_update(shader_program,&transform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
+        
+        up_draw_mesh(mesh);
     }
     
     
-    interfaceObj[0]->pos.x += 5;             //interface plus
-    interfaceObj[0]->pos.y -= 4.3;
-    interfaceObj[0]->pos.z += 6;
-
-    interfaceObj[1]->pos.x += 5.01;          //inteface shield
-    interfaceObj[1]->pos.y -= 4.55;
-    interfaceObj[1]->pos.z += 6;
-    
-    interfaceObj[2]->pos.x -= 2.77;             //interface bullet
-    interfaceObj[2]->pos.y -= 2.05;
-    interfaceObj[2]->pos.z +=6;
-    
-    interfaceObj[3]->pos.x -= 2.77;             //interface missile
-    interfaceObj[3]->pos.y -= 2.3;
-    interfaceObj[3]->pos.z +=6;
-    
-    interfaceObj[4]->pos.x -= 2.77;             //interface laser
-    interfaceObj[4]->pos.y -= 2.55;
-    interfaceObj[4]->pos.z +=6;
 }
 
-
-
-void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program,struct up_player_stats *stats){
+void up_gamePlayInterface(struct up_assets *assets ,struct up_font_assets *font_assets,struct shader_module *shader_program,struct up_player_stats *stats){
     
-    struct up_vec3 pos;
-    struct up_vec3 scale;
-    struct up_vec3 color;
+    struct up_interface_symbols symbol;
+    struct up_interface_symbols symbolArray[2];
+    int length = 1;
     
-    char ship_health[5];
-    char ship_armor[5];
-    char ship_bullet[5];
-    char ship_missile[5];
-    char ship_laser[5];
+    symbol.modelId = 9;
+    
+    symbol.pos.x = -0.8;
+    symbol.pos.y = -0.8;
+    symbol.pos.z = 0.04;
+    
+    symbol.scale.x = 0.1;
+    symbol.scale.y = 0.1;
+    symbol.scale.z = 1;
+    
+    symbolArray[0] = symbol;
+    
+    up_render_symbols(assets,shader_program,symbolArray,length);
 
-
-    
-    pos.x = -0.85;
-    pos.y = -0.7;
-    pos.z = 0.0;
-    
-    scale.x = 0.04;
-    scale.y = 0.04;
-    scale.z = 0.04;
-    
-
-    sprintf(ship_health,"%d", stats->current_health);
-    sprintf(ship_armor,"%d", stats->current_armor);
-    sprintf(ship_bullet,"%d", stats->weapons.bullets);
-    sprintf(ship_missile,"%d", stats->weapons.missile);
-    sprintf(ship_laser,"%d", stats->weapons.laser);
 
 
     
-    int length = (int)strlen(ship_health);                                      //Health
-    
-    if(stats->current_health <= 50){
-        color.x = 20.118;
-        color.y = 0;
-        color.z = 0;
-    }
-    else{
-        color.x = 20.118;
-        color.y = 1;
-        color.z = 1;
-    }
-    
-    up_displayText(ship_health,length, &pos, &scale, font_assets, shader_program,0.02,&color);
-    
-    pos.x = -0.85;
-    pos.y = -0.77;
-    pos.z = 0.0;
-    
-    length = (int)strlen(ship_armor);                                           //armor
-    
-    if(stats->current_armor <= 50){
-        color.x = 20.118;
-        color.y = 0;
-        color.z = 0;
-    }
-    else{
-        color.x = 20.118;
-        color.y = 1;
-        color.z = 1;
-    }
-    
-    up_displayText(ship_armor,length, &pos, &scale, font_assets, shader_program,0.02,&color);
-    
-    pos.x = 0.87;
-    pos.y = -0.607;
-    
-    length = (int)strlen(ship_bullet);                                          //bullets
-    
-    if(stats->weapons.bullets <= 50){
-        color.x = 20.118;
-        color.y = 0;
-        color.z = 0;
-    }
-    else{
-        color.x = 20.118;
-        color.y = 1;
-        color.z = 1;
-    }
-    
-    up_displayText(ship_bullet,length, &pos, &scale, font_assets, shader_program,0.02,&color);
-    
-    pos.x = 0.87;
-    pos.y = -0.68;
-    
-    length = (int)strlen(ship_missile);                                          //missile
-    
-    if(stats->weapons.missile <= 30){
-        color.x = 20.118;
-        color.y = 0;
-        color.z = 0;
-    }
-    else{
-        color.x = 20.118;
-        color.y = 1;
-        color.z = 1;
-    }
-    
-    up_displayText(ship_missile,length, &pos, &scale, font_assets, shader_program,0.02,&color);
-
-    pos.x = 0.87;
-    pos.y = -0.758;
-    
-    length = (int)strlen(ship_laser);                                          //laser
-    
-    if(stats->weapons.laser <= 30){
-        color.x = 20.118;
-        color.y = 0;
-        color.z = 0;
-    }
-    else{
-        color.x = 20.118;
-        color.y = 1;
-        color.z = 1;
-    }
-    
-    up_displayText(ship_laser,length, &pos, &scale, font_assets, shader_program,0.02,&color);
-
+//    up_interface_obj_t object[5];
+//    int i;
+////    struct up_vec3 pos;
+////    struct up_vec3 scale;
+////    struct up_vec3 color;
+//    
+//    for (i=0; i<5; i++) {
+//        sprintf(object[i].interface_objects,"%d", stats->ship_stats[i]);
+//    }
+//    char ship_health[5];                                //ship health 1
+//    char ship_armor[5];                                 //ship armor  2
+//    char ship_bullet[5];                                //ship bullet 3
+//    char ship_missile[5];                               //ship missil 4
+//    char ship_laser[5];                                 //ship lazer  5
+//
+//
+//    
+//    pos.x = -0.85;
+//    pos.y = -0.7;
+//    pos.z = 0.0;
+//    
+//    scale.x = 0.04;
+//    scale.y = 0.04;
+//    scale.z = 0.04;
+//    
+//
+//    sprintf(ship_health,"%d", stats->current_health);
+//    sprintf(ship_armor,"%d", stats->current_armor);
+//    sprintf(ship_bullet,"%d", stats->weapons.bullets);
+//    sprintf(ship_missile,"%d", stats->weapons.missile);
+//    sprintf(ship_laser,"%d", stats->weapons.laser);
+//
+//
+//    
+//    int length = (int)strlen(ship_health);                                      //Health
+//    
+//    if(stats->current_health <= 50){
+//        color.x = 20.118;
+//        color.y = 0;
+//        color.z = 0;
+//    }
+//    else{
+//        color.x = 20.118;
+//        color.y = 1;
+//        color.z = 1;
+//    }
+//    
+//    up_displayText(ship_health,length, &pos, &scale, font_assets, shader_program,0.02,&color);
+//    
+//    pos.x = -0.85;
+//    pos.y = -0.77;
+//    pos.z = 0.0;
+//    
+//    length = (int)strlen(ship_armor);                                           //armor
+//    
+//    if(stats->current_armor <= 50){
+//        color.x = 20.118;
+//        color.y = 0;
+//        color.z = 0;
+//    }
+//    else{
+//        color.x = 20.118;
+//        color.y = 1;
+//        color.z = 1;
+//    }
+//    
+//    up_displayText(ship_armor,length, &pos, &scale, font_assets, shader_program,0.02,&color);
+//    
+//    pos.x = 0.87;
+//    pos.y = -0.607;
+//    
+//    length = (int)strlen(ship_bullet);                                          //bullets
+//    
+//    if(stats->weapons.bullets <= 50){
+//        color.x = 20.118;
+//        color.y = 0;
+//        color.z = 0;
+//    }
+//    else{
+//        color.x = 20.118;
+//        color.y = 1;
+//        color.z = 1;
+//    }
+//    
+//    up_displayText(ship_bullet,length, &pos, &scale, font_assets, shader_program,0.02,&color);
+//    
+//    pos.x = 0.87;
+//    pos.y = -0.68;
+//    
+//    length = (int)strlen(ship_missile);                                          //missile
+//    
+//    if(stats->weapons.missile <= 30){
+//        color.x = 20.118;
+//        color.y = 0;
+//        color.z = 0;
+//    }
+//    else{
+//        color.x = 20.118;
+//        color.y = 1;
+//        color.z = 1;
+//    }
+//    
+//    up_displayText(ship_missile,length, &pos, &scale, font_assets, shader_program,0.02,&color);
+//
+//    pos.x = 0.87;
+//    pos.y = -0.758;
+//    
+//    length = (int)strlen(ship_laser);                                          //laser
+//    
+//    if(stats->weapons.laser <= 30){
+//        color.x = 20.118;
+//        color.y = 0;
+//        color.z = 0;
+//    }
+//    else{
+//        color.x = 20.118;
+//        color.y = 1;
+//        color.z = 1;
+//    }
+//    
+//    up_displayText(ship_laser,length, &pos, &scale, font_assets, shader_program,0.02,&color);
+//
 }
 
 

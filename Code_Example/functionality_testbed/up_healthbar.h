@@ -11,45 +11,48 @@
 #include "up_shader_module.h"
 #include "up_assets.h"
 
-typedef struct up_health_bar{
+//struct up_health_bar{
+//
+//    int greenModelId;
+//    int redModelId;
+//    int scale;
+//
+//};
 
-    int greenIndex;
-    int redIndex;
-
-}up_health_bar_t;
-
-typedef struct up_stats_index{
+struct up_interface_symbols{
     
-    int interfaceIndex[5];
-
-}up_stats_index_t;
-
-typedef struct up_player_weapons{
+    int modelId;
+    struct up_vec3 pos;
+    struct up_vec3 scale;
     
-    int missile;
-    int bullets;
-    int laser;
+};
+
+struct up_interface_inventory{
     
-}up_player_weapons_t;
+    struct up_vec3 pos;
+    struct up_vec3 scale;
+    int min;
+    int max;
+};
 
 struct up_player_stats{
     
-    int current_health;
-    int max_health;
-    int current_armor;
-    int max_armor;
-    up_player_weapons_t weapons;
-
+    struct up_interface_inventory missile;
+    struct up_interface_inventory bullets;
+    struct up_interface_inventory lazer;
+    struct up_interface_inventory health;
+    struct up_interface_inventory ammunitions;
+    
 };
 
+//up_health_bar_t healthbar_creation();                           //creates healthbar
+//void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_player_stats *player_stats,struct up_camera *cam); //puts the right position for it
+//
+//up_stats_index_t up_create_statsObject();
+//void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObject);
 
-up_health_bar_t healthbar_creation();                           //creates healthbar
-void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_player_stats *player_stats,struct up_camera *cam); //puts the right position for it
-
-up_stats_index_t up_create_statsObject();
-void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObject);
-
-void up_gamePlayInterface(struct up_font_assets *font_assets,struct shader_module *shader_program,struct up_player_stats *stats);
+void up_gamePlayInterface(struct up_assets *assets ,struct up_font_assets *font_assets,struct shader_module *shader_program,
+                          struct up_player_stats *stats);
 
 
 #endif  //defined(__up_game__up_healthbar__)
