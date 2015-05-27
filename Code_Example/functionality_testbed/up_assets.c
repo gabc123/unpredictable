@@ -182,9 +182,9 @@ static int loadObjects(struct up_generic_list *meshArray,
         }
         sscanf(row,"%f %f %f", &item.hitbox.x, &item.hitbox.y, &item.hitbox.z);
 
-        item.hitbox.x = item.hitbox.x * item.scale.x/2;
-        item.hitbox.y = item.hitbox.y * item.scale.y/2;
-        item.hitbox.z = item.hitbox.z * item.scale.z/2;
+        item.hitbox.x = item.hitbox.x * item.scale.x;
+        item.hitbox.y = item.hitbox.y * item.scale.y;
+        item.hitbox.z = item.hitbox.z * item.scale.z;
 
         up_vec3_list_add(hitboxLengthArray, &item.hitbox);
         up_vec3_list_add(scaleArray, &item.scale);
