@@ -182,10 +182,10 @@ int main(int argc, char const *argv[])
     // the ship will stand stilll at the begining
     //struct shipMovement movement = {0,0,0,0};
 
-    up_health_bar_t healthBar;
-    healthBar = healthbar_creation();
+    //up_health_bar_t healthBar;
+   // healthBar = healthbar_creation();
 
-    up_stats_index_t interface_info = up_create_statsObject();
+   // up_stats_index_t interface_info = up_create_statsObject();
 
     // loads skybox shaders and fill out the structure
     struct up_skyBox skyBox;
@@ -225,14 +225,18 @@ int main(int argc, char const *argv[])
     int network_state_recived = 0;
     struct up_network_datapipe *connection_data = up_network_start_gameplay_setup();
 
-    struct up_player_stats player_stats;
-    player_stats.current_health = 100;
-    player_stats.max_health = 100;
-    player_stats.current_armor = 100;
-    player_stats.max_armor = 100;
-    player_stats.weapons.missile = 5;
-    player_stats.weapons.bullets = 100;
-    player_stats.weapons.laser = 50;
+     struct up_player_stats player_stats;
+//    player_stats.current_health = 100;
+//    player_stats.max_health = 100;
+//    player_stats.current_armor = 100;
+//    player_stats.max_armor = 100;
+//    player_stats.weapons.missile = 5;
+//    player_stats.weapons.bullets = 100;
+//    player_stats.weapons.laser = 50;
+    struct up_interface_game interface;
+    
+    up_player_setup(&player_stats, currentEvent.flags);
+    up_interface_creation(&interface, &player_stats);
 
     while(status)
     {
@@ -248,9 +252,10 @@ int main(int argc, char const *argv[])
         up_handleCollision(&allcollisions);
         up_update_playerStats(&allcollisions, &player_stats, shipIndex);
         up_update_camera(&cam, ship);
-
-        up_moveHealthBar(shipIndex,healthBar,&player_stats);
-        up_interface_placement(&cam,interface_info);
+        
+        up_interface_update(&interface, &player_stats);
+       // up_moveHealthBar(shipIndex,healthBar,&player_stats, &cam);
+        //up_interface_placement(&cam,interface_info);
 
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
@@ -270,7 +275,7 @@ int main(int argc, char const *argv[])
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets);
 
         up_skybox_render(&skyBox,&cam,&viewPerspectivMatrix);
-        up_gamePlayInterface(font_assets,shader_menu,&player_stats);
+        up_interface_gamePlay(assets,font_assets,shader_menu,&interface);
 
 
         UP_openGLupdate();
