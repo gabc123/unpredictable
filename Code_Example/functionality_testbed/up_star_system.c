@@ -50,10 +50,9 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
     float dx=0;
     float dy=0;
     float scale = 0;
+    struct up_vec3 relativeScale;
 
     int i=0;
-
-
 
     for(i=0; i<density; i++){
 
@@ -69,12 +68,15 @@ void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float ou
         asteroid.pos.y = radius * dy;
         asteroid.pos.z = height;
         scale = 1 + ((float)(rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * 1.5f ;
+        relativeScale.x = scale / asteroid.scale.x;
+        relativeScale.y = scale / asteroid.scale.y;
+        relativeScale.z = scale / asteroid.scale.z;
         asteroid.scale.x = scale;
         asteroid.scale.y = scale;
         asteroid.scale.z = scale;
-        asteroid.collisionbox.length.x = scale;
-        asteroid.collisionbox.length.y = scale;
-        asteroid.collisionbox.length.z = scale;
+        asteroid.collisionbox.length.x = asteroid.collisionbox.length.x * relativeScale.x;
+        asteroid.collisionbox.length.y = asteroid.collisionbox.length.y * relativeScale.y;
+        asteroid.collisionbox.length.z = asteroid.collisionbox.length.z * relativeScale.z;
 
         if(up_unit_add(up_environment_type,asteroid)==0){
             UP_ERROR_MSG("could not add asteroid");

@@ -15,7 +15,6 @@
 
 
 // magnus , up_updateMovements , 5 maj
-
 double up_getFrameTimeDelta();
 
 double up_gFrameTickRate = 0;
@@ -147,13 +146,6 @@ void up_key_function_firelaser(struct up_eventState *currentEvent,struct up_acti
         objectAction->fireWeapon.state = none;
     }
 }
-
-
-
-
-
-
-
 
 void up_key_function_stop_forward(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
@@ -477,7 +469,6 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                 case shipEnviroment:
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].object1 = object1->objectId.idx;
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment++].object2 = object2->objectId.idx;
-
                     break;
                 //projectile enviroment
                 case projectileEnviroment:
@@ -1052,8 +1043,4 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
             }
         }
     }
-
-
 }
-
-
