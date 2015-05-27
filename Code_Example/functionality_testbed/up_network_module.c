@@ -385,14 +385,21 @@ int up_network_getAccountData(struct up_network_account_data *data,int max,struc
     
     int packet_read = up_readNetworkDatabuffer(socket_data->queue,objUpdate, max);
     
-
+    struct up_map_data tmp_map = {0};
     int i = 0;
-    
+    int read_pos = 0;
     for (i = 0; i < packet_read; i++) {
         
         switch (objUpdate[i].data[0]) {
             case  UP_LOGIN_FLAG:
-                up_network_logInRegistrate_packetDecode(&objUpdate[i].data[1], &data->playerId, &data->serverResponse);
+                read_pos++;
+                read_pos += up_network_logInRegistrate_packetDecode(&objUpdate[i].data[read_pos], &data->playerId, &data->serverResponse);
+                
+                if (data->serverResponse == LOGINSUCESS) {
+                    read_pos = up_network_packet_mapData_decode(&objUpdate[i].data[read_pos], &tmp_map.playerIndex, &tmp_map.mapSeed, &tmp_map.numPlayersOnline);
+                    // if the map was correctly decoded, den return it
+                    data->map = (read_pos > 0) ? tmp_map : data->map;
+                }
                 
                 // do stuff, like decode packet and store it in data
                 

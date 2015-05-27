@@ -253,6 +253,9 @@ void *up_server_account_send_thread(void *parm)
     unsigned int client_sock_len = sizeof(server_con->client_infoArray[0].client_addr);
     struct up_client_info *clientInfo = NULL;
     
+    int mapSeed = server_state->mapSeed;
+    int usersOnline = 0;
+    
     int i = 0;
     while (server_con->shutdown == 0) {
         packet_read =0;
@@ -294,6 +297,8 @@ void *up_server_account_send_thread(void *parm)
             clientId = 0;
             if (returnFlag != REGSUCESSS) {
                 clientId = up_server_addUser(server_state->server_gameplay, &clientInfo->client_addr);
+                usersOnline = up_server_usersOnline(server_state->server_gameplay);
+                
             }
             
             
@@ -303,7 +308,7 @@ void *up_server_account_send_thread(void *parm)
             dataToSend_len++;
             // encode the rest of the msg
             dataToSend_len += up_network_logInRegistrate_packetEncode(&dataBuffer[dataToSend_len], clientId, returnFlag);
-
+            dataToSend_len += up_network_packet_mapData_encode(&dataBuffer[dataToSend_len], clientId, mapSeed, usersOnline);
             
             if (clientInfo->active != 0) {
                 if (sendto(server_con->socket_server, dataBuffer, dataToSend_len, 0, (struct sockaddr *)&clientInfo->client_addr, client_sock_len) == -1) {

@@ -10,6 +10,18 @@
 
 #include "up_vertex.h"
 #include "up_texture_module.h"
+
+/*
+ this is the srand and rand function from:
+ ISO/IEC 9899:TC3 Committee Draft — Septermber 7, 2007 WG14/N1256
+ 7.20.2 Pseudo-random sequence generation functions
+ page 312
+ we needed a platform independet srand and rand.
+ mac and linux seemed to have different implementations so we used the one from the standard
+ */
+void up_srand(unsigned int seed);   // from the standard
+int up_rand(void);
+
 /*
  Function: up_token_parser
  Description:

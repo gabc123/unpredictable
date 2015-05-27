@@ -93,11 +93,11 @@ int main(int argc, char const *argv[])
 
     struct up_network_datapipe *account_connection = up_network_start_account_setup();
     // start the menu, and display it
-    status=up_menu(shader_menu, sound,keymap,font_assets,account_connection);
+    
+    struct up_map_data mapData = {0};   // gets filled out from the login sequance in menu
+    
+    status=up_menu(shader_menu, sound,keymap,font_assets,account_connection,&mapData);
 
-    // do map loading on the account connection
-
-    // then exit
     up_network_shutdown_deinit(account_connection);
 
     //this will load all the assets (modouls,texturs) specifyed in objIndex
@@ -123,12 +123,12 @@ int main(int argc, char const *argv[])
 
     int shipIndex = 0;
     int shipIndex_tmp = 0;
-    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 4;
+    int i = 0;
+    for (i = 0; i < UP_MAX_CLIENTS; i++) {
+        shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
+    }
+    
+    shipIndex = mapData.playerIndex;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -144,13 +144,7 @@ int main(int argc, char const *argv[])
 
     up_unit_add(up_environment_type,stillObj);
 
-    up_generate_sun();
-
-    up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 50, 30);
-
-    up_generate_randomize_satellite(40);        //satellite
-    up_generate_randomize_spaceMine(80);        //space mine
-
+    up_generate_map(mapData.mapSeed);
 
 
 
@@ -224,7 +218,7 @@ int main(int argc, char const *argv[])
         map_maxPlayers = 0;
     }
 
-    int i = 0;
+
     for (i = 0; i < map_maxPlayers; i++) {
         network_states_data[i] = noState;
     }

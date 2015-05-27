@@ -45,12 +45,14 @@ struct up_server_connection_info
 
 struct internal_server_state
 {
+    int mapSeed;
     pthread_t *server_gameplay_thread;
     struct up_server_connection_info *server_gameplay;
     pthread_t *server_account_thread;
     struct up_server_connection_info *server_account;
 };
 
+int up_server_usersOnline(struct up_server_connection_info *server);
 //gives back the idx to be used by the user
 int up_server_addUser(struct up_server_connection_info *server,struct sockaddr_in *client_addr);
 struct internal_server_state *up_server_startup();

@@ -12,6 +12,28 @@
 #include "up_error.h"
 
 /*
+ this is the srand and rand function from:
+ ISO/IEC 9899:TC3 Committee Draft — Septermber 7, 2007 WG14/N1256
+ 7.20.2 Pseudo-random sequence generation functions
+ page 312
+ we needed a platform independet srand and rand.
+ mac and linux seemed to have different implementations so we used the one from the standard
+ */
+static unsigned long int next = 1;
+void up_srand(unsigned int seed)   // from the standard
+{
+    next = seed;
+}
+
+int up_rand(void)
+{
+    next = next * 1103515245 + 12345;
+    return (unsigned int)(next/65536) % 32768;
+}
+
+
+
+/*
  Description:
  this will scan the srcString untill it find delimiter,
  if found then it will replace the char with \0
