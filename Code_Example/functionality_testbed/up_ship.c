@@ -331,8 +331,8 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
-
     }
+
     for(i=0; i < allcollisions->nrProjectileEnviroment; i++){
         object1 = up_unit_objAtIndex(up_projectile_type, allcollisions->projectileEnviroment[i].object1);
         object2 = up_unit_objAtIndex(up_environment_type, allcollisions->projectileEnviroment[i].object2);
@@ -563,7 +563,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
-  
+
     //projectile vs enviroment
     for(i=0; i < totalProjectiles; i++){
         // no need to check ship if not active
@@ -586,7 +586,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             }
         }
     }
-   
+
     //projectile vs ship
     for(i=0; i < totalShips; i++){
         // no need to check ship if not active
@@ -612,7 +612,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
         }
     }
 
-    
+
     //enviroment vs enviroment
     for(i=0; i < totalObjects; i++){
         // no need to check ship if not active

@@ -22,12 +22,6 @@
 
 static struct up_assets *internal_assets=NULL;
 
-
-struct box{
-    float xmax,ymax,zmax;
-    float xmin,ymin,zmin;
-};
-
 /*stores information of the object*/
 //Sebastian
 struct up_modelData
@@ -35,7 +29,7 @@ struct up_modelData
     char obj[MODELLENGTH];
     char tex[MODELLENGTH];
     struct up_vec3 scale;
-    struct box hitbox;
+    struct up_vec3 hitbox;
     float turnSpeed;
     float maxLength;
 };
@@ -92,7 +86,7 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     obj.scale = internal_assets->scaleArray[modelId];
     obj.collisionbox.length = internal_assets->hitboxLengthArray[modelId];
 
-    printf("array x%f\ny%f\nz%f\n", obj.collisionbox.length.x,obj.collisionbox.length.y,obj.collisionbox.length.z);
+    //printf("array x%f\ny%f\nz%f\n", obj.collisionbox.length.x,obj.collisionbox.length.y,obj.collisionbox.length.z);
     obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.x)) ? obj.collisionbox.length.x : obj.maxLength;
     obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.y)) ? obj.collisionbox.length.y : obj.maxLength;
     obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.z)) ? obj.collisionbox.length.z : obj.maxLength;
@@ -159,18 +153,10 @@ static int loadObjects(struct up_generic_list *meshArray,
 
     struct up_vec3 scaleOne = {1.0, 1.0, 1.0};
     struct up_modelData item; //stores the information of the object
-    item.hitbox.xmax = 1.0;
-    item.hitbox.ymax = 1.0;
-    item.hitbox.zmax = 1.0;
-    item.hitbox.xmin = 1.0;
-    item.hitbox.ymin = 1.0;
-    item.hitbox.zmin = 1.0;
 
     char *text = thafile.text;
     char *endLine = "\n";
     char *row;
-    struct up_vec3 boxLength;
-    //    struct up_vec3 scale;
 
     /*reads from the file and stores read data*/
     do{
@@ -194,14 +180,13 @@ static int loadObjects(struct up_generic_list *meshArray,
             printf("end of file objIndex\n");
             break;
         }
-        sscanf(row,"%f %f %f %f %f %f", &item.hitbox.xmax, &item.hitbox.ymax, &item.hitbox.zmax, &item.hitbox.xmin, &item.hitbox.ymin, &item.hitbox.zmin);
+        sscanf(row,"%f %f %f", &item.hitbox.x, &item.hitbox.y, &item.hitbox.z);
 
-        boxLength.x = fabsf(item.hitbox.xmax + item.hitbox.xmin) * item.scale.x/2;
-        boxLength.y = fabsf(item.hitbox.ymax + item.hitbox.ymin) * item.scale.y/2;
-        boxLength.z = fabsf(item.hitbox.zmax + item.hitbox.zmin) * item.scale.z/2;
-        printf("boxlengthx:%f y:%f z:%f\n",boxLength.x,boxLength.y,boxLength.z);
+        item.hitbox.x = item.hitbox.x * item.scale.x/2;
+        item.hitbox.y = item.hitbox.y * item.scale.y/2;
+        item.hitbox.z = item.hitbox.z * item.scale.z/2;
 
-        up_vec3_list_add(hitboxLengthArray, &boxLength);
+        up_vec3_list_add(hitboxLengthArray, &item.hitbox);
         up_vec3_list_add(scaleArray, &item.scale);
 
     }while(text <= thafile.text + thafile.length -1);

@@ -128,7 +128,7 @@ int main(int argc, char const *argv[])
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
     shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 2;
+    shipIndex = 1;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -170,7 +170,7 @@ int main(int argc, char const *argv[])
     struct up_camera cam = {{0,0,30},{0,0,1},{0,0,-1}};
     up_cam_zoom(-3);
     up_update_camera(&cam, ship);
-    
+
     // generate the view matrix
     up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up);
 
@@ -278,7 +278,7 @@ int main(int argc, char const *argv[])
         up_skybox_render(&skyBox,&cam,&viewPerspectivMatrix);
         up_gamePlayInterface(font_assets,shader_menu,&player_stats);
 
-        
+
         UP_openGLupdate();
 
     }
