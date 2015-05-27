@@ -377,7 +377,6 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
 
-
     }
 
     for(i=0; i < allcollisions->nrEnviromentEnviroment; i++){
@@ -478,9 +477,6 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                 case shipEnviroment:
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].object1 = object1->objectId.idx;
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment++].object2 = object2->objectId.idx;
-//                    printf("shipEnviroment\n");
-//                    printf("object1id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object1);
-//                    printf("object2id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object2);
 
                     break;
                 //projectile enviroment
@@ -865,12 +861,10 @@ struct up_actionState
 //struct up_objectInfo *up_unit_objAtIndex(int index);
 
 /*determine the new direction and speed of the object*/
-//turnspeed is a set value atm. It is to be stored for each obj
 //Sebastian 2015-05-05
 //Magnus 2015-05-06
 void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
 {
-    //float turnSpeed=1; //temporary. will be unique for each model
 
     if(obj->engine.state == fwd){
         localObject->speed +=localObject->acceleration*frameDelta;
@@ -959,7 +953,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
 /*updates all action changes in the game*/
 //Sebastian 2015-05-05
 void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server,
-                       int nrObj, struct up_eventState *funkarEj, struct soundLib *sound)
+                       int nrObj, struct up_eventState *ammoStats, struct soundLib *sound)
 {
     int i=0;
     struct up_objectInfo *localObject = NULL;
@@ -979,7 +973,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
             continue;
         }
         up_moveObj(localObject, tmp,frameDelta);
-        up_createProjectile(localObject, tmp, funkarEj, sound);
+        up_createProjectile(localObject, tmp, ammoStats, sound);
     }
 
     //local playership update
@@ -989,7 +983,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         return ;
     }
     up_moveObj(localObject, playerShip, frameDelta);
-    up_createProjectile(localObject, playerShip,funkarEj, sound);
+    up_createProjectile(localObject, playerShip,ammoStats, sound);
 }
 
 //walled
