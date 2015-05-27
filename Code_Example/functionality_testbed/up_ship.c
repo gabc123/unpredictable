@@ -912,14 +912,16 @@ void up_createProjectile(struct up_objectInfo *localobject,
                          struct soundLib *sound)
 {
     struct up_objectInfo projectile = *localobject;
-
+    struct cooldownTimer bullet = ammoStats->flags.bulletFlag;
+    struct cooldownTimer missile = ammoStats->flags.missileFlag;
+    struct cooldownTimer laser = ammoStats->flags.laserFlag;
     //bullet
     if(obj->fireWeapon.state == fireBullet){
         projectile = up_asset_createObjFromId(4);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + 100;
+        projectile.speed = localobject->speed + bullet.ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
 
         up_unit_add(up_projectile_type, projectile);
@@ -931,7 +933,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + 100;
+        projectile.speed = localobject->speed + laser.ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
 
         up_unit_add(up_projectile_type,projectile);
@@ -947,7 +949,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + 40;
+        projectile.speed = localobject->speed + missile.ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
 
         up_unit_add(up_projectile_type,projectile);
