@@ -458,66 +458,53 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
 
 //Sebastian + Tobias 2015-05-12
 //checks objects collisionboxes too see whether a hit has occured or not
-static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, int nrObj1, int nrObj2, struct up_allCollisions *allcollisions, int typeCollision)
+static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, struct up_allCollisions *allcollisions, int typeCollision)
 {
 
     float distanceX, distanceY, distanceZ;
-
-    distanceX = fabsf(object2[nrObj2].pos.x - object1[nrObj1].pos.x);
-    distanceY = fabsf(object2[nrObj2].pos.y - object1[nrObj1].pos.y);
-    distanceZ = fabsf(object2[nrObj2].pos.z - object1[nrObj1].pos.z);
+    //check the distance between the centerpoints of the objects
+    distanceX = fabsf(object2->pos.x - object1->pos.x);
+    distanceY = fabsf(object2->pos.y - object1->pos.y);
+    distanceZ = fabsf(object2->pos.z - object1->pos.z);
 
     //checks if the collisionboxes collides
-    if(distanceX <= object1[nrObj1].collisionbox.length.x || distanceX <= object2[nrObj2].collisionbox.length.x)
-        if(distanceY <= object1[nrObj1].collisionbox.length.y ||distanceY <=object2[nrObj2].collisionbox.length.y)
-            if(distanceZ <= object1[nrObj1].collisionbox.length.z || distanceZ <= object2[nrObj2].collisionbox.length.z)
+    if(distanceX <= object1->collisionbox.length.x || distanceX <= object2->collisionbox.length.x)
+        if(distanceY <= object1->collisionbox.length.y ||distanceY <=object2->collisionbox.length.y)
+            if(distanceZ <= object1->collisionbox.length.z || distanceZ <= object2->collisionbox.length.z)
             {
                 //stores the id, arrayplacement by the type of collision
                 switch(typeCollision)
                 {
                 case shipEnviroment:
-                    allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].object1 = object1[nrObj1].objectId.idx;
-                    allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].nrObj1 = nrObj1;
-                    allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].object2 = object2[nrObj2].objectId.idx;
-                    allcollisions->shipEnviroment[allcollisions->nrShipEnviroment++].nrObj2 = nrObj2;
+                    allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].object1 = object1->objectId.idx;
+                    allcollisions->shipEnviroment[allcollisions->nrShipEnviroment++].object2 = object2->objectId.idx;
 //                    printf("shipEnviroment\n");
-//                    printf("object1Id read: %d\n", object1[nrObj1].objectId.idx);
-//                    printf("object2Id read: %d\n", object2[nrObj2].objectId.idx);
 //                    printf("object1id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object1);
 //                    printf("object2id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object2);
 
                     break;
                 //projectile enviroment
                 case projectileEnviroment:
-                    printf("projectileEnviroment\n");
-                    allcollisions->projectileEnviroment[allcollisions->nrProjectileEnviroment].object1 = object1[nrObj1].objectId.idx;
-                    allcollisions->projectileEnviroment[allcollisions->nrProjectileEnviroment].nrObj1 = nrObj1;
-                    allcollisions->projectileEnviroment[allcollisions->nrProjectileEnviroment].object2 = object2[nrObj2].objectId.idx;
-                    allcollisions->projectileEnviroment[allcollisions->nrProjectileEnviroment++].nrObj2 = nrObj2;
+                    //printf("projectileEnviroment\n");
+                    allcollisions->projectileEnviroment[allcollisions->nrProjectileEnviroment].object1 = object1->objectId.idx;
+                    allcollisions->projectileEnviroment[allcollisions->nrProjectileEnviroment++].object2 = object2->objectId.idx;
                     break;
                 //projectile ship
                 case projectileShip:
-                    printf("projectileShip\n");
-                    allcollisions->projectileShip[allcollisions->nrProjectileShip].object1 = object1[nrObj1].objectId.idx;
-                    allcollisions->projectileShip[allcollisions->nrProjectileShip].nrObj1 = nrObj1;
-                    allcollisions->projectileShip[allcollisions->nrProjectileShip].object2 = object2[nrObj2].objectId.idx;
-                    allcollisions->projectileShip[allcollisions->nrProjectileShip++].nrObj2 = nrObj2;
+                    //printf("projectileShip\n");
+                    allcollisions->projectileShip[allcollisions->nrProjectileShip].object1 = object1->objectId.idx;
+                    allcollisions->projectileShip[allcollisions->nrProjectileShip++].object2 = object2->objectId.idx;
                     break;
                 //enviroment enviroment
                 case enviromentEnviroment:
-                    allcollisions->enviromentEnviroment[allcollisions->nrEnviromentEnviroment].object1 = object1[nrObj1].objectId.idx;
-                    allcollisions->enviromentEnviroment[allcollisions->nrEnviromentEnviroment].nrObj1 = nrObj1;
-                    allcollisions->enviromentEnviroment[allcollisions->nrEnviromentEnviroment].object2 = object2[nrObj2].objectId.idx;
-                    allcollisions->enviromentEnviroment[allcollisions->nrEnviromentEnviroment++].nrObj2 = nrObj2;
+                    allcollisions->enviromentEnviroment[allcollisions->nrEnviromentEnviroment].object1 = object1->objectId.idx;
+                    allcollisions->enviromentEnviroment[allcollisions->nrEnviromentEnviroment++].object2 = object2->objectId.idx;
                     break;
                 //ship ship
                 case shipShip:
-                    printf("shipship\n");
-                    allcollisions->shipShip[allcollisions->nrShipShip].object1 = object1[nrObj1].objectId.idx;
-                    allcollisions->shipShip[allcollisions->nrShipShip].nrObj1 = nrObj1;
-                    allcollisions->shipShip[allcollisions->nrShipShip].object2 = object2[nrObj2].objectId.idx;
-                    allcollisions->shipShip[allcollisions->nrShipShip++].nrObj2 = nrObj2;
-
+                    //printf("shipship\n");
+                    allcollisions->shipShip[allcollisions->nrShipShip].object1 = object1->objectId.idx;
+                    allcollisions->shipShip[allcollisions->nrShipShip++].object2 = object2->objectId.idx;
                 }
             }
 }
@@ -559,7 +546,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
 
             if(distance < ships[i].maxLength || distance < enviroment[j].maxLength){
               //  printf("distance = %f\nshiplength = %f\nenviroment = %f\n",distance,ships[i].maxLength,enviroment[j].maxLength);
-                testCollision(ships, enviroment, i, j, allcollisions, shipEnviroment);
+                testCollision(&ships[i], &enviroment[j], allcollisions, shipEnviroment);
             }
         }
     }
@@ -582,7 +569,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
 
             if(distance < projectile[i].maxLength || distance < enviroment[j].maxLength){
                 printf("projectilelength%f, distance%f, enviroment%f\n",projectile[i].maxLength,distance,enviroment[j].maxLength);
-                testCollision(projectile, enviroment, i, j, allcollisions, projectileEnviroment);
+                testCollision(&projectile[i], &enviroment[j], allcollisions, projectileEnviroment);
             }
         }
     }
@@ -606,7 +593,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
 
                 if(distance < projectile[j].maxLength || distance < ships[i].maxLength){
                     printf("projectilelength%f, distance%f, enviroment%f\n",projectile[j].maxLength,distance,ships[i].maxLength);
-                    testCollision(projectile, ships, j, i, allcollisions, projectileShip);
+                    testCollision(&projectile[j], &ships[i], allcollisions, projectileShip);
                 }
             }
         }
@@ -631,7 +618,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                     distance = sqrt((x*x)+(y*y)+(z*z));
 
                     if(distance < enviroment[i].maxLength || distance < enviroment[j].maxLength){
-                         testCollision(enviroment, enviroment, j, i, allcollisions, enviromentEnviroment);
+                         testCollision(&enviroment[j], &enviroment[i], allcollisions, enviromentEnviroment);
                     }
             }
         }
@@ -655,7 +642,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 distance = sqrt((x*x)+(y*y)+(z*z));
 
                 if(distance < ships[i].maxLength || distance < ships[j].maxLength){
-                    testCollision(ships, ships, j, i, allcollisions, shipShip);
+                    testCollision(&ships[j], &ships[i], allcollisions, enviromentEnviroment);
                 }
             }
         }
@@ -677,14 +664,12 @@ void up_updateFrameTickRate()
     // used to give smooth movment regardless of fps
     up_gFrameTickRate = diffTick/1000.0;
 
-
     //When a entire seconde have elapsed print the frame per seconds
     if ((SDL_GetTicks() - startTick) > 1000) {
         startTick =  SDL_GetTicks();
         up_gFramePerSeconde = fps_counter;
         //printf("FPS: %d , diffTick: %f globalTickRate: %f\n",up_gFramePerSeconde,diffTick,up_gFrameTickRate);
         fps_counter = 0;
-
     }
 
     fps_counter++;
@@ -717,7 +702,6 @@ void up_updateMovements()
         if (!up_unit_isActive(objlocal)) {
             continue;
         }
-
         objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
         objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
@@ -729,7 +713,6 @@ void up_updateMovements()
         if (!up_unit_isActive(objlocal)) {
             continue;
         }
-
         objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
         objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
@@ -741,7 +724,6 @@ void up_updateMovements()
         if (!up_unit_isActive(objlocal)) {
             continue;
         }
-
         objlocal->pos.x += objlocal->dir.x * objlocal->speed * deltaTime;
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
         objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
@@ -903,7 +885,6 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->angle = localObject->angle + localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
-
     }
 
     if(obj->maneuver.state == right){
@@ -911,13 +892,11 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->angle = localObject->angle - localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
-
     }
 
     if(obj->maneuver.state == bankLeft){
         //Determines where the object is facing
         localObject->bankAngle += localObject->turnSpeed*frameDelta;
-
     }
 
     if(obj->maneuver.state == bankRight){
@@ -925,6 +904,7 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->bankAngle -= localObject->turnSpeed*frameDelta;
     }
 }
+
 /*Creates the fired projectiles adding the speed and direction of the ship that fired them*/
 //Sebastian 2015-05-05
 void up_createProjectile(struct up_objectInfo *localobject,
@@ -932,14 +912,16 @@ void up_createProjectile(struct up_objectInfo *localobject,
                          struct soundLib *sound)
 {
     struct up_objectInfo projectile = *localobject;
-
+    struct cooldownTimer bullet = ammoStats->flags.bulletFlag;
+    struct cooldownTimer missile = ammoStats->flags.missileFlag;
+    struct cooldownTimer laser = ammoStats->flags.laserFlag;
     //bullet
     if(obj->fireWeapon.state == fireBullet){
         projectile = up_asset_createObjFromId(4);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + 100;
+        projectile.speed = localobject->speed + bullet.ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
 
         up_unit_add(up_projectile_type, projectile);
@@ -951,7 +933,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + 100;
+        projectile.speed = localobject->speed + laser.ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
 
         up_unit_add(up_projectile_type,projectile);
@@ -967,7 +949,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + 40;
+        projectile.speed = localobject->speed + missile.ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
 
         up_unit_add(up_projectile_type,projectile);
@@ -986,7 +968,6 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     struct up_actionState *tmp;
     double frameDelta=up_getFrameTimeDelta();
 
-
     //Updates of objects from the server
     for(i=0; i<nrObj; i++)
     {
@@ -1003,7 +984,6 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         up_createProjectile(localObject, tmp, funkarEj, sound);
     }
 
-
     //local playership update
     localObject = up_unit_objAtIndex(playerShip->objectID.type,playerShip->objectID.idx);
     if (localObject == NULL) {
@@ -1013,6 +993,8 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     up_moveObj(localObject, playerShip, frameDelta);
     up_createProjectile(localObject, playerShip,funkarEj, sound);
 }
+
+//walled
 static void take_damage(struct up_player_stats *stats,int damage){
 //    stats->current_armor -= damage;
 //    if(stats->current_armor < 0){
@@ -1023,7 +1005,7 @@ static void take_damage(struct up_player_stats *stats,int damage){
 //    stats->current_health = (stats->current_health > 0) ? stats->current_health : 0;
 
 }
-
+//walled
 void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
 {
 
