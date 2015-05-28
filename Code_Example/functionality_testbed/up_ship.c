@@ -925,6 +925,8 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.angle = localobject->angle;
         projectile.speed = localobject->speed + bullet->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
+        projectile.projectile = fireBullet;
+        
         bullet->ammunition--;
         up_unit_add(up_projectile_type, projectile);
         obj->fireWeapon.none = none;
@@ -937,7 +939,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.angle = localobject->angle;
         projectile.speed = localobject->speed + laser->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
-
+        projectile.projectile = fireLaser;
         laser->ammunition--;
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
@@ -954,7 +956,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.angle = localobject->angle;
         projectile.speed = localobject->speed + missile->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
-        
+        projectile.projectile = fireMissile;
         missile->ammunition--;
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
@@ -1000,6 +1002,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
 
 //walled
 static void take_damage(struct up_player_stats *stats,int damage){
+    
     stats->armor.current -= damage;
     if(stats->armor.current < 0){
         stats->health.current += stats->armor.current;
@@ -1009,8 +1012,39 @@ static void take_damage(struct up_player_stats *stats,int damage){
     stats->health.current = (stats->health.current > 0) ? stats->health.current : 0;
 
 }
+
+/*
+ fireMissile = 1,
+ fireBullet,
+ fireLaser
+ 
+ 
+ */
+static void ship_projectileHit(struct up_player_stats *player,struct up_shootingFlag *weapons,struct up_objectInfo *projectile)
+{
+    int damage = 0;
+    switch (projectile->projectile) {
+        case fireMissile:
+            damage = weapons->missileFlag.damage;
+            break;
+        case fireBullet:
+            damage = weapons->bulletFlag.damage;
+            break;
+        case fireLaser:
+            damage = weapons->laserFlag.damage;
+            break;
+            
+        default:
+            damage = 0;
+            break;
+    }
+    take_damage(player,damage);
+    
+}
+
 //walled
-void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
+// magnus included weapons so everything gets synced to the same state
+void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *player,struct up_shootingFlag *weapons, int playerId)                         //"Den checkar :P "
 {
 
 
@@ -1026,7 +1060,7 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
 
         if(collision->shipEnviroment[i].object1 == playerId){
 
-            take_damage(stats,7);
+            take_damage(player,7);
 
         }
         if (other_object == NULL) {
@@ -1044,7 +1078,7 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
                 continue;
             }
             if(other_object->modelId == player_object->modelId){
-                take_damage(stats,5);
+                take_damage(player,0);
             }
         }
     }
@@ -1058,12 +1092,14 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
                 continue;
             }
             if (other_object->modelId ) {
-                take_damage(stats,30 );
+                ship_projectileHit(player,weapons,other_object);
             }
         }
     }
 
-
+    player->bullets.current = weapons->bulletFlag.ammunition;
+    player->missile.current = weapons->missileFlag.ammunition;
+    player->laser.current = weapons->laserFlag.ammunition;
 }
 
 

@@ -74,7 +74,7 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     
     struct up_vec3 scale = {0.2,3.0,0.3};
     struct up_vec3 pos = interface->playerStats.health.pos;
-    pos.x += 0.1;
+    pos.x += 0.3;
     
     int fullModelId = 5;
     int emptyModelId = 6;
@@ -82,13 +82,17 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     
     
     pos = interface->playerStats.armor.pos;
-    pos.x += 0.1;
+    pos.x += 0.3;
     interface->armor = healthBar_creation(interface->playerStats.health, pos, scale, fullModelId, emptyModelId);
 
 }
 
 
 void up_player_setup(struct up_player_stats *player, struct up_shootingFlag weapons){
+    player->health.current = 100;
+    player->health.full = 100;
+    player->armor.current = 100;
+    player->armor.full = 100;
     
     player->bullets.full = weapons.bulletFlag.ammunition;
     player->bullets.current = weapons.bulletFlag.ammunition;

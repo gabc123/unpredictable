@@ -143,5 +143,5 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship);
 
 
-void up_update_playerStats(struct up_allCollisions *colision, struct up_player_stats *stats, int playerId);   //health terminator
+void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *stats,struct up_shootingFlag *weapons, int playerId);    //health terminator
 #endif

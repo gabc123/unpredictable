@@ -44,7 +44,7 @@ static void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,f
     float radius=0;
     float dx=0;
     float dy=0;
-    float scale = 0;
+    float scale = 1;
 
     int i=0;
 
@@ -63,7 +63,7 @@ static void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,f
         asteroid.pos.x = radius * dx;
         asteroid.pos.y = radius * dy;
         asteroid.pos.z = height;
-        scale = 1 + ((float)(up_rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * 1.5f ;
+        //scale = 1 + ((float)(up_rand()%UP_RAND_FLOAT_PRECISION) / UP_RAND_FLOAT_PRECISION) * 1.5f ;
         asteroid.scale.x = scale;
         asteroid.scale.y = scale;
         asteroid.scale.z = scale;

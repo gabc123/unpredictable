@@ -49,6 +49,7 @@ struct up_objectInfo
     struct Hitbox collisionbox;
     float maxLength;
     int owner;
+    int projectile; //what kind of projectile
 };
 
 
