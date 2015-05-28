@@ -67,6 +67,11 @@ struct up_objectInfo *up_unit_objAtIndex(enum up_object_type type,int index);
 
 struct up_objectInfo *up_unit_getAllObj(enum up_object_type type,int *count);
 
+// special server functions that overide the internal object active state flags, and buffer sizes
+// this function forces a object into a specific index, and ovride all checks exept memory allocation bounds
+// do not use instead of objectAtindex, this is slower , this is only for the server to overide a clients inconsistencis 
+int up_server_unit_setObjAtindex(enum up_object_type type,struct up_objectInfo object,int index);
+
 
 #endif
 
