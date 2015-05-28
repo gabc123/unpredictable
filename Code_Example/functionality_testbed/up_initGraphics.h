@@ -3,6 +3,7 @@
 
 
 void UP_sdlSetup();
+void up_system_check();
 void UP_openGLwindowSetup(int width,int height, const char *title);
 void UP_openGLupdate();
 void UP_openGLwindowCleanup();

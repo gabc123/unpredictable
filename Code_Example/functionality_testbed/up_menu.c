@@ -827,7 +827,7 @@ int up_menu(struct shader_module *shaderprog,
         UP_openGLupdate();
 
     }
-
+    printf("exiting menu\n");
     up_generate_settings_freebuttons(keybinding_buttonArray);
 
     return status;

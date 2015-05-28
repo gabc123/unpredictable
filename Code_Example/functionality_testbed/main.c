@@ -30,6 +30,7 @@ int main(int argc, char const *argv[])
 
     // setup , sdl and the opengl window
     UP_sdlSetup();
+    up_system_check();
     printf("Sdl setup done\n");
     int screen_width = 1280;
     int screen_hight = 800;
@@ -95,11 +96,12 @@ int main(int argc, char const *argv[])
     // start the menu, and display it
     
     struct up_map_data mapData = {0};   // gets filled out from the login sequance in menu
-    
+    mapData.playerIndex = 1;
     status=up_menu(shader_menu, sound,keymap,font_assets,account_connection,&mapData);
 
+    
     up_network_shutdown_deinit(account_connection);
-
+    
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
@@ -223,6 +225,7 @@ int main(int argc, char const *argv[])
         network_states_data[i] = noState;
     }
     int network_state_recived = 0;
+    
     struct up_network_datapipe *connection_data = up_network_start_gameplay_setup();
 
      struct up_player_stats player_stats;
@@ -237,6 +240,8 @@ int main(int argc, char const *argv[])
     
     up_player_setup(&player_stats, currentEvent.flags);
     up_interface_creation(&interface, &player_stats);
+
+    printf("starting main loop\n");
 
     while(status)
     {
@@ -281,6 +286,8 @@ int main(int argc, char const *argv[])
         UP_openGLupdate();
 
     }
+    
+
     printf("Ended main loop\n");
     free(transformationArray);
     //cleanup and release all data (notice the reverse order of setup)

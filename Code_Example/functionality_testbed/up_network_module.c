@@ -48,6 +48,7 @@ unsigned int up_copyObjectIntoBuffer(struct objUpdateInformation *object,unsigne
 unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInformation *object)
 {
     unsigned int data_len = sizeof(object->data);
+    //printf("copybuffer data_len:%d ",data_len);
     data_len = (data_len > object->length) ? object->length : data_len;
     generic_copyElement(data_len,(unsigned char *)&object->data,buffer);
     return data_len;
@@ -97,7 +98,7 @@ static struct up_network_datapipe *up_network_start_setup(int port)             
     printf("%s", ip_address);
 
                                                             // initialize of sdlnet_init, returns -1 if not success else success
-    
+    /* // already done in the main startup sequnce
     success=SDLNet_Init();
     if(success==-1){
         printf("Error: Initialize not success");
@@ -105,7 +106,7 @@ static struct up_network_datapipe *up_network_start_setup(int port)             
     }
     else{
         printf("Initialize success");
-    }
+    }*/
                                                             // randomize a port so that the client can communicate, returns 0 if not success else success
     
     p->udpSocket =SDLNet_UDP_Open(0);
@@ -128,7 +129,11 @@ static struct up_network_datapipe *up_network_start_setup(int port)             
     }
     
     p->online = 1;
-    p->sendPacket =   SDLNet_AllocPacket(1024);                                                      // allocate and resize a single udp packet
+    p->sendPacket =   SDLNet_AllocPacket(1024);
+    if (!p->sendPacket) {
+        UP_ERROR_MSG_STR("sdlnet allocpacket error", SDLNet_GetError());
+    }
+    // allocate and resize a single udp packet
     
                                                             // creates thread for the server
     //p->recive_thread=SDL_CreateThread(up_network_recive,"up_network_recive",p);
@@ -156,10 +161,11 @@ struct up_network_datapipe *up_network_start_account_setup()
 void up_network_shutdown_deinit(struct up_network_datapipe *p)
 {
     p->online = 0;
+printf("Account ending connection closed\n");
     SDL_Delay(100); // make sure that the recive thread has ended before we shut down all other stuff
-    SDLNet_FreePacket(p->sendPacket);
-    
     SDL_WaitThread(p->recive_thread, NULL);
+    
+    SDLNet_FreePacket(p->sendPacket);
     
     up_concurrentQueue_shutdown_deinit();
     
@@ -300,13 +306,13 @@ int up_network_gameplay_recive(void *arg)
     struct up_network_datapipe *p=(struct up_network_datapipe *)arg;
    
     UDPsocket socket = p->udpSocket;
-    UDPpacket *packet = SDLNet_AllocPacket(1024);
+    UDPpacket *packet = SDLNet_AllocPacket(512);
     struct objUpdateInformation local_data = {0};
     struct up_thread_queue *queue = p->queue;
     packet->address.host = p->addr.host;
     packet->address.port = p->addr.port;
     
-    unsigned int len = 0;
+    int len = 0;
     
     while(p->online){
         SDL_Delay(1);
@@ -314,7 +320,7 @@ int up_network_gameplay_recive(void *arg)
         if (SDLNet_UDP_Recv(socket,packet)){
             //printf("\n pack recv: ");
             len = packet->len;
-            if ((3 <= len ) && (len <= sizeof(local_data.data))) {
+            if ((2 <= len ) && (len <= sizeof(local_data.data))) {
                 //printf("pack processing len %d ", packet->len);
                 local_data.id = 1; //cant be zero
                 local_data.length = packet->len;
@@ -330,6 +336,7 @@ int up_network_gameplay_recive(void *arg)
         //SDL_Delay(1);
 
     }
+    
     
     SDLNet_FreePacket(packet);
     return 1;
@@ -341,6 +348,10 @@ int up_network_account_recive(void *arg)
     
     UDPsocket socket = p->udpSocket;
     UDPpacket *packet = SDLNet_AllocPacket(1024);
+    if (!packet) {
+        UP_ERROR_MSG_STR("Acount thread allocpacket error", SDLNet_GetError());
+    }
+    
     struct objUpdateInformation local_data = {0};
     struct up_thread_queue *queue = p->queue;
     packet->address.host = p->addr.host;
@@ -348,19 +359,30 @@ int up_network_account_recive(void *arg)
     
     unsigned int len = 0;
     
+    printf("\nAccount recive thread started\n");
+    
     while(p->online){
         SDL_Delay(1);
         
         if (SDLNet_UDP_Recv(socket,packet)){
-            //printf("\n pack recv: ");
+            printf("\n pack recv: ");
             len = packet->len;
             if ((3 <= len ) && (len <= sizeof(local_data.data))) {
-                //printf("pack processing len %d ", packet->len);
+                printf("pack processing len %d \n", packet->len);
                 local_data.id = 1; //cant be zero
                 local_data.length = packet->len;
-                up_copyBufferIntoObject(packet->data,&local_data);
-                
+                printf(" %d",local_data.length);
+                fflush(stdout);
+                //up_copyBufferIntoObject(packet->data,&local_data);
+                if (len >= sizeof(local_data.data)) {
+                    printf("Account recive: Bad packet size\n");
+                    continue;
+                }
+                generic_copyElement(len,local_data.data,packet->data);
+                printf(" data copy done ");
+                fflush(stdout);
                 up_writeToNetworkDatabuffer(queue,&local_data);
+                printf(" data to queue done ");
             }
             
         }
@@ -370,7 +392,7 @@ int up_network_account_recive(void *arg)
         //SDL_Delay(1);
         
     }
-    
+    printf("Account login recv connection closed\n");
     SDLNet_FreePacket(packet);
     return 1;
 }
@@ -481,8 +503,9 @@ int up_network_registerAccount(char *username, char *password, int length, struc
 int up_network_loginAccount(char *username, char *password, int length, struct up_network_datapipe *socket_data)
 {
     unsigned char hashedPass[SHA256_BLOCK_SIZE];
+    printf("\nHasing password: ");
     up_hashText((char *)hashedPass,password,(int)strlen(password));
-    
+    printf("Hasing password: done \n");
     unsigned char userLength = (unsigned char) strlen(username);
     username[userLength] = '\0';
     userLength++;
