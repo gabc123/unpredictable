@@ -68,7 +68,9 @@ struct up_container{
     int current;
     int full;
 };
-struct up_player_stats{
+
+struct up_player_stats
+{
     
     struct up_container bullets;
     struct up_container missile;
@@ -81,7 +83,10 @@ void up_interface_gamePlay(struct up_assets *assets ,struct up_font_assets *font
                           struct up_interface_game *interface);
 
 void up_interface_creation(struct up_interface_game *interface, struct up_player_stats *player);
+
+struct up_shootingFlag;
 void up_player_setup(struct up_player_stats *player, struct up_shootingFlag weapons);
+
 void up_interface_update(struct up_interface_game *inteface, struct up_player_stats *player);
 
 #endif  //defined(__up_game__up_healthbar__)

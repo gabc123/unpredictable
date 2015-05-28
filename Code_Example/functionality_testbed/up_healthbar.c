@@ -39,8 +39,8 @@ struct up_vec3 up_set_vec3(float x, float y, float z){
 
 static void up_interface_placement(FILE *fp,struct up_interface_inventory *tmp){
 
-    fscanf(fp,"%f/%f/%f %f/%f/%f %f/%f/%f", &tmp->color.x, &tmp->color.y, &tmp->color.z,&tmp->pos.x, &tmp->pos.y, &tmp->pos.z,
-           &tmp->scale.x, &tmp->scale.y, &tmp->scale.z);
+    fscanf(fp,"%f/%f/%f %f/%f/%f %f/%f/%f", &tmp->pos.x, &tmp->pos.y, &tmp->pos.z,
+           &tmp->scale.x, &tmp->scale.y, &tmp->scale.z,&tmp->color.x, &tmp->color.y, &tmp->color.z);
 }
 
 void up_interface_creation(struct up_interface_game *interface, struct up_player_stats *player){

@@ -21,7 +21,7 @@ double up_getFrameTimeDelta();
 double up_gFrameTickRate = 0;
 unsigned int up_gFramePerSeconde = 0;
 
-int checkFire(unsigned int startTime, unsigned int cooldown);
+int checkFire(struct cooldownTimer weapon);
 
 
 //not it use
@@ -111,8 +111,8 @@ void up_key_function_toggle_ligth(struct up_eventState *currentEvent,struct up_a
 void up_key_function_firebullet(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
     //Checks if its ok to fire a projectile
-    int tempFlag = checkFire(currentEvent->flags.bulletFlag.startTime, currentEvent->flags.bulletFlag.coolDown);
-    if(tempFlag==0)
+    int tempFlag = checkFire(currentEvent->flags.bulletFlag);
+    if(tempFlag==1)
     {
         objectAction->fireWeapon.state = fireBullet;
         currentEvent->flags.bulletFlag.startTime = SDL_GetTicks();  //marks the time the wepon was fired,
@@ -124,8 +124,8 @@ void up_key_function_firebullet(struct up_eventState *currentEvent,struct up_act
 //missile
 void up_key_function_firemissile(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
-    int tempFlag = checkFire(currentEvent->flags.missileFlag.startTime, currentEvent->flags.missileFlag.coolDown);
-    if(tempFlag==0)
+    int tempFlag = checkFire(currentEvent->flags.missileFlag);
+    if(tempFlag==1)
     {
         objectAction->fireWeapon.state = fireMissile;
         currentEvent->flags.missileFlag.startTime = SDL_GetTicks();
@@ -137,8 +137,8 @@ void up_key_function_firemissile(struct up_eventState *currentEvent,struct up_ac
 //lazer
 void up_key_function_firelaser(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
-    int tempFlag = checkFire(currentEvent->flags.laserFlag.startTime, currentEvent->flags.laserFlag.coolDown);
-    if(tempFlag==0)
+    int tempFlag = checkFire(currentEvent->flags.laserFlag);
+    if(tempFlag==1)
     {
         objectAction->fireWeapon.state = fireLaser;
         currentEvent->flags.laserFlag.startTime = SDL_GetTicks();
@@ -284,11 +284,12 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
     return flag;
 }
 //Tobias
-int checkFire(unsigned int startTime, unsigned int cooldown)
+// magnus , ammocheck
+int checkFire(struct cooldownTimer weapon)
 {
-   unsigned int tempVar=SDL_GetTicks()-startTime;
+   unsigned int tempVar=SDL_GetTicks()-weapon.startTime;
 
-   if (tempVar<=cooldown)
+   if (tempVar>= weapon.coolDown && weapon.ammunition > 0)
    {
        return 1;
    }
@@ -306,7 +307,8 @@ double up_getFrameTimeDelta()
 }
 
 //Sebastian 2015-05-15
-void up_handleCollision(struct up_allCollisions *allcollisions)
+// magnus bug checks and fixes
+void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_stats *player_stats,struct up_shootingFlag *weapons)
 {
     int i=0;
     struct up_objectInfo *object1 = NULL;
@@ -912,18 +914,18 @@ void up_createProjectile(struct up_objectInfo *localobject,
                          struct soundLib *sound)
 {
     struct up_objectInfo projectile = *localobject;
-    struct cooldownTimer bullet = ammoStats->flags.bulletFlag;
-    struct cooldownTimer missile = ammoStats->flags.missileFlag;
-    struct cooldownTimer laser = ammoStats->flags.laserFlag;
+    struct cooldownTimer *bullet = &ammoStats->flags.bulletFlag;
+    struct cooldownTimer *missile = &ammoStats->flags.missileFlag;
+    struct cooldownTimer *laser = &ammoStats->flags.laserFlag;
     //bullet
     if(obj->fireWeapon.state == fireBullet){
         projectile = up_asset_createObjFromId(4);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + bullet.ammunitionSpeed;
+        projectile.speed = localobject->speed + bullet->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
-
+        bullet->ammunition--;
         up_unit_add(up_projectile_type, projectile);
         obj->fireWeapon.none = none;
     }
@@ -933,12 +935,13 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + laser.ammunitionSpeed;
+        projectile.speed = localobject->speed + laser->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
 
+        laser->ammunition--;
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
-
+        
         //pew pew sound
         up_music(1, 0, sound);
 
@@ -949,9 +952,10 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + missile.ammunitionSpeed;
+        projectile.speed = localobject->speed + missile->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
-
+        
+        missile->ammunition--;
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
 

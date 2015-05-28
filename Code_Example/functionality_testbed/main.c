@@ -206,7 +206,7 @@ int main(int argc, char const *argv[])
     up_weaponCoolDown_start_setup(&currentEvent);
     printf("out of weapon\n");
     struct up_objectInfo in_cam[500];
-    struct up_eventState funkarEj = {0};
+
     // starts the main game loop
     up_matrix4_t viewPerspectivMatrix;
 
@@ -251,10 +251,12 @@ int main(int argc, char const *argv[])
         up_network_sendNewMovement(&shipAction, connection_data);
         network_state_recived = up_network_getNewMovement(network_states_data, map_maxPlayers,shipIndex,connection_data);
 
-        up_update_actions(&shipAction, network_states_data, map_maxPlayers,&funkarEj, sound);
+        up_update_actions(&shipAction, network_states_data, map_maxPlayers,&currentEvent, sound);
+        
         up_updateMovements();
         up_checkCollision(&allcollisions);
-        up_handleCollision(&allcollisions);
+        up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);
+        
         up_update_playerStats(&allcollisions, &player_stats, shipIndex);
         up_update_camera(&cam, ship);
         
