@@ -13,13 +13,15 @@ struct up_collision
     int object2;
 };
 
+
+#define UP_COLLISIONS_MAX 200
 struct up_allCollisions
 {
-    struct up_collision projectileEnviroment[100];
-    struct up_collision projectileShip[100];
-    struct up_collision shipEnviroment[100];
-    struct up_collision enviromentEnviroment[100];
-    struct up_collision shipShip[100];
+    struct up_collision projectileEnviroment[UP_COLLISIONS_MAX];
+    struct up_collision projectileShip[UP_COLLISIONS_MAX];
+    struct up_collision shipEnviroment[UP_COLLISIONS_MAX];
+    struct up_collision enviromentEnviroment[UP_COLLISIONS_MAX];
+    struct up_collision shipShip[UP_COLLISIONS_MAX];
     //current number of objects in each array
     int nrProjectileEnviroment;
     int nrProjectileShip;
@@ -125,7 +127,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
 
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
 
-void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *funkarEj, struct soundLib *sound);
+void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *smmostats, struct soundLib *sound);
 
 //this funktion updates the global position of all objects in the world
 // only called in the main gameloop once

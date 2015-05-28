@@ -313,17 +313,21 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
     int i=0;
     struct up_objectInfo *object1 = NULL;
     struct up_objectInfo *object2 = NULL;
-
+    int objectIndex1 = 0;
+    int objectIndex2 = 0;
     for(i=0; i < allcollisions->nrShipEnviroment; i++){
-        object1 = up_unit_objAtIndex(up_ship_type, allcollisions->shipEnviroment[i].object1);
-        object2 = up_unit_objAtIndex(up_environment_type, allcollisions->shipEnviroment[i].object2);
+        objectIndex1 = allcollisions->shipEnviroment[i].object1;
+        objectIndex2 = allcollisions->shipEnviroment[i].object2;
+        
+        object1 = up_unit_objAtIndex(up_ship_type, objectIndex1);
+        object2 = up_unit_objAtIndex(up_environment_type, objectIndex2);
         if (object1 == NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
+            UP_ERROR_MSG_INT("Ship env1 tried accesing nonexisting object item nr:",objectIndex1);
             //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
+            UP_ERROR_MSG_INT("Ship env2 tried accesing nonexisting object itemnr:",objectIndex2);
             //printf("itemnr: %d\n", i);
             continue;
         }
@@ -336,15 +340,17 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
     }
 
     for(i=0; i < allcollisions->nrProjectileEnviroment; i++){
-        object1 = up_unit_objAtIndex(up_projectile_type, allcollisions->projectileEnviroment[i].object1);
-        object2 = up_unit_objAtIndex(up_environment_type, allcollisions->projectileEnviroment[i].object2);
+        objectIndex1 = allcollisions->projectileEnviroment[i].object1;
+        objectIndex2 = allcollisions->projectileEnviroment[i].object2;
+        object1 = up_unit_objAtIndex(up_projectile_type, objectIndex1);
+        object2 = up_unit_objAtIndex(up_environment_type, objectIndex2);
         if (object1 == NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
+            UP_ERROR_MSG_INT("proj env1 tried accesing nonexisting object itemnr:",objectIndex1);
             //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
+            UP_ERROR_MSG_INT("proj env2 tried accesing nonexisting object itemnr:",objectIndex2);
             //printf("itemnr: %d\n", i);
             continue;
         }
@@ -359,16 +365,18 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
     }
 
     for(i=0; i < allcollisions->nrProjectileShip; i++){
-        object1 = up_unit_objAtIndex(up_projectile_type, allcollisions->projectileShip[i].object1);
-        object2 = up_unit_objAtIndex(up_ship_type, allcollisions->projectileShip[i].object2);
+        objectIndex1 = allcollisions->projectileShip[i].object1;
+        objectIndex2 = allcollisions->projectileShip[i].object2;
+        object1 = up_unit_objAtIndex(up_projectile_type, objectIndex1);
+        object2 = up_unit_objAtIndex(up_ship_type, objectIndex2);
         if (object1 == NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
+            UP_ERROR_MSG_INT("proj ship1 tried accesing nonexisting object itemnr:",objectIndex1);
             //printf("itemnr: %d\n", i);
             continue;
         }
 
         if (object2 ==NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
+            UP_ERROR_MSG_INT("proj ship2 tried accesing nonexisting object itemnr:",objectIndex2);
             //printf("itemnr: %d\n", i);
             continue;
         }
@@ -383,15 +391,17 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
     }
 
     for(i=0; i < allcollisions->nrEnviromentEnviroment; i++){
-        object1 = up_unit_objAtIndex(up_environment_type, allcollisions->enviromentEnviroment[i].object1);
-        object2 = up_unit_objAtIndex(up_environment_type, allcollisions->enviromentEnviroment[i].object2);
+        objectIndex1 = allcollisions->enviromentEnviroment[i].object1;
+        objectIndex2 = allcollisions->enviromentEnviroment[i].object2;
+        object1 = up_unit_objAtIndex(up_environment_type, objectIndex1);
+        object2 = up_unit_objAtIndex(up_environment_type, objectIndex2);
         if (object1 == NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
+            UP_ERROR_MSG_INT("env env1 tried accesing nonexisting object itemnr:",objectIndex1);
             //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
+            UP_ERROR_MSG_INT("env env2 tried accesing nonexisting object itemnr:",objectIndex2);
             //printf("itemnr: %d\n", i);
             continue;
         }
@@ -420,12 +430,12 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
         object1 = up_unit_objAtIndex(up_ship_type, allcollisions->shipShip[i].object1);
         object2 = up_unit_objAtIndex(up_ship_type, allcollisions->shipShip[i].object2);
         if (object1 == NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
         if (object2 ==NULL){
-            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr: %d",i);
+            UP_ERROR_MSG_INT("tried accesing nonexisting object itemnr:",i);
             //printf("itemnr: %d\n", i);
             continue;
         }
@@ -469,9 +479,13 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
     distanceY = fabsf(object2->pos.y - object1->pos.y);
     distanceZ = fabsf(object2->pos.z - object1->pos.z);
 
+    if (object1->objectId.idx == 0|| object2->objectId.idx == 0) {
+        return;
+    }
+    
     //checks if the collisionboxes collides
-    if(distanceX <= object1->collisionbox.length.x || distanceX <= object2->collisionbox.length.x)
-        if(distanceY <= object1->collisionbox.length.y ||distanceY <=object2->collisionbox.length.y)
+    if(distanceX <= object1->collisionbox.length.x || distanceX <= object2->collisionbox.length.x){
+        if(distanceY <= object1->collisionbox.length.y ||distanceY <=object2->collisionbox.length.y){
             if(distanceZ <= object1->collisionbox.length.z || distanceZ <= object2->collisionbox.length.z)
             {
                 //stores the id, arrayplacement by the type of collision
@@ -507,15 +521,25 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                     //printf("shipship\n");
                     allcollisions->shipShip[allcollisions->nrShipShip].object1 = object1->objectId.idx;
                     allcollisions->shipShip[allcollisions->nrShipShip++].object2 = object2->objectId.idx;
+                        if (object1->objectId.idx == 0) {
+                            printf("test");
+                        }
+                    break;
+                default:
+                        printf("error");
+                        break;
+                        
                 }
             }
+        }
+    }
 }
 
 //checks for collisions based on object type
 //Sebastian 2015-05-08
 void up_checkCollision(struct up_allCollisions *allcollisions){
 
-    int i, j, totalShips = 0, totalObjects = 0, totalProjectiles = 0;
+    int i= 1, j= 1, totalShips = 0, totalObjects = 0, totalProjectiles = 0;
     float distance=0, x=0, y=0, z=0;
 
     //keeps track of total amount of collisions on current frame based on type
@@ -531,12 +555,16 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
     struct up_objectInfo *projectile = up_unit_getAllObj(up_projectile_type, &totalProjectiles);
 
     //checks ships vs enviroment
-    for(i=0; i < totalShips; i++){
+    for(i=1; i < totalShips; i++){
         // no need to check ship if not active
         if (!up_unit_isActive(&ships[i])) {
             continue;
         }
-        for(j=0; j < totalObjects; j++){
+        for(j=1; j < totalObjects; j++){
+            if (allcollisions->nrShipEnviroment >= UP_COLLISIONS_MAX) {
+                i = totalShips; // breaks the outer loop
+                break;
+            }
             // no need to check ship if not active
             if (!up_unit_isActive(&enviroment[j])) {
                 continue;
@@ -554,12 +582,16 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
     }
 
     //projectile vs enviroment
-    for(i=0; i < totalProjectiles; i++){
+    for(i=1; i < totalProjectiles; i++){
         // no need to check ship if not active
         if (!up_unit_isActive(&projectile[i])) {
             continue;
         }
-        for(j=0; j < totalObjects; j++){
+        for(j=1; j < totalObjects; j++){
+            if (allcollisions->nrProjectileEnviroment >= UP_COLLISIONS_MAX) {
+                i = totalProjectiles; // breaks the outer loop
+                break;
+            }
             // no need to check ship if not active
             if (!up_unit_isActive(&enviroment[j])) {
                 continue;
@@ -570,19 +602,23 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
             distance = sqrt((x*x)+(y*y)+(z*z));
 
             if(distance < projectile[i].maxLength || distance < enviroment[j].maxLength){
-                printf("projectilelength%f, distance%f, enviroment%f\n",projectile[i].maxLength,distance,enviroment[j].maxLength);
+                //printf("projectilelength %f, distance %f, enviroment %f\n",projectile[i].maxLength,distance,enviroment[j].maxLength);
                 testCollision(&projectile[i], &enviroment[j], allcollisions, projectileEnviroment);
             }
         }
     }
 
     //projectile vs ship
-    for(i=0; i < totalShips; i++){
+    for(i=1; i < totalShips; i++){
         // no need to check ship if not active
         if (!up_unit_isActive(&ships[i])) {
             continue;
         }
-        for(j=0; j < totalProjectiles; j++){
+        for(j=1; j < totalProjectiles; j++){
+            if (allcollisions->nrProjectileShip >= UP_COLLISIONS_MAX) {
+                i = totalShips; // breaks the outer loop
+                break;
+            }
             // no need to check ship if not active
             if (!up_unit_isActive(&projectile[j])) {
                 continue;
@@ -594,7 +630,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 distance = sqrt((x*x)+(y*y)+(z*z));
 
                 if(distance < projectile[j].maxLength || distance < ships[i].maxLength){
-                    printf("projectilelength%f, distance%f, enviroment%f\n",projectile[j].maxLength,distance,ships[i].maxLength);
+                    //printf("projectilelength %f, distance %f, ship %f\n",projectile[j].maxLength,distance,ships[i].maxLength);
                     testCollision(&projectile[j], &ships[i], allcollisions, projectileShip);
                 }
             }
@@ -603,12 +639,16 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
 
 
     //enviroment vs enviroment
-    for(i=0; i < totalObjects; i++){
+    for(i=1; i < totalObjects; i++){
         // no need to check ship if not active
         if (!up_unit_isActive(&enviroment[i])) {
             continue;
         }
-        for(j=0; j < totalObjects; j++){
+        for(j=1; j < totalObjects; j++){
+            if (allcollisions->nrEnviromentEnviroment >= UP_COLLISIONS_MAX) {
+                i = totalObjects; // breaks the outer loop
+                break;
+            }
             // no need to check ship if not active
             if (!up_unit_isActive(&enviroment[j])) {
                 continue;
@@ -627,24 +667,37 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
     }
 
     //ship vs ship
-    for(i=0; i < totalShips; i++){
+    for(i=1; i < totalShips; i++)
+    {
         // no need to check ship if not active
-        if (!up_unit_isActive(&ships[i])) {
+        if (!up_unit_isActive(&ships[i]))
+        {
             continue;
         }
-        for(j=0; j < totalShips; j++){
+        for(j=1; j < totalShips; j++)
+        {
+            if (allcollisions->nrShipShip >= UP_COLLISIONS_MAX) {
+                i = totalShips; // breaks the outer loop
+                break;
+            }
             // no need to check ship if not active
-            if (!up_unit_isActive(&ships[j])) {
+            if (!up_unit_isActive(&ships[j]))
+            {
                 continue;
             }
-            if( i != j){
+            if( i != j)
+            {
                 x = ships[i].pos.x - ships[j].pos.x;
                 y = ships[i].pos.y - ships[j].pos.y;
                 z = ships[i].pos.z - ships[j].pos.z;
                 distance = sqrt((x*x)+(y*y)+(z*z));
-
+                
                 if(distance < ships[i].maxLength || distance < ships[j].maxLength){
-                    testCollision(&ships[j], &ships[i], allcollisions, enviromentEnviroment);
+                    //printf("ship %f, distance %f, ship %f\n",ships[j].maxLength,distance,ships[i].maxLength);
+                    if (allcollisions->nrEnviromentEnviroment > 5) {
+                        printf("test");
+                    }
+                    testCollision(&ships[j], &ships[i], allcollisions, shipShip);
                 }
             }
         }
@@ -913,7 +966,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
                          struct up_actionState *obj, struct up_eventState *ammoStats,
                          struct soundLib *sound)
 {
-    struct up_objectInfo projectile = *localobject;
+    struct up_objectInfo projectile = {0};
     struct cooldownTimer *bullet = &ammoStats->flags.bulletFlag;
     struct cooldownTimer *missile = &ammoStats->flags.missileFlag;
     struct cooldownTimer *laser = &ammoStats->flags.laserFlag;
@@ -967,7 +1020,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
 /*updates all action changes in the game*/
 //Sebastian 2015-05-05
 void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server,
-                       int nrObj, struct up_eventState *funkarEj, struct soundLib *sound)
+                       int nrObj, struct up_eventState *smmostats, struct soundLib *sound)
 {
     int i=0;
     struct up_objectInfo *localObject = NULL;
@@ -987,7 +1040,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
             continue;
         }
         up_moveObj(localObject, tmp,frameDelta);
-        up_createProjectile(localObject, tmp, funkarEj, sound);
+        up_createProjectile(localObject, tmp, smmostats, sound);
     }
 
     //local playership update
@@ -997,7 +1050,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         return ;
     }
     up_moveObj(localObject, playerShip, frameDelta);
-    up_createProjectile(localObject, playerShip,funkarEj, sound);
+    up_createProjectile(localObject, playerShip,smmostats, sound);
 }
 
 //walled
@@ -1077,8 +1130,10 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
             if (other_object == NULL) {
                 continue;
             }
-            if(other_object->modelId == player_object->modelId){
-                take_damage(player,0);
+            
+            if(other_shipId !=  playerId ||
+               other_object->modelId == player_object->modelId){
+                take_damage(player,5);
             }
         }
     }
