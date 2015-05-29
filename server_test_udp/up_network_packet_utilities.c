@@ -52,6 +52,50 @@ int up_network_logInRegistrate_packetDecode(unsigned char *data,int *clientId, u
     return read_pos;
 }
 
+int up_network_packet_mapData_encode(unsigned char *data,int playerIndex,int mapSeed,int numPlayersOnline)
+{
+    int read_pos = 0;
+    data[read_pos] = UP_PACKET_MAPDATA_FLAG;
+    read_pos++;
+    
+    unsigned int playerIndexSize = sizeof(playerIndex);
+    generic_copyElement(playerIndexSize, &data[read_pos], (unsigned char *)&playerIndex);
+    read_pos += playerIndexSize;
+    
+    unsigned int mapSeedSize = sizeof(mapSeed);
+    generic_copyElement(mapSeedSize, &data[read_pos], (unsigned char *)&mapSeed);
+    read_pos += mapSeedSize;
+    
+    unsigned int numPlayersOnlinedSize = sizeof(numPlayersOnline);
+    generic_copyElement(numPlayersOnlinedSize, &data[read_pos], (unsigned char *)&numPlayersOnline);
+    read_pos += numPlayersOnlinedSize;
+    
+    return read_pos;
+}
+
+int up_network_packet_mapData_decode(unsigned char *data,int *playerIndex,int *mapSeed,int *numPlayersOnline)
+{
+    int read_pos = 0;
+    if (data[read_pos] != UP_PACKET_MAPDATA_FLAG) {
+        return 0;
+    }
+    read_pos++;
+    
+    unsigned int playerIndexSize = sizeof(*playerIndex);
+    generic_copyElement(playerIndexSize,(unsigned char *)playerIndex,&data[read_pos]);
+    read_pos += playerIndexSize;
+    
+    unsigned int mapSeedSize = sizeof(*mapSeed);
+    generic_copyElement(mapSeedSize,(unsigned char *)mapSeed,&data[read_pos]);
+    read_pos += mapSeedSize;
+    
+    unsigned int numPlayersOnlinedSize = sizeof(*numPlayersOnline);
+    generic_copyElement(numPlayersOnlinedSize,(unsigned char *)numPlayersOnline,&data[read_pos]);
+    read_pos += numPlayersOnlinedSize;
+    
+    return read_pos;
+}
+
 
 int up_network_heartbeat_packetEncode(unsigned char *data,int timestamp)
 {

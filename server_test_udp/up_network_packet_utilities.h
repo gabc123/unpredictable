@@ -30,7 +30,7 @@
 
 // maintenance flags
 #define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
-#define UP_MAP_DATA_FLAG (unsigned char)50
+#define UP_PACKET_MAPDATA_FLAG (unsigned char)50
 
 
 
@@ -50,6 +50,8 @@ struct up_packet_movement
 
 
 
+int up_network_packet_mapData_encode(unsigned char *data,int playerIndex,int mapSeed,int numPlayersOnline);
+int up_network_packet_mapData_decode(unsigned char *data,int *playerIndex,int *mapSeed,int *numPlayersOnline);
 
 int up_network_heartbeat_packetEncode(unsigned char *data,int timestamp);
 int up_network_heartbeat_packetDecode(unsigned char *data,int *timestamp);

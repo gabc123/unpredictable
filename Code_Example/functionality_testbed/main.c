@@ -30,6 +30,7 @@ int main(int argc, char const *argv[])
 
     // setup , sdl and the opengl window
     UP_sdlSetup();
+    up_system_check();
     printf("Sdl setup done\n");
     int screen_width = 1280;
     int screen_hight = 800;
@@ -93,13 +94,14 @@ int main(int argc, char const *argv[])
 
     struct up_network_datapipe *account_connection = up_network_start_account_setup();
     // start the menu, and display it
-    status=up_menu(shader_menu, sound,keymap,font_assets,account_connection);
+    
+    struct up_map_data mapData = {0};   // gets filled out from the login sequance in menu
+    mapData.playerIndex = 1;
+    status=up_menu(shader_menu, sound,keymap,font_assets,account_connection,&mapData);
 
-    // do map loading on the account connection
-
-    // then exit
+    
     up_network_shutdown_deinit(account_connection);
-
+    
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
@@ -123,12 +125,12 @@ int main(int argc, char const *argv[])
 
     int shipIndex = 0;
     int shipIndex_tmp = 0;
-    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    shipIndex = 4;
+    int i = 0;
+    for (i = 0; i < UP_MAX_CLIENTS; i++) {
+        shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
+    }
+    
+    shipIndex = mapData.playerIndex;
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
@@ -141,16 +143,10 @@ int main(int argc, char const *argv[])
         UP_ERROR_MSG("ship do not exist, use loner ship");
         ship = &tmp_ship;
     }
-
+    ship->pos.x += 10;
     up_unit_add(up_environment_type,stillObj);
 
-    up_generate_sun();
-
-    up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 50, 30);
-
-    up_generate_randomize_satellite(40);        //satellite
-    up_generate_randomize_spaceMine(80);        //space mine
-
+    up_generate_map(mapData.mapSeed);
 
 
 
@@ -188,10 +184,10 @@ int main(int argc, char const *argv[])
     // the ship will stand stilll at the begining
     //struct shipMovement movement = {0,0,0,0};
 
-    up_health_bar_t healthBar;
-    healthBar = healthbar_creation();
+    //up_health_bar_t healthBar;
+   // healthBar = healthbar_creation();
 
-    up_stats_index_t interface_info = up_create_statsObject();
+   // up_stats_index_t interface_info = up_create_statsObject();
 
     // loads skybox shaders and fill out the structure
     struct up_skyBox skyBox;
@@ -210,7 +206,7 @@ int main(int argc, char const *argv[])
     up_weaponCoolDown_start_setup(&currentEvent);
     printf("out of weapon\n");
     struct up_objectInfo in_cam[500];
-    struct up_eventState funkarEj = {0};
+
     // starts the main game loop
     up_matrix4_t viewPerspectivMatrix;
 
@@ -224,21 +220,28 @@ int main(int argc, char const *argv[])
         map_maxPlayers = 0;
     }
 
-    int i = 0;
+
     for (i = 0; i < map_maxPlayers; i++) {
         network_states_data[i] = noState;
     }
     int network_state_recived = 0;
+    
     struct up_network_datapipe *connection_data = up_network_start_gameplay_setup();
 
-    struct up_player_stats player_stats;
-    player_stats.current_health = 100;
-    player_stats.max_health = 100;
-    player_stats.current_armor = 100;
-    player_stats.max_armor = 100;
-    player_stats.weapons.missile = 5;
-    player_stats.weapons.bullets = 100;
-    player_stats.weapons.laser = 50;
+    struct up_player_stats player_stats = {0};
+//    player_stats.current_health = 100;
+//    player_stats.max_health = 100;
+//    player_stats.current_armor = 100;
+//    player_stats.max_armor = 100;
+//    player_stats.weapons.missile = 5;
+//    player_stats.weapons.bullets = 100;
+//    player_stats.weapons.laser = 50;
+    struct up_interface_game interface = {0};
+    
+    up_player_setup(&player_stats, currentEvent.flags);
+    up_interface_creation(&interface, &player_stats);
+
+    printf("starting main loop\n");
 
     while(status)
     {
@@ -248,15 +251,18 @@ int main(int argc, char const *argv[])
         up_network_sendNewMovement(&shipAction, connection_data);
         network_state_recived = up_network_getNewMovement(network_states_data, map_maxPlayers,shipIndex,connection_data);
 
-        up_update_actions(&shipAction, network_states_data, map_maxPlayers,&funkarEj, sound);
+        up_update_actions(&shipAction, network_states_data, map_maxPlayers,&currentEvent, sound);
+        
         up_updateMovements();
         up_checkCollision(&allcollisions);
-        up_handleCollision(&allcollisions);
-        up_update_playerStats(&allcollisions, &player_stats, shipIndex);
+        up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);
+        
+        up_update_playerStats(&allcollisions, &player_stats,&currentEvent.flags, shipIndex);
         up_update_camera(&cam, ship);
-
-        up_moveHealthBar(shipIndex,healthBar,&player_stats);
-        up_interface_placement(&cam,interface_info);
+        
+        up_interface_update(&interface, &player_stats);
+       // up_moveHealthBar(shipIndex,healthBar,&player_stats, &cam);
+        //up_interface_placement(&cam,interface_info);
 
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
@@ -276,12 +282,14 @@ int main(int argc, char const *argv[])
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets);
 
         up_skybox_render(&skyBox,&cam,&viewPerspectivMatrix);
-        up_gamePlayInterface(font_assets,shader_menu,&player_stats);
+        up_interface_gamePlay(assets,font_assets,shader_menu,&interface);
 
 
         UP_openGLupdate();
 
     }
+    
+
     printf("Ended main loop\n");
     free(transformationArray);
     //cleanup and release all data (notice the reverse order of setup)

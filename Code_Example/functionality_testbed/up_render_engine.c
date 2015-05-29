@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Waleed Hassan. All rights reserved.
 //
 
+#include <stdio.h>
+#include <stdlib.h>
 #include "up_render_engine.h"
 #include "up_initGraphics.h"
 #include "up_texture_module.h"

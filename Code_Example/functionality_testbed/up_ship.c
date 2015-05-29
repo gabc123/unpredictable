@@ -15,12 +15,13 @@
 
 
 // magnus , up_updateMovements , 5 maj
+
 double up_getFrameTimeDelta();
 
 double up_gFrameTickRate = 0;
 unsigned int up_gFramePerSeconde = 0;
 
-int checkFire(unsigned int startTime, unsigned int cooldown);
+int checkFire(struct cooldownTimer weapon);
 
 
 //not it use
@@ -110,8 +111,8 @@ void up_key_function_toggle_ligth(struct up_eventState *currentEvent,struct up_a
 void up_key_function_firebullet(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
     //Checks if its ok to fire a projectile
-    int tempFlag = checkFire(currentEvent->flags.bulletFlag.startTime, currentEvent->flags.bulletFlag.coolDown);
-    if(tempFlag==0)
+    int tempFlag = checkFire(currentEvent->flags.bulletFlag);
+    if(tempFlag==1)
     {
         objectAction->fireWeapon.state = fireBullet;
         currentEvent->flags.bulletFlag.startTime = SDL_GetTicks();  //marks the time the wepon was fired,
@@ -123,8 +124,8 @@ void up_key_function_firebullet(struct up_eventState *currentEvent,struct up_act
 //missile
 void up_key_function_firemissile(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
-    int tempFlag = checkFire(currentEvent->flags.missileFlag.startTime, currentEvent->flags.missileFlag.coolDown);
-    if(tempFlag==0)
+    int tempFlag = checkFire(currentEvent->flags.missileFlag);
+    if(tempFlag==1)
     {
         objectAction->fireWeapon.state = fireMissile;
         currentEvent->flags.missileFlag.startTime = SDL_GetTicks();
@@ -136,8 +137,8 @@ void up_key_function_firemissile(struct up_eventState *currentEvent,struct up_ac
 //lazer
 void up_key_function_firelaser(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
-    int tempFlag = checkFire(currentEvent->flags.laserFlag.startTime, currentEvent->flags.laserFlag.coolDown);
-    if(tempFlag==0)
+    int tempFlag = checkFire(currentEvent->flags.laserFlag);
+    if(tempFlag==1)
     {
         objectAction->fireWeapon.state = fireLaser;
         currentEvent->flags.laserFlag.startTime = SDL_GetTicks();
@@ -146,6 +147,13 @@ void up_key_function_firelaser(struct up_eventState *currentEvent,struct up_acti
         objectAction->fireWeapon.state = none;
     }
 }
+
+
+
+
+
+
+
 
 void up_key_function_stop_forward(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
@@ -276,11 +284,12 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
     return flag;
 }
 //Tobias
-int checkFire(unsigned int startTime, unsigned int cooldown)
+// magnus , ammocheck
+int checkFire(struct cooldownTimer weapon)
 {
-   unsigned int tempVar=SDL_GetTicks()-startTime;
+   unsigned int tempVar=SDL_GetTicks()-weapon.startTime;
 
-   if (tempVar<=cooldown)
+   if (tempVar>= weapon.coolDown && weapon.ammunition > 0)
    {
        return 1;
    }
@@ -298,7 +307,8 @@ double up_getFrameTimeDelta()
 }
 
 //Sebastian 2015-05-15
-void up_handleCollision(struct up_allCollisions *allcollisions)
+// magnus bug checks and fixes
+void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_stats *player_stats,struct up_shootingFlag *weapons)
 {
     int i=0;
     struct up_objectInfo *object1 = NULL;
@@ -368,6 +378,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions)
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
+
 
     }
 
@@ -469,6 +480,10 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                 case shipEnviroment:
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment].object1 = object1->objectId.idx;
                     allcollisions->shipEnviroment[allcollisions->nrShipEnviroment++].object2 = object2->objectId.idx;
+//                    printf("shipEnviroment\n");
+//                    printf("object1id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object1);
+//                    printf("object2id stored: %d\n", allcollisions->shipEnviroment[allcollisions->nrShipEnviroment-1].object2);
+
                     break;
                 //projectile enviroment
                 case projectileEnviroment:
@@ -852,10 +867,12 @@ struct up_actionState
 //struct up_objectInfo *up_unit_objAtIndex(int index);
 
 /*determine the new direction and speed of the object*/
+//turnspeed is a set value atm. It is to be stored for each obj
 //Sebastian 2015-05-05
 //Magnus 2015-05-06
 void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
 {
+    //float turnSpeed=1; //temporary. will be unique for each model
 
     if(obj->engine.state == fwd){
         localObject->speed +=localObject->acceleration*frameDelta;
@@ -897,18 +914,20 @@ void up_createProjectile(struct up_objectInfo *localobject,
                          struct soundLib *sound)
 {
     struct up_objectInfo projectile = *localobject;
-    struct cooldownTimer bullet = ammoStats->flags.bulletFlag;
-    struct cooldownTimer missile = ammoStats->flags.missileFlag;
-    struct cooldownTimer laser = ammoStats->flags.laserFlag;
+    struct cooldownTimer *bullet = &ammoStats->flags.bulletFlag;
+    struct cooldownTimer *missile = &ammoStats->flags.missileFlag;
+    struct cooldownTimer *laser = &ammoStats->flags.laserFlag;
     //bullet
     if(obj->fireWeapon.state == fireBullet){
         projectile = up_asset_createObjFromId(4);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + bullet.ammunitionSpeed;
+        projectile.speed = localobject->speed + bullet->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
-
+        projectile.projectile = fireBullet;
+        
+        bullet->ammunition--;
         up_unit_add(up_projectile_type, projectile);
         obj->fireWeapon.none = none;
     }
@@ -918,12 +937,13 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + laser.ammunitionSpeed;
+        projectile.speed = localobject->speed + laser->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
-
+        projectile.projectile = fireLaser;
+        laser->ammunition--;
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
-
+        
         //pew pew sound
         up_music(1, 0, sound);
 
@@ -934,9 +954,10 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
-        projectile.speed = localobject->speed + missile.ammunitionSpeed;
+        projectile.speed = localobject->speed + missile->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
-
+        projectile.projectile = fireMissile;
+        missile->ammunition--;
         up_unit_add(up_projectile_type,projectile);
         obj->fireWeapon.none = none;
 
@@ -981,17 +1002,49 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
 
 //walled
 static void take_damage(struct up_player_stats *stats,int damage){
-    stats->current_armor -= damage;
-    if(stats->current_armor < 0){
-        stats->current_health += stats->current_armor;
-        stats->current_armor = 0;
+    
+    stats->armor.current -= damage;
+    if(stats->armor.current < 0){
+        stats->health.current += stats->armor.current;
+        stats->armor.current = 0;
     }
 
-    stats->current_health = (stats->current_health > 0) ? stats->current_health : 0;
+    stats->health.current = (stats->health.current > 0) ? stats->health.current : 0;
 
 }
+
+/*
+ fireMissile = 1,
+ fireBullet,
+ fireLaser
+ 
+ 
+ */
+static void ship_projectileHit(struct up_player_stats *player,struct up_shootingFlag *weapons,struct up_objectInfo *projectile)
+{
+    int damage = 0;
+    switch (projectile->projectile) {
+        case fireMissile:
+            damage = weapons->missileFlag.damage;
+            break;
+        case fireBullet:
+            damage = weapons->bulletFlag.damage;
+            break;
+        case fireLaser:
+            damage = weapons->laserFlag.damage;
+            break;
+            
+        default:
+            damage = 0;
+            break;
+    }
+    take_damage(player,damage);
+    
+}
+
 //walled
-void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *stats, int playerId)                         //"Den checkar :P "
+// magnus included weapons so everything gets synced to the same state
+void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *player,struct up_shootingFlag *weapons, int playerId)                         //"Den checkar :P "
 {
 
 
@@ -1007,7 +1060,7 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
 
         if(collision->shipEnviroment[i].object1 == playerId){
 
-            take_damage(stats,7);
+            take_damage(player,7);
 
         }
         if (other_object == NULL) {
@@ -1025,7 +1078,7 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
                 continue;
             }
             if(other_object->modelId == player_object->modelId){
-                take_damage(stats,5);
+                take_damage(player,0);
             }
         }
     }
@@ -1039,8 +1092,14 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
                 continue;
             }
             if (other_object->modelId ) {
-                take_damage(stats,30 );
+                ship_projectileHit(player,weapons,other_object);
             }
         }
     }
+
+    player->bullets.current = weapons->bulletFlag.ammunition;
+    player->missile.current = weapons->missileFlag.ammunition;
+    player->laser.current = weapons->laserFlag.ammunition;
 }
+
+

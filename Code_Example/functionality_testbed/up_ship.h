@@ -4,6 +4,7 @@
 #include "up_matrixTransforms.h"
 #include "up_modelRepresentation.h"
 #include "up_music.h"
+#include "up_healthbar.h"
 
 
 struct up_collision
@@ -115,8 +116,13 @@ struct up_key_map
 
 struct up_key_map *up_key_remapping_setup();
 
+
+struct up_player_stats; // forward decleration 
+
 void up_checkCollision(struct up_allCollisions *allcollisions);
-void up_handleCollision(struct up_allCollisions *allcollisions);
+
+void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_stats *player_stats,struct up_shootingFlag *weapons);
+
 void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
 
 void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *funkarEj, struct soundLib *sound);
@@ -136,7 +142,6 @@ int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *o
 
 void shipMove(struct shipMovement *movement, struct up_objectInfo *ship);
 
-struct up_player_stats;
 
-void up_update_playerStats(struct up_allCollisions *colision, struct up_player_stats *stats, int playerId);   //health terminator
+void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *stats,struct up_shootingFlag *weapons, int playerId);    //health terminator
 #endif

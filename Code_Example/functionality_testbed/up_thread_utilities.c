@@ -58,7 +58,7 @@ struct up_thread_queue
 
 
 static struct up_linkElement *linkElement_alloc();
-static struct up_linkElement *linkElement_create();
+static struct up_linkElement *linkElement_create(struct up_thread_queue *queue);
 
 static void linkElement_recycle(struct up_thread_queue *queue,struct up_linkElement * fromLink,struct up_linkElement * toLink);
 
@@ -156,7 +156,7 @@ int up_readNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInfor
 
 int up_writeToNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInformation *data)
 {
-    struct up_linkElement *newData = linkElement_create();
+    struct up_linkElement *newData = linkElement_create(queue);
     if (newData == NULL) {
         return 0;
     }

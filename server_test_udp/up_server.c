@@ -26,6 +26,16 @@
 
 //static struct up_server_connection_info *up_server_socket_start();
 
+int up_server_usersOnline(struct up_server_connection_info *server)
+{
+    int i = 0;
+    int users = 0;
+    for (i = 1; i < server->connected_clients; i++) {
+        users += (server->client_infoArray[i].active != 0) ? 1 : 0;
+    }
+    return users;
+}
+
 //gives back the idx to be used by the user
 int up_server_addUser(struct up_server_connection_info *server,struct sockaddr_in *client_addr)
 {
@@ -337,7 +347,7 @@ struct internal_server_state *up_server_startup()
     
     server_state->server_gameplay = server_gameplay;
     server_state->server_gameplay_thread = server_gameplay_thread;
-    
+    server_state->mapSeed = 42; // this is the map all players load in the begining of a game
     
     // gameplay server sockets setup, this starts the sockets at port
     struct up_server_connection_info *server_account = up_server_account_start(44244);

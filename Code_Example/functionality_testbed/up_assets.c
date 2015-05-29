@@ -79,6 +79,7 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     obj.collisionbox.length.x = 1;
     obj.collisionbox.length.y = 1;
     obj.collisionbox.length.z = 1;
+    obj.projectile = 0;
 
     obj.modelId = modelId;
 

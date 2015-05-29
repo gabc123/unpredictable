@@ -27,6 +27,18 @@ void UP_sdlSetup()
 
 }
 
+
+
+
+void up_system_check()
+{
+
+    printf("\nSize of char : %lu",sizeof(char));
+    printf("\nSize of int: %lu",sizeof(int));
+    printf("\nSize of long: %lu",sizeof(long));
+    printf("\nSize of float %lu\n",sizeof(float));
+}
+
 void UP_openGLwindowSetup(int width,int height, const char *title)
 {
     // we need to have atleast opengl 3.2 to use all the functions we need.

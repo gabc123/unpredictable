@@ -13,6 +13,8 @@
 #include "up_ship.h"
 #include "up_thread_utilities.h"
 
+#define UP_MAX_CLIENTS 20
+
 struct up_network_datapipe {
     SDL_Thread *recive_thread;
     struct up_thread_queue *queue;
@@ -23,11 +25,20 @@ struct up_network_datapipe {
     IPaddress addr;
 };
 
+struct up_map_data
+{
+    int playerIndex;
+    int mapSeed;
+    int numPlayersOnline;
+    
+};
+
 struct up_network_account_data
 {
     int playerId;
     unsigned char serverResponse;  //add all data that should be included here
     int noResponse;
+    struct up_map_data map;
 };
 
 struct up_network_datapipe *up_network_start_gameplay_setup();

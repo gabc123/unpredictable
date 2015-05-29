@@ -212,7 +212,13 @@ int up_menuEventHandler(struct navigationState *navigation,
                         struct userData *user_data, struct soundLib *sound);
 
 
-int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_key_map *keymap,struct up_font_assets *fonts,struct up_network_datapipe *network_connection){
+int up_menu(struct shader_module *shaderprog,
+            struct soundLib *sound,
+            struct up_key_map *keymap,
+            struct up_font_assets *fonts,
+            struct up_network_datapipe *network_connection,
+            struct up_map_data *mapData)
+{
 
     int status=1;
     
@@ -505,7 +511,12 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
     int accountState = 0;
     
 #define UP_ACCOUNT_DATA_MAX 1
+    struct up_network_account_data zeroAccount = {0};
     struct up_network_account_data accountData[UP_ACCOUNT_DATA_MAX];
+    for (i=  0; i < UP_ACCOUNT_DATA_MAX; i++) {
+        accountData[i] = zeroAccount;
+    }
+    
     int packet_read = 0;
     int haveSentReg = 0;
     int menu_exit_flag = 0;
@@ -621,6 +632,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
                 if (accountState == LOGINSUCESS ) {
                     
                     navigation.state = logRegSuccess;
+                    *mapData = accountData->map;    // transfer all map info back to main
                 }
                 //CONNECTION FAILED
                 else if (accountState == LOGINFAILED){
@@ -815,7 +827,7 @@ int up_menu(struct shader_module *shaderprog, struct soundLib *sound,struct up_k
         UP_openGLupdate();
 
     }
-
+    printf("exiting menu\n");
     up_generate_settings_freebuttons(keybinding_buttonArray);
 
     return status;
