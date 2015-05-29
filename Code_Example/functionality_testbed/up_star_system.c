@@ -16,7 +16,9 @@
 #include <math.h>
 #include "up_error.h"
 #define UP_RAND_FLOAT_PRECISION 8000
-
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 
 static void up_generate_sun()
@@ -131,19 +133,17 @@ static void up_generate_randomize_spaceMine(int density,int seed){
             break;
         }
     }
-
 }
 
 void up_generate_map(int seed)
 {
-    
+
     up_generate_sun();
-    
+
     up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 50, 30,seed);
-    
+
     up_generate_randomize_satellite(40,seed);        //satellite
     up_generate_randomize_spaceMine(80,seed);        //space mine
 
-    
-    
+
 }
