@@ -74,15 +74,16 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     
     struct up_vec3 scale = {0.2,3.0,0.3};
     struct up_vec3 pos = interface->playerStats.health.pos;
-    pos.x += 0.3;
+    pos.x -= 0.45;
     
     int fullModelId = 5;
     int emptyModelId = 6;
     interface->health = healthBar_creation(interface->playerStats.health, pos, scale, fullModelId, emptyModelId);
     
-    
+    fullModelId = 14;
+    emptyModelId = 15;
     pos = interface->playerStats.armor.pos;
-    pos.x += 0.3;
+    pos.x -= 0.45;
     interface->armor = healthBar_creation(interface->playerStats.health, pos, scale, fullModelId, emptyModelId);
 
 }
