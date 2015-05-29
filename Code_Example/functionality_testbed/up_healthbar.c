@@ -17,6 +17,52 @@
 #include <stdlib.h>
 #include "up_error.h"
 
+static float up_distance_calc(struct up_vec3 pos1, struct up_vec3 pos2)
+{
+    float x =  (pos1.x - pos2.x);
+    float y =  (pos1.y - pos2.y);
+    float z =  (pos1.z - pos2.z);
+    
+    return sqrtf(x*x + y*y + z*z);
+}
+
+float up_radar_search(struct up_interface_game *interface,struct up_assets *assets,struct up_objectInfo *ship)
+{
+    int numShip = 0;
+    struct up_objectInfo *shipArray = up_unit_getAllObj(up_ship_type, &numShip);
+    
+    int i = 0;
+    float minDistance = 2000;
+    float tmpDistance = 2000;
+    int closesShipId = 0;
+    for (i = 0; i < numShip; i++) {
+        if (!up_unit_isActive(&shipArray[i])) {
+            continue;
+        }
+        // if we are there
+        if (shipArray[i].objectId.idx == ship->objectId.idx) {
+            continue;
+        }
+        
+        tmpDistance = up_distance_calc(shipArray[i].pos,ship->pos);
+        if (tmpDistance < minDistance) {
+            minDistance = tmpDistance;
+            closesShipId = i;
+        }
+        
+    }
+    float dx = shipArray[closesShipId].pos.x - ship->pos.x;
+    float dy = shipArray[closesShipId].pos.y - ship->pos.y;
+    float enemyAngele = atanf(dx/dy);
+    
+    float angleToEnemy = -enemyAngele + ship->angle;
+    
+    interface->radar.enemyAngle = angleToEnemy;
+    
+    return angleToEnemy;
+}
+
+
 static struct up_interface_bar healthBar_creation(struct up_interface_inventory inventory,
                                                   struct up_vec3 pos, struct up_vec3 scale, int fullModelId, int emptyModelId){
     
@@ -70,6 +116,13 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     up_interface_placement(fp,&interface->playerStats.missile);
     up_interface_placement(fp,&interface->playerStats.laser);
     
+    struct up_interface_inventory radar_tmp = {0};
+    up_interface_placement(fp,&radar_tmp);
+    interface->radar.pos = radar_tmp.pos;
+    interface->radar.scale = radar_tmp.scale;
+    interface->radar.enemyAngle = 0.0;
+    interface->radar.modelId = 14;
+    
     fclose(fp);
     
     struct up_vec3 scale = {0.2,3.0,0.3};
@@ -86,6 +139,8 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     pos.x -= 0.45;
     interface->armor = healthBar_creation(interface->playerStats.health, pos, scale, fullModelId, emptyModelId);
 
+    
+    
 }
 
 
@@ -216,6 +271,37 @@ static void up_render_symbols(struct up_assets *assets,struct shader_module *sha
     
 }
 
+void up_interface_renderRadar(struct up_assets *assets ,struct up_interface_radar *radar,struct shader_module *shader_program)
+{
+    up_matrix4_t transform = up_matrix4identity();
+    struct up_vec3 rot = {0};
+    struct up_vec3 pos = radar->pos;
+    
+    // this gives the placment of the radar bar relative the pos.
+    pos.x += sinf(radar->enemyAngle) *radar->scale.x;
+    
+    int modelId = radar->modelId;
+    if (modelId >= assets->numobjects) {
+        modelId = 0;
+    }
+    
+    struct up_texture_data *texture = &assets->textureArray[modelId];
+    struct up_mesh *mesh = &assets->meshArray[modelId];
+    struct up_vec3 *scale = &assets->scaleArray[modelId];
+    
+    up_matrixModel(&transform, &pos, &rot, scale);
+    
+    up_texture_bind(texture, 0);
+    
+    UP_shader_update(shader_program,&transform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
+    
+    up_draw_mesh(mesh);
+    
+
+    
+}
+
+
 void up_interface_gamePlay(struct up_assets *assets ,struct up_font_assets *font_assets,
                            struct shader_module *shader_program,struct up_interface_game *interface){
     
@@ -228,6 +314,7 @@ void up_interface_gamePlay(struct up_assets *assets ,struct up_font_assets *font
     
     up_interface_healthBar(assets, &interface->armor, shader_program);
     
+    up_interface_renderRadar(assets , &interface->radar, shader_program);
 }
 
 

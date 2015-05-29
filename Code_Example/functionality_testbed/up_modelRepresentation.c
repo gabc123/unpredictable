@@ -11,7 +11,7 @@
 
 struct internal_object
 {
-    struct up_objectInfo *objects;
+    struct up_objectInfo *objectArray;
     int *availability_stack;
     int stack_top;
     enum up_object_type type;
@@ -58,7 +58,7 @@ static int up_internal_object_init(struct internal_object *internal_obj,enum up_
 
     
     internal_obj->count = 1;
-    internal_obj->objects = objArray;
+    internal_obj->objectArray = objArray;
     internal_obj->size = max_count;
     
     internal_obj->availability_stack = availability_stack;
@@ -100,19 +100,25 @@ int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_
 
 static int unit_remove(struct internal_object * objects,int index)
 {
-    if(index>=objects->count){
+    if (index >= objects->size) {
         UP_ERROR_MSG_INT("Tried to remove unit not in buffer\n",(int)objects->type);
-        printf("\nUnit count %d",index);
+        printf("\nUnit idx %d",index);
+        return 0;
+    }
+    if(index>=objects->count){
+        // unit not in use so return but just incase set to inacticve
+        // objectId.idx == 0 means its not active
+        objects->objectArray[index].objectId.idx = 0;
         return 0;
     }
     
-    if (objects->objects[index].objectId.idx == 0) {
+    if (objects->objectArray[index].objectId.idx == 0) {
         printf("tried to remove unit that is already removed\n");
         return 1;
     }
     
     // objectId.idx == 0 means its not active
-    objects->objects[index].objectId.idx = 0;
+    objects->objectArray[index].objectId.idx = 0;
     
     if (objects->stack_top >= objects->size) {
         UP_ERROR_MSG_INT("availability_stack is full, big bad bug",(int)objects->type);
@@ -151,33 +157,33 @@ int up_unit_remove(enum up_object_type type,int index)
 }
 
 
-static int unit_add(struct internal_object * objects,struct up_objectInfo object)
+static int unit_add(struct internal_object * objectsArray,struct up_objectInfo object)
 {
     int count=0;
     // first check if we have freed some object before that can be reused
-    if (objects->stack_top > 0) {
-        objects->stack_top--;
-        count = objects->availability_stack[objects->stack_top];
+    if (objectsArray->stack_top > 0) {
+        objectsArray->stack_top--;
+        count = objectsArray->availability_stack[objectsArray->stack_top];
         object.objectId.idx = count;
         
-        objects->objects[count]=object;
+        objectsArray->objectArray[count]=object;
         
         return count;
         
     }
 
     // check if we can need to expand the thing
-    count = objects->count;
-    if(count>=objects->size){
-        UP_ERROR_MSG_INT("unit buffer is full\n",(int)objects->type);
+    count = objectsArray->count;
+    if(count>=objectsArray->size){
+        UP_ERROR_MSG_INT("unit buffer is full\n",(int)objectsArray->type);
         printf("\nUnit count %d",count);
         return 0;
     }
 
     object.objectId.idx = count;
-    objects->objects[count]=object;
+    objectsArray->objectArray[count]=object;
 
-    objects->count++;
+    objectsArray->count++;
     return count;
 }
 
@@ -208,11 +214,14 @@ int up_unit_add(enum up_object_type type,struct up_objectInfo object)
 
 static struct up_objectInfo *unit_objAtIndex(struct internal_object * objects, int index){
 
-    if(objects->count <= index || index < 0){
+    if(objects->size <= index || index < 0){
         UP_ERROR_MSG_INT("try to access object out of bound",index);
         return NULL;
     }
-    struct up_objectInfo *obj = &objects->objects[index];
+    if (objects->count <= index) {
+        return NULL;    // we have seperated out this so the server can use the same function, without error msg
+    }
+    struct up_objectInfo *obj = &objects->objectArray[index];
     
     // if the idx is 0 then this object is not active and has been removed, so return NULL instead
     obj = (obj->objectId.idx != 0) ? obj : NULL;
@@ -248,7 +257,7 @@ struct up_objectInfo *up_unit_objAtIndex(enum up_object_type type,int index)
 static struct up_objectInfo *unit_getAllObj(struct internal_object * objects,int *count)
 {
     *count=objects->count;
-    return &objects->objects[0];
+    return &objects->objectArray[0];
 }
 
 struct up_objectInfo *up_unit_getAllObj(enum up_object_type type,int *count)
@@ -281,6 +290,87 @@ int up_unit_isActive(struct up_objectInfo *object)
     return (object->objectId.idx != 0);
 }
 
+
+static int server_setObjAtIndex(struct internal_object * objectsArray, struct up_objectInfo object,int index)
+{
+    if (index >= objectsArray->size) {
+        UP_ERROR_MSG_INT("Tried to set object at indx outofbounds", index);
+        return 0;
+    }
+    object.objectId.idx = index;
+    
+    // first check if the object already exist, and if so set the object
+    if (objectsArray->objectArray[index].objectId.idx != 0) {
+        objectsArray->objectArray[index] = object;
+        return 1;
+    }
+    
+    
+    int i = 0;
+    
+    // if the object is outside the current limits of the buffer expand it and then add our object at index
+    if (index >= objectsArray->count) {
+        // make sure all objects from objectsArray->count to index is set to inactive
+        for (i = objectsArray->count; i < index; i++) {
+            objectsArray->objectArray[i].objectId.idx = 0;
+        }
+        objectsArray->objectArray[index] = object;
+        objectsArray->count = index + 1;    // we have now expanded the internal buffer and added our object at the right spot
+        return 1;
+    }
+    
+    
+    
+    int topIdx = 0;
+    // we now need to reactivate the object, first check if it already have been removed once
+    // then we use it, (we do not want to reactivate a unit directly and not remove it from here)
+    int stack_top = objectsArray->stack_top;
+    for (i = 0; i < stack_top; i++) {
+        // have we found the index
+        if (objectsArray->availability_stack[i] == index) {
+            // this gets the top stack index and moves it to place i and then reduces the stack
+            topIdx = objectsArray->availability_stack[stack_top - 1];
+            objectsArray->availability_stack[i] = topIdx;
+            objectsArray->stack_top--;
+            objectsArray->objectArray[index] = object;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+
+int up_server_unit_setObjAtindex(enum up_object_type type,struct up_objectInfo object,int index)
+{
+  
+    switch (type) {
+        case up_ship_type:
+            server_setObjAtIndex(&internal_tracker.ships, object, index);
+            break;
+        case up_projectile_type:
+            server_setObjAtIndex(&internal_tracker.projectile, object, index);
+
+            break;
+        case up_environment_type:
+            server_setObjAtIndex(&internal_tracker.environment, object, index);
+
+            break;
+        case up_others_type:
+            server_setObjAtIndex(&internal_tracker.others, object, index);
+
+            break;
+        default:
+            UP_ERROR_MSG("Wrong type");
+            break;
+    }
+    return 0;
+}
+
+
+
+
+
 void up_unit_shutdown_deinit()
 {
 
@@ -298,15 +388,15 @@ void up_unit_shutdown_deinit()
     internal_tracker.environment.stack_top = 0;
 
 
-    free(internal_tracker.ships.objects);
-    free(internal_tracker.projectile.objects);
-    free(internal_tracker.environment.objects);
-    free(internal_tracker.others.objects);
+    free(internal_tracker.ships.objectArray);
+    free(internal_tracker.projectile.objectArray);
+    free(internal_tracker.environment.objectArray);
+    free(internal_tracker.others.objectArray);
 
-    internal_tracker.ships.objects = NULL;
-    internal_tracker.projectile.objects = NULL;
-    internal_tracker.environment.objects = NULL;
-    internal_tracker.others.objects = NULL;
+    internal_tracker.ships.objectArray = NULL;
+    internal_tracker.projectile.objectArray = NULL;
+    internal_tracker.environment.objectArray = NULL;
+    internal_tracker.others.objectArray = NULL;
     
     free(internal_tracker.ships.availability_stack);
     free(internal_tracker.projectile.availability_stack);

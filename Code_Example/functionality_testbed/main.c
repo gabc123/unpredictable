@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
     int max_projectile_count = 200;
     int max_enviroment_count = 500;
     int max_others_count = 200;
-    struct up_allCollisions allcollisions;
+    struct up_allCollisions allcollisions = {0};
 
     // loads the shaders for the rendering loop (location 1)
     struct shader_module *shaderprog;
@@ -111,7 +111,7 @@ int main(int argc, char const *argv[])
 
 
     // this is the start ship, initilazing the startin positions
-    struct up_objectInfo tmp_ship = {0};
+    struct up_objectInfo tmp_ship = up_asset_createObjFromId(1);
     tmp_ship.pos.x = 440;
     tmp_ship.pos.z = 40;
     tmp_ship.dir.x = 0.03;
@@ -121,7 +121,7 @@ int main(int argc, char const *argv[])
     tmp_ship.objectId.type = up_ship_type;
     tmp_ship.turnSpeed = 1;
     tmp_ship.acceleration = 5;
-    tmp_ship.scale = assets->scaleArray[1];
+    //tmp_ship.scale = assets->scaleArray[1];
 
     int shipIndex = 0;
     int shipIndex_tmp = 0;
@@ -263,7 +263,7 @@ int main(int argc, char const *argv[])
         up_interface_update(&interface, &player_stats);
        // up_moveHealthBar(shipIndex,healthBar,&player_stats, &cam);
         //up_interface_placement(&cam,interface_info);
-
+        up_radar_search(&interface,assets,ship);
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
 

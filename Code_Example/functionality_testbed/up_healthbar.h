@@ -48,21 +48,26 @@ struct up_interface_stats{
     
 };
 
+struct up_interface_radar {
+    int modelId;
+    struct up_vec3 pos;
+    struct up_vec3 scale;
+    float enemyAngle;
+};
+
+
 struct up_interface_game{
     
     struct up_interface_stats playerStats;
     struct up_interface_symbols symbolArray[10];
     struct up_interface_bar health;
     struct up_interface_bar armor;
+    struct up_interface_radar radar;
     int countSymbol;
     
 };
 
-//up_health_bar_t healthbar_creation();                           //creates healthbar
-//void up_moveHealthBar(int ship_id,up_health_bar_t green_and_red, struct up_player_stats *player_stats,struct up_camera *cam); //puts the right position for it
-//
-//up_stats_index_t up_create_statsObject();
-//void up_interface_placement(struct up_camera *cam,up_stats_index_t interfaceObject);
+
 
 struct up_container{
     int current;
@@ -79,8 +84,11 @@ struct up_player_stats
     struct up_container armor;
 };
 
-void up_interface_gamePlay(struct up_assets *assets ,struct up_font_assets *font_assets,struct shader_module *shader_program,
-                          struct up_interface_game *interface);
+// returns the angle between ship and the closes ship
+float up_radar_search(struct up_interface_game *interface,struct up_assets *assets,struct up_objectInfo *ship);
+
+void up_interface_gamePlay(struct up_assets *assets ,struct up_font_assets *font_assets,
+                           struct shader_module *shader_program,struct up_interface_game *interface);
 
 void up_interface_creation(struct up_interface_game *interface, struct up_player_stats *player);
 
