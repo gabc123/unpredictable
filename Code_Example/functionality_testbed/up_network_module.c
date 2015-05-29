@@ -365,10 +365,10 @@ int up_network_account_recive(void *arg)
         SDL_Delay(1);
         
         if (SDLNet_UDP_Recv(socket,packet)){
-            printf("\n pack recv: ");
+            //printf("\n pack recv: ");
             len = packet->len;
             if ((3 <= len ) && (len <= sizeof(local_data.data))) {
-                printf("pack processing len %d \n", packet->len);
+                //printf("pack processing len %d \n", packet->len);
                 local_data.id = 1; //cant be zero
                 local_data.length = packet->len;
                 printf(" %d",local_data.length);
@@ -379,10 +379,10 @@ int up_network_account_recive(void *arg)
                     continue;
                 }
                 generic_copyElement(len,local_data.data,packet->data);
-                printf(" data copy done ");
+                //printf(" data copy done ");
                 fflush(stdout);
                 up_writeToNetworkDatabuffer(queue,&local_data);
-                printf(" data to queue done ");
+                //printf(" data to queue done ");
             }
             
         }
