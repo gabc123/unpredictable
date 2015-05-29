@@ -1020,7 +1020,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
 /*updates all action changes in the game*/
 //Sebastian 2015-05-05
 void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server,
-                       int nrObj, struct up_eventState *smmostats, struct soundLib *sound)
+                       int nrObj, struct up_eventState *ammoStats, struct soundLib *sound)
 {
     int i=0;
     struct up_objectInfo *localObject = NULL;
@@ -1040,7 +1040,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
             continue;
         }
         up_moveObj(localObject, tmp,frameDelta);
-        up_createProjectile(localObject, tmp, smmostats, sound);
+        up_createProjectile(localObject, tmp, ammoStats, sound);
     }
 
     //local playership update
@@ -1050,7 +1050,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         return ;
     }
     up_moveObj(localObject, playerShip, frameDelta);
-    up_createProjectile(localObject, playerShip,smmostats, sound);
+    up_createProjectile(localObject, playerShip,ammoStats, sound);
 }
 
 //walled

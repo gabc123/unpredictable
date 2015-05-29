@@ -24,3 +24,5 @@
 2.0 2.0 2.0
 0.2 0.2 0.2 laser_interface.obj bullet_interface.png
 2.0 2.0 2.0
+0.01 0.01 0.4 radar_bar.obj red_health.png
+0.0 0.0 0.0
