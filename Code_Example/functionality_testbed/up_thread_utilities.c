@@ -384,6 +384,8 @@ void up_concurrentQueue_free(struct up_thread_queue *queue)
     }
     queue->live_chain->last[UP_BUFFER_2] = NULL;
     
+    free(queue->live_chain);
+    
     //free the garbage recyler
     current = queue->garbage.start;
     while (current != NULL) {

@@ -263,7 +263,7 @@ int main(int argc, char const *argv[])
         up_interface_update(&interface, &player_stats);
        // up_moveHealthBar(shipIndex,healthBar,&player_stats, &cam);
         //up_interface_placement(&cam,interface_info);
-
+        up_radar_search(&interface,assets,ship);
 
         up_matrixView(&viewMatrix, &cam.eye, &cam.center, &cam.up); // creates the view matrix, from the camera
 
