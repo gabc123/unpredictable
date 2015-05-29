@@ -13,12 +13,7 @@
 #include "up_type.h"
 
 struct Hitbox{
-    float xmax;
-    float ymax;
-    float zmax;
-    float xmin;
-    float ymin;
-    float zmin;
+    struct up_vec3 length;
 };
 
 struct shipMovement
@@ -52,7 +47,9 @@ struct up_objectInfo
     float speed;
     float acceleration;
     struct Hitbox collisionbox;
+    float maxLength;
     int owner;
+    int projectile; //what kind of projectile
 };
 
 
@@ -62,10 +59,18 @@ int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_
 void up_unit_shutdown_deinit();
 
 int up_unit_add(enum up_object_type type,struct up_objectInfo object);
+int up_unit_remove(enum up_object_type type,int index);
+
+int up_unit_isActive(struct up_objectInfo *object);
 
 struct up_objectInfo *up_unit_objAtIndex(enum up_object_type type,int index);
 
 struct up_objectInfo *up_unit_getAllObj(enum up_object_type type,int *count);
+
+// special server functions that overide the internal object active state flags, and buffer sizes
+// this function forces a object into a specific index, and ovride all checks exept memory allocation bounds
+// do not use instead of objectAtindex, this is slower , this is only for the server to overide a clients inconsistencis 
+int up_server_unit_setObjAtindex(enum up_object_type type,struct up_objectInfo object,int index);
 
 
 #endif
