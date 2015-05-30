@@ -133,8 +133,8 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     int emptyModelId = 6;
     interface->health = healthBar_creation(interface->playerStats.health, pos, scale, fullModelId, emptyModelId);
     
-    fullModelId = 14;
-    emptyModelId = 15;
+    fullModelId = 17;
+    emptyModelId = 16;
     pos = interface->playerStats.armor.pos;
     pos.x -= 0.45;
     interface->armor = healthBar_creation(interface->playerStats.health, pos, scale, fullModelId, emptyModelId);

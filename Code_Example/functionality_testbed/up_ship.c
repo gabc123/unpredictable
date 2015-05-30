@@ -972,7 +972,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
     struct cooldownTimer *laser = &ammoStats->flags.laserFlag;
     //bullet
     if(obj->fireWeapon.state == fireBullet){
-        projectile = up_asset_createObjFromId(4);
+        projectile = up_asset_createObjFromId(0);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
@@ -986,7 +986,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
     }
     //lazer
     if(obj->fireWeapon.state == fireLaser){
-        projectile = up_asset_createObjFromId(0);
+        projectile = up_asset_createObjFromId(15);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
@@ -1003,7 +1003,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
     }
     //missle
     if(obj->fireWeapon.state == fireMissile){
-        projectile = up_asset_createObjFromId(0);
+        projectile = up_asset_createObjFromId(4);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
