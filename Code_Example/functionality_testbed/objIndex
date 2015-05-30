@@ -1,4 +1,4 @@
-0.5 1.0 1.0 starShipMagnus.obj starShipMagnus.png
+2.0 2.0 2.0 darkness_mats.obj darkness_mats.png
 4.0 3.0 1.0
 1.0 1.0 1.0 astriod.obj astriod.png
 3.0 3.0 3.0
@@ -32,4 +32,7 @@
 0.0 0.0 0.0
 6.0 3.0 3.0 green_health.obj silver_armor.png
 0.0 0.0 0.0
-
+1.0 1.0 1.0 fighter.obj fighter.png
+2.0 2.0 2.0
+0.5 1.0 1.0 starShipMagnus.obj starShipMagnus.png
+2.0 2.0 2.0
