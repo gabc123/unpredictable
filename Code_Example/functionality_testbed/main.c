@@ -111,13 +111,13 @@ int main(int argc, char const *argv[])
 
 
     // this is the start ship, initilazing the startin positions
-    struct up_objectInfo tmp_ship = up_asset_createObjFromId(1);
+    struct up_objectInfo tmp_ship = up_asset_createObjFromId(mapData.playeModel);
     tmp_ship.pos.x = 440;
     tmp_ship.pos.z = 40;
     tmp_ship.dir.x = 0.03;
     tmp_ship.dir.y = 1.0;
     tmp_ship.angle = 0.0;
-    tmp_ship.modelId = 1;
+    tmp_ship.modelId = mapData.playeModel;
     tmp_ship.objectId.type = up_ship_type;
     tmp_ship.turnSpeed = 1;
     tmp_ship.acceleration = 5;
@@ -255,9 +255,10 @@ int main(int argc, char const *argv[])
         
         up_updateMovements();
         up_checkCollision(&allcollisions);
-        up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);
         
         up_update_playerStats(&allcollisions, &player_stats,&currentEvent.flags, shipIndex);
+        up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);
+
         up_update_camera(&cam, ship);
         
         up_interface_update(&interface, &player_stats);

@@ -59,9 +59,9 @@ float up_radar_search(struct up_interface_game *interface,struct up_assets *asse
         return interface->radar.enemyAngle;
     }
     
-    float enemyAngele = atanf(dx/dy);
+    float enemyAngele = asinf(dx/minDistance);
     
-    float angleToEnemy = -enemyAngele + ship->angle;
+    float angleToEnemy = -(ship->angle + enemyAngele);
     
     interface->radar.enemyAngle = angleToEnemy;
     

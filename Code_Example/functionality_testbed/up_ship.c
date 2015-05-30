@@ -381,12 +381,12 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
             continue;
         }
 
-        object2->dir = object1->dir;
+        //object2->dir = object1->dir;
         object2->pos.x += 5*object1->dir.x;
         object2->pos.y += 5*object1->dir.y;
-        object2->speed = object1->speed*3/4;
-        object1->speed = object1->speed/2;
-
+//        object2->speed = object1->speed*3/4;
+//        object1->speed = object1->speed/2;
+        up_unit_remove(up_projectile_type, object1->objectId.idx);
 
     }
 
@@ -1050,6 +1050,21 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     up_createProjectile(localObject, playerShip,ammoStats, sound);
 }
 
+static void take_powerUp(struct up_player_stats *stats,int damage){
+
+    
+    stats->health.current += damage;
+    
+    if(stats->health.current >= stats->health.full){
+        stats->armor.current += stats->health.current - stats->health.full;
+        stats->health.current = stats->health.full;
+    }
+    
+    if(stats->armor.current >= stats->armor.full){
+        stats->armor.current = stats->armor.full;
+    }
+    
+}
 //walled
 static void take_damage(struct up_player_stats *stats,int damage){
     
@@ -1057,6 +1072,7 @@ static void take_damage(struct up_player_stats *stats,int damage){
     if(stats->armor.current < 0){
         stats->health.current += stats->armor.current;
         stats->armor.current = 0;
+        
     }
 
     stats->health.current = (stats->health.current > 0) ? stats->health.current : 0;
@@ -1105,6 +1121,7 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
 
     other_shipId = collision->shipShip[i].object2;
     player_object = up_unit_objAtIndex(up_ship_type, playerId);
+    
 
     for(i=0; i<collision->nrShipEnviroment; i++){
 
@@ -1134,6 +1151,7 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
             }
         }
     }
+    
 
     for(i=0; i<collision->nrProjectileShip; i++){
         if(collision->projectileShip[i].object2 == playerId){
@@ -1142,6 +1160,9 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
 
             if (other_object == NULL) {
                 continue;
+            }
+            if(other_object->modelId == 7){
+                take_powerUp(player,20);
             }
             if (other_object->modelId ) {
                 ship_projectileHit(player,weapons,other_object);
