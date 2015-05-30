@@ -10,12 +10,8 @@
 #define UP_SERVER_GAME_SIMULATION_H
 #include "up_thread_utilities.h"
 
-struct up_interThread_communication
-{
-    int *shutdown_signal; // points to a shared shutdown signal
-    struct up_thread_queue *simulation_input;   // connected to the recive thread
-    struct up_thread_queue *simulation_output;  //connected to the send thread
-};
 
+
+void *up_game_simulation(void *parm);
 
 #endif /* defined(__up_server_part_xcode__up_server_game_simulation__) */

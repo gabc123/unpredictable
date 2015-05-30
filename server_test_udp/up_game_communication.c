@@ -44,13 +44,9 @@ unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInfo
 
 
 
-static int up_network_updateShipUnit(struct up_actionState *states,struct up_packet_movement *movment, int playerId)
+static int up_network_updateShipUnit(struct up_actionState *states,struct up_packet_movement *movment)
 {
     
-    if (states->objectID.idx == playerId) {
-        states->objectID.idx = 0; // index special means no update
-        return 1;
-    }
     
     struct up_objectInfo *tmpObject = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
     if (tmpObject == NULL) {
@@ -67,6 +63,7 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     //objUpdate[i].id;
     return 1;
 }
+
 
 static int up_network_updateObject(struct up_packet_movement *movment)
 {
@@ -90,7 +87,7 @@ static int up_network_updateObject(struct up_packet_movement *movment)
 
 
 
-int up_game_communication_get(struct up_actionState *states,int max,int playerId,struct up_interThread_communication *pipe)
+int up_game_communication_getAction(struct up_actionState *states,int max,struct up_interThread_communication *pipe)
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
@@ -100,11 +97,14 @@ int up_game_communication_get(struct up_actionState *states,int max,int playerId
 
     struct up_actionState tmp_states = {0};
     struct up_packet_movement movment = {0};
+    struct up_packet_player_joined player_joind_tmp = {0};
+    struct up_objectInfo obj_tmp = {0};
     
     int i = 0;
     int timestamp = 0;
 
     int success = 0;
+    int index = 0;
     
     for (i = 0; i < packet_read; i++) {
         
@@ -112,14 +112,28 @@ int up_game_communication_get(struct up_actionState *states,int max,int playerId
             case  UP_PACKET_ACTION_FLAG:
                 up_network_action_packetDecode(&objUpdate[i], &tmp_states, &movment, &timestamp);
                 //printf("server pimg ms: %d\n",(SDL_GetTicks() - timestamp));
-                success = up_network_updateShipUnit(&tmp_states,&movment,playerId);
-                if (success) {
-                    states[tmp_states.objectID.idx] = tmp_states;
+                success = up_network_updateShipUnit(&tmp_states,&movment);
+                index = tmp_states.objectID.idx;
+                if (success && (index < UP_MAX_CLIENTS)) {
+                    states[index] = tmp_states;
                 }
                 break;
-            case UP_PACKET_OBJECTMOVE_FLAG:
-                up_network_objectmove_packetDecode(&objUpdate[i], &movment, &timestamp);
-                up_network_updateObject(&movment);
+            case UP_PACKET_PLAYER_JOINED:
+                success = up_intercom_packet_playerJoind_decode(&objUpdate[i].data[0], &player_joind_tmp);
+                index = player_joind_tmp.objectID.idx;
+                if (success && (index < UP_MAX_CLIENTS)) {
+                    obj_tmp = up_asset_createObjFromId(player_joind_tmp.modelId);
+                    
+                    obj_tmp.objectId = player_joind_tmp.objectID;
+                    obj_tmp.modelId = player_joind_tmp.modelId;
+                    obj_tmp.pos = player_joind_tmp.pos;
+                    // standard start dir
+                    obj_tmp.dir.x = 0.03;
+                    obj_tmp.dir.y = 1.0;
+                    obj_tmp.angle = 0.0;
+                    up_server_unit_setObjAtindex(up_ship_type, obj_tmp, index);
+                }
+                
                 break;
             default:
                 break;
@@ -130,10 +144,15 @@ int up_game_communication_get(struct up_actionState *states,int max,int playerId
 }
 
 
+// checks all actions parameters, returns true if all equal
+static int compare_actions(struct up_actionState *actionA,struct up_actionState *actionB)
+{
+    return ((actionA->fireWeapon.state == actionB->fireWeapon.state) &&
+            (actionA->engine.state == actionB->engine.state) &&
+            (actionA->maneuver.state == actionB->maneuver.state));
+}
 
-
-
-void up_game_communication_sendAction(struct up_actionState *states,int numActions,struct up_interThread_communication *pipe)
+void up_game_communication_sendAction(struct up_actionState *actionArray,struct up_actionState *deltaArray,int numActions,struct up_interThread_communication *pipe)
 {
     struct up_objectInfo *object = NULL;
     
@@ -142,14 +161,25 @@ void up_game_communication_sendAction(struct up_actionState *states,int numActio
     int timestamp = 0;
     int i  =0 ;
     for (i=0; i < numActions; i++) {
-        object = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
+        // checks first if the object is active, then if its state have changed
+        // we do this to reduce the amount of traffic over the net
+        if ((actionArray[i].objectID.idx == 0) ||
+            (compare_actions(&actionArray[i],&deltaArray[i]))) {
+            continue;
+        }
+        
+        
+        object = up_unit_objAtIndex(actionArray[i].objectID.type, actionArray[i].objectID.idx);
         if (object == NULL) {
             printf("send packet corrupted");
             continue;
         }
         
+        // update delta
+        deltaArray[i] = actionArray[i];
+        
         timestamp = up_clock_ms();
-        len = up_network_action_packetEncode(&updateobject, states, object->pos, object->speed, object->angle, object->bankAngle, timestamp);
+        len = up_network_action_packetEncode(&updateobject, &actionArray[i], object->pos, object->speed, object->angle, object->bankAngle, timestamp);
         if (len > 0) {
             updateobject.length = len;
             up_writeToNetworkDatabuffer(pipe->simulation_output, &updateobject);

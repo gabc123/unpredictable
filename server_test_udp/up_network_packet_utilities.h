@@ -27,6 +27,7 @@
 #define UP_PACKET_ACTION_FLAG (unsigned char)10
 #define UP_PACKET_OBJECTMOVE_FLAG (unsigned char)11
 #define UP_PACKET_PLAYER_HEALTHSTATS_FLAG (unsigned char)12
+#define UP_PACKET_PLAYER_JOINED (unsigned char)14
 
 // maintenance flags
 #define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
@@ -36,7 +37,13 @@
 
 #define UP_USER_NAME_PASS_MAX 255
 
-
+struct up_packet_player_joined
+{
+    struct up_objectID objectID;
+    int modelId;
+    struct up_vec3 pos;
+    struct up_player_stats player_stats;
+};
 
 struct up_packet_movement
 {
@@ -48,6 +55,8 @@ struct up_packet_movement
     int timestamp;
 };
 
+int up_intercom_packet_playerJoind_encode(unsigned char *data,struct up_packet_player_joined *player);
+int up_intercom_packet_playerJoind_decode(unsigned char *data,struct up_packet_player_joined *player);
 
 
 int up_network_packet_mapData_encode(unsigned char *data,int playerIndex,int mapSeed,int numPlayersOnline);

@@ -195,8 +195,10 @@ void up_server_run(struct internal_server_state *server_state)
         if (strstr(commands, "exit") != NULL) {
             server_state->server_account->shutdown = 1;
             server_state->server_gameplay->shutdown = 1;
+            server_state->game_simulation->online_signal = 0;
         
             flag = 0;
+            continue;
         }
         if (strstr(commands, "show_online") != NULL) {
             up_server_command_show_online(server_state);
@@ -313,6 +315,35 @@ static struct up_server_connection_info *up_server_gameplay_start(unsigned int p
 #define UP_SERVER_GAMEPLAY_THREAD_COUNT 3
 #define UP_SERVER_ACCOUNT_THREAD_COUNT 3
 
+static struct up_interThread_communication *up_interThread_com_create()
+{
+    struct up_interThread_communication *interCom =  malloc(sizeof(struct up_interThread_communication));
+    if (interCom == NULL) {
+        UP_ERROR_MSG("failed to malloc server state");
+        return NULL;
+    }
+    
+    interCom->simulation_input = up_concurrentQueue_new();
+    if (interCom->simulation_input == NULL) {
+        UP_ERROR_MSG("failed to start queue");
+    }
+    
+    interCom->simulation_output = up_concurrentQueue_new();
+    if (interCom->simulation_output == NULL) {
+        UP_ERROR_MSG("failed to start queue");
+    }
+    return interCom;
+}
+
+static void up_interThread_com_free(struct up_interThread_communication *intercom)
+{
+    up_concurrentQueue_free(intercom->simulation_input);
+    up_concurrentQueue_free(intercom->simulation_output);
+    intercom->simulation_input = NULL;
+    intercom->simulation_output = NULL;
+    free(intercom);
+}
+
 struct internal_server_state *up_server_startup()
 {
     if(!up_concurrentQueue_start_setup())
@@ -320,16 +351,43 @@ struct internal_server_state *up_server_startup()
         UP_ERROR_MSG("queue failed");
     }
     
+    // too keep track of all threads and servers running we need to return
+    struct internal_server_state *server_state = malloc(sizeof(struct internal_server_state));
+    if (server_state == NULL) {
+        UP_ERROR_MSG("failed to malloc server state");
+    }
+    
+    
+    struct up_game_simulation_com *game_simulation = malloc(sizeof(struct up_game_simulation_com));
+    if (server_state == NULL) {
+        UP_ERROR_MSG("failed to malloc server state");
+    }
+    
+    server_state->game_simulation = game_simulation;
+    
+    // two way comunication between game simulation and gameplay server
+    struct up_interThread_communication *game_interCom =  up_interThread_com_create();
+    if (game_interCom == NULL) {
+        UP_ERROR_MSG("failed to start game inter com");
+    }
+    
+    server_state->game_simulation->server_gameplay = game_interCom;
+    
+    // to way comunication to account send
+    struct up_interThread_communication *account_interCom =  up_interThread_com_create();
+    if (account_interCom == NULL) {
+        UP_ERROR_MSG("failed to start game inter com");
+    }
+    server_state->game_simulation->server_account = account_interCom;
+    
+    game_simulation->online_signal = 1;
     
     // gameplay server sockets setup, this starts the sockets at port
     struct up_server_connection_info *server_gameplay = up_server_gameplay_start(22422);
-    
+    server_gameplay->AccountQueue = NULL;
     // this starts the fifo buffer between threads (recive and send)
-    server_gameplay->queue = up_concurrentQueue_new();
-    if (server_gameplay->queue == NULL) {
-        UP_ERROR_MSG("failed to start queue");
-    }
-    
+    server_gameplay->game_com = game_interCom;
+
     // here start gameplay server and can now be used for fun
     pthread_t *server_gameplay_thread = malloc(sizeof(pthread_t)*UP_SERVER_GAMEPLAY_THREAD_COUNT);
     if (server_gameplay_thread == NULL) {
@@ -339,22 +397,18 @@ struct internal_server_state *up_server_startup()
     pthread_create(&server_gameplay_thread[1],NULL,&up_server_gameplay_send_thread,server_gameplay);        //send thread
     pthread_create(&server_gameplay_thread[2],NULL,&up_server_heartbeat,server_gameplay);                   // heartbeat
     
-    // too keep track of all threads and servers running we need to return
-    struct internal_server_state *server_state = malloc(sizeof(struct internal_server_state));
-    if (server_state == NULL) {
-        UP_ERROR_MSG("failed to malloc server state");
-    }
+    
     
     server_state->server_gameplay = server_gameplay;
     server_state->server_gameplay_thread = server_gameplay_thread;
-    server_state->mapSeed = 42; // this is the map all players load in the begining of a game
+    server_state->game_simulation->mapSeed = 42; // this is the map all players load in the begining of a game
     
     // gameplay server sockets setup, this starts the sockets at port
     struct up_server_connection_info *server_account = up_server_account_start(44244);
-    
+    server_account->game_com = NULL;
     // this starts the fifo buffer between threads (recive and send)
-    server_account->queue = up_concurrentQueue_new();
-    if (server_gameplay->queue == NULL) {
+    server_account->AccountQueue = up_concurrentQueue_new();
+    if (server_account->AccountQueue == NULL) {
         UP_ERROR_MSG("failed to start queue");
     }
     
@@ -370,8 +424,17 @@ struct internal_server_state *up_server_startup()
     pthread_create(&server_account_thread[1],NULL,&up_server_account_send_thread,server_state);
     pthread_create(&server_account_thread[2],NULL,&up_server_heartbeat,server_state->server_account);
     
-    
     server_state->server_account_thread = server_account_thread;
+    
+    
+    pthread_t *server_game_simulation_thread = malloc(sizeof(pthread_t));
+    if (server_game_simulation_thread == NULL) {
+        UP_ERROR_MSG("malloc failure");
+    }
+    pthread_create(server_game_simulation_thread,NULL,&up_game_simulation,game_simulation);
+    
+    server_state->game_simulation_thread = server_game_simulation_thread;
+    
     
     return server_state;
 }
@@ -391,14 +454,33 @@ void up_server_shutdown_cleanup(struct internal_server_state *server_state)
         pthread_join(server_state->server_gameplay_thread[i], NULL);
     }
     
-    up_concurrentQueue_free(server_state->server_account->queue);
-    up_concurrentQueue_free(server_state->server_gameplay->queue);
+    pthread_join(*server_state->game_simulation_thread, NULL);
+    
+    
+    struct up_game_simulation_com *game_sim = server_state->game_simulation;
+    server_state->game_simulation = NULL;
+    
+    struct up_interThread_communication *interCom = game_sim->server_account;
+    game_sim->server_account = NULL;
+    up_interThread_com_free(interCom);
+    
+    interCom = game_sim->server_gameplay;
+    game_sim->server_gameplay = NULL;
+    up_interThread_com_free(interCom);
+    
+    free(game_sim);
+    
+    up_concurrentQueue_free(server_state->server_account->AccountQueue);
+    
     
     free(server_state->server_gameplay);
     free(server_state->server_gameplay_thread);
     free(server_state->server_account);
     free(server_state->server_account_thread);
     
+    free(server_state->game_simulation_thread);
+    
+    free(server_state);
     
     up_concurrentQueue_shutdown_deinit();
     printf("\nserver cleanup done");

@@ -12,6 +12,7 @@
 #include "up_ship.h"
 #include "up_thread_utilities.h"
 #include "up_server_game_simulation.h"
+#include "up_server.h"
 #define UP_MAX_CLIENTS 20
 
 
@@ -31,13 +32,9 @@ struct up_network_account_data
     struct up_map_data map;
 };
 
-int up_game_communication_get(struct up_actionState *states,
-                              int max,
-                              struct up_interThread_communication *pipe);
+int up_game_communication_getAction(struct up_actionState *states,int max,struct up_interThread_communication *pipe);
 
-void up_game_communication_sendAction(struct up_actionState *states,
-                                      int numActions,
-                                      struct up_interThread_communication *pipe);
+void up_game_communication_sendAction(struct up_actionState *actionArray,struct up_actionState *deltaArray,int numActions,struct up_interThread_communication *pipe);
 
 int up_hashText(char *hashed_text,char *text,int length);
 

@@ -13,6 +13,7 @@ struct up_container{
 
 struct up_player_stats
 {
+    int modelId;
     struct up_objectID objectId;
     struct up_container bullets;
     struct up_container missile;

@@ -26,11 +26,75 @@
 #endif
 
 
-void *game_simulation(void *parm)
+static struct up_shootingFlag *up_game_playerWeapons_setup(int max_players,struct up_eventState *weapons_info)
 {
     
-    struct up_interThread_communication *interCom = NULL;
-    interCom = (struct up_interThread_communication *)parm;
+    printf("\nweapon loaded\n");
+    
+    struct up_shootingFlag *player_weapons = malloc(sizeof(struct up_shootingFlag)*max_players);
+    if (player_weapons == NULL) {
+        UP_ERROR_MSG("failed player_weapons malloc");
+        player_weapons = &weapons_info->flags;
+    }
+    
+    int i = 0;
+    for (i = 0; i < max_players; i++) {
+        player_weapons[i] = weapons_info->flags;
+    }
+    return player_weapons;
+}
+
+
+static struct up_actionState *up_game_playerActionStates_setup(int max_players)
+{
+    
+    struct up_actionState noState = {0};
+    
+    struct up_actionState *network_states_data = malloc(sizeof(struct up_actionState)*max_players);
+    
+    if (network_states_data == NULL) {
+        UP_ERROR_MSG("failed network_state malloc");
+        network_states_data = &noState;
+        return NULL;
+    }
+    
+    int i = 0;
+    for (i = 0; i < max_players; i++) {
+        network_states_data[i] = noState;
+    }
+    return network_states_data;
+}
+
+static struct up_player_stats *up_game_playerInventory_setup(int max_players)
+{
+    struct up_player_stats emptyPlayer = {0};
+    struct up_player_stats *player_stats = malloc(sizeof(struct up_player_stats)*max_players);
+    if (player_stats == NULL) {
+        UP_ERROR_MSG("failed player_stats malloc");
+        player_stats = &emptyPlayer;
+        return NULL;
+    }
+    
+    int i = 0;
+    for (i = 0; i < max_players; i++) {
+        player_stats[i] = emptyPlayer;
+    }
+    return player_stats;
+    
+}
+
+void *up_game_simulation(void *parm)
+{
+    struct up_game_simulation_com *game_simulation = NULL;
+    game_simulation = (struct up_game_simulation_com *)parm;
+    
+    struct up_interThread_communication *account_interCom = NULL;
+    struct up_interThread_communication *gameplay_interCom = NULL;
+    
+    account_interCom = game_simulation->server_account;
+    gameplay_interCom = game_simulation->server_gameplay;
+    
+    //interCom = (struct up_interThread_communication *)parm;
     
     printf("Game simulation init..\n");
     
@@ -44,127 +108,101 @@ void *game_simulation(void *parm)
     
     up_unit_start_setup(max_ship_count, max_projectile_count, max_enviroment_count, max_others_count);
     
-    int totalNumObjects = max_ship_count + max_projectile_count + max_enviroment_count + max_others_count;
-    
-    totalNumObjects++;
-    totalNumObjects--;
-    
-    
-    struct up_map_data mapData = {0};   // gets filled out from the login sequance in menu
-    
+//    int totalNumObjects = max_ship_count + max_projectile_count + max_enviroment_count + max_others_count;
+
+ 
     //this will load all the assets (modouls,texturs) specifyed in objIndex
     //be aware that index 0 is always a placeholder for modouls not found and so on
     struct up_assets *assets = up_assets_start_setup();
     printf("past assets\n");
     
-    
-    
-    // this is the start ship, initilazing the startin positions
-    struct up_objectInfo tmp_ship = up_asset_createObjFromId(1);
-    tmp_ship.pos.x = 440;
-    tmp_ship.pos.z = 40;
-    tmp_ship.dir.x = 0.03;
-    tmp_ship.dir.y = 1.0;
-    tmp_ship.angle = 0.0;
-    tmp_ship.modelId = 1;
-    tmp_ship.objectId.type = up_ship_type;
-    tmp_ship.turnSpeed = 1;
-    tmp_ship.acceleration = 5;
-    //tmp_ship.scale = assets->scaleArray[1];
-    
-    int shipIndex = 0;
-    int shipIndex_tmp = 0;
-    int i = 0;
-    for (i = 0; i < UP_MAX_CLIENTS; i++) {
-        shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    }
-    
-    
-    
-    struct up_objectInfo stillObj = {0};
-    stillObj.pos.z = 30;
-    stillObj.scale = assets->scaleArray[2];
-    stillObj.modelId = 2;
-    stillObj.objectId.type = up_others_type;
-    
-    struct up_objectInfo *ship = up_unit_objAtIndex(up_ship_type,shipIndex);
-    if (ship == NULL) {
-        UP_ERROR_MSG("ship do not exist, use loner ship");
-        ship = &tmp_ship;
-    }
-    ship->pos.x += 10;
-    up_unit_add(up_environment_type,stillObj);
-    
-    up_generate_map(mapData.mapSeed);
-    
 
-    struct up_eventState currentEvent = {0};
-    struct up_actionState shipAction = {0};
-    shipAction.objectID.idx = shipIndex;
-    shipAction.objectID.type = up_ship_type;
+    // populate one, to test all relevent subsystems,
+    struct up_objectInfo dummyObj = up_asset_createObjFromId(0);
+    int dummyIdx = up_unit_add(up_ship_type,dummyObj);
+    up_unit_remove(up_ship_type, dummyIdx);
     
-    up_weaponCoolDown_start_setup(&currentEvent);
-    printf("out of weapon\n");
+    up_generate_map(game_simulation->mapSeed);
+    
+    
+    struct up_eventState weapons_info;
+    up_weaponCoolDown_start_setup(&weapons_info);
+    printf("\nweapon loaded\n");
+    
+    struct up_shootingFlag *player_weaponsArray = up_game_playerWeapons_setup(UP_MAX_CLIENTS,&weapons_info);
+    struct up_actionState *player_actionArray = up_game_playerActionStates_setup(UP_MAX_CLIENTS);
+    struct up_player_stats *player_inventoryArray = up_game_playerInventory_setup(UP_MAX_CLIENTS);
+
+    // if the players action have change then the delta gets updated and sent to the other players
+    struct up_actionState *delta_actionArray = up_game_playerActionStates_setup(UP_MAX_CLIENTS);
     
     int map_maxPlayers = UP_MAX_CLIENTS;
-    struct up_actionState noState = {0};
-    
-    struct up_actionState *network_states_data = malloc(sizeof(struct up_actionState)*UP_MAX_CLIENTS);
-    
-    if (network_states_data == NULL) {
-        UP_ERROR_MSG("failed network_state malloc");
-        network_states_data = &noState;
-        map_maxPlayers = 0;
-    }
-    
-    
-    for (i = 0; i < map_maxPlayers; i++) {
-        network_states_data[i] = noState;
-    }
-    
-    struct up_player_stats emptyPlayer = {0};
-    struct up_player_stats *player_stats = malloc(sizeof(struct up_player_stats)*UP_MAX_CLIENTS);
-    if (player_stats == NULL) {
-        UP_ERROR_MSG("failed player_stats malloc");
-        player_stats = &emptyPlayer;
-        map_maxPlayers = 0;
-    }
-    
-    for (i = 0; i < UP_MAX_CLIENTS; i++) {
-        player_stats[i] = emptyPlayer;
-    }
+
     
     // call only to when new player connects
-    up_player_setup(player_stats, currentEvent.flags);
+    //up_player_setup(player_stats, currentEvent.flags);
     
     printf("starting main loop\n");
 
+    // non player object updates, (missile collide with astriod)
+    int max_object_move = 200;
+    struct up_objectID *object_movedArray = malloc(sizeof(struct up_objectID)*max_object_move);
+    if (object_movedArray == NULL) {
+        UP_ERROR_MSG("failed player_stats malloc");
+        max_object_move = 0;
+    }
 
-    //int loop_delay = 0;
-    while(*interCom->shutdown_signal == 0)
+    unsigned int loop_delay = 0;
+    int delta_time = 0;
+    while(game_simulation->online_signal)
     {
-        up_updateFrameTickRate();
+        //up_clock_ms()
         //status = UP_eventHandler(&currentEvent,&shipAction,keymap);
-        up_game_communication_get(network_states_data, map_maxPlayers, interCom);
         
         
-      
-        up_server_update_actions(network_states_data,player_stats, map_maxPlayers,&currentEvent);
+        do {
+            
+            
+            up_game_communication_getAction(player_actionArray, map_maxPlayers, gameplay_interCom);
+            up_server_validate_actions(player_actionArray, player_inventoryArray, player_weaponsArray, map_maxPlayers);
+            up_game_communication_sendAction(player_actionArray, delta_actionArray, map_maxPlayers, gameplay_interCom);
+            
+            usleep(100); // do not need to overhet the cpu =)
+            
+            delta_time = up_clock_ms() - loop_delay;
+            delta_time = (delta_time > 0) ? delta_time : 0; // the up_clock_ms overflows every 72 min i think
+            
+        }while (delta_time < 8);
         
+        up_updateFrameTickRate();
+        loop_delay = up_clock_ms(); // used to fix the inerloop
+        
+        up_server_update_actions(player_actionArray,player_inventoryArray, map_maxPlayers,&weapons_info);
+
         up_updateMovements();
         up_checkCollision(&allcollisions);
-        up_handleCollision(&allcollisions,&player_stats,currentEvent.flags);
         
-        up_server_update_playerStats(&allcollisions, player_stats,&currentEvent.flags, shipIndex);
+        up_server_update_playerStats(&allcollisions, player_inventoryArray,&weapons_info.flags,map_maxPlayers);
+        
+        up_handleCollision(&allcollisions,player_inventoryArray,&weapons_info.flags);
+        
+        
+        
+          //16 ms
         
         
     }
     printf("Ended main loop\n");
 
+    free(player_weaponsArray);
+    free(player_actionArray);
+    free(player_inventoryArray);
+    free(object_movedArray);
     up_unit_shutdown_deinit();
 
 
     up_assets_shutdown_deinit(assets);
     //up_network_shutdown_deinit();
-    printf("All cleanup completed\n");
+    printf("All up_game_simulation cleanup completed\n");
+    return NULL;
 }
