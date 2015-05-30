@@ -30,6 +30,7 @@ struct up_map_data
     int playerIndex;
     int mapSeed;
     int numPlayersOnline;
+    int playeModel;
     
 };
 

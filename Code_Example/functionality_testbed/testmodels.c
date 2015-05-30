@@ -190,8 +190,8 @@ struct up_mesh *up_mesh_menu_Botton()
     struct up_vec2 tex[] = {
         {0.0f, 0.0f},
         {1.0f, 0.0f},
-        {0.0f, 0.5f},
-        {1.0f, 0.5f}
+        {0.0f, 1.0f},
+        {1.0f, 1.0f}
     };
 
     // this is the posisions of the vertexes

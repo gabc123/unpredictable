@@ -1051,14 +1051,17 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
 }
 
 static void take_powerUp(struct up_player_stats *stats,int damage){
+
     
     stats->health.current += damage;
+    
     if(stats->health.current >= stats->health.full){
-        stats->armor.current = stats->armor.full;
+        stats->armor.current += stats->health.current - stats->health.full;
+        stats->health.current = stats->health.full;
     }
     
     if(stats->armor.current >= stats->armor.full){
-        stats->health.current = stats->armor.full;
+        stats->armor.current = stats->armor.full;
     }
     
 }
