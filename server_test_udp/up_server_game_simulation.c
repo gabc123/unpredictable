@@ -145,7 +145,7 @@ void *game_simulation(void *parm)
     {
         up_updateFrameTickRate();
         //status = UP_eventHandler(&currentEvent,&shipAction,keymap);
-        up_game_communication_get(network_states_data, map_maxPlayers, interCom->simulation_input);
+        up_game_communication_get(network_states_data, map_maxPlayers, interCom);
         
         
       
