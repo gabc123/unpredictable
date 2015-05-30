@@ -255,9 +255,10 @@ int main(int argc, char const *argv[])
         
         up_updateMovements();
         up_checkCollision(&allcollisions);
-        up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);
         
         up_update_playerStats(&allcollisions, &player_stats,&currentEvent.flags, shipIndex);
+        up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);
+
         up_update_camera(&cam, ship);
         
         up_interface_update(&interface, &player_stats);
