@@ -18,15 +18,19 @@
 #include "up_star_system.h"
 #include "up_healthbar.h"
 #include "up_server.h"
+#include "up_game_communication.h"
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
 
-void game_simulation()
+void *game_simulation(void *parm)
 {
     
+    struct up_interThread_communication *interCom = NULL;
+    interCom = (struct up_interThread_communication *)parm;
     
     printf("Game simulation init..\n");
     
@@ -135,12 +139,15 @@ void game_simulation()
     
     printf("starting main loop\n");
 
-    int status = 1;
+
     //int loop_delay = 0;
-    while(status)
+    while(*interCom->shutdown_signal == 0)
     {
         up_updateFrameTickRate();
         //status = UP_eventHandler(&currentEvent,&shipAction,keymap);
+        up_game_communication_get(network_states_data, map_maxPlayers, interCom->simulation_input);
+        
+        
       
         up_server_update_actions(network_states_data,player_stats, map_maxPlayers,&currentEvent);
         
