@@ -53,6 +53,12 @@ float up_radar_search(struct up_interface_game *interface,struct up_assets *asse
     }
     float dx = shipArray[closesShipId].pos.x - ship->pos.x;
     float dy = shipArray[closesShipId].pos.y - ship->pos.y;
+    
+    // fallback to prevent divide by zero
+    if (dy == 0) {
+        return interface->radar.enemyAngle;
+    }
+    
     float enemyAngele = atanf(dx/dy);
     
     float angleToEnemy = -enemyAngele + ship->angle;
