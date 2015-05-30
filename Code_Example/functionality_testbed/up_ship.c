@@ -694,9 +694,6 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 
                 if(distance < ships[i].maxLength || distance < ships[j].maxLength){
                     //printf("ship %f, distance %f, ship %f\n",ships[j].maxLength,distance,ships[i].maxLength);
-                    if (allcollisions->nrEnviromentEnviroment > 5) {
-                        printf("test");
-                    }
                     testCollision(&ships[j], &ships[i], allcollisions, shipShip);
                 }
             }

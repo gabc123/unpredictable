@@ -45,6 +45,40 @@ struct up_menu_button
 #define UP_SCREEN_WIDTH 1280
 #define UP_SCREEN_HIGHT 800
 
+//magnus
+struct up_menu_button *up_create_button(struct up_vec3 pos,int hight,int width,const char * textureName,const char *text,struct up_vec3 textScale,float step)
+{
+    
+    struct up_menu_button *button = malloc(sizeof(struct up_menu_button));
+    if (button == NULL)
+    {
+        UP_ERROR_MSG("malloc failed");
+        return NULL;
+    }
+    struct up_mesh *mesh = up_mesh_menu_Botton();
+    
+    struct up_texture_data *textureButton = up_load_texture(textureName);
+    if(textureButton == NULL){
+        textureButton = up_load_texture("lala.png");
+    }
+    
+    
+    strcpy(button->text ,text);
+    button->text_len = (int)strlen(button->text);
+    button->textScale = textScale;
+    
+    button->pos = pos;
+    pos.y -= step;
+    button->width = width;
+    button->hight = hight;
+    
+    button->mesh = mesh;
+    button->tex = textureButton;
+    
+    return button;
+    
+}
+
 // magnus
 struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map *keymap, struct up_vec3 pos,int hight,int width,struct up_vec3 textScale,float step)
 {
@@ -94,6 +128,13 @@ void up_generate_settings_freebuttons(struct up_menu_button *buttonArray)
 {
     free(buttonArray);
 }
+
+// magnus
+void up_button_free(struct up_menu_button *button)
+{
+    free(button);
+}
+
 
 // magnus
 void up_drawbutton(struct shader_module *shaderprog,struct up_menu_button *button,struct up_font_assets *fonts,struct up_vec3 *color)
