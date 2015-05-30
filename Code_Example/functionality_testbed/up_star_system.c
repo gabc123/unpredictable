@@ -92,12 +92,12 @@ static void up_generate_randomize_satellite(int density,int seed){
     int i=0;
     for(i=0; i<density; i++){
 
-        satellite.pos.x = (float)((up_rand()%1000) - 500);
-        satellite.pos.y = (float)((up_rand()%1000) - 500);
-
-        satellite.scale.x=1;
-        satellite.scale.y=1;
-        satellite.scale.z=1;
+        satellite.pos.x = (float)((up_rand()%1000) - 600);
+        satellite.pos.y = (float)((up_rand()%1000) - 600);
+        satellite.pos.z = 40;
+//        satellite.scale.x=1;
+//        satellite.scale.y=1;
+//        satellite.scale.z=1;
 
         if(up_unit_add(up_environment_type,satellite)==0){
             UP_ERROR_MSG("could not add asteroid");
