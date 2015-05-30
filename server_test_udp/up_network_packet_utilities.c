@@ -27,6 +27,43 @@ void generic_copyElement(unsigned int element_size,unsigned char *destination,un
     }
 }
 
+
+int up_intercom_packet_playerJoind_encode(unsigned char *data,struct up_packet_player_joined *player)
+{
+    int read_pos = 0;
+    data[read_pos] = UP_PACKET_PLAYER_JOINED;
+    read_pos++;
+    
+    // becouse this is internal communication we do not need to worry about padding and stuff
+    // resulting in that we do not need to pack each element
+    unsigned int playerJoindSize = sizeof(*player);
+
+    generic_copyElement(playerJoindSize, &data[read_pos], (unsigned char *)player);
+    read_pos += playerJoindSize;
+    
+    return read_pos;
+}
+
+int up_intercom_packet_playerJoind_decode(unsigned char *data,struct up_packet_player_joined *player)
+{
+    int read_pos = 0;
+    if (data[read_pos] != UP_PACKET_PLAYER_JOINED) {
+        return 0;
+    }
+    read_pos++;
+    
+    // becouse this is internal communication we do not need to worry about padding and stuff
+    // resulting in that we do not need to pack each element
+    unsigned int playerJoindSize = sizeof(*player);
+    
+    generic_copyElement(playerJoindSize, (unsigned char *)player, &data[read_pos]);
+    read_pos += playerJoindSize;
+    
+    return read_pos;
+}
+
+
+
 int up_network_logInRegistrate_packetEncode(unsigned char *data,int clientId, unsigned char regLogFlag)
 {
     int read_pos = 0;

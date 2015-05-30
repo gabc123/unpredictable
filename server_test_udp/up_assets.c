@@ -52,8 +52,14 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     obj.collisionbox.length.z = 1;
     obj.projectile = 0;
 
+    if(modelId >= internal_assets->numobjects )
+    {
+        modelId = 0;
+    }
+    
     obj.modelId = modelId;
 
+    
     //internal_assets is a static global
     obj.scale = internal_assets->scaleArray[modelId];
     obj.collisionbox.length = internal_assets->hitboxLengthArray[modelId];

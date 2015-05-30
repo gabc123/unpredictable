@@ -122,6 +122,10 @@ void up_server_update_actions(struct up_actionState *serverArray,
 // only called in the main gameloop once
 void up_server_updateMovements();
 
+void up_server_validate_actions(struct up_actionState *playerActionArray,
+                                struct up_player_stats *playerInventoryArray,
+                                struct up_shootingFlag *player_weaponsArray,
+                                int maxPlayers);
 
 void up_server_updateFrameTickRate();
 double up_getFrameTimeDelta();

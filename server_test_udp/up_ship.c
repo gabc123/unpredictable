@@ -22,18 +22,6 @@ double up_getFrameTimeDelta();
 
 
 
-//Tobias
-// magnus , ammocheck
-int checkFire(struct cooldownTimer weapon)
-{
-    unsigned int tempVar= up_clock_ms() - weapon.startTime;
-    
-    if (tempVar>= weapon.coolDown && weapon.ammunition > 0)
-    {
-        return 1;
-    }
-    return 0;
-}
 
 
 
@@ -638,11 +626,75 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
     }
 }
 
+
+
+//Tobias
+// magnus , ammocheck
+int checkFire(struct cooldownTimer weapon,struct up_player_stats *playerInventory)
+{
+    unsigned int tempVar= up_clock_ms() - weapon.startTime;
+    
+    if (tempVar>= weapon.coolDown && weapon.ammunition > 0)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+
+// checks if this is a valid action
+static void validate_action(struct up_actionState *playerAction,
+                            struct up_player_stats *playerInventory,
+                            struct up_shootingFlag *player_weapons)
+{
+    switch (playerAction->fireWeapon.state) {
+        case fireBullet:
+            if (playerInventory->bullets.current <= 0) {
+                playerAction->fireWeapon.state = none;
+            }
+            break;
+        case fireMissile:
+            if (playerInventory->missile.current <= 0) {
+                playerAction->fireWeapon.state = none;
+            }
+            break;
+        case fireLaser:
+            if (playerInventory->laser.current <= 0) {
+                playerAction->fireWeapon.state = none;
+            }
+            break;
+            
+        default:
+            break;
+    }
+    
+}
+
+
+void up_server_validate_actions(struct up_actionState *playerActionArray,
+                                struct up_player_stats *playerInventoryArray,
+                                struct up_shootingFlag *player_weaponsArray,
+                                int maxPlayers)
+{
+    int i = 0;
+    for (i = 0; i < maxPlayers; i++) {
+        if(playerActionArray[i].objectID.idx == 0)
+        {
+            continue;
+        }
+        validate_action(&playerActionArray[i],&playerInventoryArray[i],&player_weaponsArray[i]);
+    }
+    
+    
+}
+
+
 /*Creates the fired projectiles adding the speed and direction of the ship that fired them*/
 //Sebastian 2015-05-05
+// magnus server modifactions
 static void up_server_createProjectile(struct up_objectInfo *localobject,
-                                       struct up_actionState *obj,
-                                       struct up_player_stats *player,
+                                       struct up_actionState *player_action,
+                                       struct up_player_stats *player_inventory,
                                        struct up_eventState *ammoStats)
 {
     struct up_objectInfo projectile = {0};
@@ -650,7 +702,7 @@ static void up_server_createProjectile(struct up_objectInfo *localobject,
     struct cooldownTimer *missile = &ammoStats->flags.missileFlag;
     struct cooldownTimer *laser = &ammoStats->flags.laserFlag;
     //bullet
-    if(obj->fireWeapon.state == fireBullet){
+    if(player_action->fireWeapon.state == fireBullet){
         projectile = up_asset_createObjFromId(4);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
@@ -659,12 +711,13 @@ static void up_server_createProjectile(struct up_objectInfo *localobject,
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireBullet;
         
-        bullet->ammunition--;
+        player_inventory->bullets.current--;
+        
         up_unit_add(up_projectile_type, projectile);
-        obj->fireWeapon.none = none;
+        player_action->fireWeapon.none = none;
     }
     //lazer
-    if(obj->fireWeapon.state == fireLaser){
+    if(player_action->fireWeapon.state == fireLaser){
         projectile = up_asset_createObjFromId(0);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
@@ -672,15 +725,14 @@ static void up_server_createProjectile(struct up_objectInfo *localobject,
         projectile.speed = localobject->speed + laser->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireLaser;
-        laser->ammunition--;
+        
+        player_inventory->laser.current--;
         up_unit_add(up_projectile_type,projectile);
-        obj->fireWeapon.none = none;
-        
-        
+        player_action->fireWeapon.none = none;
         
     }
     //missle
-    if(obj->fireWeapon.state == fireMissile){
+    if(player_action->fireWeapon.state == fireMissile){
         projectile = up_asset_createObjFromId(0);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
@@ -688,9 +740,10 @@ static void up_server_createProjectile(struct up_objectInfo *localobject,
         projectile.speed = localobject->speed + missile->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireMissile;
-        missile->ammunition--;
+        
+        player_inventory->missile.current--;
         up_unit_add(up_projectile_type,projectile);
-        obj->fireWeapon.none = none;
+        player_action->fireWeapon.none = none;
         
     }
 }
@@ -767,64 +820,66 @@ static void ship_projectileHit(struct up_player_stats *player,struct up_shooting
 
 //walled
 // magnus included weapons so everything gets synced to the same state
-void up_server_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *player,struct up_shootingFlag *weapons, int playerId)                         //"Den checkar :P "
+void up_server_update_playerStats(struct up_allCollisions *collision,
+                                  struct up_player_stats *player_statsArray,
+                                  struct up_shootingFlag *weapons_info,
+                                  int maxPlayers)
 {
     
     
     int i=0;
     int other_shipId;
+    int playerId;
     struct up_objectInfo *other_object = NULL;
-    struct up_objectInfo *player_object = NULL;
-    
-    other_shipId = collision->shipShip[i].object2;
-    player_object = up_unit_objAtIndex(up_ship_type, playerId);
+    //struct up_objectInfo *player_object = NULL;
     
     for(i=0; i<collision->nrShipEnviroment; i++){
         
-        if(collision->shipEnviroment[i].object1 == playerId){
-            
-            take_damage(player,7);
-            
-        }
+        playerId = collision->shipEnviroment[i].object1;
+        other_shipId = collision->shipShip[i].object2;
+        other_object = up_unit_objAtIndex(up_environment_type, other_shipId);
+        
         if (other_object == NULL) {
             continue;
         }
+        
+        if (playerId < maxPlayers) {
+            take_damage(&player_statsArray[playerId],7);
+        }
+        
     }
     
     for(i=0; i<collision->nrShipShip; i++){
         
-        if(collision->shipShip[i].object1 == playerId){
-            other_shipId = collision->shipShip[i].object2;
-            other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
-            
-            if (other_object == NULL) {
-                continue;
-            }
-            
-            if(other_shipId !=  playerId ||
-               other_object->modelId == player_object->modelId){
-                take_damage(player,5);
-            }
+        playerId = collision->shipShip[i].object1;
+        other_shipId = collision->shipShip[i].object2;
+        other_object = up_unit_objAtIndex(up_ship_type, other_shipId);
+        
+        if (other_object == NULL) {
+            continue;
         }
+        
+        if(other_shipId !=  playerId){
+            take_damage(&player_statsArray[playerId],5);
+        }
+        
     }
     
     for(i=0; i<collision->nrProjectileShip; i++){
-        if(collision->projectileShip[i].object2 == playerId){
-            other_shipId = collision->projectileShip[i].object1;
-            other_object = up_unit_objAtIndex(up_projectile_type, other_shipId);
-            
-            if (other_object == NULL) {
-                continue;
-            }
-            if (other_object->modelId ) {
-                ship_projectileHit(player,weapons,other_object);
-            }
+        
+        playerId = collision->shipShip[i].object2;
+        other_shipId = collision->projectileShip[i].object1;
+        other_object = up_unit_objAtIndex(up_projectile_type, other_shipId);
+        
+        if (other_object == NULL) {
+            continue;
         }
+        if (other_object->modelId ) {
+            ship_projectileHit(&player_statsArray[playerId],weapons_info,other_object);
+        }
+        
     }
     
-    player->bullets.current = weapons->bulletFlag.ammunition;
-    player->missile.current = weapons->missileFlag.ammunition;
-    player->laser.current = weapons->laserFlag.ammunition;
 }
 
 

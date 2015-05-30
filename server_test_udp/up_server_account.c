@@ -88,7 +88,7 @@ void *up_server_account_reciveing_thread(void *parm)
             local_data.id = userId;  // if it is 0 then the packet will be skipped
             local_data.length = (int)msglen;
             generic_copyElement((unsigned int)msglen, local_data.data, recvBuff);
-            up_writeToNetworkDatabuffer(server_con->queue,&local_data);
+            up_writeToNetworkDatabuffer(server_con->AccountQueue,&local_data);
             
         }
         
@@ -253,7 +253,7 @@ void *up_server_account_send_thread(void *parm)
     unsigned int client_sock_len = sizeof(server_con->client_infoArray[0].client_addr);
     struct up_client_info *clientInfo = NULL;
     
-    int mapSeed = server_state->mapSeed;
+    int mapSeed = server_state->game_simulation->mapSeed;
     int usersOnline = 0;
     
     int i = 0;
@@ -262,7 +262,7 @@ void *up_server_account_send_thread(void *parm)
         while (packet_read <= 0)
         {
             
-            packet_read = up_readNetworkDatabuffer(server_con->queue,local_data, length);
+            packet_read = up_readNetworkDatabuffer(server_con->AccountQueue,local_data, length);
             spin_counter++;
             usleep(100);
             if (spin_counter > 2000) {
