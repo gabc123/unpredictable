@@ -125,6 +125,137 @@ int up_network_heartbeat_packetDecode(unsigned char *data,int *timestamp)
     return read_pos; //return length of packet
 }
 
+static int playerStat_containerEncode(unsigned char *data,struct up_container container)
+{
+    int read_pos = 0;
+    int len = sizeof(container.current);
+    generic_copyElement(len, &data[read_pos],(unsigned char *)&container.current);
+    read_pos += len;
+    return read_pos;
+}
+
+static int playerStat_containerDecode(unsigned char *data,struct up_container *container)
+{
+    int read_pos = 0;
+    int len = sizeof(container->current);
+    generic_copyElement(len, (unsigned char *)&container->current,&data[read_pos]);
+    read_pos += len;
+    return read_pos;
+}
+
+int up_network_playerStats_packetEncode(struct objUpdateInformation *object,int modelId,struct up_objectID objectId,struct up_player_stats *player,int timestamp)
+{
+    
+    int read_pos = 0;
+    
+    object->data[read_pos] = UP_PACKET_PLAYER_STATS_FLAG;
+    read_pos++;
+    
+    object->data[read_pos] = (unsigned char)modelId;
+    read_pos++;
+    
+    int index_len = sizeof(objectId.idx);
+    object->id = objectId.idx;
+    generic_copyElement(index_len, &object->data[read_pos],(unsigned char *)&objectId.idx);
+    read_pos += index_len;
+    
+    object->data[read_pos] = (unsigned char)objectId.type;
+    read_pos++;
+    
+    read_pos += playerStat_containerEncode(&object->data[read_pos],player->health);
+    read_pos += playerStat_containerEncode(&object->data[read_pos],player->armor);
+    read_pos += playerStat_containerEncode(&object->data[read_pos],player->bullets);
+    read_pos += playerStat_containerEncode(&object->data[read_pos],player->missile);
+    read_pos += playerStat_containerEncode(&object->data[read_pos],player->laser);
+    
+    int timestamp_len = sizeof(timestamp);
+    generic_copyElement(timestamp_len,&object->data[read_pos],(unsigned char *)&timestamp);
+    read_pos += timestamp_len;
+    
+    return read_pos;
+}
+
+
+int up_network_playerStats_packetDecode(struct objUpdateInformation *object,int *modelId,struct up_objectID *objectId,struct up_player_stats *player,int *timestamp)
+{
+    
+    int read_pos = 0;
+    if (object->data[read_pos] != UP_PACKET_PLAYER_STATS_FLAG) {
+        return 0;
+    }
+    read_pos++;
+    
+    *modelId = object->data[read_pos];
+    read_pos++;
+    
+    int index_len = sizeof(objectId->idx);
+    
+    generic_copyElement(index_len,(unsigned char *)&objectId->idx, &object->data[read_pos]);
+    read_pos += index_len;
+    
+    
+    objectId->type = object->data[read_pos];
+    read_pos++;
+    
+    read_pos += playerStat_containerDecode(&object->data[read_pos],&player->health);
+    read_pos += playerStat_containerDecode(&object->data[read_pos],&player->armor);
+    read_pos += playerStat_containerDecode(&object->data[read_pos],&player->bullets);
+    read_pos += playerStat_containerDecode(&object->data[read_pos],&player->missile);
+    read_pos += playerStat_containerDecode(&object->data[read_pos],&player->laser);
+    
+    int timestamp_len = sizeof(*timestamp);
+    generic_copyElement(timestamp_len,(unsigned char *)timestamp,&object->data[read_pos]);
+    read_pos += timestamp_len;
+    
+    return read_pos;
+}
+
+int up_network_removeObj_packetEncode(struct objUpdateInformation *object,struct up_objectID objId,int timestamp)
+{
+    int read_pos = 0;
+    object->data[read_pos] = UP_PACKET_REMOVE_OBJ_FLAG;
+    read_pos++;
+    
+    int index_len = sizeof(objId.idx);
+    object->id = objId.idx;
+    generic_copyElement(index_len, &object->data[read_pos],(unsigned char *)&objId.idx);
+    read_pos += index_len;
+    
+    object->data[read_pos] = (unsigned char)objId.type;
+    read_pos++;
+    
+    int timestamp_len = sizeof(timestamp);
+    generic_copyElement(timestamp_len,&object->data[read_pos],(unsigned char *)&timestamp);
+    read_pos += timestamp_len;
+    
+    return read_pos; //return length of packet
+}
+
+int up_network_removeObj_packetDecode(struct objUpdateInformation *object,struct up_objectID *objId,int *timestamp)
+{
+    int read_pos = 0;
+    if (object->data[read_pos] !=  UP_PACKET_REMOVE_OBJ_FLAG) {
+        return 0;
+    }
+    read_pos++;
+    
+    // store the index/id and type
+    int index_len = sizeof(objId->idx);
+    
+    generic_copyElement(index_len,(unsigned char *)&objId->idx, &object->data[read_pos]);
+    read_pos += index_len;
+    
+    
+    objId->type = object->data[read_pos];
+    read_pos++;
+    
+    
+    int timestamp_len = sizeof(*timestamp);
+    generic_copyElement(timestamp_len, (unsigned char *)timestamp,&object->data[read_pos]);
+    read_pos += timestamp_len;
+    
+    return read_pos; //return length of packet
+}
 
 static int packet_loacationMovement_encode(unsigned char *data,struct up_vec3 pos,
                                            float speed,float angle,float bankangle)

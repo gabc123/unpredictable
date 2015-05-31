@@ -80,8 +80,8 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
 
     struct up_actionState tmp_states = {0};
     struct up_packet_movement movment = {0};
-    struct up_packet_player_joined player_joind_tmp = {0};
-    struct up_objectInfo obj_tmp = {0};
+    //struct up_packet_player_joined player_joind_tmp = {0};
+    //struct up_objectInfo obj_tmp = {0};
     
     int i = 0;
     int timestamp = 0;
@@ -101,23 +101,23 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
                     states[index] = tmp_states;
                 }
                 break;
-            case UP_PACKET_PLAYER_JOINED:
-                success = up_intercom_packet_playerJoind_decode(&objUpdate[i].data[0], &player_joind_tmp);
-                index = player_joind_tmp.objectID.idx;
-                if (success && (index < UP_MAX_CLIENTS)) {
-                    obj_tmp = up_asset_createObjFromId(player_joind_tmp.modelId);
-                    
-                    obj_tmp.objectId = player_joind_tmp.objectID;
-                    obj_tmp.modelId = player_joind_tmp.modelId;
-                    obj_tmp.pos = player_joind_tmp.pos;
-                    // standard start dir
-                    obj_tmp.dir.x = 0.03;
-                    obj_tmp.dir.y = 1.0;
-                    obj_tmp.angle = 0.0;
-                    up_server_unit_setObjAtindex(up_ship_type, obj_tmp, index);
-                }
-                
-                break;
+//            case UP_PACKET_PLAYER_JOINED:
+//                success = up_intercom_packet_playerJoind_decode(&objUpdate[i].data[0], &player_joind_tmp);
+//                index = player_joind_tmp.objectID.idx;
+//                if (success && (index < UP_MAX_CLIENTS)) {
+//                    obj_tmp = up_asset_createObjFromId(player_joind_tmp.modelId);
+//                    
+//                    obj_tmp.objectId = player_joind_tmp.objectID;
+//                    obj_tmp.modelId = player_joind_tmp.modelId;
+//                    obj_tmp.pos = player_joind_tmp.pos;
+//                    // standard start dir
+//                    obj_tmp.dir.x = 0.03;
+//                    obj_tmp.dir.y = 1.0;
+//                    obj_tmp.angle = 0.0;
+//                    up_server_unit_setObjAtindex(up_ship_type, obj_tmp, index);
+//                }
+//                
+//                break;
             default:
                 break;
         }
@@ -224,6 +224,39 @@ void up_game_communication_sendAction(struct up_actionState *actionArray,struct 
     
 }
 
+
+void up_game_communication_sendObjChanged(struct up_objectID *object_movedArray ,int count,struct up_interThread_communication *pipe)
+{
+    struct up_objectInfo *object = NULL;
+    
+    struct objUpdateInformation updateobject = {0};
+    int len  = 0;
+    int timestamp = up_clock_ms();
+    int i  =0 ;
+    for (i=0; i < count; i++) {
+        
+        
+        object = up_unit_objAtIndex(object_movedArray[i].type, object_movedArray[i].idx);
+        if (object == NULL) {
+            // object have been removed, send update
+            len = up_network_removeObj_packetEncode(&updateobject, object_movedArray[i], timestamp);
+            if (len > 0) {
+                updateobject.length = len;
+                up_writeToNetworkDatabuffer(pipe->simulation_output, &updateobject);
+            }
+            continue;
+        }
+        
+        // object have changed some way, this encodes and sends the change to all clients,
+        len = up_network_objectmove_packetEncode(&updateobject, object->objectId, object->modelId, object->pos, object->speed, object->angle, object->bankAngle, timestamp);
+        
+        if (len > 0) {
+            updateobject.length = len;
+            up_writeToNetworkDatabuffer(pipe->simulation_output, &updateobject);
+        }
+    }
+    
+}
 
 int up_network_getAccountData(struct up_network_account_data *data,int max,struct up_interThread_communication *pipe)
 {

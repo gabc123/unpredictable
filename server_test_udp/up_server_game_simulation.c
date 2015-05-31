@@ -99,7 +99,7 @@ void *up_game_simulation(void *parm)
     printf("Game simulation init..\n");
     
     int max_ship_count = 70;
-    int max_projectile_count = 200;
+    int max_projectile_count = 800;
     int max_enviroment_count = 500;
     int max_others_count = 200;
     struct up_allCollisions allcollisions = {0};
@@ -134,8 +134,9 @@ void *up_game_simulation(void *parm)
     struct up_player_stats *player_inventoryArray = up_game_playerInventory_setup(UP_MAX_CLIENTS);
 
     // if the players action have change then the delta gets updated and sent to the other players
+    // if the players array max the delta nothing have change and no need to send update
     struct up_actionState *delta_actionArray = up_game_playerActionStates_setup(UP_MAX_CLIENTS);
-    
+    struct up_player_stats *delta_inventoryArray = up_game_playerInventory_setup(UP_MAX_CLIENTS);
     int map_maxPlayers = UP_MAX_CLIENTS;
 
     
@@ -145,6 +146,7 @@ void *up_game_simulation(void *parm)
     printf("starting main loop\n");
 
     // non player object updates, (missile collide with astriod)
+    // when there is a chenge this gets filled with the change, and passed along to the clients
     int max_object_move = 200;
     struct up_objectID *object_movedArray = malloc(sizeof(struct up_objectID)*max_object_move);
     if (object_movedArray == NULL) {
@@ -152,6 +154,7 @@ void *up_game_simulation(void *parm)
         max_object_move = 0;
     }
 
+    int movedObject_count = 0;
     unsigned int loop_delay = 0;
     int delta_time = 0;
     while(game_simulation->online_signal)
@@ -175,15 +178,22 @@ void *up_game_simulation(void *parm)
         up_updateFrameTickRate();
         loop_delay = up_clock_ms(); // used to fix the inerloop
         
-        up_server_update_actions(player_actionArray,player_inventoryArray, map_maxPlayers,&weapons_info);
+        movedObject_count = 0;
+        movedObject_count = up_server_update_actions(player_actionArray,player_inventoryArray, map_maxPlayers,&weapons_info,object_movedArray,max_object_move);
 
+        //send changes
+        up_game_communication_sendObjChanged(object_movedArray, movedObject_count, gameplay_interCom);
+        
         up_server_updateMovements();
         up_server_checkCollision(&allcollisions);
         
         up_server_update_playerStats(&allcollisions, player_inventoryArray,&weapons_info.flags,map_maxPlayers);
         
-        up_server_handleCollision(&allcollisions,player_inventoryArray,&weapons_info.flags,object_movedArray,max_object_move);
+        movedObject_count = 0;
+        movedObject_count = up_server_handleCollision(&allcollisions,player_inventoryArray,&weapons_info.flags,object_movedArray,max_object_move);
         
+        // send changes
+        up_game_communication_sendObjChanged(object_movedArray, movedObject_count, gameplay_interCom);
         
         // this propaget account joins and levs out to all, and into the internal gamestate
         up_game_communication_getAccount(account_interCom, gameplay_interCom);

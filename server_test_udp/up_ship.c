@@ -27,6 +27,7 @@ double up_getFrameTimeDelta();
 
 //Sebastian 2015-05-15
 // magnus bug checks and fixes
+// magnus server version
 int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_player_stats *player_stats,struct up_shootingFlag *weapons,struct up_objectID *object_movedArray,int max_moved)
 {
     int i=0;
@@ -34,6 +35,9 @@ int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_p
     struct up_objectInfo *object2 = NULL;
     int objectIndex1 = 0;
     int objectIndex2 = 0;
+    
+    int objectMoved_count = 0;  // this keeps track of number of objects that needs to be updated.
+    
     for(i=0; i < allcollisions->nrShipEnviroment; i++){
         objectIndex1 = allcollisions->shipEnviroment[i].object1;
         objectIndex2 = allcollisions->shipEnviroment[i].object2;
@@ -56,6 +60,13 @@ int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_p
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
+        
+        if (objectMoved_count < max_moved) {
+            object_movedArray[objectMoved_count] = object1->objectId;   // so we know what to update
+            objectMoved_count++;
+            object_movedArray[objectMoved_count] = object2->objectId;   // so we know what to update
+            objectMoved_count++;
+        }
     }
     
     for(i=0; i < allcollisions->nrProjectileEnviroment; i++){
@@ -79,6 +90,13 @@ int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_p
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
+        
+        if (objectMoved_count < max_moved) {
+            object_movedArray[objectMoved_count] = object1->objectId;   // so we know what to update
+            objectMoved_count++;
+            object_movedArray[objectMoved_count] = object2->objectId;   // so we know what to update
+            objectMoved_count++;
+        }
         up_unit_remove(up_projectile_type, object1->objectId.idx);
         
     }
@@ -100,12 +118,17 @@ int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_p
             continue;
         }
         
-        object2->dir = object1->dir;
+        //object2->dir = object1->dir;
         object2->pos.x += 5*object1->dir.x;
         object2->pos.y += 5*object1->dir.y;
-        object2->speed = object1->speed*3/4;
-        object1->speed = object1->speed/2;
         
+        if (objectMoved_count < max_moved) {
+            object_movedArray[objectMoved_count] = object1->objectId;   // so we know what to update
+            objectMoved_count++;
+            object_movedArray[objectMoved_count] = object2->objectId;   // so we know what to update
+            objectMoved_count++;
+        }
+        up_unit_remove(up_projectile_type, object1->objectId.idx);
         
     }
     
@@ -136,6 +159,13 @@ int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_p
             object2->pos.y += 5*object1->dir.y;
             object2->speed = object1->speed*3/4;
             object1->speed = object1->speed/2;
+            if (objectMoved_count < max_moved) {
+                object_movedArray[objectMoved_count] = object1->objectId;   // so we know what to update
+                objectMoved_count++;
+                object_movedArray[objectMoved_count] = object2->objectId;   // so we know what to update
+                objectMoved_count++;
+            }
+            
         }
     }
     
@@ -173,7 +203,7 @@ int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_p
      }*/
     
 
-    return 0;
+    return objectMoved_count;
 }
 
 //Sebastian + Tobias 2015-05-12
@@ -587,12 +617,14 @@ void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 //turnspeed is a set value atm. It is to be stored for each obj
 //Sebastian 2015-05-05
 //Magnus 2015-05-06
+//walid
 void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
 {
     //float turnSpeed=1; //temporary. will be unique for each model
     
     if(obj->engine.state == fwd){
-        localObject->speed +=localObject->acceleration*frameDelta;
+        localObject->speed += localObject->acceleration*frameDelta;
+        localObject->bankAngle -= localObject->bankAngle * frameDelta;
     }
     
     if(obj->engine.state==bwd){
@@ -604,6 +636,11 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->angle = localObject->angle + localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
+        localObject->bankAngle += localObject->turnSpeed*frameDelta;
+        if(localObject->bankAngle > M_PI/3){
+            localObject->bankAngle = M_PI/3;
+        }
+        
     }
     
     if(obj->maneuver.state == right){
@@ -611,18 +648,23 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->angle = localObject->angle - localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
+        localObject->bankAngle -= localObject->turnSpeed*frameDelta;
+        if(localObject->bankAngle < -M_PI/3){
+            localObject->bankAngle = -M_PI/3;
+        }
     }
     
     if(obj->maneuver.state == bankLeft){
         //Determines where the object is facing
-        localObject->bankAngle += localObject->turnSpeed*frameDelta;
+        localObject->bankAngle += localObject->turnSpeed * frameDelta;
     }
     
     if(obj->maneuver.state == bankRight){
         //Determines where the object is facing
-        localObject->bankAngle -= localObject->turnSpeed*frameDelta;
+        localObject->bankAngle -= localObject->turnSpeed * frameDelta;
     }
 }
+
 
 
 
@@ -690,7 +732,7 @@ void up_server_validate_actions(struct up_actionState *playerActionArray,
 /*Creates the fired projectiles adding the speed and direction of the ship that fired them*/
 //Sebastian 2015-05-05
 // magnus server modifactions
-static void up_server_createProjectile(struct up_objectInfo *localobject,
+static int up_server_createProjectile(struct up_objectInfo *localobject,
                                        struct up_actionState *player_action,
                                        struct up_player_stats *player_inventory,
                                        struct up_eventState *ammoStats)
@@ -699,6 +741,7 @@ static void up_server_createProjectile(struct up_objectInfo *localobject,
     struct cooldownTimer *bullet = &ammoStats->flags.bulletFlag;
     struct cooldownTimer *missile = &ammoStats->flags.missileFlag;
     struct cooldownTimer *laser = &ammoStats->flags.laserFlag;
+    int index = 0;
     //bullet
     if(player_action->fireWeapon.state == fireBullet){
         projectile = up_asset_createObjFromId(4);
@@ -711,7 +754,7 @@ static void up_server_createProjectile(struct up_objectInfo *localobject,
         
         player_inventory->bullets.current--;
         
-        up_unit_add(up_projectile_type, projectile);
+        index = up_unit_add(up_projectile_type, projectile);
         player_action->fireWeapon.none = none;
     }
     //lazer
@@ -725,7 +768,7 @@ static void up_server_createProjectile(struct up_objectInfo *localobject,
         projectile.projectile = fireLaser;
         
         player_inventory->laser.current--;
-        up_unit_add(up_projectile_type,projectile);
+        index = up_unit_add(up_projectile_type,projectile);
         player_action->fireWeapon.none = none;
         
     }
@@ -740,22 +783,29 @@ static void up_server_createProjectile(struct up_objectInfo *localobject,
         projectile.projectile = fireMissile;
         
         player_inventory->missile.current--;
-        up_unit_add(up_projectile_type,projectile);
+        index = up_unit_add(up_projectile_type,projectile);
         player_action->fireWeapon.none = none;
         
     }
+    return index;
 }
 
 /*updates all action changes in the game*/
 //Sebastian 2015-05-05
-void up_server_update_actions(struct up_actionState *serverArray,
+// magnus server mod, object moved array
+int up_server_update_actions(struct up_actionState *serverArray,
                               struct up_player_stats *playerArray,
-                              int nrObj, struct up_eventState *ammoStats)
+                              int nrObj, struct up_eventState *ammoStats,
+                              struct up_objectID *object_movedArray,int max_moved)
 {
     int i=0;
     struct up_objectInfo *localObject = NULL;
     struct up_actionState *tmp;
     double frameDelta=up_getFrameTimeDelta();
+    
+    int objectCreated_count = 0;
+    struct up_objectID tmpObjId = {0};
+    tmpObjId.type = up_projectile_type;
     
     //Updates of objects from the server
     for(i=0; i<nrObj; i++)
@@ -770,8 +820,31 @@ void up_server_update_actions(struct up_actionState *serverArray,
             continue;
         }
         up_moveObj(localObject, tmp,frameDelta);
-        up_server_createProjectile(localObject, tmp, &playerArray[i], ammoStats);
+        tmpObjId.idx = up_server_createProjectile(localObject, tmp, &playerArray[i], ammoStats);
+        if (objectCreated_count < max_moved) {
+            object_movedArray[objectCreated_count] = tmpObjId;  // add the update
+            objectCreated_count++;
+        }
+        
     }
+    return objectCreated_count;
+}
+
+//walled
+static void take_powerUp(struct up_player_stats *stats,int damage){
+    
+    
+    stats->health.current += damage;
+    
+    if(stats->health.current >= stats->health.full){
+        stats->armor.current += stats->health.current - stats->health.full;
+        stats->health.current = stats->health.full;
+    }
+    
+    if(stats->armor.current >= stats->armor.full){
+        stats->armor.current = stats->armor.full;
+    }
+    
 }
 
 //walled
@@ -871,6 +944,9 @@ void up_server_update_playerStats(struct up_allCollisions *collision,
         
         if (other_object == NULL) {
             continue;
+        }
+        if(other_object->modelId == 7){
+            take_powerUp(&player_statsArray[playerId],20);
         }
         if (other_object->modelId ) {
             ship_projectileHit(&player_statsArray[playerId],weapons_info,other_object);

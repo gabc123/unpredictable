@@ -38,6 +38,9 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
 
 void up_game_communication_sendAction(struct up_actionState *actionArray,struct up_actionState *deltaArray,int numActions,struct up_interThread_communication *pipe);
 
+void up_game_communication_sendObjChanged(struct up_objectID *object_movedArray ,int count,struct up_interThread_communication *pipe);
+
+
 int up_game_communication_getAccount(struct up_interThread_communication *accountCom,struct up_interThread_communication *gameCom);
 
 int up_hashText(char *hashed_text,char *text,int length);

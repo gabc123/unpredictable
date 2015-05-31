@@ -114,9 +114,10 @@ void up_server_checkCollision(struct up_allCollisions *allcollisions);
 int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_player_stats *player_stats,struct up_shootingFlag *weapons,struct up_objectID *object_movedArray,int max_moved);
 
 
-void up_server_update_actions(struct up_actionState *serverArray,
+int up_server_update_actions(struct up_actionState *serverArray,
                               struct up_player_stats *playerArray,
-                              int nrObj, struct up_eventState *ammoStats);
+                              int nrObj, struct up_eventState *ammoStats,
+                              struct up_objectID *object_movedArray,int max_moved);
 
 //this funktion updates the global position of all objects in the world
 // only called in the main gameloop once

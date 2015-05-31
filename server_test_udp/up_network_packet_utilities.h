@@ -28,6 +28,8 @@
 #define UP_PACKET_OBJECTMOVE_FLAG (unsigned char)11
 #define UP_PACKET_PLAYER_HEALTHSTATS_FLAG (unsigned char)12
 #define UP_PACKET_PLAYER_JOINED (unsigned char)14
+#define UP_PACKET_REMOVE_OBJ_FLAG (unsigned char)15
+#define UP_PACKET_PLAYER_STATS_FLAG (unsigned char)16
 
 // maintenance flags
 #define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
@@ -63,9 +65,15 @@ int up_intercom_packet_playerJoind_decode(unsigned char *data,struct up_packet_p
 int up_network_packet_mapData_encode(unsigned char *data,int playerIndex,int mapSeed,int numPlayersOnline);
 int up_network_packet_mapData_decode(unsigned char *data,int *playerIndex,int *mapSeed,int *numPlayersOnline);
 
+
 int up_network_heartbeat_packetEncode(unsigned char *data,int timestamp);
 int up_network_heartbeat_packetDecode(unsigned char *data,int *timestamp);
 
+int up_network_playerStats_packetEncode(struct objUpdateInformation *object,struct up_player_stats *player,int timestamp);
+int up_network_playerStats_packetDecode(struct objUpdateInformation *object,struct up_player_stats *player,int *timestamp);
+
+int up_network_removeObj_packetEncode(struct objUpdateInformation *object,struct up_objectID objId,int timestamp);
+int up_network_removeObj_packetDecode(struct objUpdateInformation *object,struct up_objectID *objId,int *timestamp);
 
 int up_network_objectmove_packetEncode(struct objUpdateInformation *object,
                                        struct up_objectID objId, int modelId,

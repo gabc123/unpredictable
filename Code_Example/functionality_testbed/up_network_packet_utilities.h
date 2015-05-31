@@ -13,6 +13,8 @@
 #include "up_vertex.h"
 #include "up_thread_utilities.h"
 
+// comunication flags, to identify what msg is beeing sent,
+// do not change the numbers, this needs to match server side
 // account flags
 #define UP_REGISTRATE_FLAG (unsigned char)1
 #define UP_LOGIN_FLAG (unsigned char)2
@@ -27,6 +29,9 @@
 #define UP_PACKET_ACTION_FLAG (unsigned char)10
 #define UP_PACKET_OBJECTMOVE_FLAG (unsigned char)11
 #define UP_PACKET_PLAYER_HEALTHSTATS_FLAG (unsigned char)12
+// the missing numberrs are used on the server
+#define UP_PACKET_REMOVE_OBJ_FLAG (unsigned char)15
+#define UP_PACKET_PLAYER_STATS_FLAG (unsigned char)16
 
 // maintenance flags
 #define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
@@ -54,6 +59,16 @@ int up_network_heartbeat_packetDecode(unsigned char *data,int *timestamp);
 int up_network_logInRegistrate_packetEncode(unsigned char *data,int clientId, unsigned char regLogFlag);
 int up_network_logInRegistrate_packetDecode(unsigned char *data,int *clientId, unsigned char *regLogFlag);
 
+int up_network_playerStats_packetEncode(struct objUpdateInformation *object,
+                                        int modelId,struct up_objectID objectId,
+                                        struct up_player_stats *player,int timestamp);
+
+int up_network_playerStats_packetDecode(struct objUpdateInformation *object,
+                                        int *modelId,struct up_objectID *objectId,
+                                        struct up_player_stats *player,int *timestamp);
+
+int up_network_removeObj_packetEncode(struct objUpdateInformation *object,struct up_objectID objId,int timestamp);
+int up_network_removeObj_packetDecode(struct objUpdateInformation *object,struct up_objectID *objId,int *timestamp);
 
 int up_network_objectmove_packetEncode(struct objUpdateInformation *object,
                                        struct up_objectID objId, int modelId,

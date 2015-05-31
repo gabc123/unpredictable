@@ -1061,6 +1061,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     up_createProjectile(localObject, playerShip,ammoStats, sound);
 }
 
+//walled
 static void take_powerUp(struct up_player_stats *stats,int damage){
 
     
@@ -1135,14 +1136,16 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
     
 
     for(i=0; i<collision->nrShipEnviroment; i++){
-
+        other_shipId = collision->shipShip[i].object2;
+        other_object = up_unit_objAtIndex(up_environment_type, other_shipId);
+        
+        if (other_object == NULL) {
+            continue;
+        }
         if(collision->shipEnviroment[i].object1 == playerId){
 
             take_damage(player,7);
 
-        }
-        if (other_object == NULL) {
-            continue;
         }
     }
 
