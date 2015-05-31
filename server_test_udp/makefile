@@ -8,7 +8,7 @@ else
 		CFLAGS= -lpthread
 	endif
 	ifeq ($(UNAME_S),Darwin)
-		CFLAGS=-lpthread
+		CFLAGS=-lpthread -lm
 	endif
 endif
 
