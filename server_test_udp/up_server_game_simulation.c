@@ -156,18 +156,16 @@ void *up_game_simulation(void *parm)
     int delta_time = 0;
     while(game_simulation->online_signal)
     {
-        //up_clock_ms()
-        //status = UP_eventHandler(&currentEvent,&shipAction,keymap);
         
-        
+        // this inerloop runs until the entire gameloop reches 8 ms,
+        // this improves the response time, and also reduces the cpu load from moving all obj
+        // at full update rate, 8ms equals about 120 gameloop laps each seconde
         do {
-            
-            
             up_game_communication_getAction(player_actionArray, map_maxPlayers, gameplay_interCom);
             up_server_validate_actions(player_actionArray, player_inventoryArray, player_weaponsArray, map_maxPlayers);
             up_game_communication_sendAction(player_actionArray, delta_actionArray, map_maxPlayers, gameplay_interCom);
             
-            usleep(100); // do not need to overhet the cpu =)
+            usleep(100); // do not need to overhet the cpu =) or flod the buffer
             
             delta_time = up_clock_ms() - loop_delay;
             delta_time = (delta_time > 0) ? delta_time : 0; // the up_clock_ms overflows every 72 min i think
@@ -186,6 +184,8 @@ void *up_game_simulation(void *parm)
         
         up_server_handleCollision(&allcollisions,player_inventoryArray,&weapons_info.flags,object_movedArray,max_object_move);
         
+        
+        // this propaget account joins and levs out to all, and into the internal gamestate
         up_game_communication_getAccount(account_interCom, gameplay_interCom);
         
     }

@@ -32,6 +32,8 @@ struct up_network_account_data
     struct up_map_data map;
 };
 
+
+
 int up_game_communication_getAction(struct up_actionState *states,int max,struct up_interThread_communication *pipe);
 
 void up_game_communication_sendAction(struct up_actionState *actionArray,struct up_actionState *deltaArray,int numActions,struct up_interThread_communication *pipe);
