@@ -182,7 +182,7 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     
     struct up_objectInfo *tmpObject = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
     if (tmpObject == NULL) {
-        printf("\nRecive packet coruppted");
+        //printf("\nRecive packet coruppted");
         return 0;
     }
     
@@ -284,9 +284,10 @@ int up_network_getNewStates(struct up_actionState *states,int max,int playerId,s
                 if (success > 0 && tmp_objId.idx != 0) {
                     tmp_obj = up_unit_objAtIndex(tmp_objId.type, tmp_objId.idx);
                     if (tmp_obj != NULL) {
-                        tmp_obj->modelId = modelId;
+                        continue;
                     }
                     if (playerId == tmp_obj->objectId.idx) {
+                        tmp_obj->modelId = modelId;
                         transfer_inventory(player_inventory, &tmp_inventory);
                     }
                 }
