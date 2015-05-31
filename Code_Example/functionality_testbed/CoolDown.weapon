@@ -4,6 +4,6 @@
 #Start every line that's in use with the char ':'
 #cooldown is measured in milliseconds
 
-:100/100/5/5/bullet
+:100/100/50/5/bullet
 :2500/30/30/20/missile
 :100/200/25/5/lazer

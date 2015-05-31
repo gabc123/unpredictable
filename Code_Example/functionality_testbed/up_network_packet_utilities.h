@@ -32,6 +32,7 @@
 // the missing numberrs are used on the server
 #define UP_PACKET_REMOVE_OBJ_FLAG (unsigned char)15
 #define UP_PACKET_PLAYER_STATS_FLAG (unsigned char)16
+#define UP_PACKET_PLAYER_SHIPMODEL_FLAG (unsigned char)17
 
 // maintenance flags
 #define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
@@ -58,6 +59,9 @@ int up_network_heartbeat_packetDecode(unsigned char *data,int *timestamp);
 
 int up_network_logInRegistrate_packetEncode(unsigned char *data,int clientId, unsigned char regLogFlag);
 int up_network_logInRegistrate_packetDecode(unsigned char *data,int *clientId, unsigned char *regLogFlag);
+
+int up_network_packet_changModelEncode(unsigned char *data,int modelId,int playerId,int timestamp);
+int up_network_packet_changModelDecode(unsigned char *data,int *modelId,int *playerId,int *timestamp);
 
 int up_network_playerStats_packetEncode(struct objUpdateInformation *object,
                                         int modelId,struct up_objectID objectId,

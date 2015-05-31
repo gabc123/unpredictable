@@ -84,6 +84,7 @@ int main(int argc, char const *argv[])
     }
 
 
+    struct up_network_datapipe *connection_data = up_network_start_gameplay_setup();
 
 
     //Init sound
@@ -110,7 +111,7 @@ int main(int argc, char const *argv[])
 
 
 
-    // this is the start ship, initilazing the startin positions
+    // this is the backup ship incase something went wrong, initilazing the startin positions
     struct up_objectInfo tmp_ship = up_asset_createObjFromId(mapData.playeModel);
     tmp_ship.pos.x = 440;
     tmp_ship.pos.z = 40;
@@ -123,20 +124,16 @@ int main(int argc, char const *argv[])
     tmp_ship.acceleration = 5;
     //tmp_ship.scale = assets->scaleArray[1];
 
-    int shipIndex = 0;
-    int shipIndex_tmp = 0;
-    int i = 0;
-    for (i = 0; i < UP_MAX_CLIENTS; i++) {
-        shipIndex_tmp = up_unit_add(up_ship_type,tmp_ship);
-    }
-    
-    shipIndex = mapData.playerIndex;
+    int shipIndex = mapData.playerIndex;
+    up_server_unit_setObjAtindex(up_ship_type, tmp_ship, shipIndex);
 
     struct up_objectInfo stillObj = {0};
     stillObj.pos.z = 30;
     stillObj.scale = assets->scaleArray[2];
     stillObj.modelId = 2;
     stillObj.objectId.type = up_others_type;
+    
+    up_network_sendChangeModel(mapData.playeModel, mapData.playerIndex, connection_data);
 
     struct up_objectInfo *ship = up_unit_objAtIndex(up_ship_type,shipIndex);
     if (ship == NULL) {
@@ -158,12 +155,16 @@ int main(int argc, char const *argv[])
     //up_matrix4_t modelMatrix;
     up_matrix4_t viewMatrix;
     up_matrix4_t perspectiveMatrix;
-
+    
+ 
+    
+     
+     
     // sets the initial location of the camera,
     // first 3 values are the camera position,
     // the next 3 value is where it looking at
     // the last 3 values is what is up and what is down
-    struct up_camera cam = {{0,0,30},{0,0,1},{0,0,-1}};
+    struct up_camera cam = {{-500,10,30},{440,0,40},{0,0,-1}};
     up_cam_zoom(-3);
     up_update_camera(&cam, ship);
 
@@ -220,13 +221,13 @@ int main(int argc, char const *argv[])
         map_maxPlayers = 0;
     }
 
-
+    int i = 0;
     for (i = 0; i < map_maxPlayers; i++) {
         network_states_data[i] = noState;
     }
     int network_state_recived = 0;
     
-    struct up_network_datapipe *connection_data = up_network_start_gameplay_setup();
+    
 
     struct up_player_stats player_stats = {0};
 //    player_stats.current_health = 100;
@@ -241,15 +242,25 @@ int main(int argc, char const *argv[])
     up_player_setup(&player_stats, currentEvent.flags);
     up_interface_creation(&interface, &player_stats);
 
+    //SDL_Delay(200);//so the data have been updated
     printf("starting main loop\n");
 
+    network_state_recived = up_network_getNewStates(network_states_data, map_maxPlayers,shipIndex,&player_stats,connection_data);
+    up_network_sendChangeModel(mapData.playeModel, mapData.playerIndex, connection_data);
+    
+    ship = up_unit_objAtIndex(up_ship_type,shipIndex);
+    if (ship == NULL) {
+        UP_ERROR_MSG("ship do not exist, use loner ship");
+        ship = &tmp_ship;
+    }
+    
     while(status)
     {
         up_updateFrameTickRate();
         status = UP_eventHandler(&currentEvent,&shipAction,keymap);
 
         up_network_sendNewMovement(&shipAction, connection_data);
-        network_state_recived = up_network_getNewMovement(network_states_data, map_maxPlayers,shipIndex,connection_data);
+        network_state_recived = up_network_getNewStates(network_states_data, map_maxPlayers,shipIndex,&player_stats,connection_data);
 
         up_update_actions(&shipAction, network_states_data, map_maxPlayers,&currentEvent, sound);
         

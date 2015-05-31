@@ -23,6 +23,33 @@ double up_getFrameTimeDelta();
 
 
 
+int up_server_projectile_reaping(struct up_objectID *object_movedArray,int max_moved)
+{
+    int objectMoved_count = 0;
+    int numberObj = 0;
+    struct up_objectInfo *projectilArray = up_unit_getAllObj(up_projectile_type, &numberObj);
+    int i = 0;
+    unsigned int currentTime = up_clock_ms();
+    for (i = 0; i < max_moved; i++) {
+        if (!up_unit_isActive(&projectilArray[i])) {
+            continue;
+        }
+        
+        // after 10 seconds the projectile gets removed
+        if ((projectilArray[i].spawnTime - currentTime < 10000) ||
+            (projectilArray[i].spawnTime != 0)) //powerups
+        {
+            continue;
+        }
+        
+        if(objectMoved_count < max_moved){
+            object_movedArray[objectMoved_count] = projectilArray[i].objectId;
+            objectMoved_count++;
+            up_unit_remove(projectilArray[i].objectId.type, projectilArray[i].objectId.idx);
+        }
+    }
+    return objectMoved_count;
+}
 
 
 //Sebastian 2015-05-15
@@ -531,7 +558,7 @@ void up_server_updateMovements()
 //Tobias 2015-05-05
 //magnus 2015-05-06
 // magnus 2015-05-21 bug fix
-void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
+void up_server_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
     char *lineReader = NULL;
     char ammoName[NAMESIZE]="\0";
@@ -751,6 +778,7 @@ static int up_server_createProjectile(struct up_objectInfo *localobject,
         projectile.speed = localobject->speed + bullet->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireBullet;
+        projectile.spawnTime = up_clock_ms();
         
         player_inventory->bullets.current--;
         
@@ -766,6 +794,7 @@ static int up_server_createProjectile(struct up_objectInfo *localobject,
         projectile.speed = localobject->speed + laser->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireLaser;
+        projectile.spawnTime = up_clock_ms();
         
         player_inventory->laser.current--;
         index = up_unit_add(up_projectile_type,projectile);
@@ -781,6 +810,7 @@ static int up_server_createProjectile(struct up_objectInfo *localobject,
         projectile.speed = localobject->speed + missile->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireMissile;
+        projectile.spawnTime = up_clock_ms();
         
         player_inventory->missile.current--;
         index = up_unit_add(up_projectile_type,projectile);
@@ -819,6 +849,7 @@ int up_server_update_actions(struct up_actionState *serverArray,
             //printf("up_update_actions localobject  == NULL \n");
             continue;
         }
+        playerArray[i].modelId = localObject->modelId;
         up_moveObj(localObject, tmp,frameDelta);
         tmpObjId.idx = up_server_createProjectile(localObject, tmp, &playerArray[i], ammoStats);
         if (objectCreated_count < max_moved) {
@@ -827,6 +858,8 @@ int up_server_update_actions(struct up_actionState *serverArray,
         }
         
     }
+    
+    
     return objectCreated_count;
 }
 

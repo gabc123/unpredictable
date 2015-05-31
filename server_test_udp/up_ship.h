@@ -106,8 +106,12 @@ struct up_eventState
     struct up_shootingFlag flags;
 };
 
+void up_updateFrameTickRate();
 
 struct up_player_stats; // forward decleration
+
+// remove projectile after 10 seconds
+int up_server_projectile_reaping(struct up_objectID *object_movedArray,int max_moved);
 
 void up_server_checkCollision(struct up_allCollisions *allcollisions);
 

@@ -97,7 +97,7 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.y)) ? obj.collisionbox.length.y : obj.maxLength;
     obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.z)) ? obj.collisionbox.length.z : obj.maxLength;
 
-     printf("objmaxlength%f \n", obj.maxLength);
+     //printf("objmaxlength%f \n", obj.maxLength);
     //fallbackHitbox(&obj);
 
     return obj;

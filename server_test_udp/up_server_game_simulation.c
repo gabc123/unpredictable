@@ -126,7 +126,7 @@ void *up_game_simulation(void *parm)
     
     
     struct up_eventState weapons_info;
-    up_weaponCoolDown_start_setup(&weapons_info);
+    up_server_weaponCoolDown_start_setup(&weapons_info);
     printf("\nweapon loaded\n");
     
     struct up_shootingFlag *player_weaponsArray = up_game_playerWeapons_setup(UP_MAX_CLIENTS,&weapons_info);
@@ -189,14 +189,20 @@ void *up_game_simulation(void *parm)
         
         up_server_update_playerStats(&allcollisions, player_inventoryArray,&weapons_info.flags,map_maxPlayers);
         
+        up_game_communication_sendPlayerStats(player_inventoryArray, delta_inventoryArray, map_maxPlayers, gameplay_interCom);
+        
+        // hanels what should happen to objects when they collide (movement changes and removals), then send changes to clients
         movedObject_count = 0;
         movedObject_count = up_server_handleCollision(&allcollisions,player_inventoryArray,&weapons_info.flags,object_movedArray,max_object_move);
-        
-        // send changes
+        up_game_communication_sendObjChanged(object_movedArray, movedObject_count, gameplay_interCom);
+
+        // removes projectiles that not in used anymore (bullet moving out of the solarsystem)
+        movedObject_count = 0;
+        movedObject_count = up_server_projectile_reaping(object_movedArray, movedObject_count);
         up_game_communication_sendObjChanged(object_movedArray, movedObject_count, gameplay_interCom);
         
         // this propaget account joins and levs out to all, and into the internal gamestate
-        up_game_communication_getAccount(account_interCom, gameplay_interCom);
+        up_game_communication_getAccount(account_interCom, gameplay_interCom, player_inventoryArray, map_maxPlayers);
         
     }
     printf("Ended main loop\n");

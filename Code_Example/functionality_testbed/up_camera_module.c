@@ -5,7 +5,7 @@
 #include <stdio.h>
 // skapad av waleed hassan 2 maj 2015.
 
-static float zoom = 0;
+static float zoom = -2;
 
 void up_cam_zoom(float change)
 {
@@ -22,7 +22,11 @@ float up_returnCamHeight(struct up_camera *cam)
 
 
 void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
-    // TODO: move camera
+
+    // when the player do not have a ship yet
+    if (ship == NULL) {
+        return;
+    }
     cam->center.x=ship->pos.x;
     cam->center.y=ship->pos.y;
     cam->center.z=ship->pos.z;

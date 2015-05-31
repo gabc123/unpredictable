@@ -83,6 +83,34 @@ static void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,f
 
 }
 
+static void up_generate_randomize_box(int density,int seed){
+    
+    up_srand(seed);
+    struct up_objectInfo satellite = up_asset_createObjFromId(7);
+    satellite.objectId.idx = 1;
+    satellite.objectId.type = up_others_type;
+    satellite.spawnTime = 0;
+    int i=0;
+    for(i=0; i<density; i++){
+        
+        satellite.pos.x = (float)((up_rand()%1000) - 600);
+        satellite.pos.y = (float)((up_rand()%1000) - 600);
+        satellite.pos.z = 40;
+        //        satellite.scale.x=1;
+        //        satellite.scale.y=1;
+        //        satellite.scale.z=1;
+        
+        if(up_unit_add(up_projectile_type,satellite)==0){
+            UP_ERROR_MSG("could not add asteroid");
+            break;
+        }
+        
+    }
+    
+    
+}
+
+/*
 static void up_generate_randomize_satellite(int density,int seed){
 
     up_srand(seed);
@@ -110,7 +138,7 @@ static void up_generate_randomize_satellite(int density,int seed){
 
 
 }
-
+*/
 static void up_generate_randomize_spaceMine(int density,int seed){
 
     up_srand(seed);
@@ -142,7 +170,9 @@ void up_generate_map(int seed)
 
     up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 50, 30,seed);
 
-    up_generate_randomize_satellite(40,seed);        //satellite
+    up_generate_randomize_box(40,seed);        //satellite
+    
+    //up_generate_randomize_satellite(40,seed);        //satellite
     up_generate_randomize_spaceMine(80,seed);        //space mine
 
 

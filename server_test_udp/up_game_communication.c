@@ -50,7 +50,7 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     
     struct up_objectInfo *tmpObject = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
     if (tmpObject == NULL) {
-        printf("\nRecive packet coruppted");
+        //printf("\nRecive packet coruppted");
         return 0;
     }
     
@@ -68,6 +68,15 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
 
 #define UP_OBJECT_BUFFER_READ_LENGTH 60
 
+static void set_shipModel(int modelId, int index)
+{
+    struct up_objectInfo *tmpObject = up_unit_objAtIndex(up_ship_type, index);
+    if (tmpObject == NULL) {
+        //printf("\nRecive packet coruppted");
+        return ;
+    }
+    tmpObject->modelId = modelId;
+}
 
 
 int up_game_communication_getAction(struct up_actionState *states,int max,struct up_interThread_communication *pipe)
@@ -85,7 +94,8 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
     
     int i = 0;
     int timestamp = 0;
-
+    int modelId = 0;
+    
     int success = 0;
     int index = 0;
     
@@ -99,6 +109,16 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
                 index = tmp_states.objectID.idx;
                 if (success && (index < UP_MAX_CLIENTS)) {
                     states[index] = tmp_states;
+                }
+                break;
+            case UP_PACKET_PLAYER_SHIPMODEL_FLAG:
+                //up_network_action_packetDecode(&objUpdate[i], &tmp_states, &movment, &timestamp);
+                //printf("server pimg ms: %d\n",(SDL_GetTicks() - timestamp));
+                //success = up_network_updateShipUnit(&tmp_states,&movment);
+                success = up_network_packet_changModelDecode(&objUpdate[i].data[0], &modelId, &index, &timestamp);
+        
+                if (success && (index < UP_MAX_CLIENTS)) {
+                    set_shipModel(modelId,index);
                 }
                 break;
 //            case UP_PACKET_PLAYER_JOINED:
@@ -127,7 +147,7 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
 }
 
 #define UP_GAME_SIM_ACCOUNT_BUFFER 10
-int up_game_communication_getAccount(struct up_interThread_communication *accountCom,struct up_interThread_communication *gameCom)
+int up_game_communication_getAccount(struct up_interThread_communication *accountCom,struct up_interThread_communication *gameCom,struct up_player_stats *statsArray,int max_players)
 {
     int max = 5;
     struct objUpdateInformation objUpdate[UP_GAME_SIM_ACCOUNT_BUFFER];
@@ -163,7 +183,7 @@ int up_game_communication_getAccount(struct up_interThread_communication *accoun
                     obj_tmp.dir.y = 1.0;
                     obj_tmp.angle = 0.0;
                     up_server_unit_setObjAtindex(up_ship_type, obj_tmp, index);
-                    
+                    statsArray[index] = player_joind_tmp.player_stats;
                     up_network_objectmove_packetEncode(&newObjdata, obj_tmp.objectId, obj_tmp.modelId, obj_tmp.pos, obj_tmp.speed, obj_tmp.angle, obj_tmp.bankAngle, timestamp);
                     
                     //send to alla other clients
@@ -224,6 +244,42 @@ void up_game_communication_sendAction(struct up_actionState *actionArray,struct 
     
 }
 
+static int compare_stats(struct up_player_stats *playerStatsA,struct up_player_stats *playerStatsB)
+{
+    
+    return ((playerStatsA->health.current == playerStatsB->health.current) &&
+            (playerStatsA->armor.current == playerStatsB->armor.current) &&
+            (playerStatsA->missile.current == playerStatsB->missile.current) &&
+            (playerStatsA->bullets.current == playerStatsB->bullets.current) &&
+            (playerStatsA->laser.current == playerStatsB->laser.current));
+}
+
+void up_game_communication_sendPlayerStats(struct up_player_stats *statsArray,struct up_player_stats *deltaArray,int map_maxPlayers, struct up_interThread_communication *pipe)
+{
+
+    struct objUpdateInformation updateobject = {0};
+    int len  = 0;
+    int timestamp = 0;
+    int i  =0 ;
+    for (i=0; i < map_maxPlayers; i++) {
+        // checks first if the object is active, then if its state have changed
+        // we do this to reduce the amount of traffic over the net
+        if ((statsArray[i].objectId.idx == 0) ||
+            (compare_stats(&statsArray[i],&deltaArray[i]))) {
+            continue;
+        }
+        
+        // update delta
+        deltaArray[i] = statsArray[i];
+        
+        timestamp = up_clock_ms();
+        len = up_network_playerStats_packetEncode(&updateobject, &statsArray[i], timestamp);
+        if (len > 0) {
+            updateobject.length = len;
+            up_writeToNetworkDatabuffer(pipe->simulation_output, &updateobject);
+        }
+    }
+}
 
 void up_game_communication_sendObjChanged(struct up_objectID *object_movedArray ,int count,struct up_interThread_communication *pipe)
 {
@@ -258,6 +314,7 @@ void up_game_communication_sendObjChanged(struct up_objectID *object_movedArray 
     
 }
 
+/*
 int up_network_getAccountData(struct up_network_account_data *data,int max,struct up_interThread_communication *pipe)
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
@@ -302,5 +359,5 @@ int up_network_getAccountData(struct up_network_account_data *data,int max,struc
     return max; //check all player slots
     
 }
-
+*/
 

@@ -48,9 +48,14 @@ struct up_network_datapipe *up_network_start_account_setup();
 void up_network_shutdown_deinit(struct up_network_datapipe *p);
 
 
-int up_network_getNewMovement(struct up_actionState *states,int max,int playerId,struct up_network_datapipe *socket_data);
+int up_network_getNewStates(struct up_actionState *states,
+                            int max,int playerId,
+                            struct up_player_stats *player_inventory,
+                            struct up_network_datapipe *socket_data);
+
 void up_network_sendNewMovement(struct up_actionState *states, struct up_network_datapipe *socket_data);
 
+void up_network_sendChangeModel(int modelId,int playerId, struct up_network_datapipe *socket_data);
 int up_network_getAccountData(struct up_network_account_data *data,int max,struct up_network_datapipe *socket_data);
 
 int up_network_registerAccount(char *username, char *password,int length, struct up_network_datapipe *socket_data );

@@ -63,6 +63,51 @@ int up_intercom_packet_playerJoind_decode(unsigned char *data,struct up_packet_p
 }
 
 
+int up_network_packet_changModelEncode(unsigned char *data,int modelId,int playerId,int timestamp)
+{
+    int read_pos = 0;
+    data[read_pos] = UP_PACKET_PLAYER_SHIPMODEL_FLAG;
+    read_pos++;
+    
+    int modelId_len = sizeof(modelId);
+    generic_copyElement(modelId_len,&data[read_pos],(unsigned char *)&modelId);
+    read_pos += modelId_len;
+    
+    int playerId_len = sizeof(playerId);
+    generic_copyElement(playerId_len,&data[read_pos],(unsigned char *)&playerId);
+    read_pos += playerId_len;
+    
+    int timestamp_len = sizeof(timestamp);
+    generic_copyElement(timestamp_len,&data[read_pos],(unsigned char *)&timestamp);
+    read_pos += timestamp_len;
+    
+    return read_pos; //return length of packet
+}
+
+int up_network_packet_changModelDecode(unsigned char *data,int *modelId,int *playerId,int *timestamp)
+{
+    int read_pos = 0;
+    if (data[read_pos] !=  UP_PACKET_PLAYER_SHIPMODEL_FLAG) {
+        return 0;
+    }
+    read_pos++;
+    
+    int modelId_len = sizeof(*modelId);
+    generic_copyElement(modelId_len, (unsigned char *)modelId,&data[read_pos]);
+    read_pos += modelId_len;
+    
+    int playerId_len = sizeof(*playerId);
+    generic_copyElement(playerId_len, (unsigned char *)playerId,&data[read_pos]);
+    read_pos += playerId_len;
+    
+    
+    int timestamp_len = sizeof(*timestamp);
+    generic_copyElement(timestamp_len, (unsigned char *)timestamp,&data[read_pos]);
+    read_pos += timestamp_len;
+    
+    return read_pos; //return length of packet
+}
+
 static int playerStat_containerEncode(unsigned char *data,struct up_container container)
 {
     int read_pos = 0;
@@ -142,7 +187,7 @@ int up_network_playerStats_packetDecode(struct objUpdateInformation *object,stru
     read_pos += playerStat_containerDecode(&object->data[read_pos],&player->laser);
     
     int timestamp_len = sizeof(*timestamp);
-    generic_copyElement(timestamp_len,&object->data[read_pos],(unsigned char *)&timestamp);
+    generic_copyElement(timestamp_len,(unsigned char *)timestamp,&object->data[read_pos]);
     read_pos += timestamp_len;
     
     return read_pos;

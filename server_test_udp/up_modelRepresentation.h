@@ -50,6 +50,7 @@ struct up_objectInfo
     float maxLength;
     int owner;
     int projectile; //what kind of projectile
+    unsigned int spawnTime;
 };
 
 

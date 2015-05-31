@@ -213,6 +213,7 @@ static int up_network_updateObject(struct up_packet_movement *movement)
     
     // TODO: timedalation
     // this is a temporary solution
+    tmpObject->modelId = movement->modelId;
     tmpObject->pos = movement->pos;
     tmpObject->speed = movement->speed;
     tmpObject->angle = movement->angle;
@@ -223,23 +224,36 @@ static int up_network_updateObject(struct up_packet_movement *movement)
 
 #define UP_OBJECT_BUFFER_READ_LENGTH 60
 
+static void transfer_inventory(struct up_player_stats *inventoryA,struct up_player_stats *inventoryB)
+{
+    inventoryA->health.current = inventoryB->health.current;
+    inventoryA->armor.current = inventoryB->armor.current;
+    inventoryA->missile.current = inventoryB->missile.current;
+    inventoryA->bullets.current = inventoryB->bullets.current;
+    inventoryA->laser.current = inventoryB->laser.current;
 
+}
 
-int up_network_getNewMovement(struct up_actionState *states,int max,int playerId,struct up_network_datapipe *socket_data)
+int up_network_getNewStates(struct up_actionState *states,int max,int playerId,struct up_player_stats *player_inventory,struct up_network_datapipe *socket_data)
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
     
 
-    int packet_read = up_readNetworkDatabuffer(socket_data->queue,objUpdate, max);
+    int packet_read = up_readNetworkDatabuffer(socket_data->queue,objUpdate, UP_OBJECT_BUFFER_READ_LENGTH);
 
     struct up_actionState tmp_states = {0};
     struct up_packet_movement movment = {0};
+    struct up_objectInfo *tmp_obj = NULL;
     
     int i = 0;
     int timestamp = 0;
 
     int success = 0;
+
+    struct up_player_stats tmp_inventory = {0};
+    int modelId = 0;
+    struct up_objectID tmp_objId = {0};
     
     for (i = 0; i < packet_read; i++) {
         
@@ -253,8 +267,29 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
                 }
                 break;
             case UP_PACKET_OBJECTMOVE_FLAG:
-                up_network_objectmove_packetDecode(&objUpdate[i], &movment, &timestamp);
-                up_network_updateObject(&movment);
+                success = up_network_objectmove_packetDecode(&objUpdate[i], &movment, &timestamp);
+                if (success > 0) {
+                    up_network_updateObject(&movment);
+                }
+                
+                break;
+            case UP_PACKET_REMOVE_OBJ_FLAG:
+                success = up_network_removeObj_packetDecode(&objUpdate[i], &tmp_objId, &timestamp);
+                if (success > 0 && tmp_objId.idx != 0) {
+                    up_unit_remove(tmp_objId.type, tmp_objId.idx);
+                }
+                break;
+            case UP_PACKET_PLAYER_STATS_FLAG:
+                success = up_network_playerStats_packetDecode(&objUpdate[i], &modelId, &tmp_objId, &tmp_inventory, &timestamp);
+                if (success > 0 && tmp_objId.idx != 0) {
+                    tmp_obj = up_unit_objAtIndex(tmp_objId.type, tmp_objId.idx);
+                    if (tmp_obj != NULL) {
+                        tmp_obj->modelId = modelId;
+                    }
+                    if (playerId == tmp_obj->objectId.idx) {
+                        transfer_inventory(player_inventory, &tmp_inventory);
+                    }
+                }
                 break;
             case UP_PACKET_HEARTBEAT_FLAG:
                 up_network_sendHeartbeat(socket_data);
@@ -270,13 +305,30 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
 
 
 
+void up_network_sendChangeModel(int modelId,int playerId, struct up_network_datapipe *socket_data)
+{
+    struct objUpdateInformation updateobject;
+    int timestamp = SDL_GetTicks();
+    //printf("send timestamp: %d\n",timestamp);
+    int len = up_network_packet_changModelEncode(&updateobject.data[0], modelId, playerId, timestamp);
+    updateobject.length = len;
+    
+    UDPsocket socket = socket_data->udpSocket;
+    UDPpacket *packet = socket_data->sendPacket;
+    packet->address.host = socket_data->addr.host;
+    packet->address.port = socket_data->addr.port;
+    
+    packet->len = up_copyObjectIntoBuffer(&updateobject, packet->data);
+    SDLNet_UDP_Send(socket, -1, packet);
+    
+}
 
 
 void up_network_sendNewMovement(struct up_actionState *states, struct up_network_datapipe *socket_data)
 {
     struct up_objectInfo *object = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
     if (object == NULL) {
-        printf("send packet corrupted");
+        //printf("send packet corrupted");
         return;
     }
     struct objUpdateInformation updateobject;

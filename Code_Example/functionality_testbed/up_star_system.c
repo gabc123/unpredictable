@@ -107,8 +107,6 @@ static void up_generate_randomize_box(int density,int seed){
     }
 
 
-
-
 }
 
 static void up_generate_randomize_spaceMine(int density,int seed){
