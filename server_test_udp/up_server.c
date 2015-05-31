@@ -371,6 +371,7 @@ struct internal_server_state *up_server_startup()
         UP_ERROR_MSG("failed to start game inter com");
     }
     
+    
     server_state->game_simulation->server_gameplay = game_interCom;
     
     // to way comunication to account send
@@ -405,7 +406,7 @@ struct internal_server_state *up_server_startup()
     
     // gameplay server sockets setup, this starts the sockets at port
     struct up_server_connection_info *server_account = up_server_account_start(44244);
-    server_account->game_com = game_interCom;
+    server_account->game_com = account_interCom;
     // this starts the fifo buffer between threads (recive and send)
     server_account->AccountQueue = up_concurrentQueue_new();
     if (server_account->AccountQueue == NULL) {
