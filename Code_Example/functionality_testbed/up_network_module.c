@@ -289,7 +289,7 @@ int up_network_getNewStates(struct up_actionState *states,int max,int playerId,s
                 success = up_network_playerStats_packetDecode(&objUpdate[i], &modelId, &tmp_objId, &tmp_inventory, &timestamp);
                 if (success > 0 && tmp_objId.idx != 0) {
                     tmp_obj = up_unit_objAtIndex(tmp_objId.type, tmp_objId.idx);
-                    if (tmp_obj != NULL) {
+                    if (tmp_obj == NULL) {
                         continue;
                     }
                     if (playerId == tmp_obj->objectId.idx) {
