@@ -121,20 +121,25 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     up_interface_placement(fp,&interface->playerStats.bullets);
     up_interface_placement(fp,&interface->playerStats.missile);
     up_interface_placement(fp,&interface->playerStats.laser);
-    
+
     interface->countSymbol = 5;
 
     interface->symbolArray[0].modelId = 9;
-    interface->symbolArray[0].pos = interface->playerStats.armor.pos;
-    interface->symbolArray[0].scale = interface->playerStats.armor.scale;
+    interface->symbolArray[0].pos = interface->playerStats.health.pos;
+    interface->symbolArray[0].pos.x -=0.5;
+    interface->symbolArray[0].scale = interface->playerStats.health.scale;
+    interface->symbolArray[0].scale.x = 0.03;
+    interface->symbolArray[0].scale.y = 0.03;
+    interface->symbolArray[0].scale.z = 0.03;
+    
 
     interface->symbolArray[1].modelId = 10;
     interface->symbolArray[1].pos = interface->playerStats.armor.pos;
+    interface->symbolArray[1].pos.x -=0.5;
     interface->symbolArray[1].scale = interface->playerStats.armor.scale;
-    
-    interface->symbolArray[2].modelId = 11;
-    interface->symbolArray[2].pos = interface->playerStats.bullets.pos;
-    interface->symbolArray[2].scale = interface->playerStats.bullets.scale;
+    interface->symbolArray[1].scale.x = 0.015;
+    interface->symbolArray[1].scale.y = 0.015;
+    interface->symbolArray[1].scale.z = 0.015;
     
     struct up_interface_inventory radar_tmp = {0};
     up_interface_placement(fp,&radar_tmp);
