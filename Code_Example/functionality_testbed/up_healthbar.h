@@ -10,7 +10,7 @@
 #include "up_texture_module.h"
 #include "up_shader_module.h"
 #include "up_assets.h"
-
+#define UP_NUMBER_OF_SYMBOLS 10
 struct up_interface_bar{
 
     int fullModelId;
@@ -59,7 +59,7 @@ struct up_interface_radar {
 struct up_interface_game{
     
     struct up_interface_stats playerStats;
-    struct up_interface_symbols symbolArray[10];
+    struct up_interface_symbols symbolArray[UP_NUMBER_OF_SYMBOLS];
     struct up_interface_bar health;
     struct up_interface_bar armor;
     struct up_interface_radar radar;

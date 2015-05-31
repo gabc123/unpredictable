@@ -102,7 +102,7 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     interface->playerStats.armor.full = 100;
     interface->playerStats.armor.current = 100;
 
-    
+
     interface->playerStats.bullets.full = player->bullets.full;
     interface->playerStats.bullets.current = player->bullets.current;
     interface->playerStats.missile.full = player->missile.full;
@@ -121,6 +121,20 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     up_interface_placement(fp,&interface->playerStats.bullets);
     up_interface_placement(fp,&interface->playerStats.missile);
     up_interface_placement(fp,&interface->playerStats.laser);
+    
+    interface->countSymbol = 5;
+
+    interface->symbolArray[0].modelId = 9;
+    interface->symbolArray[0].pos = interface->playerStats.armor.pos;
+    interface->symbolArray[0].scale = interface->playerStats.armor.scale;
+
+    interface->symbolArray[1].modelId = 10;
+    interface->symbolArray[1].pos = interface->playerStats.armor.pos;
+    interface->symbolArray[1].scale = interface->playerStats.armor.scale;
+    
+    interface->symbolArray[2].modelId = 11;
+    interface->symbolArray[2].pos = interface->playerStats.bullets.pos;
+    interface->symbolArray[2].scale = interface->playerStats.bullets.scale;
     
     struct up_interface_inventory radar_tmp = {0};
     up_interface_placement(fp,&radar_tmp);
@@ -145,7 +159,7 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     pos.x -= 0.45;
     interface->armor = healthBar_creation(interface->playerStats.health, pos, scale, fullModelId, emptyModelId);
 
-    
+
     
 }
 

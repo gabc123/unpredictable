@@ -920,12 +920,14 @@ struct up_actionState
 //turnspeed is a set value atm. It is to be stored for each obj
 //Sebastian 2015-05-05
 //Magnus 2015-05-06
+//walid
 void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
 {
     //float turnSpeed=1; //temporary. will be unique for each model
 
     if(obj->engine.state == fwd){
-        localObject->speed +=localObject->acceleration*frameDelta;
+        localObject->speed += localObject->acceleration*frameDelta;
+        localObject->bankAngle -= localObject->bankAngle * frameDelta;
     }
 
     if(obj->engine.state==bwd){
@@ -937,6 +939,11 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->angle = localObject->angle + localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
+        localObject->bankAngle += localObject->turnSpeed*frameDelta;
+        if(localObject->bankAngle > M_PI/3){
+            localObject->bankAngle = M_PI/3;
+        }
+
     }
 
     if(obj->maneuver.state == right){
@@ -944,16 +951,20 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->angle = localObject->angle - localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
+        localObject->bankAngle -= localObject->turnSpeed*frameDelta;
+        if(localObject->bankAngle < -M_PI/3){
+            localObject->bankAngle = -M_PI/3;
+        }
     }
 
     if(obj->maneuver.state == bankLeft){
         //Determines where the object is facing
-        localObject->bankAngle += localObject->turnSpeed*frameDelta;
+        localObject->bankAngle += localObject->turnSpeed * frameDelta;
     }
 
     if(obj->maneuver.state == bankRight){
         //Determines where the object is facing
-        localObject->bankAngle -= localObject->turnSpeed*frameDelta;
+        localObject->bankAngle -= localObject->turnSpeed * frameDelta;
     }
 }
 
