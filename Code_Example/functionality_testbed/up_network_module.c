@@ -179,11 +179,17 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
         states->objectID.idx = 0; // index special means no update
         return 1;
     }
-    
+    struct up_objectInfo fallback = {0};
     struct up_objectInfo *tmpObject = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
     if (tmpObject == NULL) {
-        //printf("\nRecive packet coruppted");
-        return 0;
+        fallback = up_asset_createObjFromId(movment->modelId);
+        up_server_unit_setObjAtindex(states->objectID.type, fallback, states->objectID.idx);
+        tmpObject = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
+
+        if (tmpObject == NULL) {
+            printf("\nRecive packet coruppted");
+            return 0;
+        }
     }
     
     // TODO: timedalation
