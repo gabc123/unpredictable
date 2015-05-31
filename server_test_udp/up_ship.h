@@ -111,7 +111,7 @@ struct up_player_stats; // forward decleration
 
 void up_server_checkCollision(struct up_allCollisions *allcollisions);
 
-void up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_player_stats *player_stats,struct up_shootingFlag *weapons);
+int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_player_stats *player_stats,struct up_shootingFlag *weapons,struct up_objectID *object_movedArray,int max_moved);
 
 
 void up_server_update_actions(struct up_actionState *serverArray,

@@ -65,23 +65,6 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
 }
 
 
-static int up_network_updateObject(struct up_packet_movement *movment)
-{
-    struct up_objectInfo *tmpObject = up_unit_objAtIndex(movment->objectID.type, movment->objectID.idx);
-    if (tmpObject == NULL) {
-        printf("\nRecive packet coruppted");
-        return 0;
-    }
-    
-    // TODO: timedalation
-    // this is a temporary solution
-    tmpObject->pos = movment->pos;
-    tmpObject->speed = movment->speed;
-    tmpObject->angle = movment->angle;
-    tmpObject->bankAngle = movment->bankangle;
-    //objUpdate[i].id;
-    return 1;
-}
 
 #define UP_OBJECT_BUFFER_READ_LENGTH 60
 
@@ -143,6 +126,59 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
     
 }
 
+#define UP_GAME_SIM_ACCOUNT_BUFFER 10
+int up_game_communication_getAccount(struct up_interThread_communication *accountCom,struct up_interThread_communication *gameCom)
+{
+    int max = 5;
+    struct objUpdateInformation objUpdate[UP_GAME_SIM_ACCOUNT_BUFFER];
+    max = (max < UP_GAME_SIM_ACCOUNT_BUFFER) ? max : UP_GAME_SIM_ACCOUNT_BUFFER;
+    
+    struct objUpdateInformation newObjdata = {0};
+    int packet_read = up_readNetworkDatabuffer(accountCom->simulation_input,objUpdate, max);
+    
+
+    struct up_packet_player_joined player_joind_tmp = {0};
+    struct up_objectInfo obj_tmp = {0};
+    
+    int i = 0;
+    int timestamp = up_clock_ms();
+    
+    int success = 0;
+    int index = 0;
+    
+    for (i = 0; i < packet_read; i++) {
+        
+        switch (objUpdate[i].data[0]) {
+            case UP_PACKET_PLAYER_JOINED:
+                success = up_intercom_packet_playerJoind_decode(&objUpdate[i].data[0], &player_joind_tmp);
+                index = player_joind_tmp.objectID.idx;
+                if (success && (index < UP_MAX_CLIENTS)) {
+                    obj_tmp = up_asset_createObjFromId(player_joind_tmp.modelId);
+                    
+                    obj_tmp.objectId = player_joind_tmp.objectID;
+                    obj_tmp.modelId = player_joind_tmp.modelId;
+                    obj_tmp.pos = player_joind_tmp.pos;
+                    // standard start dir
+                    obj_tmp.dir.x = 0.03;
+                    obj_tmp.dir.y = 1.0;
+                    obj_tmp.angle = 0.0;
+                    up_server_unit_setObjAtindex(up_ship_type, obj_tmp, index);
+                    
+                    up_network_objectmove_packetEncode(&newObjdata, obj_tmp.objectId, obj_tmp.modelId, obj_tmp.pos, obj_tmp.speed, obj_tmp.angle, obj_tmp.bankAngle, timestamp);
+                    
+                    //send to alla other clients
+                    up_writeToNetworkDatabuffer(gameCom->simulation_output, &newObjdata);
+                }
+                
+                break;
+            default:
+                break;
+        }
+    }
+
+    return 0;
+    
+}
 
 // checks all actions parameters, returns true if all equal
 static int compare_actions(struct up_actionState *actionA,struct up_actionState *actionB)

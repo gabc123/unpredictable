@@ -196,20 +196,27 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     return 1;
 }
 
-static int up_network_updateObject(struct up_packet_movement *movment)
+static int up_network_updateObject(struct up_packet_movement *movement)
 {
-    struct up_objectInfo *tmpObject = up_unit_objAtIndex(movment->objectID.type, movment->objectID.idx);
+    struct up_objectInfo obj_tmp = {0};
+    struct up_objectInfo *tmpObject = up_unit_objAtIndex(movement->objectID.type, movement->objectID.idx);
     if (tmpObject == NULL) {
-        printf("\nRecive packet coruppted");
-        return 0;
+        obj_tmp = up_asset_createObjFromId(movement->modelId);
+        obj_tmp.pos = movement->pos;
+        obj_tmp.speed = movement->speed;
+        obj_tmp.angle = movement->angle;
+        obj_tmp.bankAngle = movement->bankangle;
+        
+        up_server_unit_setObjAtindex(movement->objectID.type, obj_tmp, movement->objectID.idx);
+        return 1;
     }
     
     // TODO: timedalation
     // this is a temporary solution
-    tmpObject->pos = movment->pos;
-    tmpObject->speed = movment->speed;
-    tmpObject->angle = movment->angle;
-    tmpObject->bankAngle = movment->bankangle;
+    tmpObject->pos = movement->pos;
+    tmpObject->speed = movement->speed;
+    tmpObject->angle = movement->angle;
+    tmpObject->bankAngle = movement->bankangle;
     //objUpdate[i].id;
     return 1;
 }
@@ -251,6 +258,7 @@ int up_network_getNewMovement(struct up_actionState *states,int max,int playerId
                 break;
             case UP_PACKET_HEARTBEAT_FLAG:
                 up_network_sendHeartbeat(socket_data);
+                
                 break;
             default:
                 break;

@@ -230,12 +230,15 @@ static int packet_loacationMovement_decode(unsigned char *data,struct up_packet_
 
 
 int up_network_objectmove_packetEncode(struct objUpdateInformation *object,
-                                       struct up_objectID objId,
+                                       struct up_objectID objId, int modelId,
                                        struct up_vec3 pos,float speed,
                                        float angle,float bankangle,int timestamp)
 {
     int read_pos = 0;
     object->data[read_pos] = UP_PACKET_OBJECTMOVE_FLAG;
+    read_pos++;
+    
+    object->data[read_pos] = (unsigned char)modelId;
     read_pos++;
     
     int index_len = sizeof(objId.idx);
@@ -264,6 +267,8 @@ int up_network_objectmove_packetDecode(struct objUpdateInformation *object,
     if (object->data[read_pos] !=  UP_PACKET_ACTION_FLAG) {
         return 0;
     }
+    read_pos++;
+    movement->modelId = (int)object->data[read_pos];
     read_pos++;
     
     // store the index/id and type

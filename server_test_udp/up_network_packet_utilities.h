@@ -47,6 +47,7 @@ struct up_packet_player_joined
 
 struct up_packet_movement
 {
+    int modelId;
     struct up_objectID objectID;
     struct up_vec3 pos;
     float speed;
@@ -67,7 +68,7 @@ int up_network_heartbeat_packetDecode(unsigned char *data,int *timestamp);
 
 
 int up_network_objectmove_packetEncode(struct objUpdateInformation *object,
-                                       struct up_objectID objId,
+                                       struct up_objectID objId, int modelId,
                                        struct up_vec3 pos,float speed,
                                        float angle,float bankangle,int timestamp);
 
