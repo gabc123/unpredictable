@@ -27,7 +27,7 @@ double up_getFrameTimeDelta();
 
 //Sebastian 2015-05-15
 // magnus bug checks and fixes
-void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_stats *player_stats,struct up_shootingFlag *weapons)
+int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_player_stats *player_stats,struct up_shootingFlag *weapons,struct up_objectID *object_movedArray,int max_moved)
 {
     int i=0;
     struct up_objectInfo *object1 = NULL;
@@ -172,10 +172,8 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
      }
      }*/
     
-    if (object2 == NULL) {
-        return;
-    }
-    
+
+    return 0;
 }
 
 //Sebastian + Tobias 2015-05-12
@@ -247,7 +245,7 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
 
 //checks for collisions based on object type
 //Sebastian 2015-05-08
-void up_checkCollision(struct up_allCollisions *allcollisions){
+void up_server_checkCollision(struct up_allCollisions *allcollisions){
     
     int i= 1, j= 1, totalShips = 0, totalObjects = 0, totalProjectiles = 0;
     float distance=0, x=0, y=0, z=0;
@@ -445,7 +443,7 @@ void up_updateFrameTickRate()
 //this funktion updates the global position of all objects in the world
 //only called in the main gameloop once
 //Magnus 2015-05-05
-void up_updateMovements()
+void up_server_updateMovements()
 {
     int numObjects = 0;
     struct up_objectInfo *objlocal = NULL;

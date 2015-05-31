@@ -179,17 +179,14 @@ void *up_game_simulation(void *parm)
         
         up_server_update_actions(player_actionArray,player_inventoryArray, map_maxPlayers,&weapons_info);
 
-        up_updateMovements();
-        up_checkCollision(&allcollisions);
+        up_server_updateMovements();
+        up_server_checkCollision(&allcollisions);
         
         up_server_update_playerStats(&allcollisions, player_inventoryArray,&weapons_info.flags,map_maxPlayers);
         
-        up_handleCollision(&allcollisions,player_inventoryArray,&weapons_info.flags);
+        up_server_handleCollision(&allcollisions,player_inventoryArray,&weapons_info.flags,object_movedArray,max_object_move);
         
-        
-        
-          //16 ms
-        
+        up_game_communication_getAccount(account_interCom, gameplay_interCom);
         
     }
     printf("Ended main loop\n");
