@@ -155,8 +155,8 @@ void *up_game_simulation(void *parm)
     }
 
     int movedObject_count = 0;
-    unsigned int loop_delay = 0;
-    int delta_time = 0;
+    double loop_delay = 0;
+    double delta_time = 0;
     //long debugTime = 0;
     //int laps = 0;
     while(game_simulation->online_signal)
@@ -167,21 +167,22 @@ void *up_game_simulation(void *parm)
         // at full update rate, 8ms equals about 120 gameloop laps each seconde
         //debugTime = clock();
         //laps = 0;
+        
         do {
             up_game_communication_getAction(player_actionArray, map_maxPlayers, gameplay_interCom);
             up_server_validate_actions(player_actionArray, player_inventoryArray, player_weaponsArray, map_maxPlayers);
             up_game_communication_sendAction(player_actionArray, delta_actionArray, map_maxPlayers, gameplay_interCom);
             
-            usleep(100); // do not need to overhet the cpu =) or flod the buffer
+            usleep(1000); // do not need to overhet the cpu =) or flod the buffer
             
-            delta_time = up_clock_ms() - loop_delay;
+            delta_time = clock() - loop_delay;
             delta_time = (delta_time > 0) ? delta_time : 0; // the up_clock_ms overflows every 72 min i think
             //laps++;
-        }while (delta_time < 8);
+        }while (delta_time < 8000);
         //printf("\ntime: %lu %d",(clock() - debugTime),laps);
         
         up_updateFrameTickRate();
-        loop_delay = up_clock_ms(); // used to fix the inerloop
+        loop_delay = clock(); // used to fix the inerloop
         
         movedObject_count = 0;
         movedObject_count = up_server_update_actions(player_actionArray,player_inventoryArray, map_maxPlayers,&weapons_info,object_movedArray,max_object_move);

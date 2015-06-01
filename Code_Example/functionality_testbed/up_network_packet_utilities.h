@@ -87,7 +87,7 @@ int up_network_objectmove_packetDecode(struct objUpdateInformation *object,
 int up_network_action_packetEncode(struct objUpdateInformation *object,
                                    struct up_actionState *action,
                                    struct up_vec3 pos,float speed,
-                                   float angle,float bankangle,int timestamp);
+                                   float angle,float bankangle,int modelId,int timestamp);
 
 int up_network_action_packetDecode(struct objUpdateInformation *object,
                                    struct up_actionState *action,

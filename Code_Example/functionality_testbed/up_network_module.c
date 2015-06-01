@@ -12,6 +12,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "up_thread_utilities.h"
 #include "up_error.h"
 #include "up_network_packet_utilities.h"
@@ -172,7 +173,7 @@ printf("Account ending connection closed\n");
    
 }
 
-static int up_network_updateShipUnit(struct up_actionState *states,struct up_packet_movement *movment, int playerId)
+static int up_network_updateShipUnit(struct up_actionState *states,struct up_packet_movement *movement, int playerId)
 {
     
     if (states->objectID.idx == playerId) {
@@ -182,7 +183,7 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     struct up_objectInfo fallback = {0};
     struct up_objectInfo *tmpObject = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
     if (tmpObject == NULL) {
-        fallback = up_asset_createObjFromId(movment->modelId);
+        fallback = up_asset_createObjFromId(movement->modelId);
         up_server_unit_setObjAtindex(states->objectID.type, fallback, states->objectID.idx);
         tmpObject = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
 
@@ -192,35 +193,50 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
         }
     }
     
+    struct up_vec3 dir = {0};
+    dir.x = sinf(movement->angle);
+    dir.y = cosf(movement->angle);
+    
     // TODO: timedalation
     // this is a temporary solution
-    tmpObject->pos = movment->pos;
-    tmpObject->speed = movment->speed;
-    tmpObject->angle = movment->angle;
-    tmpObject->bankAngle = movment->bankangle;
+    tmpObject->modelId = movement->modelId;
+    tmpObject->pos = (up_distance(tmpObject->pos, movement->pos) < 4.0) ? tmpObject->pos : movement->pos;
+    tmpObject->dir = dir;
+    tmpObject->speed = movement->speed;
+    tmpObject->angle = movement->angle;
+    tmpObject->bankAngle = movement->bankangle;
     //objUpdate[i].id;
     return 1;
 }
 
 static int up_network_updateObject(struct up_packet_movement *movement)
 {
+    struct up_vec3 dir = {0};
+    dir.x = sinf(movement->angle);
+    dir.y = cosf(movement->angle);
+    
     struct up_objectInfo obj_tmp = {0};
+    
     struct up_objectInfo *tmpObject = up_unit_objAtIndex(movement->objectID.type, movement->objectID.idx);
     if (tmpObject == NULL) {
         obj_tmp = up_asset_createObjFromId(movement->modelId);
         obj_tmp.pos = movement->pos;
+        obj_tmp.dir = dir;
         obj_tmp.speed = movement->speed;
         obj_tmp.angle = movement->angle;
         obj_tmp.bankAngle = movement->bankangle;
+        obj_tmp.objectId = movement->objectID;
         
         up_server_unit_setObjAtindex(movement->objectID.type, obj_tmp, movement->objectID.idx);
+        tmpObject = up_unit_objAtIndex(movement->objectID.type, movement->objectID.idx);
         return 1;
     }
     
     // TODO: timedalation
     // this is a temporary solution
     tmpObject->modelId = movement->modelId;
-    tmpObject->pos = movement->pos;
+    tmpObject->pos = (up_distance(tmpObject->pos, movement->pos) < 4.0) ? tmpObject->pos : movement->pos;
+    tmpObject->dir = dir;
     tmpObject->speed = movement->speed;
     tmpObject->angle = movement->angle;
     tmpObject->bankAngle = movement->bankangle;
@@ -335,13 +351,13 @@ void up_network_sendNewMovement(struct up_actionState *states, struct up_network
 {
     struct up_objectInfo *object = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
     if (object == NULL) {
-        //printf("send packet corrupted");
+        printf("send packet corrupted");
         return;
     }
     struct objUpdateInformation updateobject;
     int timestamp = SDL_GetTicks();
     //printf("send timestamp: %d\n",timestamp);
-    int len = up_network_action_packetEncode(&updateobject, states, object->pos, object->speed, object->angle, object->bankAngle, timestamp);
+    int len = up_network_action_packetEncode(&updateobject, states, object->pos, object->speed, object->angle, object->bankAngle, object->modelId, timestamp);
     updateobject.length = len;
     
     UDPsocket socket = socket_data->udpSocket;

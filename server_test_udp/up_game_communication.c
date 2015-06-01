@@ -16,6 +16,7 @@
 #include "up_error.h"
 #include "up_network_packet_utilities.h"
 #include "sha256.h"
+#include <math.h>
 
 #define UP_NETWORK_SIZE 100
 
@@ -44,7 +45,7 @@ unsigned int  up_copyBufferIntoObject(unsigned char *buffer,struct objUpdateInfo
 
 
 
-static int up_network_updateShipUnit(struct up_actionState *states,struct up_packet_movement *movment)
+static int up_network_updateShipUnit(struct up_actionState *states,struct up_packet_movement *movement)
 {
     
     
@@ -53,13 +54,16 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
         //printf("\nRecive packet coruppted");
         return 0;
     }
-    
+    struct up_vec3 dir = {0};
+    dir.x = sinf(movement->angle);
+    dir.y = cosf(movement->angle);
     // TODO: timedalation
     // this is a temporary solution
-    tmpObject->pos = movment->pos;
-    tmpObject->speed = movment->speed;
-    tmpObject->angle = movment->angle;
-    tmpObject->bankAngle = movment->bankangle;
+    tmpObject->pos = movement->pos;
+    tmpObject->dir = dir;
+    tmpObject->speed = movement->speed;
+    tmpObject->angle = movement->angle;
+    tmpObject->bankAngle = movement->bankangle;
     //objUpdate[i].id;
     return 1;
 }
@@ -235,7 +239,7 @@ void up_game_communication_sendAction(struct up_actionState *actionArray,struct 
         deltaArray[i] = actionArray[i];
         
         timestamp = up_clock_ms();
-        len = up_network_action_packetEncode(&updateobject, &actionArray[i], object->pos, object->speed, object->angle, object->bankAngle, timestamp);
+        len = up_network_action_packetEncode(&updateobject, &actionArray[i], object->pos, object->speed, object->angle, object->bankAngle,object->modelId, timestamp);
         if (len > 0) {
             updateobject.length = len;
             up_writeToNetworkDatabuffer(pipe->simulation_output, &updateobject);

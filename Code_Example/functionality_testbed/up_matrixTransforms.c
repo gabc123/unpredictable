@@ -398,6 +398,15 @@ void up_getModelViewPerspective(up_matrix4_t *mvp,
     up_matrix4Multiply(mvp, &pv, modelMatrix);*/
 }
 
+float up_distance(struct up_vec3 a,struct up_vec3 b)
+{
+    float dx = a.x -b.x;
+    float dy = a.y -b.y;
+    float dz = a.z -b.z;
+    
+    return sqrtf(dx*dx + dy*dy + dz*dz);
+}
+
 /*
 int main(int argc, char const *argv[])
 {

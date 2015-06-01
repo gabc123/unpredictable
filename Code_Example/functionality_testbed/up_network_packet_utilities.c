@@ -303,12 +303,16 @@ int up_network_removeObj_packetDecode(struct objUpdateInformation *object,struct
 }
 
 static int packet_loacationMovement_encode(unsigned char *data,struct up_vec3 pos,
-                                           float speed,float angle,float bankangle)
+                                           float speed,float angle,float bankangle,int modelId)
 {
     int read_pos = 0;
     int element_len = sizeof(float);
+    int model_len = sizeof(modelId);
     // we need to copy each component by them self , due to padding and compiler stuff
     // this asumes x86 prosessor so we do not need to worry about big/little endines
+    
+    generic_copyElement(model_len, &data[read_pos], (unsigned char *)&modelId);
+    read_pos +=model_len;
     
     // position data
     generic_copyElement(element_len, &data[read_pos], (unsigned char *)&pos.x);
@@ -339,10 +343,14 @@ static int packet_loacationMovement_decode(unsigned char *data,struct up_packet_
 {
     int read_pos = 0;
     int element_len = sizeof(float);
+    int model_len = sizeof(movement->modelId);
     // we need to copy each component by them self , due to padding and compiler stuff
     // this asumes x86 prosessor so we do not need to worry about big/little endines
     
     // position data
+    generic_copyElement(model_len, (unsigned char *)&movement->modelId, &data[read_pos]);
+    read_pos +=model_len;
+    
     generic_copyElement(element_len, (unsigned char *)&movement->pos.x, &data[read_pos]);
     read_pos +=element_len;
     
@@ -388,7 +396,7 @@ int up_network_objectmove_packetEncode(struct objUpdateInformation *object,
     object->data[read_pos] = (unsigned char)objId.type;
     read_pos++;
     
-    read_pos += packet_loacationMovement_encode(&object->data[read_pos], pos, speed, angle, bankangle);
+    read_pos += packet_loacationMovement_encode(&object->data[read_pos], pos, speed, angle, bankangle,modelId);
     
     int timestamp_len = sizeof(timestamp);
     generic_copyElement(timestamp_len, &object->data[read_pos],(unsigned char *)&timestamp);
@@ -403,7 +411,7 @@ int up_network_objectmove_packetDecode(struct objUpdateInformation *object,
                                        int *timestamp)
 {
     int read_pos = 0;
-    if (object->data[read_pos] !=  UP_PACKET_ACTION_FLAG) {
+    if (object->data[read_pos] !=  UP_PACKET_OBJECTMOVE_FLAG) {
         return 0;
     }
     read_pos++;
@@ -436,7 +444,7 @@ int up_network_objectmove_packetDecode(struct objUpdateInformation *object,
 int up_network_action_packetEncode(struct objUpdateInformation *object,
                                    struct up_actionState *action,
                                    struct up_vec3 pos,float speed,
-                                   float angle,float bankangle,int timestamp)
+                                   float angle,float bankangle,int modelId,int timestamp)
 {
     int read_pos = 0;
     object->data[read_pos] = UP_PACKET_ACTION_FLAG;
@@ -461,7 +469,7 @@ int up_network_action_packetEncode(struct objUpdateInformation *object,
     object->data[read_pos] = (unsigned char)action->maneuver.state;
     read_pos++;
     
-    read_pos += packet_loacationMovement_encode(&object->data[read_pos], pos, speed, angle, bankangle);
+    read_pos += packet_loacationMovement_encode(&object->data[read_pos], pos, speed, angle, bankangle,modelId);
     
     int timestamp_len = sizeof(timestamp);
     generic_copyElement(timestamp_len, &object->data[read_pos],(unsigned char *)&timestamp);

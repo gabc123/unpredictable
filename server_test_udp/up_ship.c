@@ -36,7 +36,7 @@ int up_server_projectile_reaping(struct up_objectID *object_movedArray,int max_m
         }
         
         // after 10 seconds the projectile gets removed
-        if ((projectilArray[i].spawnTime - currentTime < 10000) ||
+        if ((currentTime - projectilArray[i].spawnTime < 10000) ||
             (projectilArray[i].spawnTime != 0)) //powerups
         {
             continue;
@@ -82,9 +82,14 @@ int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_p
             continue;
         }
         
-        object2->dir = object1->dir;
+        object2->dir.x = (object1->dir.x + object2->dir.x)/2;
+        object2->dir.y = (object1->dir.y + object2->dir.y)/2;
         object2->pos.x += 5*object1->dir.x;
         object2->pos.y += 5*object1->dir.y;
+        object1->pos.x -=object1->dir.x;
+        object1->pos.y -=object1->dir.y;
+        
+        object2->angle = object1->angle;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
         
@@ -113,10 +118,11 @@ int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_p
         }
         
         object2->dir = object1->dir;
+        object2->angle = object1->angle;
         object2->pos.x += 5*object1->dir.x;
         object2->pos.y += 5*object1->dir.y;
+        
         object2->speed = object1->speed*3/4;
-        object1->speed = object1->speed/2;
         
         if (objectMoved_count < max_moved) {
             object_movedArray[objectMoved_count] = object1->objectId;   // so we know what to update
@@ -182,6 +188,7 @@ int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_p
         if(object1->objectId.idx != object2->owner && object2->objectId.idx != object1->owner){
             object2->owner = object1->objectId.idx;
             object2->dir = object1->dir;
+            object2->angle = object1->angle;
             object2->pos.x += 5*object1->dir.x;
             object2->pos.y += 5*object1->dir.y;
             object2->speed = object1->speed*3/4;
@@ -238,15 +245,17 @@ int up_server_handleCollision(struct up_allCollisions *allcollisions,struct up_p
 static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, struct up_allCollisions *allcollisions, int typeCollision)
 {
     
-    float distanceX, distanceY, distanceZ;
-    //check the distance between the centerpoints of the objects
-    distanceX = fabsf(object2->pos.x - object1->pos.x);
-    distanceY = fabsf(object2->pos.y - object1->pos.y);
-    distanceZ = fabsf(object2->pos.z - object1->pos.z);
-    
     if (object1->objectId.idx == 0|| object2->objectId.idx == 0) {
         return;
     }
+    
+
+    //check the distance between the centerpoints of the objects
+    float distanceX = fabsf(object2->pos.x - object1->pos.x);
+    float distanceY = fabsf(object2->pos.y - object1->pos.y);
+    float distanceZ = fabsf(object2->pos.z - object1->pos.z);
+    
+   
     
     //checks if the collisionboxes collides
     if(distanceX <= object1->collisionbox.length.x || distanceX <= object2->collisionbox.length.x){
@@ -852,7 +861,8 @@ int up_server_update_actions(struct up_actionState *serverArray,
         playerArray[i].modelId = localObject->modelId;
         up_moveObj(localObject, tmp,frameDelta);
         tmpObjId.idx = up_server_createProjectile(localObject, tmp, &playerArray[i], ammoStats);
-        if (objectCreated_count < max_moved) {
+        tmpObjId.type = up_projectile_type;
+        if (objectCreated_count < max_moved && tmpObjId.idx != 0) {
             object_movedArray[objectCreated_count] = tmpObjId;  // add the update
             objectCreated_count++;
         }
@@ -940,7 +950,7 @@ void up_server_update_playerStats(struct up_allCollisions *collision,
     for(i=0; i<collision->nrShipEnviroment; i++){
         
         playerId = collision->shipEnviroment[i].object1;
-        other_shipId = collision->shipShip[i].object2;
+        other_shipId = collision->shipEnviroment[i].object2;
         other_object = up_unit_objAtIndex(up_environment_type, other_shipId);
         
         if (other_object == NULL) {

@@ -265,7 +265,7 @@ int main(int argc, char const *argv[])
         up_update_actions(&shipAction, network_states_data, map_maxPlayers,&currentEvent, sound);
         
         up_updateMovements();
-        up_checkCollision(&allcollisions);
+        //up_checkCollision(&allcollisions);
         
         up_update_playerStats(&allcollisions, &player_stats,&currentEvent.flags, shipIndex);
         up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);

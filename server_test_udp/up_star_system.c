@@ -170,7 +170,7 @@ void up_generate_map(int seed)
 
     up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 50, 30,seed);
 
-    up_generate_randomize_box(40,seed);        //satellite
+    //up_generate_randomize_box(40,seed);        //satellite
     
     //up_generate_randomize_satellite(40,seed);        //satellite
     up_generate_randomize_spaceMine(80,seed);        //space mine

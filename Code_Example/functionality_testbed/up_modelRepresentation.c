@@ -336,7 +336,7 @@ static int server_setObjAtIndex(struct internal_object * objectsArray, struct up
             return 1;
         }
     }
-
+    objectsArray->objectArray[index] = object; // force it
     return 0;
 }
 

@@ -360,7 +360,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
-        up_unit_remove(up_projectile_type, object1->objectId.idx);
+        //up_unit_remove(up_projectile_type, object1->objectId.idx);
 
     }
 
@@ -386,7 +386,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
         object2->pos.y += 5*object1->dir.y;
 //        object2->speed = object1->speed*3/4;
 //        object1->speed = object1->speed/2;
-        up_unit_remove(up_projectile_type, object1->objectId.idx);
+        //up_unit_remove(up_projectile_type, object1->objectId.idx);
 
     }
 
@@ -974,6 +974,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
                          struct up_actionState *obj, struct up_eventState *ammoStats,
                          struct soundLib *sound)
 {
+    // disabled in the client , runs on server now
     struct up_objectInfo projectile = {0};
     struct cooldownTimer *bullet = &ammoStats->flags.bulletFlag;
     struct cooldownTimer *missile = &ammoStats->flags.missileFlag;
@@ -989,7 +990,8 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.projectile = fireBullet;
         
         bullet->ammunition--;
-        up_unit_add(up_projectile_type, projectile);
+        //up_unit_add(up_projectile_type, projectile); // disabled in the client , runs on server now
+        
         obj->fireWeapon.none = none;
     }
     //lazer
@@ -1002,7 +1004,8 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireLaser;
         laser->ammunition--;
-        up_unit_add(up_projectile_type,projectile);
+        //up_unit_add(up_projectile_type,projectile); // disabled in the client , runs on server now
+        
         obj->fireWeapon.none = none;
         
         //pew pew sound
@@ -1019,7 +1022,8 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireMissile;
         missile->ammunition--;
-        up_unit_add(up_projectile_type,projectile);
+        //up_unit_add(up_projectile_type,projectile);// disabled in the client , runs on server now
+        
         obj->fireWeapon.none = none;
 
     }
@@ -1125,7 +1129,8 @@ static void ship_projectileHit(struct up_player_stats *player,struct up_shooting
 void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *player,struct up_shootingFlag *weapons, int playerId)                         //"Den checkar :P "
 {
 
-
+    // disabled on client;
+    /*
     int i=0;
     int other_shipId;
     struct up_objectInfo *other_object = NULL;
@@ -1133,6 +1138,7 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
 
     other_shipId = collision->shipShip[i].object2;
     player_object = up_unit_objAtIndex(up_ship_type, playerId);
+    
     
 
     for(i=0; i<collision->nrShipEnviroment; i++){
@@ -1144,7 +1150,8 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
         }
         if(collision->shipEnviroment[i].object1 == playerId){
 
-            take_damage(player,7);
+            take_damage(player,7);// disabled in the client , runs on server now
+            
 
         }
     }
@@ -1161,7 +1168,8 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
             
             if(other_shipId !=  playerId ||
                other_object->modelId == player_object->modelId){
-                take_damage(player,5);
+                take_damage(player,5);// disabled in the client , runs on server now
+                
             }
         }
     }
@@ -1183,7 +1191,7 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
             }
         }
     }
-
+*/
     player->bullets.current = weapons->bulletFlag.ammunition;
     player->missile.current = weapons->missileFlag.ammunition;
     player->laser.current = weapons->laserFlag.ammunition;
