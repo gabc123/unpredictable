@@ -157,12 +157,16 @@ void *up_game_simulation(void *parm)
     int movedObject_count = 0;
     unsigned int loop_delay = 0;
     int delta_time = 0;
+    //long debugTime = 0;
+    //int laps = 0;
     while(game_simulation->online_signal)
     {
         
         // this inerloop runs until the entire gameloop reches 8 ms,
         // this improves the response time, and also reduces the cpu load from moving all obj
         // at full update rate, 8ms equals about 120 gameloop laps each seconde
+        //debugTime = clock();
+        //laps = 0;
         do {
             up_game_communication_getAction(player_actionArray, map_maxPlayers, gameplay_interCom);
             up_server_validate_actions(player_actionArray, player_inventoryArray, player_weaponsArray, map_maxPlayers);
@@ -172,8 +176,9 @@ void *up_game_simulation(void *parm)
             
             delta_time = up_clock_ms() - loop_delay;
             delta_time = (delta_time > 0) ? delta_time : 0; // the up_clock_ms overflows every 72 min i think
-            
+            //laps++;
         }while (delta_time < 8);
+        //printf("\ntime: %lu %d",(clock() - debugTime),laps);
         
         up_updateFrameTickRate();
         loop_delay = up_clock_ms(); // used to fix the inerloop
