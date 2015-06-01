@@ -54,9 +54,9 @@ still doing a full write, but only the id is read, the cpu has a max L2 read rat
     other:  blockalloc 8160, standard, fullcopy read off: 1.85 GB/s
  */
 
-#define UP_UNITTEST_TESTFOR_SECONDS 40
+#define UP_UNITTEST_TESTFOR_SECONDS 5
 
-#define UP_UNITTEST_DUBBLE_BUFFER_OFF
+//#define UP_UNITTEST_DUBBLE_BUFFER_OFF
 
 
 #define UP_UNITTEST_BLOCKALLOC_SIZE 8160
@@ -68,6 +68,7 @@ still doing a full write, but only the id is read, the cpu has a max L2 read rat
 #define UP_UNITTEST_FULL_COPY_READ
 #define UP_UNITTEST_FULL_COPY_WRITE
 
+//#define UP_UNITTEST_OLD_VER
 
 //#define UP_BLOCKALLOC_TEST
 //#define UP_CACHLINE_TEST
@@ -237,7 +238,7 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
         
     }
     
-    
+#ifdef UP_UNITTEST_OLD_VER
     
     // move the first pointer to the correct location for continued reading
     internal_concurrentQueue->first[reader] = current;
@@ -272,6 +273,31 @@ int up_readNetworkDatabuffer(struct objUpdateInformation *data,int length)
     linkElement_recycle(first,tmpLink);
     
     return countRead; //succsess
+#else
+
+        // we want to read the last link also but not remove it, if there is room
+        if ((current->next == NULL) && (count < length) && (current->obj.id != 0)) {
+            
+#ifdef UP_UNITTEST_FULL_COPY_READ
+            data[count] = current->obj;
+#else
+            data[count].id = current->obj.id;
+#endif
+            current->obj.id = 0;
+            count++;
+            
+        }
+        
+        // move the first pointer to the correct location for continued reading
+        internal_concurrentQueue->first[reader] = current;
+        
+        // this repurpouse the link chain to be used again
+        // reducing memory overhead, and waste
+        linkElement_recycle(first,tmpLink);
+        
+        return count; //succsess
+        
+#endif
 }
 
 int up_writeToNetworkDatabuffer(struct objUpdateInformation *data)
