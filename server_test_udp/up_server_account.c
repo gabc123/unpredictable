@@ -307,6 +307,39 @@ static void game_simulation_addUser(struct up_interThread_communication *interCo
     
 }
 
+static void game_simulation_saveUser(struct objUpdateInformation *objData)
+{
+    char userName[UP_USER_NAME_PASS_MAX];
+    char userFilePath[UP_FILEPATH_MAX] = "account_information/";
+    int playerId = 0;
+    
+    int read_pos = up_network_packet_playerExit_decode(&objData->data[0], userName, &playerId);
+    if (read_pos <= 0 || playerId == 0) {
+        return;
+    }
+    
+    strcat(userFilePath, userName);
+    strcat(userFilePath, "_stats");
+    
+    struct up_packet_player_joined player = {0};
+    
+    up_intercom_packet_playerJoind_decode(&objData->data[read_pos], &player);
+    
+    
+    FILE *fp = fopen(userFilePath, "w");
+    if (fp == NULL) {
+        UP_ERROR_MSG("cant create user_pos file");
+        return;
+    }
+    fprintf(fp, "%d ", player.modelId);
+    fprintf(fp, "%f %f %f ", player.pos.x, player.pos.y, player.pos.z);
+    fprintf(fp, "%d %d %d %d %d ",player.player_stats.health.current,
+            player.player_stats.armor.current, player.player_stats.bullets.current,
+            player.player_stats.missile.current,player.player_stats.laser.current);
+    fclose(fp);
+    
+}
+
 void *up_server_account_send_thread(void *parm)
 {
     struct internal_server_state *server_state = (struct internal_server_state *)parm;
@@ -315,6 +348,8 @@ void *up_server_account_send_thread(void *parm)
     int length = UP_SEND_OBJECT_LENGTH;
     struct objUpdateInformation local_data[UP_SEND_OBJECT_LENGTH];
     struct up_account_information account_validation;
+    struct objUpdateInformation simulation_exit_buffer[5];
+    
     int packet_read = 0;
     
     int spin_counter = 0;
@@ -332,6 +367,7 @@ void *up_server_account_send_thread(void *parm)
     
     int i = 0;
     while (server_con->shutdown == 0) {
+        
         packet_read =0;
         while (packet_read <= 0)
         {
@@ -344,15 +380,19 @@ void *up_server_account_send_thread(void *parm)
                 if (server_con->shutdown) {
                     break;
                 }
+                
+                
                 spin_counter = 0;
             }
         }
+        
         
         if (server_con->shutdown) {
             break;
         }
         
         for (i = 0; i < packet_read; i++) {
+            
             
             returnFlag = up_account_msg_parser(&account_validation,local_data[i].data);
             if(returnFlag==0)
@@ -395,6 +435,15 @@ void *up_server_account_send_thread(void *parm)
             }
             
         }
+        
+        packet_read = up_readNetworkDatabuffer(server_con->game_com->simulation_output, simulation_exit_buffer, 5);
+        for (i = 0; i < packet_read; i++) {
+            if ( packet_read > 0 && simulation_exit_buffer[i].data[0] == UP_PACKET_PLAYER_EXIT_FLAG) {
+                game_simulation_saveUser(&simulation_exit_buffer[i]);
+                
+            }
+        }
+        
         
     }
     

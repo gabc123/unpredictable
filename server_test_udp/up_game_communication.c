@@ -82,8 +82,39 @@ static void set_shipModel(int modelId, int index)
     tmpObject->modelId = modelId;
 }
 
+/*
+ struct up_packet_player_joined
+ {
+    struct up_objectID objectID;
+    int modelId;
+    struct up_vec3 pos;
+    struct up_player_stats player_stats;
+ };
+ 
+ */
 
-int up_game_communication_getAction(struct up_actionState *states,int max,struct up_interThread_communication *pipe)
+static struct up_packet_player_joined getPlayerExitPacket(int playerId)
+{
+    struct up_packet_player_joined tmp_player = {0};
+    struct up_objectInfo *player = up_unit_objAtIndex(up_ship_type, playerId);
+    if(player == NULL)
+    {
+        return tmp_player;
+    }
+    
+    tmp_player.modelId = player->modelId;
+    tmp_player.objectID = player->objectId;
+    tmp_player.player_stats.health.current = 100;
+    tmp_player.player_stats.armor.current = 100;
+    tmp_player.player_stats.missile.current = 20;
+    tmp_player.player_stats.bullets.current = 40;
+    tmp_player.player_stats.laser.current = 20;
+    tmp_player.pos = player->pos;
+    
+    return tmp_player;
+}
+
+int up_game_communication_getAction(struct up_actionState *states,int max,struct up_interThread_communication *pipe,struct up_interThread_communication *account)
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
@@ -102,6 +133,10 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
     
     int success = 0;
     int index = 0;
+    
+    int playerId = 0;
+    char nameBuffer[256];   // if the user exit we need to pass along the name
+    struct up_packet_player_joined playerExit = {0};
     
     for (i = 0; i < packet_read; i++) {
         
@@ -125,23 +160,22 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
                     set_shipModel(modelId,index);
                 }
                 break;
-//            case UP_PACKET_PLAYER_JOINED:
-//                success = up_intercom_packet_playerJoind_decode(&objUpdate[i].data[0], &player_joind_tmp);
-//                index = player_joind_tmp.objectID.idx;
-//                if (success && (index < UP_MAX_CLIENTS)) {
-//                    obj_tmp = up_asset_createObjFromId(player_joind_tmp.modelId);
-//                    
-//                    obj_tmp.objectId = player_joind_tmp.objectID;
-//                    obj_tmp.modelId = player_joind_tmp.modelId;
-//                    obj_tmp.pos = player_joind_tmp.pos;
-//                    // standard start dir
-//                    obj_tmp.dir.x = 0.03;
-//                    obj_tmp.dir.y = 1.0;
-//                    obj_tmp.angle = 0.0;
-//                    up_server_unit_setObjAtindex(up_ship_type, obj_tmp, index);
-//                }
-//                
-//                break;
+            case UP_PACKET_PLAYER_EXIT_FLAG:
+                success = up_network_packet_playerExit_decode(&objUpdate[i].data[0], nameBuffer, &playerId);
+                if (success > 0) {
+                    // fill in all player info that should be saved
+                    playerExit = getPlayerExitPacket(playerId);
+                    // add on the player exit info onto the first packet
+                    success += up_intercom_packet_playerJoind_encode(&objUpdate[i].data[success], &playerExit);
+                    objUpdate[i].length = success;
+                    // send it to the account thread for processing
+                    up_writeToNetworkDatabuffer(account->simulation_output, &objUpdate[i]);
+                
+                }
+                up_unit_remove(up_ship_type, playerId);
+                states[playerId].objectID.idx = 0;
+                
+                break;
             default:
                 break;
         }

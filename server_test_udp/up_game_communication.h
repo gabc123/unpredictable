@@ -34,7 +34,7 @@ struct up_network_account_data
 
 
 
-int up_game_communication_getAction(struct up_actionState *states,int max,struct up_interThread_communication *pipe);
+int up_game_communication_getAction(struct up_actionState *states,int max,struct up_interThread_communication *pipe,struct up_interThread_communication *account);
 
 void up_game_communication_sendAction(struct up_actionState *actionArray,struct up_actionState *deltaArray,int numActions,int deltaOn,struct up_interThread_communication *pipe);
 

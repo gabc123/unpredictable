@@ -169,7 +169,7 @@ void *up_game_simulation(void *parm)
         //laps = 0;
         
         do {
-            up_game_communication_getAction(player_actionArray, map_maxPlayers, gameplay_interCom);
+            up_game_communication_getAction(player_actionArray, map_maxPlayers, gameplay_interCom,account_interCom);
             up_server_validate_actions(player_actionArray, player_inventoryArray, player_weaponsArray, map_maxPlayers);
             up_game_communication_sendAction(player_actionArray, delta_actionArray, map_maxPlayers, 1, gameplay_interCom);
             

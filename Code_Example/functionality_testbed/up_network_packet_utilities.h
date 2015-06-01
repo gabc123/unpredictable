@@ -33,6 +33,7 @@
 #define UP_PACKET_REMOVE_OBJ_FLAG (unsigned char)15
 #define UP_PACKET_PLAYER_STATS_FLAG (unsigned char)16
 #define UP_PACKET_PLAYER_SHIPMODEL_FLAG (unsigned char)17
+#define UP_PACKET_PLAYER_EXIT_FLAG (unsigned char)18
 
 // maintenance flags
 #define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
@@ -49,6 +50,9 @@ struct up_packet_movement
     float bankangle;
     int timestamp;
 };
+
+int up_network_packet_playerExit_encode(unsigned char *data,const char *userName,int playerId);
+int up_network_packet_playerExit_decode(unsigned char *data,char *userName,int *playerId);
 
 int up_network_packet_mapData_encode(unsigned char *data,int playerIndex,int mapSeed,int numPlayersOnline);
 int up_network_packet_mapData_decode(unsigned char *data,int *playerIndex,int *mapSeed,int *numPlayersOnline);

@@ -570,6 +570,23 @@ static int up_network_accountManagement(unsigned char flag,char *username,unsign
     return 0;
 }
 
+
+int up_network_exitProg(char *username,int playerId, struct up_network_datapipe *socket_data)
+{
+    
+    UDPsocket socket = socket_data->udpSocket;
+    UDPpacket *packet = socket_data->sendPacket;
+    packet->address.host = socket_data->addr.host;
+    packet->address.port = socket_data->addr.port;
+    
+    packet->len = up_network_packet_playerExit_encode(packet->data, username, playerId);
+
+    SDLNet_UDP_Send(socket, -1, packet);
+    return 0;
+    
+}
+
+
 int up_network_registerAccount(char *username, char *password, int length, struct up_network_datapipe *socket_data)
 {
     unsigned char hashedPass[SHA256_BLOCK_SIZE];

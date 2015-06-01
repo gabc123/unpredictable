@@ -31,6 +31,7 @@ struct up_map_data
     int mapSeed;
     int numPlayersOnline;
     int playeModel;
+    char userName[30];
     
 };
 
@@ -46,6 +47,8 @@ struct up_network_datapipe *up_network_start_gameplay_setup();
 struct up_network_datapipe *up_network_start_account_setup();
 
 void up_network_shutdown_deinit(struct up_network_datapipe *p);
+
+int up_network_exitProg(char *username,int playerId, struct up_network_datapipe *socket_data);
 
 
 int up_network_getNewStates(struct up_actionState *states,

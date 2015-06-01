@@ -582,6 +582,7 @@ int up_menu(struct shader_module *shaderprog,
     int menu_exit_flag = 0;
     int timmer_account = 0;
     int timer_conReg = 0;
+    int userLen = 0;
     
     // MENU LOOP
     while(status && !menu_exit_flag)
@@ -697,6 +698,10 @@ int up_menu(struct shader_module *shaderprog,
                     
                     navigation.state = logRegSuccess;
                     *mapData = accountData->map;    // transfer all map info back to main
+                    // need to do it the same risky way that was done before
+                    strncpy(mapData->userName, user_data.username, 30);
+                    userLen = (unsigned int)strlen(user_data.username);
+                    mapData->userName[userLen] = '\0';
                 }
                 //CONNECTION FAILED
                 else if (accountState == LOGINFAILED){

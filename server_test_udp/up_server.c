@@ -443,8 +443,27 @@ struct internal_server_state *up_server_startup()
 
 void up_server_shutdown_cleanup(struct internal_server_state *server_state)
 {
+    
+    // ugly hack, to force recvfrom to not block forever and exit on some machine
+    // we need to send a msg to it, we use the server game socket and account socket to achive this
+    char *dataBuffer = "bye";   //INADDR_LOOPBACK
+    struct sockaddr_in serverAddr = server_state->server_gameplay->server_info;
+    serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);    //127.0.0.1
+    
+    if (sendto(server_state->server_account->socket_server, dataBuffer, strlen(dataBuffer), 0, (struct sockaddr *)&serverAddr.sin_addr, sizeof(struct sockaddr_in)) == -1) {
+        printf("\nserver kll msg gameplay");
+        perror("send account");
+    }
+    serverAddr = server_state->server_account->server_info;
+    serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    
+    if (sendto(server_state->server_gameplay->socket_server, dataBuffer, strlen(dataBuffer), 0, (struct sockaddr *)&server_state->server_account->server_info, sizeof(struct sockaddr_in)) == -1) {
+        printf("\nserver kll msg account");
+        perror("send account");
+    }
+    
     close(server_state->server_account->socket_server);
-    close(server_state->server_gameplay->socket_server); // do this first to force a faile on all connections
+    close(server_state->server_gameplay->socket_server); // do this first to force a faile on all connections that are left
     
     int i = 0;
     for (i = 0; i < UP_SERVER_ACCOUNT_THREAD_COUNT; i++) {

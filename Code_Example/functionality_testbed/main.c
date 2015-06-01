@@ -294,8 +294,7 @@ int main(int argc, char const *argv[])
         UP_openGLupdate();
 
     }
-    
-
+    up_network_exitProg(mapData.userName, shipIndex, connection_data);
     printf("Ended main loop\n");
     free(transformationArray);
     //cleanup and release all data (notice the reverse order of setup)

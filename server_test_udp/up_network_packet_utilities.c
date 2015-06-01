@@ -13,6 +13,7 @@
 #include "up_vertex.h"
 #include "up_server.h"
 #include "up_thread_utilities.h"
+#include <string.h>
 
 // warning:
 // this function copy the data from source into destination,
@@ -27,6 +28,50 @@ void generic_copyElement(unsigned int element_size,unsigned char *destination,un
     }
 }
 
+
+int up_network_packet_playerExit_encode(unsigned char *data,const char *userName,int playerId)
+{
+    int read_pos = 0;
+    data[read_pos] = UP_PACKET_PLAYER_EXIT_FLAG;
+    read_pos++;
+    
+    unsigned int id_len = sizeof(playerId);
+    generic_copyElement(id_len, &data[read_pos], (unsigned char *)&playerId);
+    read_pos += id_len;
+    
+    unsigned char name_len = (unsigned char)strlen(userName);
+    data[read_pos] = name_len;
+    read_pos++;
+    
+    generic_copyElement((unsigned int)name_len, &data[read_pos], (unsigned char *)userName);
+    read_pos += (int)name_len;
+    
+    return read_pos;
+}
+
+int up_network_packet_playerExit_decode(unsigned char *data,char *userName,int *playerId)
+{
+    int read_pos = 0;
+    if (data[read_pos] != UP_PACKET_PLAYER_EXIT_FLAG) {
+        return 0;
+    }
+    read_pos++;
+    
+    unsigned int id_len = sizeof(*playerId);
+    generic_copyElement(id_len, (unsigned char *)playerId,&data[read_pos]);
+    read_pos += id_len;
+    
+    
+    unsigned int name_len = data[read_pos];
+    read_pos++;
+    
+    generic_copyElement(name_len, (unsigned char *)userName, &data[read_pos]);
+    read_pos += (int)name_len;
+    name_len = (name_len < 254) ? name_len : 254; // prevent buffer overflow security risk
+    userName[name_len] = '\0';  // make sure its null terminated
+    return read_pos;
+    
+}
 
 int up_intercom_packet_playerJoind_encode(unsigned char *data,struct up_packet_player_joined *player)
 {
