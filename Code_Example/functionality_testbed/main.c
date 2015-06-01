@@ -127,11 +127,7 @@ int main(int argc, char const *argv[])
     int shipIndex = mapData.playerIndex;
     up_server_unit_setObjAtindex(up_ship_type, tmp_ship, shipIndex);
 
-    struct up_objectInfo stillObj = {0};
-    stillObj.pos.z = 30;
-    stillObj.scale = assets->scaleArray[2];
-    stillObj.modelId = 2;
-    stillObj.objectId.type = up_others_type;
+
     
     up_network_sendChangeModel(mapData.playeModel, mapData.playerIndex, connection_data);
 
@@ -140,8 +136,6 @@ int main(int argc, char const *argv[])
         UP_ERROR_MSG("ship do not exist, use loner ship");
         ship = &tmp_ship;
     }
-    ship->pos.x += 10;
-    up_unit_add(up_environment_type,stillObj);
 
     up_generate_map(mapData.mapSeed);
 
