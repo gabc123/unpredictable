@@ -171,7 +171,7 @@ void *up_game_simulation(void *parm)
         do {
             up_game_communication_getAction(player_actionArray, map_maxPlayers, gameplay_interCom);
             up_server_validate_actions(player_actionArray, player_inventoryArray, player_weaponsArray, map_maxPlayers);
-            up_game_communication_sendAction(player_actionArray, delta_actionArray, map_maxPlayers, gameplay_interCom);
+            up_game_communication_sendAction(player_actionArray, delta_actionArray, map_maxPlayers, 1, gameplay_interCom);
             
             usleep(1000); // do not need to overhet the cpu =) or flod the buffer
             
@@ -201,7 +201,7 @@ void *up_game_simulation(void *parm)
         movedObject_count = 0;
         movedObject_count = up_server_handleCollision(&allcollisions,player_inventoryArray,&weapons_info.flags,object_movedArray,max_object_move);
         up_game_communication_sendObjChanged(object_movedArray, movedObject_count, gameplay_interCom);
-
+        
         // removes projectiles that not in used anymore (bullet moving out of the solarsystem)
         movedObject_count = 0;
         movedObject_count = up_server_projectile_reaping(object_movedArray, movedObject_count);
@@ -209,7 +209,7 @@ void *up_game_simulation(void *parm)
         
         // this propaget account joins and levs out to all, and into the internal gamestate
         up_game_communication_getAccount(account_interCom, gameplay_interCom, player_inventoryArray, map_maxPlayers);
-        
+        up_game_communication_sendAction(player_actionArray, NULL, map_maxPlayers, 0, gameplay_interCom);
     }
     printf("Ended main loop\n");
 

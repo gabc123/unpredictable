@@ -212,7 +212,7 @@ static int compare_actions(struct up_actionState *actionA,struct up_actionState 
             (actionA->maneuver.state == actionB->maneuver.state));
 }
 
-void up_game_communication_sendAction(struct up_actionState *actionArray,struct up_actionState *deltaArray,int numActions,struct up_interThread_communication *pipe)
+void up_game_communication_sendAction(struct up_actionState *actionArray,struct up_actionState *deltaArray,int numActions,int deltaOn,struct up_interThread_communication *pipe)
 {
     struct up_objectInfo *object = NULL;
     
@@ -223,11 +223,14 @@ void up_game_communication_sendAction(struct up_actionState *actionArray,struct 
     for (i=0; i < numActions; i++) {
         // checks first if the object is active, then if its state have changed
         // we do this to reduce the amount of traffic over the net
-        if ((actionArray[i].objectID.idx == 0) ||
-            (compare_actions(&actionArray[i],&deltaArray[i]))) {
+        if (actionArray[i].objectID.idx == 0) {
             continue;
         }
         
+        if( deltaOn && compare_actions(&actionArray[i],&deltaArray[i]) )
+        {
+            continue;
+        }
         
         object = up_unit_objAtIndex(actionArray[i].objectID.type, actionArray[i].objectID.idx);
         if (object == NULL) {
@@ -236,8 +239,10 @@ void up_game_communication_sendAction(struct up_actionState *actionArray,struct 
         }
         
         // update delta
-        deltaArray[i] = actionArray[i];
-        
+        if(deltaOn)
+        {
+            deltaArray[i] = actionArray[i];
+        }
         timestamp = up_clock_ms();
         len = up_network_action_packetEncode(&updateobject, &actionArray[i], object->pos, object->speed, object->angle, object->bankAngle,object->modelId, timestamp);
         if (len > 0) {
