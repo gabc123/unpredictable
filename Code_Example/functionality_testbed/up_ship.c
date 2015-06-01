@@ -13,6 +13,9 @@
 #include "up_healthbar.h"
 #define NAMESIZE 100
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 // magnus , up_updateMovements , 5 maj
 
@@ -318,7 +321,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
     for(i=0; i < allcollisions->nrShipEnviroment; i++){
         objectIndex1 = allcollisions->shipEnviroment[i].object1;
         objectIndex2 = allcollisions->shipEnviroment[i].object2;
-        
+
         object1 = up_unit_objAtIndex(up_ship_type, objectIndex1);
         object2 = up_unit_objAtIndex(up_environment_type, objectIndex2);
         if (object1 == NULL){
@@ -482,7 +485,7 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
     if (object1->objectId.idx == 0|| object2->objectId.idx == 0) {
         return;
     }
-    
+
     //checks if the collisionboxes collides
     if(distanceX <= object1->collisionbox.length.x || distanceX <= object2->collisionbox.length.x){
         if(distanceY <= object1->collisionbox.length.y ||distanceY <=object2->collisionbox.length.y){
@@ -528,7 +531,7 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                 default:
                         printf("error");
                         break;
-                        
+
                 }
             }
         }
@@ -691,7 +694,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 y = ships[i].pos.y - ships[j].pos.y;
                 z = ships[i].pos.z - ships[j].pos.z;
                 distance = sqrt((x*x)+(y*y)+(z*z));
-                
+
                 if(distance < ships[i].maxLength || distance < ships[j].maxLength){
                     //printf("ship %f, distance %f, ship %f\n",ships[j].maxLength,distance,ships[i].maxLength);
                     testCollision(&ships[j], &ships[i], allcollisions, shipShip);
@@ -988,10 +991,10 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.speed = localobject->speed + bullet->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireBullet;
-        
+
         bullet->ammunition--;
         //up_unit_add(up_projectile_type, projectile); // disabled in the client , runs on server now
-        
+
         obj->fireWeapon.none = none;
     }
     //lazer
@@ -1005,9 +1008,9 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.projectile = fireLaser;
         laser->ammunition--;
         //up_unit_add(up_projectile_type,projectile); // disabled in the client , runs on server now
-        
+
         obj->fireWeapon.none = none;
-        
+
         //pew pew sound
         up_music(1, 0, sound);
 
@@ -1023,7 +1026,7 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.projectile = fireMissile;
         missile->ammunition--;
         //up_unit_add(up_projectile_type,projectile);// disabled in the client , runs on server now
-        
+
         obj->fireWeapon.none = none;
 
     }
@@ -1068,27 +1071,27 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
 //walled
 static void take_powerUp(struct up_player_stats *stats,int damage){
 
-    
+
     stats->health.current += damage;
-    
+
     if(stats->health.current >= stats->health.full){
         stats->armor.current += stats->health.current - stats->health.full;
         stats->health.current = stats->health.full;
     }
-    
+
     if(stats->armor.current >= stats->armor.full){
         stats->armor.current = stats->armor.full;
     }
-    
+
 }
 //walled
 static void take_damage(struct up_player_stats *stats,int damage){
-    
+
     stats->armor.current -= damage;
     if(stats->armor.current < 0){
         stats->health.current += stats->armor.current;
         stats->armor.current = 0;
-        
+
     }
 
     stats->health.current = (stats->health.current > 0) ? stats->health.current : 0;
@@ -1099,8 +1102,8 @@ static void take_damage(struct up_player_stats *stats,int damage){
  fireMissile = 1,
  fireBullet,
  fireLaser
- 
- 
+
+
  */
 static void ship_projectileHit(struct up_player_stats *player,struct up_shootingFlag *weapons,struct up_objectInfo *projectile)
 {
@@ -1115,13 +1118,13 @@ static void ship_projectileHit(struct up_player_stats *player,struct up_shooting
         case fireLaser:
             damage = weapons->laserFlag.damage;
             break;
-            
+
         default:
             damage = 0;
             break;
     }
     take_damage(player,damage);
-    
+
 }
 
 //walled
@@ -1138,20 +1141,20 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
 
     other_shipId = collision->shipShip[i].object2;
     player_object = up_unit_objAtIndex(up_ship_type, playerId);
-    
-    
+
+
 
     for(i=0; i<collision->nrShipEnviroment; i++){
         other_shipId = collision->shipShip[i].object2;
         other_object = up_unit_objAtIndex(up_environment_type, other_shipId);
-        
+
         if (other_object == NULL) {
             continue;
         }
         if(collision->shipEnviroment[i].object1 == playerId){
 
             take_damage(player,7);// disabled in the client , runs on server now
-            
+
 
         }
     }
@@ -1165,15 +1168,15 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
             if (other_object == NULL) {
                 continue;
             }
-            
+
             if(other_shipId !=  playerId ||
                other_object->modelId == player_object->modelId){
                 take_damage(player,5);// disabled in the client , runs on server now
-                
+
             }
         }
     }
-    
+
 
     for(i=0; i<collision->nrProjectileShip; i++){
         if(collision->projectileShip[i].object2 == playerId){
