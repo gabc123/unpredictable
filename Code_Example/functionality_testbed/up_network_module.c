@@ -72,7 +72,7 @@ static struct up_network_datapipe *up_network_start_setup(int port)             
     char file[20]="ip_address";
     char ip_address[20];
     int success;
-    
+
     if (up_concurrentQueue_start_setup() == 0) {
         UP_ERROR_MSG("queue startup failed");
     }
@@ -86,7 +86,7 @@ static struct up_network_datapipe *up_network_start_setup(int port)             
         printf("Success queue");
     }
     p->queue = queue;
-    
+
     FILE *fp=fopen(file,"r");                               // open file, read the content, scans the file and push it into the array
     if (fp == NULL) {
         UP_ERROR_MSG_STR("Missing file, ip_address,network failure",file);
@@ -109,7 +109,7 @@ static struct up_network_datapipe *up_network_start_setup(int port)             
         printf("Initialize success");
     }*/
                                                             // randomize a port so that the client can communicate, returns 0 if not success else success
-    
+
     p->udpSocket =SDLNet_UDP_Open(0);
     if(!p->udpSocket){
         printf("Error: Could not open socket");
@@ -118,9 +118,9 @@ static struct up_network_datapipe *up_network_start_setup(int port)             
     else{
         printf("Socket port: ");
     }
-    
+
                                                             // resolving conection between host and destination address, sending data throuh port 5001
-    
+
     success=SDLNet_ResolveHost(&p->addr, ip_address, port);
     if(success==-1){
         printf("Error: Could not fill out ip address");
@@ -128,19 +128,19 @@ static struct up_network_datapipe *up_network_start_setup(int port)             
     else{
         printf("Success filling out the ip address\n");
     }
-    
+
     p->online = 1;
     p->sendPacket =   SDLNet_AllocPacket(1024);
     if (!p->sendPacket) {
         UP_ERROR_MSG_STR("sdlnet allocpacket error", SDLNet_GetError());
     }
     // allocate and resize a single udp packet
-    
+
                                                             // creates thread for the server
     //p->recive_thread=SDL_CreateThread(up_network_recive,"up_network_recive",p);
-    
-    
-    
+
+
+
     return p;
 }
 
@@ -165,17 +165,17 @@ void up_network_shutdown_deinit(struct up_network_datapipe *p)
 printf("Account ending connection closed\n");
     SDL_Delay(100); // make sure that the recive thread has ended before we shut down all other stuff
     SDL_WaitThread(p->recive_thread, NULL);
-    
+
     SDLNet_FreePacket(p->sendPacket);
-    
+
     up_concurrentQueue_shutdown_deinit();
-    
-   
+
+
 }
 
 static int up_network_updateShipUnit(struct up_actionState *states,struct up_packet_movement *movement, int playerId)
 {
-    
+
     if (states->objectID.idx == playerId) {
         states->objectID.idx = 0; // index special means no update
         return 1;
@@ -192,11 +192,11 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
             return 0;
         }
     }
-    
+
     struct up_vec3 dir = {0};
     dir.x = sinf(movement->angle);
     dir.y = cosf(movement->angle);
-    
+
     // TODO: timedalation
     // this is a temporary solution
     tmpObject->modelId = movement->modelId;
@@ -214,9 +214,9 @@ static int up_network_updateObject(struct up_packet_movement *movement)
     struct up_vec3 dir = {0};
     dir.x = sinf(movement->angle);
     dir.y = cosf(movement->angle);
-    
+
     struct up_objectInfo obj_tmp = {0};
-    
+
     struct up_objectInfo *tmpObject = up_unit_objAtIndex(movement->objectID.type, movement->objectID.idx);
     if (tmpObject == NULL) {
         obj_tmp = up_asset_createObjFromId(movement->modelId);
@@ -226,12 +226,12 @@ static int up_network_updateObject(struct up_packet_movement *movement)
         obj_tmp.angle = movement->angle;
         obj_tmp.bankAngle = movement->bankangle;
         obj_tmp.objectId = movement->objectID;
-        
+
         up_server_unit_setObjAtindex(movement->objectID.type, obj_tmp, movement->objectID.idx);
         tmpObject = up_unit_objAtIndex(movement->objectID.type, movement->objectID.idx);
         return 1;
     }
-    
+
     // TODO: timedalation
     // this is a temporary solution
     tmpObject->modelId = movement->modelId;
@@ -260,14 +260,14 @@ int up_network_getNewStates(struct up_actionState *states,int max,int playerId,s
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
-    
+
 
     int packet_read = up_readNetworkDatabuffer(socket_data->queue,objUpdate, UP_OBJECT_BUFFER_READ_LENGTH);
 
     struct up_actionState tmp_states = {0};
     struct up_packet_movement movment = {0};
     struct up_objectInfo *tmp_obj = NULL;
-    
+
     int i = 0;
     int timestamp = 0;
 
@@ -276,9 +276,9 @@ int up_network_getNewStates(struct up_actionState *states,int max,int playerId,s
     struct up_player_stats tmp_inventory = {0};
     int modelId = 0;
     struct up_objectID tmp_objId = {0};
-    
+
     for (i = 0; i < packet_read; i++) {
-        
+
         switch (objUpdate[i].data[0]) {
             case  UP_PACKET_ACTION_FLAG:
                 up_network_action_packetDecode(&objUpdate[i], &tmp_states, &movment, &timestamp);
@@ -293,7 +293,7 @@ int up_network_getNewStates(struct up_actionState *states,int max,int playerId,s
                 if (success > 0) {
                     up_network_updateObject(&movment);
                 }
-                
+
                 break;
             case UP_PACKET_REMOVE_OBJ_FLAG:
                 success = up_network_removeObj_packetDecode(&objUpdate[i], &tmp_objId, &timestamp);
@@ -316,14 +316,14 @@ int up_network_getNewStates(struct up_actionState *states,int max,int playerId,s
                 break;
             case UP_PACKET_HEARTBEAT_FLAG:
                 up_network_sendHeartbeat(socket_data);
-                
+
                 break;
             default:
                 break;
         }
     }
     return max; //check all player slots
-    
+
 }
 
 
@@ -335,15 +335,15 @@ void up_network_sendChangeModel(int modelId,int playerId, struct up_network_data
     //printf("send timestamp: %d\n",timestamp);
     int len = up_network_packet_changModelEncode(&updateobject.data[0], modelId, playerId, timestamp);
     updateobject.length = len;
-    
+
     UDPsocket socket = socket_data->udpSocket;
     UDPpacket *packet = socket_data->sendPacket;
     packet->address.host = socket_data->addr.host;
     packet->address.port = socket_data->addr.port;
-    
+
     packet->len = up_copyObjectIntoBuffer(&updateobject, packet->data);
     SDLNet_UDP_Send(socket, -1, packet);
-    
+
 }
 
 
@@ -359,44 +359,44 @@ void up_network_sendNewMovement(struct up_actionState *states, struct up_network
     //printf("send timestamp: %d\n",timestamp);
     int len = up_network_action_packetEncode(&updateobject, states, object->pos, object->speed, object->angle, object->bankAngle, object->modelId, timestamp);
     updateobject.length = len;
-    
+
     UDPsocket socket = socket_data->udpSocket;
     UDPpacket *packet = socket_data->sendPacket;
     packet->address.host = socket_data->addr.host;
     packet->address.port = socket_data->addr.port;
-    
+
     packet->len = up_copyObjectIntoBuffer(&updateobject, packet->data);
     SDLNet_UDP_Send(socket, -1, packet);
-    
+
 }
 
 void up_network_sendHeartbeat(struct up_network_datapipe *socket_data)
 {
-   
+
     UDPsocket socket = socket_data->udpSocket;
     UDPpacket *packet = socket_data->sendPacket;
     packet->address.host = socket_data->addr.host;
     packet->address.port = socket_data->addr.port;
-    
+
     packet->len = up_network_heartbeat_packetEncode(packet->data, 11);
     SDLNet_UDP_Send(socket, -1, packet);
-    
+
 }
 
 
 int up_network_gameplay_recive(void *arg)
 {
     struct up_network_datapipe *p=(struct up_network_datapipe *)arg;
-   
+
     UDPsocket socket = p->udpSocket;
     UDPpacket *packet = SDLNet_AllocPacket(512);
     struct objUpdateInformation local_data = {0};
     struct up_thread_queue *queue = p->queue;
     packet->address.host = p->addr.host;
     packet->address.port = p->addr.port;
-    
+
     int len = 0;
-    
+
     while(p->online){
         SDL_Delay(1);
 
@@ -408,19 +408,19 @@ int up_network_gameplay_recive(void *arg)
                 local_data.id = 1; //cant be zero
                 local_data.length = packet->len;
                 up_copyBufferIntoObject(packet->data,&local_data);
-                
+
                 up_writeToNetworkDatabuffer(queue,&local_data);
             }
-        
+
         }
-        
-        
-        
+
+
+
         //SDL_Delay(1);
 
     }
-    
-    
+
+
     SDLNet_FreePacket(packet);
     return 1;
 }
@@ -428,25 +428,25 @@ int up_network_gameplay_recive(void *arg)
 int up_network_account_recive(void *arg)
 {
     struct up_network_datapipe *p=(struct up_network_datapipe *)arg;
-    
+
     UDPsocket socket = p->udpSocket;
     UDPpacket *packet = SDLNet_AllocPacket(1024);
     if (!packet) {
         UP_ERROR_MSG_STR("Acount thread allocpacket error", SDLNet_GetError());
     }
-    
+
     struct objUpdateInformation local_data = {0};
     struct up_thread_queue *queue = p->queue;
     packet->address.host = p->addr.host;
     packet->address.port = p->addr.port;
-    
+
     unsigned int len = 0;
-    
+
     printf("\nAccount recive thread started\n");
-    
+
     while(p->online){
         SDL_Delay(1);
-        
+
         if (SDLNet_UDP_Recv(socket,packet)){
             //printf("\n pack recv: ");
             len = packet->len;
@@ -467,13 +467,13 @@ int up_network_account_recive(void *arg)
                 up_writeToNetworkDatabuffer(queue,&local_data);
                 //printf(" data to queue done ");
             }
-            
+
         }
-        
-        
-        
+
+
+
         //SDL_Delay(1);
-        
+
     }
     printf("Account login recv connection closed\n");
     SDLNet_FreePacket(packet);
@@ -486,34 +486,34 @@ int up_network_getAccountData(struct up_network_account_data *data,int max,struc
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
-    
-    
+
+
     int packet_read = up_readNetworkDatabuffer(socket_data->queue,objUpdate, max);
-    
+
     struct up_map_data tmp_map = {0};
     int i = 0;
     int read_pos = 0;
     for (i = 0; i < packet_read; i++) {
-        
+
         switch (objUpdate[i].data[0]) {
             case  UP_LOGIN_FLAG:
                 read_pos++;
                 read_pos += up_network_logInRegistrate_packetDecode(&objUpdate[i].data[read_pos], &data->playerId, &data->serverResponse);
-                
+
                 if (data->serverResponse == LOGINSUCESS) {
                     read_pos = up_network_packet_mapData_decode(&objUpdate[i].data[read_pos], &tmp_map.playerIndex, &tmp_map.mapSeed, &tmp_map.numPlayersOnline);
                     // if the map was correctly decoded, den return it
                     data->map = (read_pos > 0) ? tmp_map : data->map;
                 }
-                
+
                 // do stuff, like decode packet and store it in data
-                
+
                 break;
             case UP_REGISTRATE_FLAG:
                 up_network_logInRegistrate_packetDecode(&objUpdate[i].data[1], &data[i].playerId, &data[i].serverResponse);
-                
+
                 // do stuff, and so on
-            
+
                 break;
             case UP_PACKET_HEARTBEAT_FLAG:  // keep this, so we dont lose the connection
                 up_network_sendHeartbeat(socket_data);
@@ -524,46 +524,46 @@ int up_network_getAccountData(struct up_network_account_data *data,int max,struc
         }
     }
     return max; //check all player slots
-    
+
 }
 
 static int up_network_accountManagement(unsigned char flag,char *username,unsigned char userLength, char *password, struct up_network_datapipe *socket_data)
 {
     int i,writeSpace = 0;
     unsigned char messageToServer[768];
-    
+
     unsigned char hashedPass[SHA256_BLOCK_SIZE];
-    
+
     up_hashText((char *)hashedPass,password,(int)strlen(password));
     unsigned char passLength = SHA256_BLOCK_SIZE;
-    
+
     messageToServer[writeSpace]=flag;
     writeSpace++;
     messageToServer[writeSpace]=UP_USER_PASS_FLAG;
     writeSpace++;
-    
+
     messageToServer[writeSpace++]=userLength;
-    
+
     for(i=0; i<userLength; i++)
     {
         messageToServer[writeSpace++]=username[i];
     }
-    
+
     messageToServer[writeSpace++]=passLength;
-    
+
     for(i=0;i<passLength;i++)
     {
         messageToServer[writeSpace++]=password[i];
     }
-    
+
     messageToServer[writeSpace++]='\0';
-    
-    
+
+
     UDPsocket socket = socket_data->udpSocket;
     UDPpacket *packet = socket_data->sendPacket;
     packet->address.host = socket_data->addr.host;
     packet->address.port = socket_data->addr.port;
-    
+
     generic_copyElement(writeSpace, packet->data, messageToServer);
     packet->len = writeSpace;
     SDLNet_UDP_Send(socket, -1, packet);
@@ -573,17 +573,17 @@ static int up_network_accountManagement(unsigned char flag,char *username,unsign
 
 int up_network_exitProg(char *username,int playerId, struct up_network_datapipe *socket_data)
 {
-    
+
     UDPsocket socket = socket_data->udpSocket;
     UDPpacket *packet = socket_data->sendPacket;
     packet->address.host = socket_data->addr.host;
     packet->address.port = socket_data->addr.port;
-    
+
     packet->len = up_network_packet_playerExit_encode(packet->data, username, playerId);
 
     SDLNet_UDP_Send(socket, -1, packet);
     return 0;
-    
+
 }
 
 
@@ -591,7 +591,7 @@ int up_network_registerAccount(char *username, char *password, int length, struc
 {
     unsigned char hashedPass[SHA256_BLOCK_SIZE];
     up_hashText((char *)hashedPass,password,(int)strlen(password));
-    
+
     unsigned char userLength = (unsigned char) strlen(username);
     username[userLength] = '\0';
     userLength++;
@@ -611,5 +611,5 @@ int up_network_loginAccount(char *username, char *password, int length, struct u
     userLength++;
     up_network_accountManagement(UP_LOGIN_FLAG,username,userLength,(char *)hashedPass,socket_data);
     return 0;
-    
+
 }
