@@ -9,6 +9,7 @@
 	Inpute: filename (file that the size should be checked on)
 
 */
+//magnus
 long int filesize(const char * filename)
 {
 	long int size = 0;
@@ -40,7 +41,10 @@ long int filesize(const char * filename)
 	return size;
 }
 
-
+// magnus
+// This function takes a name to a text file,
+// It returns a structure that have the text data in it,
+// this function needs a matching call to up_textHandler_free to free memory allocation
 struct UP_textHandler up_loadShaderFile(const char * filename)
 {
     struct UP_textHandler zero = {.text = NULL,.length = 0};
@@ -83,6 +87,7 @@ struct UP_textHandler up_loadObjFile(const char * filename)
     return up_loadShaderFile(filename);
 }
 
+// magnus
 void up_textHandler_free(struct UP_textHandler *text_handler)
 {
     text_handler->length = 0;

@@ -9,6 +9,16 @@
 #include "up_modelRepresentation.h"
 #include "up_error.h"
 
+// In this c file all functions for tracking and storing all objects in the gameworld
+
+// Every type of object, ship,projectile,enviroment,others have their own internal trackning system
+// this is done too reduce the number of objects to skip over to get to just the ships or projectiles
+// it also lets us turn off/on diffrent functions on entire groups of objects.
+
+// every type have a internal array of objects, the size of this array and count is tracked,
+// when a object is removed it is tracked in a stack typ data structure where the last
+// removed objects is stord on top, this is done so we do not need to iterate the entire object array
+//magnus
 struct internal_object
 {
     struct up_objectInfo *objectArray;
@@ -19,6 +29,10 @@ struct internal_object
     int size;
 };
 
+// This subsystem is the only part that actually need to store the data
+// We hide the internal storage for the rest of the program, and provide acceseor functions to get them
+// this Makes it more modular
+//magnus
 struct internel_object_tracker
 {
     struct internal_object ships;
@@ -28,9 +42,13 @@ struct internel_object_tracker
 };
 
 
-
+// This is only exposed internaly to this module, this is done so the need to pass all data to every function that migt need
+// access is removed.
 static struct internel_object_tracker internal_tracker;
 
+// Init all data, for one object typ, returns 1 on succsess and 0 on error
+// takes, what type, a pointer to the internal object tracker, and how big it should be
+//magnus
 static int up_internal_object_init(struct internal_object *internal_obj,enum up_object_type type,unsigned int max_count)
 {
     struct up_objectInfo zero = {0};
@@ -68,6 +86,10 @@ static int up_internal_object_init(struct internal_object *internal_obj,enum up_
     return 1;
 }
 
+// this functions starts the module , it init all values and allocate the needed memory
+// after this function is called , the module/subsystem can be used
+// takes the number of objects that should be stored of every type
+//magnus
 int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_count,unsigned int max_environment_count,unsigned int max_others_count)
 {
     int err = 0;
@@ -98,6 +120,8 @@ int up_unit_start_setup(unsigned int max_ship_count,unsigned int max_projectile_
     return 1;
 }
 
+// removes, unit and adds it to the stack of removed units
+//magnus
 static int unit_remove(struct internal_object * objects,int index)
 {
     if (index >= objects->size) {
@@ -132,6 +156,8 @@ static int unit_remove(struct internal_object * objects,int index)
     return 1;
 }
 
+// takes the type of object to be removed, and its index
+// magnus
 int up_unit_remove(enum up_object_type type,int index)
 {
     int err = 0;
@@ -157,6 +183,8 @@ int up_unit_remove(enum up_object_type type,int index)
 }
 
 
+// add unit, takes a pointer to the internal buffer, and the unit to be added
+//magnus
 static int unit_add(struct internal_object * objectsArray,struct up_objectInfo object)
 {
     int count=0;
@@ -187,6 +215,9 @@ static int unit_add(struct internal_object * objectsArray,struct up_objectInfo o
     return count;
 }
 
+//magnus
+// adds unit with type
+// returns the index it was stored
 int up_unit_add(enum up_object_type type,struct up_objectInfo object)
 {
     int index = 0;
@@ -211,7 +242,8 @@ int up_unit_add(enum up_object_type type,struct up_objectInfo object)
     return index;
 }
 
-
+// this retrievec the object at index from the data structire
+// magnus
 static struct up_objectInfo *unit_objAtIndex(struct internal_object * objects, int index){
 
     if(objects->size <= index || index < 0){
@@ -229,6 +261,9 @@ static struct up_objectInfo *unit_objAtIndex(struct internal_object * objects, i
     return obj;
 }
 
+// magnus
+// takes a type and a index to a unit/object, and returns a pointer to that object
+// this is the primary meens of accesing individual objects
 struct up_objectInfo *up_unit_objAtIndex(enum up_object_type type,int index)
 {
     struct up_objectInfo *object = NULL;
@@ -253,13 +288,16 @@ struct up_objectInfo *up_unit_objAtIndex(enum up_object_type type,int index)
     return object;
 }
 
-
+//magnus, returns a pointer to a array of all objects in this data structure,
+// it also set the pointer count to the correct size of the array
 static struct up_objectInfo *unit_getAllObj(struct internal_object * objects,int *count)
 {
     *count=objects->count;
     return &objects->objectArray[0];
 }
 
+// takes a type, and returns all objects of that type, and sets count to the size of the object array
+// magnus
 struct up_objectInfo *up_unit_getAllObj(enum up_object_type type,int *count)
 {
     struct up_objectInfo *object = NULL;
@@ -290,7 +328,10 @@ int up_unit_isActive(struct up_objectInfo *object)
     return (object->objectId.idx != 0);
 }
 
-
+// magnus
+// the server has the overriding authority to change any unit according to its will
+// this function will set a particular unit at a index , regardless if it exist or not,
+// in use or not.
 static int server_setObjAtIndex(struct internal_object * objectsArray, struct up_objectInfo object,int index)
 {
     if (index >= objectsArray->size) {
@@ -340,7 +381,10 @@ static int server_setObjAtIndex(struct internal_object * objectsArray, struct up
     return 0;
 }
 
-
+// magnus
+// the server has the overriding authority to change any unit according to its will
+// this function will set a particular unit at a index , regardless if it exist or not,
+// in use or not.
 int up_server_unit_setObjAtindex(enum up_object_type type,struct up_objectInfo object,int index)
 {
   
@@ -370,7 +414,7 @@ int up_server_unit_setObjAtindex(enum up_object_type type,struct up_objectInfo o
 
 
 
-
+// cleens up all allocated data
 void up_unit_shutdown_deinit()
 {
 

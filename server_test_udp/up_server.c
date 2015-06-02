@@ -457,7 +457,7 @@ void up_server_shutdown_cleanup(struct internal_server_state *server_state)
     serverAddr = server_state->server_account->server_info;
     serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     
-    if (sendto(server_state->server_gameplay->socket_server, dataBuffer, strlen(dataBuffer), 0, (struct sockaddr *)&server_state->server_account->server_info, sizeof(struct sockaddr_in)) == -1) {
+    if (sendto(server_state->server_gameplay->socket_server, dataBuffer, strlen(dataBuffer), 0, (struct sockaddr *)&serverAddr.sin_addr, sizeof(struct sockaddr_in)) == -1) {
         printf("\nserver kll msg account");
         perror("send account");
     }

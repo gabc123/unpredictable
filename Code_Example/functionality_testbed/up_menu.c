@@ -30,6 +30,8 @@
 
 
 // magnus
+// to easier represent buttons this struct contains all the relevent informatino
+// needed to create and display a button, also have the dimensions for click checking
 struct up_menu_button
 {
     struct up_vec3 pos;
@@ -46,6 +48,9 @@ struct up_menu_button
 #define UP_SCREEN_HIGHT 800
 
 //magnus
+// this function creates a button and returns it,
+// it takes the dimiensions off the buttons in pixels (width and hight), what location it should be displayed,
+// the texture to be used, and the text and its propertys.
 struct up_menu_button *up_create_button(struct up_vec3 pos,int hight,int width,const char * textureName,const char *text,struct up_vec3 textScale,float step)
 {
     
@@ -80,6 +85,8 @@ struct up_menu_button *up_create_button(struct up_vec3 pos,int hight,int width,c
 }
 
 // magnus
+// this function generates a coluum of buttons for every key in the keymap,
+// It also generate the text for every key, The key map must be a array where the last keymap is a zerod out entry
 struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map *keymap, struct up_vec3 pos,int hight,int width,struct up_vec3 textScale,float step)
 {
     int count = 0;
@@ -124,6 +131,7 @@ struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map
 }
 
 // magnus
+// free the memory for the buttons
 void up_generate_settings_freebuttons(struct up_menu_button *buttonArray)
 {
     free(buttonArray);
@@ -917,6 +925,7 @@ int up_menu(struct shader_module *shaderprog,
 
     return status;
 }
+
 //walid
 int up_shipSelectEvent(struct navigationState *navigation,int *selectedShip,struct up_menu_button *blueButton,
                        struct up_menu_button *redButton,struct up_menu_button *blackButton)
@@ -968,7 +977,7 @@ int up_shipSelectEvent(struct navigationState *navigation,int *selectedShip,stru
     return flag;
 }
 //int up_checkButtonClick(struct up_menu_button *button,int mouse_x,int mouse_y)
-
+// magnus
 int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *keymap,struct up_menu_button *buttonArray,int numButtons,struct keybinding_state *bindstate)
 {
     int flag = 1;

@@ -34,22 +34,10 @@ void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
     cam->eye.y=ship->pos.y + ship->dir.y * zoom*10;
     cam->eye.z=ship->pos.z -10;
 
-    //cam->eye=ship->
+
 }
 
-/*
-struct up_objectInfo
-{
-    int modelId;
-    struct up_vec3 scale;
-    struct up_vec3 pos;
-    struct up_vec3 dir;
-    float angle;
-    float turnSpeed;
-    float speed;
-    float acceleration;
-};
-*/
+
 
 /*Function returns a struct with the object to be rendered for the client selectet by the distance between
  the camera center and every object in the solarsystem*/

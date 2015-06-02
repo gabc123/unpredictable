@@ -42,27 +42,6 @@ struct up_mesh *dummyobj()
     return mesh;
 }
 
-/*
-struct up_assets
-{
-    unsigned int numobjects;
-    struct up_mesh *meshArray;
-    struct up_texture_data *textureArray;
-    struct up_vec3 *scaleArray;
-};
-
-struct up_objectInfo
-{
-    int modelId;
-    struct up_vec3 scale;
-    struct up_vec3 pos;
-    struct up_vec3 dir;
-    float angle;
-    float turnSpeed;
-    float speed;
-    float acceleration;
-};
-*/
 
 void fallbackHitbox(struct up_objectInfo *obj){
     //if(obj->collisionbox.xmax < internal_assets[i].meshArray.vertexArrayObj.)
@@ -103,7 +82,9 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     return obj;
 }
 
-//magnus
+//magnus, This function takes the information about the what model and texture should be loaded,
+// It binds all the relevent loading functions for obj model data and texture data, then uploads it to the gpu
+// it then stors the relevent access information in meshArray and testureArray
 int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *textureArray, struct up_modelData *item)
 {
     int returnCode = 1;
@@ -203,7 +184,7 @@ static int loadObjects(struct up_generic_list *meshArray,
 }
 
 /*loads all stored assets into the gpu*/
-//Sebastian
+//Sebastian, magnus error code
 struct up_assets *up_assets_start_setup()
 {
     struct up_generic_list *meshArray = up_mesh_list_new(10);
@@ -242,6 +223,7 @@ struct up_assets *up_assets_start_setup()
     return assets;
 }
 
+// magnus
 void up_assets_shutdown_deinit(struct up_assets *assets)
 {
     free(assets->meshArray);

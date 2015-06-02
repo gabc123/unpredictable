@@ -1,8 +1,8 @@
 //
 //  util.c
 //
-//  Created by o_0 on 2015-04-19.
-//  Copyright (c) 2015 o_0. All rights reserved.
+//  Created by magnus on 2015-04-19.
+//  Copyright (c) 2015 magnus. All rights reserved.
 //
 
 #include "up_utilities.h"
@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "up_error.h"
+
+// magnus all
 
 /*
  this is the srand and rand function from:
@@ -51,6 +53,7 @@ int up_rand(void)
 
  inspired-by C library function - strtok(),
  */
+// magnus
 char *up_token_parser(char *srcString,char **nextString,char *delimiter,unsigned long delimiter_length)
 {
     if (srcString == NULL) {
@@ -88,6 +91,7 @@ char *up_token_parser(char *srcString,char **nextString,char *delimiter,unsigned
 
 
 //////////////////////////////////////////////////////
+//magnus this whole file
 
 /*****************************************************************
  Generic list, with dynamic memory handling , this is inspired-by c++ STL vector .
