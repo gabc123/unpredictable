@@ -22,6 +22,7 @@
 #endif
 
 
+// magnus ,
 int main(int argc, char const *argv[])
 {
     int status = 1;

@@ -25,7 +25,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-
+/*
+     
+ */
 static struct up_shootingFlag *up_game_playerWeapons_setup(int max_players,struct up_eventState *weapons_info)
 {
     

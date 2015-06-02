@@ -15,6 +15,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// Function display text on screen
+// input, Text string to be displayed, and its length
+// where it should be renderd, and the scale,
+// what fonts to use, and also what shader program ,
+// step is the distance between letters ,
+// magnus
 void up_displayText(char *text_string,int length,struct up_vec3 *pos,
                     struct up_vec3 *scale,struct up_font_assets *fonts,
                     struct shader_module *shaderprog, float step,struct up_vec3 *color)
@@ -35,9 +41,10 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
     
     int i = 0;
 
-        
+    // for every letter it calculates a new transformation matrix for the next
+    // location , and update the location data to the gpu, also binds the correct textureCoord
     for (i = 0; i< length; i++) {
-        // flyttar os 1 plats
+    
         up_matrixModel(&transform,&localpos,&rot,scale);
         UP_shader_update(shaderprog,&transform);
         index = text_string[i] - 22;
@@ -63,6 +70,8 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
 
 // width/hight
 #define UP_LETTER_ASPECT_RATIO 0.535
+
+// Every letter is contained in the same image, this calulates the letter tex coord, and creates a mesh for it
 static struct up_mesh *up_meshLetters(int letterIndex)
 {
     /// setup the vertexs and the tex coords, this is done like this for debbuging reasons
@@ -122,7 +131,7 @@ static struct up_mesh *up_meshLetters(int letterIndex)
 
 
 
-
+// This function loads the fonts onto the gpu, and returns a structure containing all relevent font data.
 struct up_font_assets * up_font_start_setup()
 {
     struct up_font_assets *fonts = malloc(sizeof(struct up_font_assets));
@@ -142,7 +151,7 @@ struct up_font_assets * up_font_start_setup()
     fonts->texture = textureLetters;
     
 
-    
+    // loads all letters , and store them in a array for later use
     struct up_mesh *tmp_mesh = NULL;
     
     int i = 0;

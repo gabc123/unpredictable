@@ -20,7 +20,7 @@ float up_returnCamHeight(struct up_camera *cam)
     return height;
 }
 
-//waleed
+
 void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
 
     // when the player do not have a ship yet
@@ -34,8 +34,9 @@ void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
     cam->eye.y=ship->pos.y + ship->dir.y * zoom*10;
     cam->eye.z=ship->pos.z -10;
 
-    //cam->eye=ship->
+
 }
+
 
 /*Function returns a struct with the object to be rendered for the client selectet by the distance between
  the camera center and every object in the solarsystem*/

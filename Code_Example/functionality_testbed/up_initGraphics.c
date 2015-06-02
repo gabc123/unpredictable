@@ -3,10 +3,15 @@
 #include "up_error.h"
 #include "up_texture_module.h"
 
+//the setup code in this c file is based on the tutorials from:
+// https://www.opengl.org/wiki/Tutorial1:_Creating_a_Cross_Platform_OpenGL_3.2_Context_in_SDL_(C_/_SDL)
+// https://www.opengl.org/wiki/Tutorial2:_VAOs,_VBOs,_Vertex_and_Fragment_Shaders_(C_/_SDL)
+// https://www.youtube.com/playlist?list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh
+
 static SDL_Window * g_openglWindow = NULL;
 static SDL_Window * g_openglContext = NULL;
 
-
+// init all sdl subsystem used in the program 
 void UP_sdlSetup()
 {
 	if(SDL_Init(SDL_INIT_EVERYTHING)!=0)
@@ -29,7 +34,7 @@ void UP_sdlSetup()
 
 
 
-
+// magnus, used to give system informations,
 void up_system_check()
 {
 
@@ -39,6 +44,7 @@ void up_system_check()
     printf("\nSize of float %lu\n",sizeof(float));
 }
 
+// magnus, sebastian error checking
 void UP_openGLwindowSetup(int width,int height, const char *title)
 {
     // we need to have atleast opengl 3.2 to use all the functions we need.
