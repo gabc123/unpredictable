@@ -925,7 +925,6 @@ int up_menu(struct shader_module *shaderprog,
 
     return status;
 }
-
 //walid
 int up_shipSelectEvent(struct navigationState *navigation,int *selectedShip,struct up_menu_button *blueButton,
                        struct up_menu_button *redButton,struct up_menu_button *blackButton)
@@ -977,7 +976,7 @@ int up_shipSelectEvent(struct navigationState *navigation,int *selectedShip,stru
     return flag;
 }
 //int up_checkButtonClick(struct up_menu_button *button,int mouse_x,int mouse_y)
-// magnus
+//Magnus
 int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *keymap,struct up_menu_button *buttonArray,int numButtons,struct keybinding_state *bindstate)
 {
     int flag = 1;
@@ -1028,7 +1027,7 @@ int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *key
     return flag;
 }
 
-
+//Joakim
 int up_menuEventHandler(struct navigationState *navigation,
                         struct userData *user_data, struct soundLib *sound)
 {

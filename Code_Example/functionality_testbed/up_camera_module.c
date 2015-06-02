@@ -38,9 +38,10 @@ void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
 }
 
 
-
 /*Function returns a struct with the object to be rendered for the client selectet by the distance between
  the camera center and every object in the solarsystem*/
+ //This function was created when we used topview. We later decided to swap camera position and didnt have
+ //the time to optimize objects rendered for a shoulder perspective. Objects behind the camera will also render.
  //Sebastian 2015-05-06
 struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,struct up_camera *cam)
 {
@@ -52,7 +53,9 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
 
     height = up_returnCamHeight(cam);
 
-    //value 0.7 comes from tan(70/2) where 70 is the set field of view of the camera
+    //value 0.7 comes from tan(70/2) where 70 is the set field of view of the camera from the top view
+    //We later added the magic number 40 after we changed to a behind the shoulder camera position
+    //that comes from playertesting
     view = 0.7 * height * 40;
 
     for(i=0;i<totalObject;i++){
@@ -77,7 +80,7 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
         y = cam->center.y - allObj[i].pos.y;
         distance=sqrt((x*x)+(y*y));
 
-        // shipIdx 0 is reserved for ship thats not active
+        // shipIdx 0 is reserved for ships thats not active
         if(distance<view && (allObj[i].objectId.idx != 0))
         {
             in_cam[j++]=allObj[i];

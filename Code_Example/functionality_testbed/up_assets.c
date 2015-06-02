@@ -233,7 +233,6 @@ struct up_assets *up_assets_start_setup()
     return assets;
 }
 
-//Once data is uploaded to the GPU we need it no longer
 //Magnus
 void up_assets_shutdown_deinit(struct up_assets *assets)
 {
