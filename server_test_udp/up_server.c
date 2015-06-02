@@ -445,23 +445,33 @@ void up_server_shutdown_cleanup(struct internal_server_state *server_state)
 {
     
     // ugly hack, to force recvfrom to not block forever and exit on some machine
-    // we need to send a msg to it, we use the server game socket and account socket to achive this
+    // we need to send a msg to it, this is solved with our terminator socket that sends to loopback on port 22422 and 44244
     char *dataBuffer = "bye";   //INADDR_LOOPBACK
-    struct sockaddr_in serverAddr = server_state->server_gameplay->server_info;
+    struct sockaddr_in serverAddr;
+    int sock;
+    if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+        printf("\nstart terminator socket\n");
+        perror("terminator socket error\n");
+    }
+    
+    memset((char *)&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(22422);
     serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);    //127.0.0.1
+
     
-    if (sendto(server_state->server_account->socket_server, dataBuffer, strlen(dataBuffer), 0, (struct sockaddr *)&serverAddr.sin_addr, sizeof(struct sockaddr_in)) == -1) {
-        printf("\nserver kll msg gameplay");
+    if (sendto(sock, dataBuffer, strlen(dataBuffer), 0, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1) {
+        printf("\nserver kll msg gameplay\n");
+        perror("send gameplay");
+    }
+
+    serverAddr.sin_port = htons(44244);
+    if (sendto(sock, dataBuffer, strlen(dataBuffer), 0, (struct sockaddr *)&serverAddr, sizeof(struct sockaddr_in)) == -1) {
+        printf("\nserver kll msg account\n");
         perror("send account");
     }
-    serverAddr = server_state->server_account->server_info;
-    serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    
-    if (sendto(server_state->server_gameplay->socket_server, dataBuffer, strlen(dataBuffer), 0, (struct sockaddr *)&serverAddr.sin_addr, sizeof(struct sockaddr_in)) == -1) {
-        printf("\nserver kll msg account");
-        perror("send account");
-    }
-    
+
+    close(sock);
     close(server_state->server_account->socket_server);
     close(server_state->server_gameplay->socket_server); // do this first to force a faile on all connections that are left
     

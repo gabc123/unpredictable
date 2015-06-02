@@ -752,13 +752,17 @@ void up_server_validate_actions(struct up_actionState *playerActionArray,
                                 struct up_shootingFlag *player_weaponsArray,
                                 int maxPlayers)
 {
+
+    int index = 0;
     int i = 0;
     for (i = 0; i < maxPlayers; i++) {
-        if(playerActionArray[i].objectID.idx == 0)
+        index = playerActionArray[i].objectID.idx;
+        if(index == 0)
         {
             continue;
         }
         validate_action(&playerActionArray[i],&playerInventoryArray[i],&player_weaponsArray[i]);
+        
     }
     
     
