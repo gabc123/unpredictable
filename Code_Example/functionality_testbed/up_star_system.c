@@ -20,7 +20,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-
+//Waleed
 static void up_generate_sun()
 {
     struct up_objectInfo sun = {0};
@@ -82,7 +82,7 @@ static void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,f
 
 
 }
-
+//Waleed
 static void up_generate_randomize_box(int density,int seed){
 
     up_srand(seed);
@@ -108,7 +108,7 @@ static void up_generate_randomize_box(int density,int seed){
 
 
 }
-
+//Waleed
 static void up_generate_randomize_spaceMine(int density,int seed){
 
     up_srand(seed);
@@ -132,7 +132,7 @@ static void up_generate_randomize_spaceMine(int density,int seed){
         }
     }
 }
-
+//Waleed
 void up_generate_map(int seed)
 {
 
