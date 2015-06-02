@@ -6,14 +6,14 @@
 #include "up_music.h"
 #include "up_healthbar.h"
 
-
+//Sebastian
 struct up_collision
 {
     int object1;
     int object2;
 };
 
-
+//Sebastian
 #define UP_COLLISIONS_MAX 200
 struct up_allCollisions
 {
@@ -30,6 +30,7 @@ struct up_allCollisions
     int nrShipShip;
 };
 
+//Magnus
 enum up_none
 {
     none = 0
@@ -69,6 +70,7 @@ union up_turning
     }state;
 };
 
+//Sebastian
 enum collisionType
 {
     shipEnviroment,
@@ -77,6 +79,7 @@ enum collisionType
     enviromentEnviroment,
     shipShip
 };
+//Tobias
 struct up_actionState
 {
     union up_shootingStates fireWeapon;
@@ -84,7 +87,7 @@ struct up_actionState
     union up_turning maneuver;
     struct up_objectID objectID;
 };
-
+//Tobias
 struct cooldownTimer
 {
     unsigned int startTime;
@@ -93,7 +96,7 @@ struct cooldownTimer
     int ammunition;
     int damage;
 };
-
+//Tobias
 struct up_shootingFlag
 {
 
@@ -102,12 +105,13 @@ struct up_shootingFlag
     struct cooldownTimer laserFlag;
 
 };
-
+//Tobias
 struct up_eventState
 {
     struct up_shootingFlag flags;
 };
 
+//Magnus
 struct up_key_map
 {
     char name[25];
@@ -119,7 +123,7 @@ struct up_key_map
 struct up_key_map *up_key_remapping_setup();
 
 
-struct up_player_stats; // forward decleration 
+struct up_player_stats; // forward declaration
 
 void up_checkCollision(struct up_allCollisions *allcollisions);
 

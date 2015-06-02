@@ -42,36 +42,11 @@ struct up_mesh *dummyobj()
     return mesh;
 }
 
-/*
-struct up_assets
-{
-    unsigned int numobjects;
-    struct up_mesh *meshArray;
-    struct up_texture_data *textureArray;
-    struct up_vec3 *scaleArray;
-};
-
-struct up_objectInfo
-{
-    int modelId;
-    struct up_vec3 scale;
-    struct up_vec3 pos;
-    struct up_vec3 dir;
-    float angle;
-    float turnSpeed;
-    float speed;
-    float acceleration;
-};
-*/
-
-void fallbackHitbox(struct up_objectInfo *obj){
-    //if(obj->collisionbox.xmax < internal_assets[i].meshArray.vertexArrayObj.)
-}
-
 /*Returns stored date of the model*/
 //Sebastian
 struct up_objectInfo up_asset_createObjFromId(int modelId)
 {
+    //set fallback values
     struct up_objectInfo obj = {0};
     obj.scale.x = 1;
     obj.scale.y = 1;
@@ -81,24 +56,25 @@ struct up_objectInfo up_asset_createObjFromId(int modelId)
     obj.collisionbox.length.z = 1;
     obj.projectile = 0;
 
+    //fallback mesh is to be used if assets failed to load the object from the objIndex file
     if(modelId >= internal_assets->numobjects )
     {
         modelId = 0;
     }
-    
+
     obj.modelId = modelId;
 
-    //internal_assets is a static global
+    //internal_assets is a static global and proud of it :-)
     obj.scale = internal_assets->scaleArray[modelId];
     obj.collisionbox.length = internal_assets->hitboxLengthArray[modelId];
 
     //printf("array x%f\ny%f\nz%f\n", obj.collisionbox.length.x,obj.collisionbox.length.y,obj.collisionbox.length.z);
+    //maxlength is the value to be used for the collisionsphere
     obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.x)) ? obj.collisionbox.length.x : obj.maxLength;
     obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.y)) ? obj.collisionbox.length.y : obj.maxLength;
     obj.maxLength = (fabsf(obj.maxLength) < fabsf(obj.collisionbox.length.z)) ? obj.collisionbox.length.z : obj.maxLength;
 
      //printf("objmaxlength%f \n", obj.maxLength);
-    //fallbackHitbox(&obj);
 
     return obj;
 }
@@ -151,6 +127,7 @@ static int loadObjects(struct up_generic_list *meshArray,
                        struct up_generic_list *scaleArray,
                        struct up_generic_list *hitboxLengthArray)
 {
+    //objIndex stores information that is to be loaded into the gpu
     struct UP_textHandler thafile = up_loadAssetFile("objIndex");
     if (thafile.text == NULL) {
         UP_ERROR_MSG("Failed to load objindex");
@@ -165,6 +142,7 @@ static int loadObjects(struct up_generic_list *meshArray,
     char *row;
 
     /*reads from the file and stores read data*/
+    //token_parser reads one line of text and puts the pointer unto the next line until end of file
     do{
         row = up_token_parser(text, &text, endLine, strlen(endLine));
         if(row == NULL)
@@ -188,6 +166,7 @@ static int loadObjects(struct up_generic_list *meshArray,
         }
         sscanf(row,"%f %f %f", &item.hitbox.x, &item.hitbox.y, &item.hitbox.z);
 
+        //hitbox scales with modelscale
         item.hitbox.x = item.hitbox.x * item.scale.x;
         item.hitbox.y = item.hitbox.y * item.scale.y;
         item.hitbox.z = item.hitbox.z * item.scale.z;
@@ -202,7 +181,7 @@ static int loadObjects(struct up_generic_list *meshArray,
 
 }
 
-/*loads all stored assets into the gpu*/
+/*Returns all stored assets into the gpu*/
 //Sebastian
 struct up_assets *up_assets_start_setup()
 {
@@ -211,7 +190,7 @@ struct up_assets *up_assets_start_setup()
     struct up_generic_list *scaleArray= up_vec3_list_new(10);
     struct up_generic_list *hitboxLengthArray= up_vec3_list_new(10);
 
-    // the first model is always a default model  that is used if
+    // the first model is always a default model that is used if
     // a missing obj file or texture is found
     struct up_mesh *mesh = dummyobj();
     struct up_texture_data *texture = up_load_texture("lala.png");
@@ -219,13 +198,15 @@ struct up_assets *up_assets_start_setup()
         UP_ERROR_MSG("Major problem , default texture or mesh failed to load, expect segfaults incoming");
     }
     struct up_vec3 scale = {1.0, 1.0, 1.0};
+
+    //Allocates dynamic memory that can expand when nessecary
     up_mesh_list_add(meshArray, mesh);
     up_texture_list_add(textureArray, texture);
     up_vec3_list_add(scaleArray, &scale);
     up_vec3_list_add(hitboxLengthArray, &scale);
 
-
-    loadObjects(meshArray, textureArray, scaleArray,hitboxLengthArray);
+    //Loads the arrays with content
+    loadObjects(meshArray, textureArray, scaleArray, hitboxLengthArray);
 
     struct up_assets *assets = malloc(sizeof(struct up_assets));
     if (assets == NULL) {
@@ -238,10 +219,15 @@ struct up_assets *up_assets_start_setup()
     assets->scaleArray = up_vec3_list_transferOwnership(&scaleArray);
     assets->hitboxLengthArray = up_vec3_list_transferOwnership(&hitboxLengthArray);
 
+    //static global too keep track of the assets internally
     internal_assets = assets;
+
+    //contain all information of the loaded models
     return assets;
 }
 
+//Once data is uploaded to the GPU we need it no longer
+//Magnus
 void up_assets_shutdown_deinit(struct up_assets *assets)
 {
     free(assets->meshArray);
