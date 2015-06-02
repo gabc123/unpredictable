@@ -188,7 +188,7 @@ static int loadObjects(struct up_generic_list *meshArray,
 
 }
 
-/*loads all stored assets into the gpu*/
+/*Returns all stored assets into the gpu*/
 //Sebastian, magnus error code
 struct up_assets *up_assets_start_setup()
 {
@@ -233,7 +233,8 @@ struct up_assets *up_assets_start_setup()
     return assets;
 }
 
-// magnus
+//Once data is uploaded to the GPU we need it no longer
+//Magnus
 void up_assets_shutdown_deinit(struct up_assets *assets)
 {
     free(assets->meshArray);
