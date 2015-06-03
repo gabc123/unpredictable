@@ -62,10 +62,11 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     // TODO: timedalation
     // this is a temporary solution
 
-    float distance = up_distance(tmpObject->pos, movement->pos);
-    if (distance < 20.0) {
-        tmpObject->pos = movement->pos;
-    }
+    //float distance = up_distance(tmpObject->pos, movement->pos);
+
+
+    tmpObject->pos = movement->pos;
+
     
 
     tmpObject->dir = dir;
