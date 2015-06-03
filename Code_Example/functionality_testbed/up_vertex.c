@@ -3,6 +3,12 @@
 #include <stdlib.h>
 #include "up_error.h"
 
+// based on tutorials from
+//https://youtu.be/csKrVBWCItc?list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh
+//http://ogldev.atspace.co.uk/www/tutorial17/tutorial17.html
+//http://ogldev.atspace.co.uk/www/tutorial18/tutorial18.html
+//https://youtu.be/0jML5fMBDGg?list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh
+
 struct internal_object_tracker
 {
 	struct up_mesh *mesh;
@@ -12,7 +18,8 @@ struct internal_object_tracker
 
 
 static struct internal_object_tracker internal_state;
-
+// magnus
+// allocate internal memory to keep track of all meshes in the game
 void up_mesh_start_setup(int maximum_meshes)
 {
 	struct up_mesh *mesh = malloc(sizeof(struct up_mesh) * maximum_meshes);
@@ -26,7 +33,7 @@ void up_mesh_start_setup(int maximum_meshes)
 }
 
 
-
+// magnus
 void up_mesh_shutdown_deinit()
 {
 	// TODO: fix for more buffers
@@ -39,6 +46,7 @@ void up_mesh_shutdown_deinit()
 	free(internal_state.mesh);
 }
 
+//magnus
 struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned int *indexArray,int index_count)
 {
 	
@@ -57,6 +65,9 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
 
 
 
+    // we want to load position , texture, and normals, seperatly ,
+    // allocate room
+    
     struct up_vec3 *positions = malloc(sizeof(struct up_vec3) * mesh->vertex_count);
     if (positions == NULL) {
         UP_ERROR_MSG("malloc failed, positions");
@@ -81,6 +92,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
     }
     printf(".");
     
+    // transfer the relevent data from vertex into the allocated memory
     int i = 0;
     for (i = 0; i< mesh->vertex_count; i++) {
         positions[i] = vertex[i].pos;
@@ -90,6 +102,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
         textureCoord[i].y = 1 - vertex[i].texCoord.y;
         normals[i] = vertex[i].normals;
     }
+    // tell the gpu to make room, and generate ids to acces it
     GLuint vertexBufferId[MESH_BUFFER_COUNT];
     printf(".");
     glGenVertexArrays(1, &mesh->vertexArrayObj);
@@ -99,6 +112,8 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
     
 	glGenBuffers(MESH_BUFFER_COUNT, vertexBufferId);
 
+    // now trensfer the ids, for the diffrent buffers on the gpu for this model
+    // this is done to acces later when we are going to use them
     mesh->positionId = vertexBufferId[0];
     mesh->textureCoordId = vertexBufferId[1];
     mesh->normalId = vertexBufferId[2];
@@ -148,6 +163,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
     return mesh;
 }
 
+// magnus
 // used to enable diffrent draw modes
 void up_draw_mesh_speciall(struct up_mesh *mesh,int drawMode)
 {
@@ -159,6 +175,7 @@ void up_draw_mesh_speciall(struct up_mesh *mesh,int drawMode)
     
     glBindVertexArray(0);	//fri gör
 }
+//magnus
 
 void up_draw_mesh(struct up_mesh *mesh)
 {

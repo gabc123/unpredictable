@@ -21,6 +21,7 @@
  * and where the information get passed to along,
  * and finaly send to all the users
  *******************************************************/
+// magnus
 void *up_server_gamplay_reciveing_thread(void *parm)
 {
     printf("Gameplay server recive thread online");
@@ -45,7 +46,7 @@ void *up_server_gamplay_reciveing_thread(void *parm)
             perror("recfrom failed");
             break;
         }
-        
+        // checks the conncections, if user is active but added, then this is done
         for (i = 0; i < server_con->connected_clients; i++) {
             
             if(server_con->client_infoArray[i].client_addr.sin_addr.s_addr == client_sock.sin_addr.s_addr)
@@ -99,7 +100,8 @@ void *up_server_gamplay_reciveing_thread(void *parm)
     return NULL;
 }
 
-
+// magnus
+// reads all input from server.
 static int up_server_send_bufferRead_spinloop(struct objUpdateInformation *local_data,int length,struct up_server_connection_info * server_con)
 {
     int packet_read =0;
@@ -129,6 +131,7 @@ static int up_server_send_bufferRead_spinloop(struct objUpdateInformation *local
     return packet_read;
 }
 
+//magnus
 static int up_server_send_toAll(struct up_server_connection_info * server_con, struct objUpdateInformation *local_data, int packet_read)
 {
     unsigned int client_sock_len = sizeof(server_con->client_infoArray[0].client_addr);
@@ -162,7 +165,7 @@ static int up_server_send_toAll(struct up_server_connection_info * server_con, s
     return 0;
 }
 
-
+// magnus
 void *up_server_gameplay_send_thread(void *parm)
 {
     printf("Gameplay server send thread online");

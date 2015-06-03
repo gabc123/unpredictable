@@ -33,16 +33,19 @@ struct up_network_account_data
 };
 
 
-
+// used to get all the acction from the gameplay network thread
 int up_game_communication_getAction(struct up_actionState *states, int *deltaArray,int max,struct up_interThread_communication *pipe,struct up_interThread_communication *account);
 
+// sends action updates, from server
 void up_game_communication_sendAction(struct up_actionState *actionArray,int *deltaArray,int numActions,int deltaOn,struct up_interThread_communication *pipe);
 
+// sends player stats to update player ammo and health data.
 void up_game_communication_sendPlayerStats(struct up_player_stats *statsArray,
                                            struct up_player_stats *deltaArray,
                                            int map_maxPlayers,
                                            struct up_interThread_communication *pipe);
 
+// sends updates for objects that have, changed
 void up_game_communication_sendObjChanged(struct up_objectID *object_movedArray ,int count,struct up_interThread_communication *pipe);
 
 

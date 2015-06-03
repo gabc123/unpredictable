@@ -71,7 +71,7 @@ int up_server_addUser(struct up_server_connection_info *server,struct sockaddr_i
  * this function incresses that timmer and if it gets to high it sends a heartbeat
  * after the a delay and timmer still to high it removes the client from list
  *******************************************************/
-
+// magnus
 static int up_server_hearbeat_send(int socket_server,struct up_client_info *client)
 {
     unsigned char buffer[64];
@@ -85,7 +85,7 @@ static int up_server_hearbeat_send(int socket_server,struct up_client_info *clie
     }
     return 1;
 }
-
+// magnus
 static int up_server_remove_client(struct up_client_info *client)
 {
     //remove client
@@ -101,7 +101,7 @@ static int up_server_remove_client(struct up_client_info *client)
     return 1;
 }
 
-
+// magnus
 void *up_server_heartbeat(void *parm)
 {
     printf("Gameplay server send thread online");
@@ -146,7 +146,7 @@ void *up_server_heartbeat(void *parm)
  * Server side console interface, used to shutdown server
  * and get information of the thingy
  *******************************************************/
-
+// magnus
 static int up_server_display_users(struct up_server_connection_info *server_info, const char *name)
 {
     struct up_client_info *client = NULL;
@@ -169,6 +169,7 @@ static int up_server_display_users(struct up_server_connection_info *server_info
     return num_active;
 }
 
+// magnus
 void up_server_command_show_online(struct internal_server_state *server_state)
 {
     //fflush(stdout);// so we dont mix diffrent threads output
@@ -185,6 +186,13 @@ void up_server_command_show_online(struct internal_server_state *server_state)
     fflush(stdout);
 }
 
+
+/*
+ server console function, from this function the user can trun off the server
+ or show what usersr are online
+ 
+ */
+//// magnus
 void up_server_run(struct internal_server_state *server_state)
 {
     int flag = 1;
@@ -212,7 +220,7 @@ void up_server_run(struct internal_server_state *server_state)
  * Server setup and start sequnce and stuff
  * also shutdown operations
  *******************************************************/
-
+// magnus
 static struct up_server_connection_info *up_server_account_start(unsigned int port)
 {
     struct sockaddr_in sock_server = {0};
@@ -262,6 +270,7 @@ static struct up_server_connection_info *up_server_account_start(unsigned int po
 
 
 // bind the listening port
+// magnus
 static struct up_server_connection_info *up_server_gameplay_start(unsigned int port)
 {
     struct sockaddr_in sock_server = {0};
@@ -315,6 +324,11 @@ static struct up_server_connection_info *up_server_gameplay_start(unsigned int p
 #define UP_SERVER_GAMEPLAY_THREAD_COUNT 3
 #define UP_SERVER_ACCOUNT_THREAD_COUNT 3
 
+
+/*
+    creates, 2 way ,  communications, by using 2 queues, and packated them in a structure
+ */
+// magnus
 static struct up_interThread_communication *up_interThread_com_create()
 {
     struct up_interThread_communication *interCom =  malloc(sizeof(struct up_interThread_communication));
@@ -335,6 +349,8 @@ static struct up_interThread_communication *up_interThread_com_create()
     return interCom;
 }
 
+// frees a interThread com free,
+// magnus
 static void up_interThread_com_free(struct up_interThread_communication *intercom)
 {
     up_concurrentQueue_free(intercom->simulation_input);
@@ -344,6 +360,12 @@ static void up_interThread_com_free(struct up_interThread_communication *interco
     free(intercom);
 }
 
+/*
+    starts all server threads. and configure all socets, 
+    this is the main starting point for the program, called from main
+    it returns at structure contatin all things needed to keep track of the server
+ */
+// magnus
 struct internal_server_state *up_server_startup()
 {
     if(!up_concurrentQueue_start_setup())
@@ -440,7 +462,11 @@ struct internal_server_state *up_server_startup()
     return server_state;
 }
 
-
+/*
+    frees all memory and close all sockets used by the server
+    waits on all thread to finnish , and shut down all thread queue
+ */
+// magnus
 void up_server_shutdown_cleanup(struct internal_server_state *server_state)
 {
     

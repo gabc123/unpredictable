@@ -22,7 +22,7 @@
 
 #define UP_NETWORK_SIZE 100
 
-
+// magnus has done most of this file
 
 
 unsigned int up_copyObjectIntoBuffer(struct objUpdateInformation *object,unsigned char *buffer)

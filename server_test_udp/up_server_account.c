@@ -203,7 +203,7 @@ int up_parser_username_password(struct up_account_information *account_validatio
     return 1;
 }
 
-
+// tobias
 int up_account_msg_parser(struct up_account_information *account_validation,unsigned char *data_parser)
 {
     int read_pos = 0;
@@ -234,29 +234,7 @@ int up_account_msg_parser(struct up_account_information *account_validation,unsi
 
 }
 
-
-/*
- struct up_container{
- int current;
- int full;
- };
- 
- struct up_player_stats
- {
- int modelId;
- struct up_objectID objectId;
- struct up_container bullets;
- struct up_container missile;
- struct up_container laser;
- struct up_container health;
- struct up_container armor;
- };
- :100/100/50/5/bullet
- :2500/30/30/20/missile
- :100/200/25/5/lazer
-
- 
- */
+// magnus
 static void game_simulation_addUser(struct up_interThread_communication *interCom,int playerId,struct up_account_information *account_validation)
 {
     char userFilePath[UP_FILEPATH_MAX] = "account_information/";
@@ -307,6 +285,9 @@ static void game_simulation_addUser(struct up_interThread_communication *interCo
     
 }
 
+/*
+    save user data from the game
+ */
 static void game_simulation_saveUser(struct objUpdateInformation *objData)
 {
     char userName[UP_USER_NAME_PASS_MAX];
@@ -340,6 +321,7 @@ static void game_simulation_saveUser(struct objUpdateInformation *objData)
     
 }
 
+// magnus, tobias
 void *up_server_account_send_thread(void *parm)
 {
     struct internal_server_state *server_state = (struct internal_server_state *)parm;
@@ -435,7 +417,7 @@ void *up_server_account_send_thread(void *parm)
             }
             
         }
-        
+        // checks if the game has sent a exit command from the game simulation
         packet_read = up_readNetworkDatabuffer(server_con->game_com->simulation_output, simulation_exit_buffer, 5);
         for (i = 0; i < packet_read; i++) {
             if ( packet_read > 0 && simulation_exit_buffer[i].data[0] == UP_PACKET_PLAYER_EXIT_FLAG) {

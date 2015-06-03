@@ -85,6 +85,10 @@ static struct up_player_stats *up_game_playerInventory_setup(int max_players)
     
 }
 
+
+// main game simulation thread,
+// its a specialiced version of the clients game loop
+// but the render subsystem is removed
 void *up_game_simulation(void *parm)
 {
     struct up_game_simulation_com *game_simulation = NULL;

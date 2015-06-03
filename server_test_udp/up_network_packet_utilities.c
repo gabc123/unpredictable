@@ -15,6 +15,10 @@
 #include "up_thread_utilities.h"
 #include <string.h>
 
+
+// see the main program, for more informations
+//// magnus has made most of it =)
+
 // warning:
 // this function copy the data from source into destination,
 // this function is pure evil and copy raw byte data of element_size,

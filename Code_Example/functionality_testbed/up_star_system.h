@@ -11,6 +11,8 @@
 
 #include <stdio.h>
 
+// generate the map from the seed, given by the server
+
 void up_generate_map(int seed);
 
 
