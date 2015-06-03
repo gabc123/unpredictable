@@ -15,8 +15,10 @@
 #include "up_utilities.h"
 #include "up_error.h"
 #include "up_network_packet_utilities.h"
-#include "sha256.h"
 #include <math.h>
+
+//macro from bradconte.com hashing
+#define SHA256_BLOCK_SIZE 32            // SHA256 outputs a 32 byte digest
 
 #define UP_NETWORK_SIZE 100
 
@@ -259,11 +261,6 @@ void up_game_communication_sendAction(struct up_actionState *actionArray,int *de
             continue;
         }
         
-        /*
-        if( deltaOn && compare_actions(&actionArray[i],&deltaArray[i]) )
-        {
-            continue;
-        }*/
         
         
         object = up_unit_objAtIndex(actionArray[i].objectID.type, actionArray[i].objectID.idx);
@@ -280,14 +277,7 @@ void up_game_communication_sendAction(struct up_actionState *actionArray,int *de
             deltaArray[i] = 0; //set that we have sent it
         }
         
-        
-        
-        /*
-        // update delta
-        if(deltaOn)
-        {
-            deltaArray[i] = actionArray[i];
-        }*/
+
         
         timestamp = up_clock_ms();
         len = up_network_action_packetEncode(&updateobject, &actionArray[i], object->pos, object->speed, object->angle, object->bankAngle,object->modelId, timestamp);
