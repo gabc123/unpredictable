@@ -51,6 +51,8 @@ struct up_packet_movement
     int timestamp;
 };
 
+
+
 int up_network_packet_playerExit_encode(unsigned char *data,const char *userName,int playerId);
 int up_network_packet_playerExit_decode(unsigned char *data,char *userName,int *playerId);
 
