@@ -137,8 +137,13 @@ void *up_game_simulation(void *parm)
 
     // if the players action have change then the delta gets updated and sent to the other players
     // if the players array max the delta nothing have change and no need to send update
-    struct up_actionState *delta_actionArray = up_game_playerActionStates_setup(UP_MAX_CLIENTS);
+    //struct up_actionState *delta_actionArray = up_game_playerActionStates_setup(UP_MAX_CLIENTS);
     struct up_player_stats *delta_inventoryArray = up_game_playerInventory_setup(UP_MAX_CLIENTS);
+    
+    int *delta_actionArray = malloc(sizeof(int)*UP_MAX_CLIENTS);
+    if (delta_inventoryArray == NULL) {
+        UP_ERROR_MSG("malloc failed");
+    }
     int map_maxPlayers = UP_MAX_CLIENTS;
 
     
@@ -171,7 +176,7 @@ void *up_game_simulation(void *parm)
         //laps = 0;
         
         do {
-            up_game_communication_getAction(player_actionArray, map_maxPlayers, gameplay_interCom,account_interCom);
+            up_game_communication_getAction(player_actionArray, delta_actionArray, map_maxPlayers, gameplay_interCom,account_interCom);
             up_server_validate_actions(player_actionArray, player_inventoryArray, player_weaponsArray, map_maxPlayers);
             up_game_communication_sendAction(player_actionArray, delta_actionArray, map_maxPlayers, 1, gameplay_interCom);
             

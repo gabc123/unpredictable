@@ -111,7 +111,7 @@ static struct up_packet_player_joined getPlayerExitPacket(int playerId)
     return tmp_player;
 }
 
-int up_game_communication_getAction(struct up_actionState *states,int max,struct up_interThread_communication *pipe,struct up_interThread_communication *account)
+int up_game_communication_getAction(struct up_actionState *states,int *deltaArray,int max,struct up_interThread_communication *pipe,struct up_interThread_communication *account)
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
@@ -144,6 +144,7 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
                 success = up_network_updateShipUnit(&tmp_states,&movment);
                 index = tmp_states.objectID.idx;
                 if (success && (index < UP_MAX_CLIENTS)) {
+                    deltaArray[index] = 1;  // tells that there has been a change
                     states[index] = tmp_states;
                 }
                 break;
@@ -243,7 +244,7 @@ static int compare_actions(struct up_actionState *actionA,struct up_actionState 
             (actionA->maneuver.state == actionB->maneuver.state));
 }
 
-void up_game_communication_sendAction(struct up_actionState *actionArray,struct up_actionState *deltaArray,int numActions,int deltaOn,struct up_interThread_communication *pipe)
+void up_game_communication_sendAction(struct up_actionState *actionArray,int *deltaArray,int numActions,int deltaOn,struct up_interThread_communication *pipe)
 {
     struct up_objectInfo *object = NULL;
     
@@ -258,22 +259,31 @@ void up_game_communication_sendAction(struct up_actionState *actionArray,struct 
             continue;
         }
         
+        /*
         if( deltaOn && compare_actions(&actionArray[i],&deltaArray[i]) )
         {
             continue;
+        }*/
+        
+        if (deltaOn && deltaArray[i] == 0) {
+            continue;
         }
         
+        deltaArray[i] = 0; //set that we have sent it
         object = up_unit_objAtIndex(actionArray[i].objectID.type, actionArray[i].objectID.idx);
+
         if (object == NULL) {
             printf("send packet corrupted");
             continue;
         }
         
+        /*
         // update delta
         if(deltaOn)
         {
             deltaArray[i] = actionArray[i];
-        }
+        }*/
+        
         timestamp = up_clock_ms();
         len = up_network_action_packetEncode(&updateobject, &actionArray[i], object->pos, object->speed, object->angle, object->bankAngle,object->modelId, timestamp);
         if (len > 0) {

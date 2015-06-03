@@ -727,16 +727,19 @@ static void validate_action(struct up_actionState *playerAction,
         case fireBullet:
             if (playerInventory->bullets.current <= 0) {
                 playerAction->fireWeapon.state = none;
+                playerInventory->bullets.current = 0;
             }
             break;
         case fireMissile:
             if (playerInventory->missile.current <= 0) {
                 playerAction->fireWeapon.state = none;
+                playerInventory->missile.current = 0;
             }
             break;
         case fireLaser:
             if (playerInventory->laser.current <= 0) {
                 playerAction->fireWeapon.state = none;
+                playerInventory->laser.current = 0;
             }
             break;
             
