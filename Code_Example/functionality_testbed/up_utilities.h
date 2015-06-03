@@ -41,6 +41,7 @@ int up_rand(void);
  
  inspired-by C library function - strtok(),
  */
+//magnus
 char *up_token_parser(char *srcString,char **nextString,char *delimiter,unsigned long delimiter_length);
 
 
@@ -62,12 +63,12 @@ char *up_token_parser(char *srcString,char **nextString,char *delimiter,unsigned
  count: return the current size of the list
  
  *****************************************************************/
-
-// this is implemented in the c file, we do not want to give access to the internal structure
+// magnus
+// forward decleration., this is implemented in the c file, we do not want to give access to the internal structure
 struct up_generic_list;
 
 /*
-    To prevent type mismatch when using the generic list , we will hide it behinde wrapper functions
+    To prevent type mismatch when using the generic list , we will hide it behind wrapper functions
     for most types
  */
 
