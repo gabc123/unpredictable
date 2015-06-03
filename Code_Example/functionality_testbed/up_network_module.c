@@ -199,7 +199,7 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     tmpObject->modelId = movement->modelId;
     float distance = up_distance(tmpObject->pos, movement->pos) ;
     
-    if (states->objectID.idx == playerId && distance < 20) {
+    if (states->objectID.idx == playerId && distance < 200) {
         states->objectID.idx = 0; // index special means no update
      
         return 1;
