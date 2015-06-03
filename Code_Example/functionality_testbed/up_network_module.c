@@ -176,11 +176,7 @@ printf("Account ending connection closed\n");
 static int up_network_updateShipUnit(struct up_actionState *states,struct up_packet_movement *movement, int playerId)
 {
 
-    /*if (states->objectID.idx == playerId) {
-        states->objectID.idx = 0; // index special means no update
-
-        return 1;
-    }*/
+    
     struct up_objectInfo fallback = {0};
     struct up_objectInfo *tmpObject = up_unit_objAtIndex(states->objectID.type, states->objectID.idx);
     if (tmpObject == NULL) {
@@ -201,7 +197,14 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     // TODO: timedalation
     // this is a temporary solution
     tmpObject->modelId = movement->modelId;
-    if (up_distance(tmpObject->pos, movement->pos) > 4.0) {
+    float distance = up_distance(tmpObject->pos, movement->pos) ;
+    
+    if (states->objectID.idx == playerId && distance < 20) {
+        states->objectID.idx = 0; // index special means no update
+     
+        return 1;
+    }
+    if ( distance > 4) {
         tmpObject->pos.x = (tmpObject->pos.x + movement->pos.x)/2;
         tmpObject->pos.y = (tmpObject->pos.y + movement->pos.y)/2;
         tmpObject->pos.z = (tmpObject->pos.z + movement->pos.z)/2;
