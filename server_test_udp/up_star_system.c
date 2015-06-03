@@ -33,6 +33,62 @@ static void up_generate_sun()
 }
 
 
+/*
+    gets all object and add 10 new units to be updated to the
+ */
+static int update_helper(int *progress,enum up_object_type type,struct up_objectID *object_movedArray, int movedObject_count,int max_object_move)
+{
+    int numObj = 0;
+    up_unit_getAllObj(type, &numObj);   // only need the numObj
+    
+    if (movedObject_count >= max_object_move) {
+        return movedObject_count;
+    }
+    
+    int objToAdd = (10 < max_object_move - movedObject_count) ? 10 : 0;
+    int i = 0;
+    int toIndex = *progress + objToAdd;
+    
+    if (toIndex >= numObj) {
+        toIndex = numObj;
+        *progress = 0;
+    }
+    
+    for (i = *progress; i < toIndex; i++) {
+        object_movedArray[movedObject_count].idx = i;
+        object_movedArray[movedObject_count].type = type;
+        
+        movedObject_count++;
+        (*progress)++;
+        if (movedObject_count >= max_object_move) {
+            return movedObject_count;
+        }
+    }
+    
+    return movedObject_count;
+}
+
+/*
+    This walks through all object in the star system over many calles, this is to check that all players have the correct map
+    it adds the object to be updated to the clients.
+ */
+int up_server_mapUpdate(struct up_mapUpdateTracker *mapUpdate,struct up_objectID *object_movedArray, int movedObject_count,int max_object_move)
+{
+    mapUpdate->updateTick++;
+    
+    if (mapUpdate->updateTick < 200) {
+        return movedObject_count;
+    }
+    mapUpdate->updateTick = 0;
+    movedObject_count = update_helper(&mapUpdate->progress_eviorment,up_environment_type,object_movedArray,movedObject_count,max_object_move);
+    
+    movedObject_count = update_helper(&mapUpdate->progress_projectile,up_projectile_type,object_movedArray,movedObject_count,max_object_move);
+
+    movedObject_count = update_helper(&mapUpdate->progress_ships,up_ship_type,object_movedArray,movedObject_count,max_object_move);
+
+    return movedObject_count;
+}
+
 //waleed
 static void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight,int seed)
 {
