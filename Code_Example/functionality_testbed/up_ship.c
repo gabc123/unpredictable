@@ -1050,7 +1050,8 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         }
         localObject = up_unit_objAtIndex(tmp->objectID.type,tmp->objectID.idx);
         if (localObject == NULL) {
-            printf("up_update_actions localobject  == NULL \n");
+            printf("PLayer disconnected, removed \n");
+            server[i].objectID.idx = 0;
             continue;
         }
         up_moveObj(localObject, tmp,frameDelta);

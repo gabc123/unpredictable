@@ -200,7 +200,7 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     // TODO: timedalation
     // this is a temporary solution
     tmpObject->modelId = movement->modelId;
-    tmpObject->pos = (up_distance(tmpObject->pos, movement->pos) < 4.0) ? tmpObject->pos : movement->pos;
+    tmpObject->pos = (up_distance(tmpObject->pos, movement->pos) < 2.0) ? tmpObject->pos : movement->pos;
     tmpObject->dir = dir;
     tmpObject->speed = movement->speed;
     tmpObject->angle = movement->angle;
@@ -298,6 +298,9 @@ int up_network_getNewStates(struct up_actionState *states,int max,int playerId,s
             case UP_PACKET_REMOVE_OBJ_FLAG:
                 success = up_network_removeObj_packetDecode(&objUpdate[i], &tmp_objId, &timestamp);
                 if (success > 0 && tmp_objId.idx != 0) {
+                    if (tmp_objId.idx < max && tmp_objId.type == up_ship_type) {
+                        states[tmp_states.objectID.idx].objectID.idx = 0;   //to indicate a player has left
+                    }
                     up_unit_remove(tmp_objId.type, tmp_objId.idx);
                 }
                 break;

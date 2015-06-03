@@ -281,7 +281,7 @@ struct up_objectInfo *up_unit_objAtIndex(enum up_object_type type,int index)
             object = unit_objAtIndex(&internal_tracker.others, index);
             break;
         default:
-            //UP_ERROR_MSG_INT("Wrong type",(int)type);
+            UP_ERROR_MSG_INT("Wrong type",(int)type);
             break;
     }
 
