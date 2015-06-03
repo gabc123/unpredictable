@@ -17,7 +17,7 @@ up_matrix4_t up_matrix4Zrotation(float angle);
 up_matrix4_t up_matrix4translation(struct up_vec3 *vec3);
 up_matrix4_t up_matrix4scaling(struct up_vec3 *vec3);
 
-
+// display the matrix in the console, used for math debugging
 void dispMat(up_matrix4_t *mat)
 {
     int i = 0;
@@ -100,6 +100,7 @@ up_matrix4_t up_matrix4scaling(struct up_vec3 *vec3)
  matA is the first matrix to be multiplyed
  matB is the second matrix to be multiplyed
  */
+// magnus
 void up_matrix4Multiply(up_matrix4_t *result, up_matrix4_t *matA, up_matrix4_t *matB)
 {
     float *A = &(matA->data[0]);
@@ -131,6 +132,12 @@ void up_matrix4Multiply(up_matrix4_t *result, up_matrix4_t *matA, up_matrix4_t *
 
 }
 
+/*
+    this function takes the position , rotation and scale , that should be applied to a model
+    it fills out the modelMatrix with the correct values to perform this transformation
+    between the model coordinates to the world coordinates
+ */
+// magnus
 void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale)
 {
 
@@ -193,6 +200,10 @@ void up_normalize(struct up_vec3 *result, struct up_vec3 *vec3A)
     result->z = vec3A->z/dot;
 }
 
+/*
+ this creates the view matrix that transform the world coord to the screen coords
+ */
+//magnus
 void up_viewTest2(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP)
 {
     struct up_vec3 dir;
@@ -232,7 +243,9 @@ void up_viewTest2(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 
 
 }
 
-
+/*
+    a old prototyp , that did not work when moving the camera,
+ */
 void up_viewTest(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP)
 {
     struct up_vec3 dir;
@@ -247,15 +260,6 @@ void up_viewTest(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *
 
     up_cross(&V, &N, &U);
 
-    /*
-
-     up_matrix4_t matTmp = {
-     U.x,V.x,N.x,0,
-     U.y,V.y,N.y,0,
-     U.z,V.z,N.z,0,
-     0,0,0,1};
-
-     */
 
     up_matrix4_t matTmp = {
         U.x,U.y,U.z,0,
@@ -268,59 +272,7 @@ void up_viewTest(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *
 
     up_matrix4Multiply(matrixView, &camTranslation, &matTmp);
 
-    /*struct up_vec3 F;
-    viewdirection(&F, center, eye);
-    struct up_vec3 col3;
-    normalize(&col3, &F);
-    struct up_vec3 tmp;
-    up_cross(&tmp, UP, &col3);
-    struct up_vec3 col1;
-    normalize(&col1, &tmp);
-    struct up_vec3 col2;
-    up_cross(&col2, &col3, &col1);
-    */
-   /* up_matrix4_t matTmp = {
-        col1.x,col2.x,col3.x,0,
-        col1.y,col2.y,col3.y,0,
-        col1.z,col2.z,col3.z,0,
-        0,0,0,1};
-
-    up_matrix4_t mat4eye = {
-        1,0,0,0,
-        0,1,0,0,
-        0,0,1,0,
-        -eye->x,-eye->y,-eye->z,1
-    };
-
-    up_matrix4Multiply(matrixView,&mat4eye,&matTmp);*/
-
-    /*float row4x = -up_dot(&col1, center);
-    float row4y = -up_dot(&col2, center);
-    float row4z = -up_dot(&col3, center);
-    */
-    /*float matTmp[16] = {
-        col1.x,col2.x,col3.x,0,
-        col1.y,col2.y,col3.y,0,
-        col1.z,col2.z,col3.z,0,
-        0,0,0,1};*/
-    //transpose
- /*   float matTmp[16] = {
-        col1.x,col1.y,col1.z,0,
-        col2.x,col2.y,col2.z,0,
-        col3.x,col3.y,col3.z,0,
-        0,0,0,1};
-   */
-    /*
-    float matTmp[16] = {
-        col1.x,col2.x,col3.x,0,
-        col1.y,col2.y,col3.y,0,
-        col1.z,col2.z,col3.z,0,
-        row4x,row4y,row4z,1};*/
-//    int  i = 0;
-//    for (i = 0; i< 16; i++) {
-//        //matrixView->data[i] = matTmp[i];
-//    }
-}
+ }
 
 // https://www.opengl.org/sdk/docs/man2/xhtml/gluLookAt.xml
 //Sebastian
@@ -371,19 +323,20 @@ void up_matrixPerspective(up_matrix4_t *perspective, GLdouble fov,GLdouble aspec
     //perspective->data[15] = 1;
 }
 
+// this returns the viewPerspective matrix,
+// becouse the view and perspective is constant during the entire frame
+// we only need to get this one time for eech frame, reducing the cpu load.
 void up_getViewPerspective(up_matrix4_t *vp,
                                 up_matrix4_t *matrixView,
                                 up_matrix4_t *perspective)
 {
-    //up_matrix4_t mv = {0};
-    //up_matrix4Multiply(&mv,modelMatrix,matrixView);
     up_matrix4Multiply(vp, matrixView, perspective);
 
-    /*up_matrix4_t pv = {0};
-     up_matrix4Multiply(&pv,perspective,matrixView);
-     up_matrix4Multiply(mvp, &pv, modelMatrix);*/
 }
 
+
+// This function takes the mode, view and perspective matrix, and returns the
+// final transformations matrix that is used by the gpu
 void up_getModelViewPerspective(up_matrix4_t *mvp,
                                 up_matrix4_t *modelMatrix,
                                 up_matrix4_t *matrixView,
@@ -393,9 +346,15 @@ void up_getModelViewPerspective(up_matrix4_t *mvp,
     up_matrix4Multiply(&mv,modelMatrix,matrixView);
     up_matrix4Multiply(mvp, &mv, perspective);
 
-    /*up_matrix4_t pv = {0};
-    up_matrix4Multiply(&pv,perspective,matrixView);
-    up_matrix4Multiply(mvp, &pv, modelMatrix);*/
+}
+
+float up_distance(struct up_vec3 a,struct up_vec3 b)
+{
+    float dx = a.x -b.x;
+    float dy = a.y -b.y;
+    float dz = a.z -b.z;
+    
+    return sqrtf(dx*dx + dy*dy + dz*dz);
 }
 
 /*

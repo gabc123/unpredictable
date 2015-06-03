@@ -4,6 +4,11 @@
 #include "up_error.h"
 #define UP_MAX_TEXTURE 50
 
+// magnus
+
+//// based on tutorials from
+//https://youtu.be/csKrVBWCItc?list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh
+//https://www.youtube.com/watch?v=17axYo6mKhY&list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh&index=9
 
 struct internal_texture_handler
 {
@@ -13,7 +18,7 @@ struct internal_texture_handler
 };
 
 static struct internal_texture_handler internal_texture;
-
+// magnus
 int up_texture_start_setup()
 {
     // set internal_texture to start value
@@ -28,6 +33,7 @@ int up_texture_start_setup()
     return 1; //true
 }
 
+// magnus
 void up_texture_shutdown_deinit()
 {
     int i=0;
@@ -39,6 +45,10 @@ void up_texture_shutdown_deinit()
     free(internal_texture.texture);
 }
 
+// magnus
+// Due to sdl diffrent internal file format for diffrent platforms
+// and our wish to use the alpha channel, we create our own file format and data buffer
+// stores a image in the correct format to be uploaded to the gpu
 struct up_imageformat
 {
     unsigned char *pixelData;
@@ -48,6 +58,8 @@ struct up_imageformat
     GLenum format;
 };
 
+// loads a img with alpha channel
+// magnus
 static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
 {
     char rgb_imageFile[30];
@@ -107,14 +119,15 @@ static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
     }
 
     SDL_FreeSurface(tex);
-    // TODO: load the alpha image and merge them
+    // Linux and mac are diffrent,
     int alphaChannel = 3;
 #ifdef __linux
     int redChannel = 0;
 #else
     int redChannel = 2;
 #endif
-    
+    // transfer the red color if found for the alpha channel,
+    // else just load the reagular teture
     SDL_Surface *texAlpha = IMG_Load(alphaChannelFile);
     if (texAlpha == NULL) {
         fprintf(stderr, "no alpha channel: %s \n",alphaChannelFile);
@@ -147,7 +160,7 @@ static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
 
 
 
-
+    //generate room on gpu.
 
     glGenTextures(1, &(tex_data->textureId));
     glBindTexture(GL_TEXTURE_2D, tex_data->textureId);
@@ -182,6 +195,7 @@ static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
 }
 
 
+// magnus
 static struct up_texture_data *up_load_special_error_texture(const char  * filename)
 {
     // we try to load lala.png with the normal loading functions first
@@ -269,6 +283,9 @@ static struct up_texture_data *up_load_special_error_texture(const char  * filen
     return texture;
 }
 
+// loads a texture, always try to load a alpha channel to,
+// returns null on failure, can also load a special texture called lala
+// if this do not exist a img is generated programaticly
 struct up_texture_data *up_load_texture(const char  * filename)
 {
     char newName[30];
@@ -293,6 +310,7 @@ struct up_texture_data *up_load_texture(const char  * filename)
     return up_loadImage_withAlpha(newName);
 }
 
+//tell the gpu what texture top use
 void up_texture_bind(struct up_texture_data *texture, unsigned int texUnit)
 {
     //glActiveTexture(GL_TEXTURE0 + texUnit);
@@ -326,12 +344,12 @@ struct up_texture_data *up_cubeMapTexture_load(){
         return NULL;
     }
     
-    SDL_Surface *texF = IMG_Load("space10.png");
-    SDL_Surface *texT = IMG_Load("space10.png");
-    SDL_Surface *texG = IMG_Load("space10.png"); //front
-    SDL_Surface *texR = IMG_Load("space10.png");
-    SDL_Surface *texL = IMG_Load("space10.png");
-    SDL_Surface *texB = IMG_Load("space10.png");
+    SDL_Surface *texF = IMG_Load("greenSpace.png");
+    SDL_Surface *texT = IMG_Load("greenSpace.png");
+    SDL_Surface *texG = IMG_Load("greenSpace.png");         //front
+    SDL_Surface *texR = IMG_Load("greenSpace.png");
+    SDL_Surface *texL = IMG_Load("greenSpace.png");
+    SDL_Surface *texB = IMG_Load("greenSpace.png");
     
     
     if(texF == NULL) {

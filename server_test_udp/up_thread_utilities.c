@@ -7,7 +7,7 @@
 //
 
 #include "up_thread_utilities.h"
-#include "up_sdl_redirect.h"
+
 //#include "stdatomic.h"
 #include "up_error.h"
 #include <stdio.h>

@@ -13,6 +13,9 @@
 #include "up_healthbar.h"
 #define NAMESIZE 100
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 // magnus , up_updateMovements , 5 maj
 
@@ -37,23 +40,23 @@ void shipMove(struct shipMovement *movement, struct up_objectInfo *ship){
 
 
 
-
+//Magnus
 /**
     Key remapping
     The key_map struct contains 2 function pointers, one for key down , and one for key up
     also what key they map to.
     below are all the functions
-
+    At the bottom is the main function
  **/
 
 
-
-
+//no operation
 void up_key_function_noop(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
 
 }
 
+//movement
 void up_key_function_forward(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
     objectAction->engine.state = fwd;
@@ -88,7 +91,8 @@ void up_key_function_zoomout(struct up_eventState *currentEvent,struct up_action
 {
     up_cam_zoom(-1.0f);
 }
-// demonstration code to toggle diffrent propertys
+// demonstration code to toggle different properties
+//Magnus
 #ifdef UP_PRESENTATION_MODE
 void up_key_function_toggle_wireframe(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
@@ -147,13 +151,6 @@ void up_key_function_firelaser(struct up_eventState *currentEvent,struct up_acti
         objectAction->fireWeapon.state = none;
     }
 }
-
-
-
-
-
-
-
 
 void up_key_function_stop_forward(struct up_eventState *currentEvent,struct up_actionState *objectAction)
 {
@@ -218,6 +215,7 @@ void up_key_function_stop_bankleft(struct up_eventState *currentEvent,struct up_
  */
 
 // Name , what key activates it, function for keyDown event, function for keyUp event
+//Magnus
 struct up_key_map internal_keymap[] =
 {{"Move forward",SDLK_w                      , &up_key_function_forward , &up_key_function_stop_forward},
     {"Move backward",SDLK_s                  , &up_key_function_backward , &up_key_function_stop_backward},
@@ -318,7 +316,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
     for(i=0; i < allcollisions->nrShipEnviroment; i++){
         objectIndex1 = allcollisions->shipEnviroment[i].object1;
         objectIndex2 = allcollisions->shipEnviroment[i].object2;
-        
+
         object1 = up_unit_objAtIndex(up_ship_type, objectIndex1);
         object2 = up_unit_objAtIndex(up_environment_type, objectIndex2);
         if (object1 == NULL){
@@ -360,7 +358,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
         object2->pos.y += 5*object1->dir.y;
         object2->speed = object1->speed*3/4;
         object1->speed = object1->speed/2;
-        up_unit_remove(up_projectile_type, object1->objectId.idx);
+        //up_unit_remove(up_projectile_type, object1->objectId.idx);
 
     }
 
@@ -381,12 +379,12 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
             continue;
         }
 
-        object2->dir = object1->dir;
+        //object2->dir = object1->dir;
         object2->pos.x += 5*object1->dir.x;
         object2->pos.y += 5*object1->dir.y;
-        object2->speed = object1->speed*3/4;
-        object1->speed = object1->speed/2;
-
+//        object2->speed = object1->speed*3/4;
+//        object1->speed = object1->speed/2;
+        //up_unit_remove(up_projectile_type, object1->objectId.idx);
 
     }
 
@@ -470,6 +468,7 @@ void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_
 
 //Sebastian + Tobias 2015-05-12
 //checks objects collisionboxes too see whether a hit has occured or not
+//Sebastian, reworked and cleaned up the function
 static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *object2, struct up_allCollisions *allcollisions, int typeCollision)
 {
 
@@ -479,16 +478,16 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
     distanceY = fabsf(object2->pos.y - object1->pos.y);
     distanceZ = fabsf(object2->pos.z - object1->pos.z);
 
-    if (object1->objectId.idx == 0|| object2->objectId.idx == 0) {
+    if (object1->objectId.idx == 0 || object2->objectId.idx == 0) {
         return;
     }
-    
-    //checks if the collisionboxes collides
+
+    //checks if the collisionboxes collides with the other objects centerpoint
     if(distanceX <= object1->collisionbox.length.x || distanceX <= object2->collisionbox.length.x){
         if(distanceY <= object1->collisionbox.length.y ||distanceY <=object2->collisionbox.length.y){
             if(distanceZ <= object1->collisionbox.length.z || distanceZ <= object2->collisionbox.length.z)
             {
-                //stores the id, arrayplacement by the type of collision
+                //stores the id:s of the colliding objects and increase the number of collisions of that type by 1
                 switch(typeCollision)
                 {
                 case shipEnviroment:
@@ -528,7 +527,7 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
                 default:
                         printf("error");
                         break;
-                        
+
                 }
             }
         }
@@ -537,8 +536,8 @@ static void testCollision(struct up_objectInfo *object1, struct up_objectInfo *o
 
 //checks for collisions based on object type
 //Sebastian 2015-05-08
-void up_checkCollision(struct up_allCollisions *allcollisions){
-
+void up_checkCollision(struct up_allCollisions *allcollisions)
+{
     int i= 1, j= 1, totalShips = 0, totalObjects = 0, totalProjectiles = 0;
     float distance=0, x=0, y=0, z=0;
 
@@ -556,16 +555,16 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
 
     //checks ships vs enviroment
     for(i=1; i < totalShips; i++){
-        // no need to check ship if not active
+        // no need to check collision if unit isnt active, aka removed/hidden
         if (!up_unit_isActive(&ships[i])) {
             continue;
         }
         for(j=1; j < totalObjects; j++){
             if (allcollisions->nrShipEnviroment >= UP_COLLISIONS_MAX) {
-                i = totalShips; // breaks the outer loop
+                i = totalShips; // breaks the outer loop if too many collisions of this type somehow occured
                 break;
             }
-            // no need to check ship if not active
+            // no need to check collision if unit isnt active, aka removed/hidden
             if (!up_unit_isActive(&enviroment[j])) {
                 continue;
             }
@@ -583,7 +582,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
 
     //projectile vs enviroment
     for(i=1; i < totalProjectiles; i++){
-        // no need to check ship if not active
+        //no need to check collision if unit isnt active
         if (!up_unit_isActive(&projectile[i])) {
             continue;
         }
@@ -592,7 +591,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 i = totalProjectiles; // breaks the outer loop
                 break;
             }
-            // no need to check ship if not active
+            //no need to check collision if unit isnt active
             if (!up_unit_isActive(&enviroment[j])) {
                 continue;
             }
@@ -610,7 +609,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
 
     //projectile vs ship
     for(i=1; i < totalShips; i++){
-        // no need to check ship if not active
+        //no need to check collision if unit isnt active
         if (!up_unit_isActive(&ships[i])) {
             continue;
         }
@@ -619,7 +618,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 i = totalShips; // breaks the outer loop
                 break;
             }
-            // no need to check ship if not active
+            //no need to check collision if unit isnt active
             if (!up_unit_isActive(&projectile[j])) {
                 continue;
             }
@@ -640,7 +639,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
 
     //enviroment vs enviroment
     for(i=1; i < totalObjects; i++){
-        // no need to check ship if not active
+        //no need to check collision if unit isnt active
         if (!up_unit_isActive(&enviroment[i])) {
             continue;
         }
@@ -649,7 +648,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 i = totalObjects; // breaks the outer loop
                 break;
             }
-            // no need to check ship if not active
+            //no need to check collision if unit isnt active
             if (!up_unit_isActive(&enviroment[j])) {
                 continue;
             }
@@ -669,7 +668,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
     //ship vs ship
     for(i=1; i < totalShips; i++)
     {
-        // no need to check ship if not active
+        //no need to check collision if unit isnt active
         if (!up_unit_isActive(&ships[i]))
         {
             continue;
@@ -680,7 +679,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 i = totalShips; // breaks the outer loop
                 break;
             }
-            // no need to check ship if not active
+            //no need to check collision if unit isnt active
             if (!up_unit_isActive(&ships[j]))
             {
                 continue;
@@ -691,12 +690,9 @@ void up_checkCollision(struct up_allCollisions *allcollisions){
                 y = ships[i].pos.y - ships[j].pos.y;
                 z = ships[i].pos.z - ships[j].pos.z;
                 distance = sqrt((x*x)+(y*y)+(z*z));
-                
+
                 if(distance < ships[i].maxLength || distance < ships[j].maxLength){
                     //printf("ship %f, distance %f, ship %f\n",ships[j].maxLength,distance,ships[i].maxLength);
-                    if (allcollisions->nrEnviromentEnviroment > 5) {
-                        printf("test");
-                    }
                     testCollision(&ships[j], &ships[i], allcollisions, shipShip);
                 }
             }
@@ -783,9 +779,8 @@ void up_updateMovements()
         objlocal->pos.y += objlocal->dir.y * objlocal->speed * deltaTime;
         objlocal->pos.z += objlocal->dir.z * objlocal->speed * deltaTime;
     }
-
-
 }
+
 //not in use. moves the playership for testing purposes
 //Sebastian
 //revised by magnus
@@ -836,7 +831,7 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresenta
 
 //Tobias 2015-05-05
 //magnus 2015-05-06
-// magnus 2015-05-21 bug fix
+//magnus 2015-05-21 bug fix
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
     char *lineReader = NULL;
@@ -923,12 +918,15 @@ struct up_actionState
 //turnspeed is a set value atm. It is to be stored for each obj
 //Sebastian 2015-05-05
 //Magnus 2015-05-06
+//walid
+//Sebastian
 void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, double frameDelta)
 {
     //float turnSpeed=1; //temporary. will be unique for each model
 
     if(obj->engine.state == fwd){
-        localObject->speed +=localObject->acceleration*frameDelta;
+        localObject->speed += localObject->acceleration*frameDelta;
+        localObject->bankAngle -= localObject->bankAngle * frameDelta;
     }
 
     if(obj->engine.state==bwd){
@@ -940,6 +938,11 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->angle = localObject->angle + localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
+        localObject->bankAngle += localObject->turnSpeed*frameDelta;
+        if(localObject->bankAngle > M_PI/3){
+            localObject->bankAngle = M_PI/3;
+        }
+
     }
 
     if(obj->maneuver.state == right){
@@ -947,16 +950,20 @@ void up_moveObj(struct up_objectInfo *localObject, struct up_actionState *obj, d
         localObject->angle = localObject->angle - localObject->turnSpeed*frameDelta;
         localObject->dir.x = sinf(localObject->angle);
         localObject->dir.y = cosf(localObject->angle);
+        localObject->bankAngle -= localObject->turnSpeed*frameDelta;
+        if(localObject->bankAngle < -M_PI/3){
+            localObject->bankAngle = -M_PI/3;
+        }
     }
 
     if(obj->maneuver.state == bankLeft){
-        //Determines where the object is facing
-        localObject->bankAngle += localObject->turnSpeed*frameDelta;
+        //tilts the ship to the left
+        localObject->bankAngle += localObject->turnSpeed * frameDelta;
     }
 
     if(obj->maneuver.state == bankRight){
-        //Determines where the object is facing
-        localObject->bankAngle -= localObject->turnSpeed*frameDelta;
+        //tilts the ship to the right
+        localObject->bankAngle -= localObject->turnSpeed * frameDelta;
     }
 }
 
@@ -966,27 +973,31 @@ void up_createProjectile(struct up_objectInfo *localobject,
                          struct up_actionState *obj, struct up_eventState *ammoStats,
                          struct soundLib *sound)
 {
+    // disabled in the client , runs on server now
     struct up_objectInfo projectile = {0};
+    //checks whether its ok to fire
     struct cooldownTimer *bullet = &ammoStats->flags.bulletFlag;
     struct cooldownTimer *missile = &ammoStats->flags.missileFlag;
     struct cooldownTimer *laser = &ammoStats->flags.laserFlag;
+
     //bullet
     if(obj->fireWeapon.state == fireBullet){
-        projectile = up_asset_createObjFromId(4);
+        projectile = up_asset_createObjFromId(0);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
         projectile.speed = localobject->speed + bullet->ammunitionSpeed;
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireBullet;
-        
+
         bullet->ammunition--;
-        up_unit_add(up_projectile_type, projectile);
+        //up_unit_add(up_projectile_type, projectile); // disabled in the client , runs on server now
+
         obj->fireWeapon.none = none;
     }
     //lazer
     if(obj->fireWeapon.state == fireLaser){
-        projectile = up_asset_createObjFromId(0);
+        projectile = up_asset_createObjFromId(15);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
@@ -994,16 +1005,17 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireLaser;
         laser->ammunition--;
-        up_unit_add(up_projectile_type,projectile);
+        //up_unit_add(up_projectile_type,projectile); // disabled in the client , runs on server now
+
         obj->fireWeapon.none = none;
-        
+
         //pew pew sound
         up_music(1, 0, sound);
 
     }
     //missle
     if(obj->fireWeapon.state == fireMissile){
-        projectile = up_asset_createObjFromId(0);
+        projectile = up_asset_createObjFromId(4);
         projectile.pos = localobject->pos;
         projectile.dir = localobject->dir;
         projectile.angle = localobject->angle;
@@ -1011,7 +1023,8 @@ void up_createProjectile(struct up_objectInfo *localobject,
         projectile.owner = localobject->objectId.idx;
         projectile.projectile = fireMissile;
         missile->ammunition--;
-        up_unit_add(up_projectile_type,projectile);
+        //up_unit_add(up_projectile_type,projectile);// disabled in the client , runs on server now
+
         obj->fireWeapon.none = none;
 
     }
@@ -1028,6 +1041,7 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     double frameDelta=up_getFrameTimeDelta();
 
     //Updates of objects from the server
+    //Also handles the creation of projectiles
     for(i=0; i<nrObj; i++)
     {
         tmp=&server[i];
@@ -1036,7 +1050,8 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
         }
         localObject = up_unit_objAtIndex(tmp->objectID.type,tmp->objectID.idx);
         if (localObject == NULL) {
-            printf("up_update_actions localobject  == NULL \n");
+            printf("PLayer disconnected, removed \n");
+            server[i].objectID.idx = 0;
             continue;
         }
         up_moveObj(localObject, tmp,frameDelta);
@@ -1053,54 +1068,75 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     up_createProjectile(localObject, playerShip,ammoStats, sound);
 }
 
+// moved to the server form here and down
 //walled
-static void take_damage(struct up_player_stats *stats,int damage){
-    
-    stats->armor.current -= damage;
-    if(stats->armor.current < 0){
-        stats->health.current += stats->armor.current;
-        stats->armor.current = 0;
-    }
-
-    stats->health.current = (stats->health.current > 0) ? stats->health.current : 0;
-
-}
+//static void take_powerUp(struct up_player_stats *stats,int damage){
+//
+//
+//    stats->health.current += damage;
+//
+//    if(stats->health.current >= stats->health.full){
+//        stats->armor.current += stats->health.current - stats->health.full;
+//        stats->health.current = stats->health.full;
+//    }
+//
+//    if(stats->armor.current >= stats->armor.full){
+//        stats->armor.current = stats->armor.full;
+//    }
+//
+//}
+//walled
+//static void take_damage(struct up_player_stats *stats,int damage){
+//
+//    stats->armor.current -= damage;
+//    if(stats->armor.current < 0){
+//        stats->health.current += stats->armor.current;
+//        stats->armor.current = 0;
+//
+//    }
+//
+//    stats->health.current = (stats->health.current > 0) ? stats->health.current : 0;
+//
+//}
 
 /*
  fireMissile = 1,
  fireBullet,
  fireLaser
- 
- 
- */
-static void ship_projectileHit(struct up_player_stats *player,struct up_shootingFlag *weapons,struct up_objectInfo *projectile)
-{
-    int damage = 0;
-    switch (projectile->projectile) {
-        case fireMissile:
-            damage = weapons->missileFlag.damage;
-            break;
-        case fireBullet:
-            damage = weapons->bulletFlag.damage;
-            break;
-        case fireLaser:
-            damage = weapons->laserFlag.damage;
-            break;
-            
-        default:
-            damage = 0;
-            break;
-    }
-    take_damage(player,damage);
-    
-}
 
+
+ */
+
+ //Wallid + Magnus
+//static void ship_projectileHit(struct up_player_stats *player,struct up_shootingFlag *weapons,struct up_objectInfo *projectile)
+//{
+//    int damage = 0;
+//    switch (projectile->projectile) {
+//        case fireMissile:
+//            damage = weapons->missileFlag.damage;
+//            break;
+//        case fireBullet:
+//            damage = weapons->bulletFlag.damage;
+//            break;
+//        case fireLaser:
+//            damage = weapons->laserFlag.damage;
+//            break;
+//
+//        default:
+//            damage = 0;
+//            break;
+//    }
+//    take_damage(player,damage);
+//
+//}
+//
 //walled
 // magnus included weapons so everything gets synced to the same state
 void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *player,struct up_shootingFlag *weapons, int playerId)                         //"Den checkar :P "
 {
 
-
+    // disabled on client;
+    /*
     int i=0;
     int other_shipId;
     struct up_objectInfo *other_object = NULL;
@@ -1109,15 +1145,20 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
     other_shipId = collision->shipShip[i].object2;
     player_object = up_unit_objAtIndex(up_ship_type, playerId);
 
+
+
     for(i=0; i<collision->nrShipEnviroment; i++){
+        other_shipId = collision->shipShip[i].object2;
+        other_object = up_unit_objAtIndex(up_environment_type, other_shipId);
 
-        if(collision->shipEnviroment[i].object1 == playerId){
-
-            take_damage(player,7);
-
-        }
         if (other_object == NULL) {
             continue;
+        }
+        if(collision->shipEnviroment[i].object1 == playerId){
+
+            take_damage(player,7);// disabled in the client , runs on server now
+
+
         }
     }
 
@@ -1130,13 +1171,15 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
             if (other_object == NULL) {
                 continue;
             }
-            
+
             if(other_shipId !=  playerId ||
                other_object->modelId == player_object->modelId){
-                take_damage(player,5);
+                take_damage(player,5);// disabled in the client , runs on server now
+
             }
         }
     }
+
 
     for(i=0; i<collision->nrProjectileShip; i++){
         if(collision->projectileShip[i].object2 == playerId){
@@ -1146,12 +1189,16 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
             if (other_object == NULL) {
                 continue;
             }
+            if(other_object->modelId == 7){
+                take_powerUp(player,20);
+            }
             if (other_object->modelId ) {
                 ship_projectileHit(player,weapons,other_object);
             }
         }
     }
-
+*/
+    // still in use by the client 
     player->bullets.current = weapons->bulletFlag.ammunition;
     player->missile.current = weapons->missileFlag.ammunition;
     player->laser.current = weapons->laserFlag.ammunition;

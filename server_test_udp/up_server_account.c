@@ -14,6 +14,7 @@
 #include "up_thread_utilities.h"
 #include "up_network_packet_utilities.h"
 #include "up_server.h"
+#include "up_utilities.h"
 
 #define SHA256_BLOCK_SIZE 32
 /******************************************************
@@ -88,7 +89,7 @@ void *up_server_account_reciveing_thread(void *parm)
             local_data.id = userId;  // if it is 0 then the packet will be skipped
             local_data.length = (int)msglen;
             generic_copyElement((unsigned int)msglen, local_data.data, recvBuff);
-            up_writeToNetworkDatabuffer(server_con->queue,&local_data);
+            up_writeToNetworkDatabuffer(server_con->AccountQueue,&local_data);
             
         }
         
@@ -202,7 +203,7 @@ int up_parser_username_password(struct up_account_information *account_validatio
     return 1;
 }
 
-
+// tobias
 int up_account_msg_parser(struct up_account_information *account_validation,unsigned char *data_parser)
 {
     int read_pos = 0;
@@ -233,6 +234,94 @@ int up_account_msg_parser(struct up_account_information *account_validation,unsi
 
 }
 
+// magnus
+static void game_simulation_addUser(struct up_interThread_communication *interCom,int playerId,struct up_account_information *account_validation)
+{
+    char userFilePath[UP_FILEPATH_MAX] = "account_information/";
+    strcat(userFilePath, (char *)account_validation->username);
+    strcat(userFilePath, "_stats");
+    struct up_;
+    
+    struct up_packet_player_joined player = {0};
+    player.modelId = 1;
+    player.objectID.idx = playerId;
+    player.objectID.type = up_ship_type;
+    player.pos.z = 40;
+    player.pos.x = (float)(up_rand() % 1000 - 500);
+    player.pos.y = (float)(up_rand() % 1000 - 500);
+    struct up_player_stats tmp_stats = {1,playerId, up_ship_type, 50,50,30,50,25,50,100,100,100,100};
+    
+    player.player_stats = tmp_stats;
+    struct objUpdateInformation objUpdate = {0};
+    unsigned int len;
+    FILE *fp = fopen(userFilePath, "r");
+    if(fp != NULL) {
+        fscanf(fp, "%d ", &player.modelId);
+        fscanf(fp, "%f %f %f ", &player.pos.x, &player.pos.y, &player.pos.z);
+        fscanf(fp, "%d %d %d %d %d ",&player.player_stats.health.current,
+               &player.player_stats.armor.current, &player.player_stats.bullets.current,
+               &player.player_stats.missile.current,&player.player_stats.laser.current);
+        fclose(fp);
+        len = up_intercom_packet_playerJoind_encode(&objUpdate.data[0], &player);
+        objUpdate.length = len;
+        up_writeToNetworkDatabuffer(interCom->simulation_input, &objUpdate);
+        return;
+    }
+    
+    fp = fopen(userFilePath, "w");
+    if (fp == NULL) {
+        UP_ERROR_MSG("cant create user_pos file");
+    }
+    fprintf(fp, "%d ", player.modelId);
+    fprintf(fp, "%f %f %f ", player.pos.x, player.pos.y, player.pos.z);
+    fprintf(fp, "%d %d %d %d %d ",player.player_stats.health.current,
+           player.player_stats.armor.current, player.player_stats.bullets.current,
+           player.player_stats.missile.current,player.player_stats.laser.current);
+    fclose(fp);
+    len = up_intercom_packet_playerJoind_encode(&objUpdate.data[0], &player);
+    objUpdate.length = len;
+    
+    up_writeToNetworkDatabuffer(interCom->simulation_input, &objUpdate);
+    
+}
+
+/*
+    save user data from the game
+ */
+static void game_simulation_saveUser(struct objUpdateInformation *objData)
+{
+    char userName[UP_USER_NAME_PASS_MAX];
+    char userFilePath[UP_FILEPATH_MAX] = "account_information/";
+    int playerId = 0;
+    
+    int read_pos = up_network_packet_playerExit_decode(&objData->data[0], userName, &playerId);
+    if (read_pos <= 0 || playerId == 0) {
+        return;
+    }
+    
+    strcat(userFilePath, userName);
+    strcat(userFilePath, "_stats");
+    
+    struct up_packet_player_joined player = {0};
+    
+    up_intercom_packet_playerJoind_decode(&objData->data[read_pos], &player);
+    
+    
+    FILE *fp = fopen(userFilePath, "w");
+    if (fp == NULL) {
+        UP_ERROR_MSG("cant create user_stats file");
+        return;
+    }
+    fprintf(fp, "%d ", player.modelId);
+    fprintf(fp, "%f %f %f ", player.pos.x, player.pos.y, player.pos.z);
+    fprintf(fp, "%d %d %d %d %d ",player.player_stats.health.current,
+            player.player_stats.armor.current, player.player_stats.bullets.current,
+            player.player_stats.missile.current,player.player_stats.laser.current);
+    fclose(fp);
+    
+}
+
+// magnus, tobias
 void *up_server_account_send_thread(void *parm)
 {
     struct internal_server_state *server_state = (struct internal_server_state *)parm;
@@ -241,6 +330,8 @@ void *up_server_account_send_thread(void *parm)
     int length = UP_SEND_OBJECT_LENGTH;
     struct objUpdateInformation local_data[UP_SEND_OBJECT_LENGTH];
     struct up_account_information account_validation;
+    struct objUpdateInformation simulation_exit_buffer[5];
+    
     int packet_read = 0;
     
     int spin_counter = 0;
@@ -253,16 +344,17 @@ void *up_server_account_send_thread(void *parm)
     unsigned int client_sock_len = sizeof(server_con->client_infoArray[0].client_addr);
     struct up_client_info *clientInfo = NULL;
     
-    int mapSeed = server_state->mapSeed;
+    int mapSeed = server_state->game_simulation->mapSeed;
     int usersOnline = 0;
     
     int i = 0;
     while (server_con->shutdown == 0) {
+        
         packet_read =0;
         while (packet_read <= 0)
         {
             
-            packet_read = up_readNetworkDatabuffer(server_con->queue,local_data, length);
+            packet_read = up_readNetworkDatabuffer(server_con->AccountQueue,local_data, length);
             spin_counter++;
             usleep(100);
             if (spin_counter > 2000) {
@@ -270,9 +362,12 @@ void *up_server_account_send_thread(void *parm)
                 if (server_con->shutdown) {
                     break;
                 }
+                
+                
                 spin_counter = 0;
             }
         }
+        
         
         if (server_con->shutdown) {
             break;
@@ -280,10 +375,11 @@ void *up_server_account_send_thread(void *parm)
         
         for (i = 0; i < packet_read; i++) {
             
+            
             returnFlag = up_account_msg_parser(&account_validation,local_data[i].data);
             if(returnFlag==0)
             {
-                printf("\nPacket corrupted");
+                printf("\nAccount Packet corrupted");
                 continue;
             }
             
@@ -295,9 +391,10 @@ void *up_server_account_send_thread(void *parm)
             
             clientInfo = &server_con->client_infoArray[local_data[i].id];
             clientId = 0;
-            if (returnFlag != REGSUCESSS) {
+            if (returnFlag == LOGINSUCESS) {
                 clientId = up_server_addUser(server_state->server_gameplay, &clientInfo->client_addr);
                 usersOnline = up_server_usersOnline(server_state->server_gameplay);
+                game_simulation_addUser(server_con->game_com, clientId, &account_validation);
                 
             }
             
@@ -320,6 +417,15 @@ void *up_server_account_send_thread(void *parm)
             }
             
         }
+        // checks if the game has sent a exit command from the game simulation
+        packet_read = up_readNetworkDatabuffer(server_con->game_com->simulation_output, simulation_exit_buffer, 5);
+        for (i = 0; i < packet_read; i++) {
+            if ( packet_read > 0 && simulation_exit_buffer[i].data[0] == UP_PACKET_PLAYER_EXIT_FLAG) {
+                game_simulation_saveUser(&simulation_exit_buffer[i]);
+                
+            }
+        }
+        
         
     }
     

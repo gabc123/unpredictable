@@ -5,8 +5,16 @@
 #include <string.h>
 #include "up_error.h"
 
+// based on tutorials from
+//https://youtu.be/csKrVBWCItc?list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh
+//http://ogldev.atspace.co.uk/www/tutorial17/tutorial17.html
+//http://ogldev.atspace.co.uk/www/tutorial18/tutorial18.html
+//https://youtu.be/0jML5fMBDGg?list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh
+
+
 // have all the data nessesary for a complete shader  program
 static struct shader_module shader_program[UP_SHADER_MAX_COUNT];
+
 
 static GLuint shaderCreate(const char * filename,GLenum type,int *err);
 

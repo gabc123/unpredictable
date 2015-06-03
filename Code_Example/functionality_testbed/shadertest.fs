@@ -3,6 +3,12 @@
 in vec2 texCoord0;
 in vec3 normals_worldSpace;
 
+
+// based on tutorials from
+//https://youtu.be/csKrVBWCItc?list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh
+//http://ogldev.atspace.co.uk/www/tutorial17/tutorial17.html
+//http://ogldev.atspace.co.uk/www/tutorial18/tutorial18.html
+
 //layout(location = 4) in vec2 texCoord0;
 //layout(location = 5) in vec3 normalsFragment;
 
@@ -19,6 +25,7 @@ uniform float lightIntensity;
 
 out vec4 fragColor;
 
+// magnus
 void main()
 {
     // This is temporary untill mats model gets a propper scaling done to it

@@ -1,0 +1,38 @@
+2.0 2.0 2.0 darkness_mats.obj darkness_mats.png
+4.0 3.0 1.0
+1.0 1.0 1.0 astriod.obj astriod.png
+3.0 3.0 3.0
+10.0 10.0 10.0 sun.obj sun.png
+2.0 2.0 2.0
+2.0 2.0 2.0 missile.obj missile.png
+2.0 2.0 2.0
+6.0 2.0 2.0 red_health.obj red_health.png
+0.0 0.0 0.0
+6.0 3.0 3.0 green_health.obj green_health.png
+0.0 0.0 0.0
+9.0 9.0 9.0 wooden_box.obj wooden_box.png
+0.5 0.5 0.5
+1.0 1.0 1.0 space_mines.obj space_mines.png
+0.4 0.4 0.4
+0.09 0.09 0.09 heart.obj heart.png
+2.0 2.0 2.0
+0.01 0.01 0.01 shield.obj shield.png
+2.0 2.0 2.0
+0.2 0.2 0.2 bullet_interface.obj bullet_interface.png
+2.0 2.0 2.0
+0.2 0.2 0.2 missile_interface.obj bullet_interface.png
+2.0 2.0 2.0
+0.2 0.2 0.2 laser_interface.obj bullet_interface.png
+2.0 2.0 2.0
+0.01 0.01 0.4 radar_bar.obj red_health.png
+0.0 0.0 0.0
+0.5 0.5 0.5 space_laser.obj blue_laser.png
+0.5 0.5 0.5
+6.0 3.0 3.0 green_health.obj gold_armor.png
+0.0 0.0 0.0
+6.0 3.0 3.0 green_health.obj silver_armor.png
+0.0 0.0 0.0
+2.0 2.5 2.0 fighter.obj fighter.png
+2.0 2.0 2.0
+0.5 1.0 1.0 starShipMagnus.obj starShipMagnus.png
+2.0 2.0 2.0

@@ -30,6 +30,8 @@
 
 
 // magnus
+// to easier represent buttons this struct contains all the relevent informatino
+// needed to create and display a button, also have the dimensions for click checking
 struct up_menu_button
 {
     struct up_vec3 pos;
@@ -45,7 +47,46 @@ struct up_menu_button
 #define UP_SCREEN_WIDTH 1280
 #define UP_SCREEN_HIGHT 800
 
+//magnus
+// this function creates a button and returns it,
+// it takes the dimiensions off the buttons in pixels (width and hight), what location it should be displayed,
+// the texture to be used, and the text and its propertys.
+struct up_menu_button *up_create_button(struct up_vec3 pos,int hight,int width,const char * textureName,const char *text,struct up_vec3 textScale,float step)
+{
+    
+    struct up_menu_button *button = malloc(sizeof(struct up_menu_button));
+    if (button == NULL)
+    {
+        UP_ERROR_MSG("malloc failed");
+        return NULL;
+    }
+    struct up_mesh *mesh = up_mesh_menu_Botton();
+    
+    struct up_texture_data *textureButton = up_load_texture(textureName);
+    if(textureButton == NULL){
+        textureButton = up_load_texture("lala.png");
+    }
+    
+    
+    strcpy(button->text ,text);
+    button->text_len = (int)strlen(button->text);
+    button->textScale = textScale;
+    
+    button->pos = pos;
+    pos.y -= step;
+    button->width = width;
+    button->hight = hight;
+    
+    button->mesh = mesh;
+    button->tex = textureButton;
+    
+    return button;
+    
+}
+
 // magnus
+// this function generates a coluum of buttons for every key in the keymap,
+// It also generate the text for every key, The key map must be a array where the last keymap is a zerod out entry
 struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map *keymap, struct up_vec3 pos,int hight,int width,struct up_vec3 textScale,float step)
 {
     int count = 0;
@@ -90,10 +131,18 @@ struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map
 }
 
 // magnus
+// free the memory for the buttons
 void up_generate_settings_freebuttons(struct up_menu_button *buttonArray)
 {
     free(buttonArray);
 }
+
+// magnus
+void up_button_free(struct up_menu_button *button)
+{
+    free(button);
+}
+
 
 // magnus
 void up_drawbutton(struct shader_module *shaderprog,struct up_menu_button *button,struct up_font_assets *fonts,struct up_vec3 *color)
@@ -149,7 +198,8 @@ enum menu_states
     registering,
     shipSelect,
     logRegFail,
-    logRegSuccess
+    logRegSuccess,
+    exitMenu
 
 };
 
@@ -211,6 +261,9 @@ int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *key
 int up_menuEventHandler(struct navigationState *navigation,
                         struct userData *user_data, struct soundLib *sound);
 
+
+int up_shipSelectEvent(struct navigationState *navigation,int *selectedShip, struct up_menu_button *blueButton,
+                       struct up_menu_button *redButton, struct up_menu_button *blackButton);
 
 int up_menu(struct shader_module *shaderprog,
             struct soundLib *sound,
@@ -350,8 +403,8 @@ int up_menu(struct shader_module *shaderprog,
     struct up_mesh *registerSuccess = up_registerOverlay(1.0, 0.5);
     struct up_mesh *registerFailed = up_registerOverlay(0.5, 0.0);
     
-    struct up_mesh *redShip = up_shipSelection(1.0, 0.0, 0.1, 0.2);
-    struct up_mesh *blueShip = up_shipSelection(0.5, 0.0, -0.1, -0.5);
+//    struct up_mesh *redShip = up_shipSelection(1.0, 0.0, 0.1, 0.2);
+//    struct up_mesh *blueShip = up_shipSelection(0.5, 0.0, -0.1, -0.5);
 
     //LOGIN AND REGISTER BUTTONS
     struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
@@ -505,7 +558,22 @@ int up_menu(struct shader_module *shaderprog,
     char *passwordstr = "**********************";
    // struct up_vec3 testtextpos1 = {-1.0, -0.50, 0};
    // struct up_vec3 testtextpos2 = {-1.0, -0.55, 0};
-
+    
+    //create button shipSelect<-------
+    struct up_vec3 shipSelectBluePos = {-0.4,0.2,0};
+    struct up_vec3 shipSelectZero = {0};
+    struct up_menu_button *shipButtonBlue = NULL;
+    shipButtonBlue = up_create_button(shipSelectBluePos,152, 272, "blueFightSelction", "", shipSelectZero, 0);
+    
+    struct up_vec3 shipSelectRedPos = {0.0,0.2,0};
+    struct up_menu_button *shipButtonRed = NULL;
+    shipButtonRed = up_create_button(shipSelectRedPos,152, 272, "redFightSelction", "", shipSelectZero, 0);
+    
+    struct up_vec3 shipSelectBlackPos = {0.4,0.2,0};
+    struct up_menu_button *shipButtonBlack = NULL;
+    shipButtonBlack = up_create_button(shipSelectBlackPos, 152, 272, "blackFightSelection", "", shipSelectZero, 0);
+    
+    int selectedShip = 0;
     
     int i = 0;  //used for loops
     int accountState = 0;
@@ -522,6 +590,7 @@ int up_menu(struct shader_module *shaderprog,
     int menu_exit_flag = 0;
     int timmer_account = 0;
     int timer_conReg = 0;
+    int userLen = 0;
     
     // MENU LOOP
     while(status && !menu_exit_flag)
@@ -530,12 +599,16 @@ int up_menu(struct shader_module *shaderprog,
 
         UP_renderBackground();                      //Clears the buffer and results an empty window.
         UP_shader_bind(shaderprog);                 //
-        if (navigation.state != keyBindings) {
+        if(navigation.state == shipSelect){
+            status = up_shipSelectEvent(&navigation,&selectedShip,shipButtonBlue,shipButtonRed,shipButtonBlack);
+        }
+        else if(navigation.state != keyBindings) {
             status = up_menuEventHandler(&navigation, &user_data, sound);
         }else
         {
             status = up_keyBindingEvent(&navigation, keymap, keybinding_buttonArray, numKeyBindings,&keybindState);
         }
+        
         
         accountData->serverResponse=0; //resets the serverresponse flags
         
@@ -633,6 +706,10 @@ int up_menu(struct shader_module *shaderprog,
                     
                     navigation.state = logRegSuccess;
                     *mapData = accountData->map;    // transfer all map info back to main
+                    // need to do it the same risky way that was done before
+                    strncpy(mapData->userName, user_data.username, 30);
+                    userLen = (unsigned int)strlen(user_data.username);
+                    mapData->userName[userLen] = '\0';
                 }
                 //CONNECTION FAILED
                 else if (accountState == LOGINFAILED){
@@ -695,9 +772,8 @@ int up_menu(struct shader_module *shaderprog,
                     
                     if (SDL_GetTicks() - timer_conReg > 250) {
                         
-                        navigation.state = mainMenu;
+                        navigation.state = shipSelect;
                         timer_conReg = 0;
-                        menu_exit_flag = 1;
                         accountState=0;
                         
                         continue;
@@ -767,17 +843,31 @@ int up_menu(struct shader_module *shaderprog,
                 
                 break;
                 
-                
+           // /*walid
             case shipSelect:
                 
-                UP_shader_update(shaderprog, &transformShipBlue);
-                up_texture_bind(textureShipSelection, 2);
-                up_draw_mesh(blueShip);
+                up_drawbutton(shaderprog, shipButtonBlue, fonts, &shipSelectZero);
+                if(selectedShip == 1){
+                    mapData->playeModel = 19;
+                    navigation.state = exitMenu;
+                    menu_exit_flag = 1;
+                }
                 
-                UP_shader_update(shaderprog, &transformShipRed);
-                up_texture_bind(textureShipSelection, 2);
-                up_draw_mesh(redShip);
+                up_drawbutton(shaderprog, shipButtonRed, fonts, &shipSelectZero);
+                if(selectedShip == 2){
+                    mapData->playeModel = 18;
+                    navigation.state = exitMenu;
+                    menu_exit_flag = 1;
+                }
                 
+                up_drawbutton(shaderprog, shipButtonBlack, fonts, &shipSelectZero);
+                if(selectedShip == 3){
+                    mapData->playeModel = 1;
+                    navigation.state = exitMenu;
+                    menu_exit_flag = 1;
+                }
+            ///*
+
                 break;
                 
                 
@@ -817,6 +907,9 @@ int up_menu(struct shader_module *shaderprog,
                 }
                 
                 break;
+            case exitMenu:
+                menu_exit_flag = 1;
+                break;
             default:
                 break;
         }
@@ -832,9 +925,58 @@ int up_menu(struct shader_module *shaderprog,
 
     return status;
 }
+//walid
+int up_shipSelectEvent(struct navigationState *navigation,int *selectedShip,struct up_menu_button *blueButton,
+                       struct up_menu_button *redButton,struct up_menu_button *blackButton)
+{
+    int flag = 1;
+    SDL_Event event;
+    int x = 0;
+    int y = 0;
+    *selectedShip = 0;
 
+    
+    
+    while(SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT)
+        {
+            flag = 0;
+        }
+        
+        if(event.type == SDL_KEYUP)
+        {
+            // escape key, this will exit the keybinding state
+            if (event.key.keysym.sym == 27) {
+                navigation->state= exitMenu;
+                return flag;
+            }
+            
+        }
+        if(event.type == SDL_MOUSEBUTTONDOWN && (event.button.button == SDL_BUTTON_LEFT))
+        {
+            SDL_GetMouseState(&x, &y);
+            
+           //walid
+            if (up_checkButtonClick(blueButton, x, y)) {
+                *selectedShip = 1;
+                //SDL_Delay(10); // so the button that is down rigth now is not used
+            }
+            if (up_checkButtonClick(redButton, x, y)) {
+                *selectedShip = 2;
+                //SDL_Delay(10); // so the button that is down rigth now is not used
+            }
+            if (up_checkButtonClick(blackButton, x, y)) {
+                *selectedShip = 3;
+                //SDL_Delay(10); // so the button that is down rigth now is not used
+            }
+        }
+        
+    }
+    return flag;
+}
 //int up_checkButtonClick(struct up_menu_button *button,int mouse_x,int mouse_y)
-
+//Magnus
 int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *keymap,struct up_menu_button *buttonArray,int numButtons,struct keybinding_state *bindstate)
 {
     int flag = 1;
@@ -885,7 +1027,7 @@ int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *key
     return flag;
 }
 
-
+//Joakim
 int up_menuEventHandler(struct navigationState *navigation,
                         struct userData *user_data, struct soundLib *sound)
 {

@@ -8,18 +8,12 @@
 
 #include <stdio.h>
 #include "up_server.h"
-#include "up_sdl_redirect.h"
 #include "up_error.h"
 #include "up_thread_utilities.h"
 
 int main(int argc, const char * argv[]) {
     // insert code here...
     printf("Hello, World!\n");
-    
-    /*if(SDL_Init(SDL_INIT_EVERYTHING)!=0)
-    {
-        UP_ERROR_MSG_STR("SDL_INIT failed, we are all doomed!!\n",SDL_GetError());
-    }*/
     
     printf("\nsizeof(int):%lu",sizeof(int));
     printf("\nsizeof(float):%lu",sizeof(float));

@@ -1,3 +1,7 @@
+/**
+ Made by: Tobias Degnell
+ Date: 22/04/2015
+ **/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

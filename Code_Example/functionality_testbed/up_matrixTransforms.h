@@ -3,6 +3,9 @@
 
 #include "up_vertex.h"
 
+//distance between a and b in 3d space
+float up_distance(struct up_vec3 a,struct up_vec3 b);
+
 struct up_matrix4
 {
     float data[16];

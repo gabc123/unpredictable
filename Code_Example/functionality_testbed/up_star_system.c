@@ -20,7 +20,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-
+//Waleed
 static void up_generate_sun()
 {
     struct up_objectInfo sun = {0};
@@ -34,6 +34,7 @@ static void up_generate_sun()
 
 
 //waleed
+// randomize and creates atroids in the star system
 static void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight,int seed)
 {
 
@@ -82,8 +83,9 @@ static void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,f
 
 
 }
-
-static void up_generate_randomize_satellite(int density,int seed){
+//Waleed
+// randomize and creates boxes in the star system
+static void up_generate_randomize_box(int density,int seed){
 
     up_srand(seed);
     struct up_objectInfo satellite = up_asset_createObjFromId(7);
@@ -92,14 +94,14 @@ static void up_generate_randomize_satellite(int density,int seed){
     int i=0;
     for(i=0; i<density; i++){
 
-        satellite.pos.x = (float)((up_rand()%1000) - 500);
-        satellite.pos.y = (float)((up_rand()%1000) - 500);
+        satellite.pos.x = (float)((up_rand()%1000) - 600);
+        satellite.pos.y = (float)((up_rand()%1000) - 600);
+        satellite.pos.z = 40;
+//        satellite.scale.x=1;
+//        satellite.scale.y=1;
+//        satellite.scale.z=1;
 
-        satellite.scale.x=1;
-        satellite.scale.y=1;
-        satellite.scale.z=1;
-
-        if(up_unit_add(up_environment_type,satellite)==0){
+        if(up_unit_add(up_projectile_type,satellite)==0){
             UP_ERROR_MSG("could not add asteroid");
             break;
         }
@@ -107,10 +109,9 @@ static void up_generate_randomize_satellite(int density,int seed){
     }
 
 
-
-
 }
-
+//Waleed
+// randomize and creates spacemines in the star system
 static void up_generate_randomize_spaceMine(int density,int seed){
 
     up_srand(seed);
@@ -134,7 +135,8 @@ static void up_generate_randomize_spaceMine(int density,int seed){
         }
     }
 }
-
+//Waleed
+//this module that bind together funktons in this c file 
 void up_generate_map(int seed)
 {
 
@@ -142,8 +144,8 @@ void up_generate_map(int seed)
 
     up_generate_asteroidBelt(300, 2*M_PI, 0, 500, 440, 50, 30,seed);
 
-    up_generate_randomize_satellite(40,seed);        //satellite
-    up_generate_randomize_spaceMine(80,seed);        //space mine
+    up_generate_randomize_box(40,seed);        //satellite
+    up_generate_randomize_spaceMine(20,seed);        //space mine
 
 
 }

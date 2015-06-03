@@ -5,7 +5,7 @@
 #include <stdio.h>
 // skapad av waleed hassan 2 maj 2015.
 
-static float zoom = 0;
+static float zoom = -2;
 
 void up_cam_zoom(float change)
 {
@@ -22,7 +22,11 @@ float up_returnCamHeight(struct up_camera *cam)
 
 
 void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
-    // TODO: move camera
+
+    // when the player do not have a ship yet
+    if (ship == NULL) {
+        return;
+    }
     cam->center.x=ship->pos.x;
     cam->center.y=ship->pos.y;
     cam->center.z=ship->pos.z;
@@ -30,25 +34,14 @@ void up_update_camera(struct up_camera *cam,struct up_objectInfo *ship){
     cam->eye.y=ship->pos.y + ship->dir.y * zoom*10;
     cam->eye.z=ship->pos.z -10;
 
-    //cam->eye=ship->
+
 }
 
-/*
-struct up_objectInfo
-{
-    int modelId;
-    struct up_vec3 scale;
-    struct up_vec3 pos;
-    struct up_vec3 dir;
-    float angle;
-    float turnSpeed;
-    float speed;
-    float acceleration;
-};
-*/
 
 /*Function returns a struct with the object to be rendered for the client selectet by the distance between
  the camera center and every object in the solarsystem*/
+ //This function was created when we used topview. We later decided to swap camera position and didnt have
+ //the time to optimize objects rendered for a shoulder perspective. Objects behind the camera will also render.
  //Sebastian 2015-05-06
 struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,struct up_camera *cam)
 {
@@ -60,7 +53,9 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
 
     height = up_returnCamHeight(cam);
 
-    //value 0.7 comes from tan(70/2) where 70 is the set field of view of the camera
+    //value 0.7 comes from tan(70/2) where 70 is the set field of view of the camera from the top view
+    //We later added the magic number 40 after we changed to a behind the shoulder camera position
+    //that comes from playertesting
     view = 0.7 * height * 40;
 
     for(i=0;i<totalObject;i++){
@@ -85,7 +80,7 @@ struct up_objectInfo *up_ObjectsInView(struct up_objectInfo *in_cam, int *count,
         y = cam->center.y - allObj[i].pos.y;
         distance=sqrt((x*x)+(y*y));
 
-        // shipIdx 0 is reserved for ship thats not active
+        // shipIdx 0 is reserved for ships thats not active
         if(distance<view && (allObj[i].objectId.idx != 0))
         {
             in_cam[j++]=allObj[i];
