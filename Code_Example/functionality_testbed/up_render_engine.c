@@ -20,7 +20,7 @@ static int up_ambientLigth_active = 1;
 static int up_directionalLigth_active = 1;
 static int up_allLigth_active = 1;
 
-
+// activate and shut down light and ambient etc
 void up_toggle_wireframe()
 {
     up_wireFrame_active = !up_wireFrame_active;

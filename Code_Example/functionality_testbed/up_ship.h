@@ -12,7 +12,7 @@ struct up_collision
     int object1;
     int object2;
 };
-
+// Structure that contain every hit with every id of the objects
 //Sebastian
 #define UP_COLLISIONS_MAX 200
 struct up_allCollisions

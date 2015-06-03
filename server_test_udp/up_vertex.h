@@ -19,5 +19,6 @@ struct up_vertex
     struct up_vec2 texCoord;
 };
 
+float up_distance(struct up_vec3 a,struct up_vec3 b);
 
 #endif

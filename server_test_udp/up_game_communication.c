@@ -15,8 +15,10 @@
 #include "up_utilities.h"
 #include "up_error.h"
 #include "up_network_packet_utilities.h"
-#include "sha256.h"
 #include <math.h>
+
+//macro from bradconte.com hashing
+#define SHA256_BLOCK_SIZE 32            // SHA256 outputs a 32 byte digest
 
 #define UP_NETWORK_SIZE 100
 
@@ -59,7 +61,13 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     dir.y = cosf(movement->angle);
     // TODO: timedalation
     // this is a temporary solution
-    tmpObject->pos = movement->pos;
+
+    float distance = up_distance(tmpObject->pos, movement->pos);
+    if (distance < 5.0) {
+        tmpObject->pos = movement->pos;
+    }
+    
+
     tmpObject->dir = dir;
     tmpObject->speed = movement->speed;
     tmpObject->angle = movement->angle;
@@ -82,16 +90,7 @@ static void set_shipModel(int modelId, int index)
     tmpObject->modelId = modelId;
 }
 
-/*
- struct up_packet_player_joined
- {
-    struct up_objectID objectID;
-    int modelId;
-    struct up_vec3 pos;
-    struct up_player_stats player_stats;
- };
- 
- */
+
 
 static struct up_packet_player_joined getPlayerExitPacket(int playerId)
 {
@@ -114,7 +113,7 @@ static struct up_packet_player_joined getPlayerExitPacket(int playerId)
     return tmp_player;
 }
 
-int up_game_communication_getAction(struct up_actionState *states,int max,struct up_interThread_communication *pipe,struct up_interThread_communication *account)
+int up_game_communication_getAction(struct up_actionState *states,int *deltaArray,int max,struct up_interThread_communication *pipe,struct up_interThread_communication *account)
 {
     struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
     max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
@@ -147,6 +146,7 @@ int up_game_communication_getAction(struct up_actionState *states,int max,struct
                 success = up_network_updateShipUnit(&tmp_states,&movment);
                 index = tmp_states.objectID.idx;
                 if (success && (index < UP_MAX_CLIENTS)) {
+                    deltaArray[index] = 1;  // tells that there has been a change
                     states[index] = tmp_states;
                 }
                 break;
@@ -246,7 +246,7 @@ static int compare_actions(struct up_actionState *actionA,struct up_actionState 
             (actionA->maneuver.state == actionB->maneuver.state));
 }
 
-void up_game_communication_sendAction(struct up_actionState *actionArray,struct up_actionState *deltaArray,int numActions,int deltaOn,struct up_interThread_communication *pipe)
+void up_game_communication_sendAction(struct up_actionState *actionArray,int *deltaArray,int numActions,int deltaOn,struct up_interThread_communication *pipe)
 {
     struct up_objectInfo *object = NULL;
     
@@ -261,22 +261,24 @@ void up_game_communication_sendAction(struct up_actionState *actionArray,struct 
             continue;
         }
         
-        if( deltaOn && compare_actions(&actionArray[i],&deltaArray[i]) )
-        {
-            continue;
-        }
+        
         
         object = up_unit_objAtIndex(actionArray[i].objectID.type, actionArray[i].objectID.idx);
+
         if (object == NULL) {
             printf("send packet corrupted");
             continue;
         }
         
-        // update delta
-        if(deltaOn)
+        if (deltaOn && deltaArray[i] == 0) {
+            continue;
+        }else
         {
-            deltaArray[i] = actionArray[i];
+            deltaArray[i] = 0; //set that we have sent it
         }
+        
+
+        
         timestamp = up_clock_ms();
         len = up_network_action_packetEncode(&updateobject, &actionArray[i], object->pos, object->speed, object->angle, object->bankAngle,object->modelId, timestamp);
         if (len > 0) {
@@ -357,50 +359,4 @@ void up_game_communication_sendObjChanged(struct up_objectID *object_movedArray 
     
 }
 
-/*
-int up_network_getAccountData(struct up_network_account_data *data,int max,struct up_interThread_communication *pipe)
-{
-    struct objUpdateInformation objUpdate[UP_OBJECT_BUFFER_READ_LENGTH];
-    max = (max < UP_OBJECT_BUFFER_READ_LENGTH) ? max : UP_OBJECT_BUFFER_READ_LENGTH;
-    
-    
-    int packet_read = up_readNetworkDatabuffer(pipe->simulation_input,objUpdate, max);
-    
-    struct up_map_data tmp_map = {0};
-    int i = 0;
-    int read_pos = 0;
-    for (i = 0; i < packet_read; i++) {
-        
-        switch (objUpdate[i].data[0]) {
-            case  UP_LOGIN_FLAG:
-                read_pos++;
-                read_pos += up_network_logInRegistrate_packetDecode(&objUpdate[i].data[read_pos], &data->playerId, &data->serverResponse);
-                
-                if (data->serverResponse == LOGINSUCESS) {
-                    read_pos = up_network_packet_mapData_decode(&objUpdate[i].data[read_pos], &tmp_map.playerIndex, &tmp_map.mapSeed, &tmp_map.numPlayersOnline);
-                    // if the map was correctly decoded, den return it
-                    data->map = (read_pos > 0) ? tmp_map : data->map;
-                }
-                
-                // do stuff, like decode packet and store it in data
-                
-                break;
-            case UP_REGISTRATE_FLAG:
-                up_network_logInRegistrate_packetDecode(&objUpdate[i].data[1], &data[i].playerId, &data[i].serverResponse);
-                
-                // do stuff, and so on
-            
-                break;
-            case UP_PACKET_HEARTBEAT_FLAG:  // keep this, so we dont lose the connection
-                //up_network_sendHeartbeat(socket_data);
-                data[i].noResponse = 1;
-                break;
-            default:
-                break;
-        }
-    }
-    return max; //check all player slots
-    
-}
-*/
 
