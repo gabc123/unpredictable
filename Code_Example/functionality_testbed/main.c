@@ -45,7 +45,7 @@ int main(int argc, char const *argv[])
     up_texture_start_setup();               // opengl texture setup
 
     int max_ship_count = 70;
-    int max_projectile_count = 200;
+    int max_projectile_count = 300;
     int max_enviroment_count = 500;
     int max_others_count = 200;
     struct up_allCollisions allcollisions = {0};

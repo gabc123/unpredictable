@@ -101,7 +101,7 @@ void *up_game_simulation(void *parm)
     printf("Game simulation init..\n");
     
     int max_ship_count = 70;
-    int max_projectile_count = 800;
+    int max_projectile_count = 300;
     int max_enviroment_count = 500;
     int max_others_count = 200;
     struct up_allCollisions allcollisions = {0};
