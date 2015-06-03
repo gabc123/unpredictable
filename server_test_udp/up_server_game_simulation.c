@@ -216,7 +216,7 @@ void *up_game_simulation(void *parm)
         
         // this propaget account joins and levs out to all, and into the internal gamestate
         up_game_communication_getAccount(account_interCom, gameplay_interCom, player_inventoryArray, map_maxPlayers);
-        up_game_communication_sendAction(player_actionArray, NULL, map_maxPlayers, 0, gameplay_interCom);
+        up_game_communication_sendAction(player_actionArray, delta_actionArray, map_maxPlayers, 0, gameplay_interCom);
     }
     printf("Ended main loop\n");
 

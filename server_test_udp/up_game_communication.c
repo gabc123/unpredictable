@@ -265,17 +265,22 @@ void up_game_communication_sendAction(struct up_actionState *actionArray,int *de
             continue;
         }*/
         
-        if (deltaOn && deltaArray[i] == 0) {
-            continue;
-        }
         
-        deltaArray[i] = 0; //set that we have sent it
         object = up_unit_objAtIndex(actionArray[i].objectID.type, actionArray[i].objectID.idx);
 
         if (object == NULL) {
             printf("send packet corrupted");
             continue;
         }
+        
+        if (deltaOn && deltaArray[i] == 0) {
+            continue;
+        }else
+        {
+            deltaArray[i] = 0; //set that we have sent it
+        }
+        
+        
         
         /*
         // update delta
