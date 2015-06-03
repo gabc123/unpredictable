@@ -178,6 +178,7 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
 
     if (states->objectID.idx == playerId) {
         states->objectID.idx = 0; // index special means no update
+
         return 1;
     }
     struct up_objectInfo fallback = {0};

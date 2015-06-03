@@ -84,7 +84,7 @@ int up_server_mapUpdate(struct up_mapUpdateTracker *mapUpdate,struct up_objectID
     
     movedObject_count = update_helper(&mapUpdate->progress_projectile,up_projectile_type,object_movedArray,movedObject_count,max_object_move);
 
-    movedObject_count = update_helper(&mapUpdate->progress_ships,up_ship_type,object_movedArray,movedObject_count,max_object_move);
+    //movedObject_count = update_helper(&mapUpdate->progress_ships,up_ship_type,object_movedArray,movedObject_count,max_object_move);
 
     return movedObject_count;
 }

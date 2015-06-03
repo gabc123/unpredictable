@@ -225,13 +225,7 @@ int main(int argc, char const *argv[])
     
 
     struct up_player_stats player_stats = {0};
-//    player_stats.current_health = 100;
-//    player_stats.max_health = 100;
-//    player_stats.current_armor = 100;
-//    player_stats.max_armor = 100;
-//    player_stats.weapons.missile = 5;
-//    player_stats.weapons.bullets = 100;
-//    player_stats.weapons.laser = 50;
+
     struct up_interface_game interface = {0};
     
     up_player_setup(&player_stats, currentEvent.flags);
@@ -241,7 +235,6 @@ int main(int argc, char const *argv[])
     printf("starting main loop\n");
 
     network_state_recived = up_network_getNewStates(network_states_data, map_maxPlayers,shipIndex,&player_stats,connection_data);
-    up_network_sendChangeModel(mapData.playeModel, mapData.playerIndex, connection_data);
     
     ship = up_unit_objAtIndex(up_ship_type,shipIndex);
     if (ship == NULL) {
