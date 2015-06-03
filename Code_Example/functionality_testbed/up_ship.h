@@ -146,7 +146,7 @@ void up_updateFrameTickRate();
 double up_getFrameTimeDelta();
 //Frames per second
 unsigned int up_getFrameRate();
-
+//Loads configurations for every weapon type and ammo for the ship
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent);
 //handles keyinputs
 int UP_eventHandler(struct up_eventState *currentEvent, struct up_actionState *objectAction,struct up_key_map *up_keymap);
