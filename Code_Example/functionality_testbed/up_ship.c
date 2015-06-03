@@ -1067,35 +1067,36 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
     up_createProjectile(localObject, playerShip,ammoStats, sound);
 }
 
+// moved to the server form here and down
 //walled
-static void take_powerUp(struct up_player_stats *stats,int damage){
-
-
-    stats->health.current += damage;
-
-    if(stats->health.current >= stats->health.full){
-        stats->armor.current += stats->health.current - stats->health.full;
-        stats->health.current = stats->health.full;
-    }
-
-    if(stats->armor.current >= stats->armor.full){
-        stats->armor.current = stats->armor.full;
-    }
-
-}
+//static void take_powerUp(struct up_player_stats *stats,int damage){
+//
+//
+//    stats->health.current += damage;
+//
+//    if(stats->health.current >= stats->health.full){
+//        stats->armor.current += stats->health.current - stats->health.full;
+//        stats->health.current = stats->health.full;
+//    }
+//
+//    if(stats->armor.current >= stats->armor.full){
+//        stats->armor.current = stats->armor.full;
+//    }
+//
+//}
 //walled
-static void take_damage(struct up_player_stats *stats,int damage){
-
-    stats->armor.current -= damage;
-    if(stats->armor.current < 0){
-        stats->health.current += stats->armor.current;
-        stats->armor.current = 0;
-
-    }
-
-    stats->health.current = (stats->health.current > 0) ? stats->health.current : 0;
-
-}
+//static void take_damage(struct up_player_stats *stats,int damage){
+//
+//    stats->armor.current -= damage;
+//    if(stats->armor.current < 0){
+//        stats->health.current += stats->armor.current;
+//        stats->armor.current = 0;
+//
+//    }
+//
+//    stats->health.current = (stats->health.current > 0) ? stats->health.current : 0;
+//
+//}
 
 /*
  fireMissile = 1,
@@ -1106,28 +1107,28 @@ static void take_damage(struct up_player_stats *stats,int damage){
  */
 
  //Wallid + Magnus
-static void ship_projectileHit(struct up_player_stats *player,struct up_shootingFlag *weapons,struct up_objectInfo *projectile)
-{
-    int damage = 0;
-    switch (projectile->projectile) {
-        case fireMissile:
-            damage = weapons->missileFlag.damage;
-            break;
-        case fireBullet:
-            damage = weapons->bulletFlag.damage;
-            break;
-        case fireLaser:
-            damage = weapons->laserFlag.damage;
-            break;
-
-        default:
-            damage = 0;
-            break;
-    }
-    take_damage(player,damage);
-
-}
-
+//static void ship_projectileHit(struct up_player_stats *player,struct up_shootingFlag *weapons,struct up_objectInfo *projectile)
+//{
+//    int damage = 0;
+//    switch (projectile->projectile) {
+//        case fireMissile:
+//            damage = weapons->missileFlag.damage;
+//            break;
+//        case fireBullet:
+//            damage = weapons->bulletFlag.damage;
+//            break;
+//        case fireLaser:
+//            damage = weapons->laserFlag.damage;
+//            break;
+//
+//        default:
+//            damage = 0;
+//            break;
+//    }
+//    take_damage(player,damage);
+//
+//}
+//
 //walled
 // magnus included weapons so everything gets synced to the same state
 void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *player,struct up_shootingFlag *weapons, int playerId)                         //"Den checkar :P "
@@ -1196,6 +1197,7 @@ void up_update_playerStats(struct up_allCollisions *collision,struct up_player_s
         }
     }
 */
+    // still in use by the client 
     player->bullets.current = weapons->bulletFlag.ammunition;
     player->missile.current = weapons->missileFlag.ammunition;
     player->laser.current = weapons->laserFlag.ammunition;

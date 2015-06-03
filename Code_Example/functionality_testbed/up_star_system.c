@@ -34,6 +34,7 @@ static void up_generate_sun()
 
 
 //waleed
+// randomize and creates atroids in the star system
 static void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,float outerEdge,float innerEdge,float maxHeight,float minHeight,int seed)
 {
 
@@ -83,6 +84,7 @@ static void up_generate_asteroidBelt(int density,float maxAngle,float minAngle,f
 
 }
 //Waleed
+// randomize and creates boxes in the star system
 static void up_generate_randomize_box(int density,int seed){
 
     up_srand(seed);
@@ -109,6 +111,7 @@ static void up_generate_randomize_box(int density,int seed){
 
 }
 //Waleed
+// randomize and creates spacemines in the star system
 static void up_generate_randomize_spaceMine(int density,int seed){
 
     up_srand(seed);
@@ -133,6 +136,7 @@ static void up_generate_randomize_spaceMine(int density,int seed){
     }
 }
 //Waleed
+//this module that bind together funktons in this c file 
 void up_generate_map(int seed)
 {
 
