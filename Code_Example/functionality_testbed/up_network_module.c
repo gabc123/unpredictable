@@ -204,6 +204,7 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
      
         return 1;
     }
+    
     if ( distance > 4) {
         tmpObject->pos.x = (tmpObject->pos.x + movement->pos.x)/2;
         tmpObject->pos.y = (tmpObject->pos.y + movement->pos.y)/2;

@@ -63,7 +63,7 @@ static int up_network_updateShipUnit(struct up_actionState *states,struct up_pac
     // this is a temporary solution
 
     float distance = up_distance(tmpObject->pos, movement->pos);
-    if (distance < 5.0) {
+    if (distance < 20.0) {
         tmpObject->pos = movement->pos;
     }
     
