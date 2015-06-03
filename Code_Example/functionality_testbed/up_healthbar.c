@@ -17,6 +17,9 @@
 #include <stdlib.h>
 #include "up_error.h"
 
+
+// Callculate the colsiest ship around
+// Magnus
 static float up_distance_calc(struct up_vec3 pos1, struct up_vec3 pos2)
 {
     float x =  (pos1.x - pos2.x);
@@ -25,7 +28,7 @@ static float up_distance_calc(struct up_vec3 pos1, struct up_vec3 pos2)
     
     return sqrtf(x*x + y*y + z*z);
 }
-
+// searching for ships around
 float up_radar_search(struct up_interface_game *interface,struct up_assets *assets,struct up_objectInfo *ship)
 {
     int numShip = 0;
@@ -68,7 +71,8 @@ float up_radar_search(struct up_interface_game *interface,struct up_assets *asse
     return angleToEnemy;
 }
 
-
+// walid
+// creates the interface tools to apper on the screen
 static struct up_interface_bar healthBar_creation(struct up_interface_inventory inventory,
                                                   struct up_vec3 pos, struct up_vec3 scale, int fullModelId, int emptyModelId){
     
@@ -168,7 +172,7 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     
 }
 
-
+// initialize the interface text
 void up_player_setup(struct up_player_stats *player, struct up_shootingFlag weapons){
     player->health.current = 100;
     player->health.full = 100;
@@ -184,7 +188,7 @@ void up_player_setup(struct up_player_stats *player, struct up_shootingFlag weap
     
 }
 
-
+// transform matrix for the model and texture. load it up to the GPU and render.
 void up_interface_healthBar(struct up_assets *assets, struct up_interface_bar *bar, struct shader_module *shader_prog){
     
     up_matrix4_t fullTransform = up_matrix4identity();
@@ -229,6 +233,7 @@ void up_interface_healthBar(struct up_assets *assets, struct up_interface_bar *b
     up_draw_mesh(fullMesh);
 }
 
+//update the initialize values.
 void up_interface_update(struct up_interface_game *inteface, struct up_player_stats *player){
     
     inteface->health.level = (float)player->health.current / player->health.full;
@@ -241,6 +246,8 @@ void up_interface_update(struct up_interface_game *inteface, struct up_player_st
     inteface->playerStats.laser.current = player->laser.current;
     
 }
+
+// takes inventory current and full and puts it into text and sends it to display
 void up_inventory_text(struct up_interface_inventory *inventory,struct up_font_assets *font_assets,struct shader_module *shader_program){
     
     char text[50];
@@ -253,7 +260,7 @@ void up_inventory_text(struct up_interface_inventory *inventory,struct up_font_a
     up_displayText(text,length, &inventory->pos, &inventory->scale, font_assets, shader_program,0.02,&inventory->color);
     
 }
-
+// uses the up_inventory funktion to show the stats on the interface.
 void up_interface_playerStats(struct up_interface_stats *stats,struct up_font_assets *font_assets,struct shader_module *shader_program){
     
     up_inventory_text(&stats->health, font_assets, shader_program);
@@ -264,7 +271,7 @@ void up_interface_playerStats(struct up_interface_stats *stats,struct up_font_as
     
 }
 
-
+// Render the the existing model that is uploaded in the GPU. this funktion updates and send the treanformatrix for the symbols(interface).
 static void up_render_symbols(struct up_assets *assets,struct shader_module *shader_program,struct up_interface_symbols *symbolArray,int length){
     
     up_matrix4_t transform = up_matrix4identity();
@@ -295,7 +302,7 @@ static void up_render_symbols(struct up_assets *assets,struct shader_module *sha
     
     
 }
-
+//  Render the the existing model that is uploaded in the GPU. this funktion updates and send the treanformatrix for the radar.
 void up_interface_renderRadar(struct up_assets *assets ,struct up_interface_radar *radar,struct shader_module *shader_program)
 {
     up_matrix4_t transform = up_matrix4identity();
@@ -322,11 +329,9 @@ void up_interface_renderRadar(struct up_assets *assets ,struct up_interface_rada
     
     up_draw_mesh(mesh);
     
-
-    
 }
 
-
+// main module for up_healthbar.c. everyting in the funktion is linkt to this one that is linked to the game loop
 void up_interface_gamePlay(struct up_assets *assets ,struct up_font_assets *font_assets,
                            struct shader_module *shader_program,struct up_interface_game *interface){
     
