@@ -294,7 +294,7 @@ int up_network_getNewStates(struct up_actionState *states,int max,int playerId,s
                 up_network_action_packetDecode(&objUpdate[i], &tmp_states, &movment, &timestamp);
                 //printf("server pimg ms: %d\n",(SDL_GetTicks() - timestamp));
                 success = up_network_updateShipUnit(&tmp_states,&movment,playerId);
-                if (success) {
+                if (success && tmp_states.objectID.idx < max) {
                     states[tmp_states.objectID.idx] = tmp_states;
                 }
                 break;
