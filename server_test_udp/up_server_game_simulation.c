@@ -161,6 +161,7 @@ void *up_game_simulation(void *parm)
         max_object_move = 0;
     }
 
+    struct up_mapUpdateTracker mapUpdate = {0};
     int movedObject_count = 0;
     double loop_delay = 0;
     double delta_time = 0;
@@ -212,6 +213,11 @@ void *up_game_simulation(void *parm)
         // removes projectiles that not in used anymore (bullet moving out of the solarsystem)
         movedObject_count = 0;
         movedObject_count = up_server_projectile_reaping(object_movedArray, movedObject_count);
+
+        
+        // this function update part of the solar system, to sync the clients
+        movedObject_count = up_server_mapUpdate(&mapUpdate,object_movedArray,movedObject_count,max_object_move);
+        
         up_game_communication_sendObjChanged(object_movedArray, movedObject_count, gameplay_interCom);
         
         // this propaget account joins and levs out to all, and into the internal gamestate

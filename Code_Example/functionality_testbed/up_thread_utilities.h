@@ -11,6 +11,7 @@
 #include "up_vertex.h"
 #include "up_ship.h"
 
+// not in use at the moment
 struct __attribute__((__packed__)) up_packed_data
 {
     int timestamp;
@@ -22,37 +23,53 @@ struct __attribute__((__packed__)) up_packed_data
     float speed;
 };
 
+
+// all data sent over the thread_queue is containd in this structure
+// a id == 0 indicate that the data is already read and will not be used
 #define UP_QUEUE_DATA_SIZE 768
 struct objUpdateInformation
 {
     int id;
     int length;
     unsigned char data[UP_QUEUE_DATA_SIZE];
-    //struct up_packed_data data; // packed structure to prevent padding when tranforming data into unsigned char to transmitt over the network
+
 };
 
 // forward decleration
 struct up_thread_queue;
 
+/* before using this module call the setup function*/
+int up_concurrentQueue_start_setup();
+/* call when all queue have been freed and no more will be created*/
+void up_concurrentQueue_shutdown_deinit();
 
+/*
+    up_concurrentQueue_new : This starts a new thread_queue and performe all setup 
+    returns a pointer to the thread_queue that can be used to communicate between threads
+    returns NULL on error
+    Needs to be match with a call to up_concurrentQueue_free
+ */
 struct up_thread_queue *up_concurrentQueue_new();
+
+/*
+    Call this to shutdown the thread queue and to free all allocated memory
+ */
 void up_concurrentQueue_free(struct up_thread_queue *queue);
 
-int up_concurrentQueue_start_setup();
-void up_concurrentQueue_shutdown_deinit();
+
 
 // this is ment to be used by the udp reciver thread that listens to the socket
 // when data arrive from the connection it is passed to up_writeToNetworkDatabuffer
 // then when the gameloop need to get its data it uses up_readNetworkDatabuffer
 
 // this is a waitfree lockfree bufferRead
-// use this to read the buffer,
+// use this to read the buffer/queue,
 int up_readNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInformation *data,int length);
 
-// use this to store data that comes from the network
+// use this to store data into the queue that can then be read with up_readNetworkDatabuffer
 int up_writeToNetworkDatabuffer(struct up_thread_queue *queue,struct objUpdateInformation *data);
 
-// unittest for the queue
+// unittest for the buffer/queue
 void up_unitTest_concurency_queue_spsc();
 
 #endif

@@ -328,7 +328,7 @@ static void game_simulation_saveUser(struct objUpdateInformation *objData)
     
     FILE *fp = fopen(userFilePath, "w");
     if (fp == NULL) {
-        UP_ERROR_MSG("cant create user_pos file");
+        UP_ERROR_MSG("cant create user_stats file");
         return;
     }
     fprintf(fp, "%d ", player.modelId);

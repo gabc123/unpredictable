@@ -39,7 +39,9 @@
 #define UP_PACKET_HEARTBEAT_FLAG (unsigned char)40
 #define UP_PACKET_MAPDATA_FLAG (unsigned char)50
 
-
+/*
+    Some packets contains alot of information
+ */
 struct up_packet_movement
 {
     int modelId;
@@ -51,6 +53,14 @@ struct up_packet_movement
     int timestamp;
 };
 
+
+/*
+    All these function encode or decode a specifc packet type
+    They return the length of the packet, or 0 on error.
+    The data to be decoded or encoded is stored/loaded into/from the data field that is ether a
+    array of unsigned char with at least 768 in length, or use the objUpdateInformation structure
+    that contains the relevent buffer and data, (objUpdateInformation can also be sent over a interThread comunication buffer)
+ */
 int up_network_packet_playerExit_encode(unsigned char *data,const char *userName,int playerId);
 int up_network_packet_playerExit_decode(unsigned char *data,char *userName,int *playerId);
 
