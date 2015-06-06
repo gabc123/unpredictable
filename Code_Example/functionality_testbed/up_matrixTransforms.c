@@ -200,6 +200,13 @@ void up_normalize(struct up_vec3 *result, struct up_vec3 *vec3A)
     result->z = vec3A->z/dot;
 }
 
+struct up_vec3 up_set_vec3(float x, float y, float z){
+    
+    struct up_vec3 vec = {x,y,z};
+    
+    return vec;
+}
+
 /*
  this creates the view matrix that transform the world coord to the screen coords
  */

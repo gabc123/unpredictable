@@ -11,6 +11,8 @@
 #include "up_render_engine.h"
 #include "up_initGraphics.h"
 #include "up_texture_module.h"
+#include "up_camera_module.h"
+#include "up_star_system.h"
 
 // Magnus functions for presentation
 #ifdef UP_PRESENTATION_MODE
@@ -161,9 +163,71 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
 
     }
 
-
-
      // this swaps the render and window buffer , displaying it on screen
 }
 
 
+
+
+
+
+
+
+void up_render_sun(struct up_sun *sunData,struct up_camera *cam ,up_matrix4_t *viewPerspectivMatrix,struct up_assets *assets )
+{
+    struct up_render_metaData *sun = &sunData->render;
+    
+    int modelId = sun->modelId;
+    if (modelId >= assets->numobjects) {
+        modelId = 0;
+    }
+    
+    float none = 0.0; // not used
+    // get the camera vector
+    struct up_vec3 tmpDir = {0};
+    struct up_vec3 cam_normalized = {0};
+    
+    tmpDir.x = cam->center.x - cam->eye.x;
+    tmpDir.y = cam->center.y - cam->eye.y;
+    tmpDir.z = cam->center.z - cam->eye.z;
+    up_normalize(&cam_normalized, &tmpDir);
+    
+    // load models
+    struct up_mesh *mesh = &assets->meshArray[modelId];
+    struct up_texture_data *texture = &assets->textureArray[modelId];
+    
+    // the diffrent shells of the sun
+    struct up_sun_shell *innerShell = &sunData->shells[0];
+    struct up_sun_shell *outerShell = &sunData->shells[1];
+    
+    
+    UP_shader_bind(sun->shader);
+    up_texture_bind(texture, 0);
+    
+    // creates the mvp transform for this shell
+    up_matrix4Multiply(&sun->transform, &innerShell->modelTransforms, viewPerspectivMatrix);
+    
+    // transformation matrox. mvp and m
+    UP_shader_update(sun->shader, &sun->transform);
+    up_shader_update_modelWorld(sun->shader, &innerShell->modelTransforms);
+
+    // how the sun fragment shader shpuld draw the shells
+    up_shader_update_ambient(sun->shader, &innerShell->sunColor,&innerShell->dropOff_dir);
+    up_shader_update_directional_light(sun->shader, &innerShell->ligthDropoff, &none, &cam_normalized);
+    
+    up_draw_mesh(mesh);
+    
+    
+    // creates the mvp transform for this shell
+    up_matrix4Multiply(&sun->transform, &outerShell->modelTransforms, viewPerspectivMatrix);
+    
+    // transformation matrox. mvp and m
+    UP_shader_update(sun->shader, &sun->transform);
+    up_shader_update_modelWorld(sun->shader, &outerShell->modelTransforms);
+    
+    // how the sun fragment shader shpuld draw the shells
+    up_shader_update_ambient(sun->shader, &outerShell->sunColor,&outerShell->dropOff_dir);
+    up_shader_update_directional_light(sun->shader, &outerShell->ligthDropoff, &none, &cam_normalized);
+    
+    up_draw_mesh(mesh);
+}

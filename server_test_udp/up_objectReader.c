@@ -102,7 +102,6 @@ struct up_objModel *up_loadObjModel(const char *filename)
     if (count != 0) {
         finalList = malloc(sizeof(struct up_vertex) * count );
     }
-    finalList = malloc(sizeof(struct up_vertex) * count );
     if(finalList == NULL)
     {
            UP_ERROR_MSG("malloc failed");

@@ -86,12 +86,6 @@ static struct up_interface_bar healthBar_creation(struct up_interface_inventory 
     return bar;
 }
 
-struct up_vec3 up_set_vec3(float x, float y, float z){
-    
-    struct up_vec3 vec = {x,y,z};
-    
-    return vec;
-}
 
 static void up_interface_placement(FILE *fp,struct up_interface_inventory *tmp){
 

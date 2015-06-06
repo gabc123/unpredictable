@@ -27,7 +27,7 @@ struct shipMovement
 
 
 
-struct up_modelRepresentation
+struct up_modelOrientation
 {
     struct up_vec3 pos;
     struct up_vec3 rot;

@@ -810,7 +810,7 @@ void up_updateShipMovment(struct up_objectInfo *ship)
 }
 //not in use. moves the playership for testing purposes
 //Sebastian
-void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship)
+void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelOrientation *model,struct up_objectInfo *ship)
 {
 
     double frameDelta=up_getFrameTimeDelta();

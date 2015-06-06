@@ -3,7 +3,6 @@
 in vec2 texCoord0;
 in vec3 normals_worldSpace;
 
-
 // based on tutorials from
 //https://youtu.be/csKrVBWCItc?list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh
 //http://ogldev.atspace.co.uk/www/tutorial17/tutorial17.html
@@ -24,8 +23,7 @@ uniform float lightIntensity;
 
 
 out vec4 fragColor;
-
-// magnus
+//magnus
 void main()
 {
     // This is temporary untill mats model gets a propper scaling done to it
@@ -42,7 +40,7 @@ void main()
         totaldirectional_light = vec4(lightColor,1.0) * lightIntensity * lightFraction;
     }else
     {
-        totaldirectional_light = vec4(0.0, 0.0, 0.0, 0.0);
+        totaldirectional_light = vec4(0.0, 0.0, 0.0, 1.0);
     }
     
     

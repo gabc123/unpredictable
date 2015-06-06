@@ -7,7 +7,6 @@ out vec3 texCoord0;
 
 uniform mat4 mvp;
 
-//walle, 
 void main()
 {
     vec4 pos_world = mvp*vec4(position,1.0) ;

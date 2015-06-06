@@ -1,10 +1,5 @@
 #version 330
 
-// based on tutorials from
-//https://youtu.be/csKrVBWCItc?list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh
-//http://ogldev.atspace.co.uk/www/tutorial17/tutorial17.html
-//http://ogldev.atspace.co.uk/www/tutorial18/tutorial18.html
-
 in vec2 texCoord0;
 in vec3 normalsFragment;
 

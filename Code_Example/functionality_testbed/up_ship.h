@@ -130,7 +130,7 @@ void up_checkCollision(struct up_allCollisions *allcollisions);
 //Handles stored collisions based on the type of the colliding objects
 void up_handleCollision(struct up_allCollisions *allcollisions,struct up_player_stats *player_stats,struct up_shootingFlag *weapons);
 //Not in use. Handled playership movement
-void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelRepresentation *model,struct up_objectInfo *ship);
+void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelOrientation *model,struct up_objectInfo *ship);
 //updates all actionchanges in the game
 void up_update_actions(struct up_actionState *playerShip, struct up_actionState *server, int nrObj, struct up_eventState *smmostats, struct soundLib *sound);
 

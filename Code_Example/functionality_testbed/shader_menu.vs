@@ -1,8 +1,4 @@
 #version 330
-// based on tutorials from
-//https://youtu.be/csKrVBWCItc?list=PLEETnX-uPtBXT9T-hD0Bj31DSnwio-ywh
-//http://ogldev.atspace.co.uk/www/tutorial17/tutorial17.html
-//http://ogldev.atspace.co.uk/www/tutorial18/tutorial18.html
 
 layout(location = 0)in vec3 position;
 layout(location = 1)in vec2 texCoord;

@@ -37,6 +37,9 @@ void up_matrix4Multiply(up_matrix4_t *result, up_matrix4_t *matA, up_matrix4_t *
 
 void dispMat(up_matrix4_t *mat);
 
+void up_normalize(struct up_vec3 *result, struct up_vec3 *vec3A);
+
+struct up_vec3 up_set_vec3(float x, float y, float z);
 
 /*
     this function returns the model matrix transform for the given position , rotation and scaling 

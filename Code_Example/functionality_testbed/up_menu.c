@@ -259,7 +259,7 @@ int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *key
 
 
 int up_menuEventHandler(struct navigationState *navigation,
-                        struct userData *user_data, struct soundLib *sound);
+                        struct userData *user_data, struct soundLib *sound,struct up_menu_button *runlocal_button);
 
 
 int up_shipSelectEvent(struct navigationState *navigation,int *selectedShip, struct up_menu_button *blueButton,
@@ -290,6 +290,9 @@ int up_menu(struct shader_module *shaderprog,
     struct up_vec3 keyButton_color = {0.0, 0.0, 0.0};
 
     struct up_menu_button *keybinding_buttonArray = up_generate_settings_button(&numKeyBindings, keymap, keybind_pos, 25, 100, keytextscale, 0.1);
+    
+    struct up_vec3 runlocal_button_pos = {0.0, 0.15 , 0.1};
+    struct up_menu_button *runlocal_button = up_create_button(runlocal_button_pos, 40, 150, "button_keybind", " run local", keytextscale, 0.0);
     
     struct keybinding_state keybindState = {0};
     
@@ -407,7 +410,7 @@ int up_menu(struct shader_module *shaderprog,
 //    struct up_mesh *blueShip = up_shipSelection(0.5, 0.0, -0.1, -0.5);
 
     //LOGIN AND REGISTER BUTTONS
-    struct up_modelRepresentation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
+    struct up_modelOrientation scale1 ={{0,0,0},     //changes the scale of the bottons to x0.5
                                           {0,0,0},
                                           {0.5,0.5,0.5}};
 
@@ -420,7 +423,7 @@ int up_menu(struct shader_module *shaderprog,
     up_getModelViewPerspective(&transformBackground, &identity, &identity, &identity);
 
     //LOGIN/REGISTER OVERLAY
-    struct up_modelRepresentation scale2 ={{0,0,0},     //no scale (yet)
+    struct up_modelOrientation scale2 ={{0,0,0},     //no scale (yet)
                                            {0,0,0},
                                            {0.95,0.95,0.95}};
 
@@ -438,7 +441,7 @@ int up_menu(struct shader_module *shaderprog,
 
     //QUIT WINDOW
 
-    struct up_modelRepresentation scale3 ={{0,0,0},     //scaling
+    struct up_modelOrientation scale3 ={{0,0,0},     //scaling
                                            {0,0,0},
                                            {0.7,0.7,0.7}};
 
@@ -452,7 +455,7 @@ int up_menu(struct shader_module *shaderprog,
 
     //COGWHEEL
     
-    struct up_modelRepresentation scale4 ={{0,0,0},     //scaling
+    struct up_modelOrientation scale4 ={{0,0,0},     //scaling
                                            {0,0,0},
                                            {0.4,0.4,0.4}};
 
@@ -463,7 +466,7 @@ int up_menu(struct shader_module *shaderprog,
     
     //SETTINGS OVERLAY
     
-    struct up_modelRepresentation scale5={{0,0,0},     //scaling
+    struct up_modelOrientation scale5={{0,0,0},     //scaling
                                           {0,0,0},
                                           {1,1,1}};
 
@@ -474,7 +477,7 @@ int up_menu(struct shader_module *shaderprog,
     
     //KEYBINDINGS OVERLAY
     
-    struct up_modelRepresentation scale6={{0,0,0},     //scaling
+    struct up_modelOrientation scale6={{0,0,0},     //scaling
                                          {0,0,0},
                                         {1,1,1}};
     
@@ -484,7 +487,7 @@ int up_menu(struct shader_module *shaderprog,
 
     //CONNECTING //REGISTER
     
-    struct up_modelRepresentation scale7={{0,0,0},     //scaling
+    struct up_modelOrientation scale7={{0,0,0},     //scaling
                                           {0,0,0},
                                           {0.6,0.7,0.6}};
     
@@ -512,7 +515,7 @@ int up_menu(struct shader_module *shaderprog,
     
     //SHIP SELECTION
     
-    struct up_modelRepresentation scale9={{0,0,0},     //scaling
+    struct up_modelOrientation scale9={{0,0,0},     //scaling
                                           {0,0,0},
                                           {1.0,1.0,1.0}};
     
@@ -603,7 +606,7 @@ int up_menu(struct shader_module *shaderprog,
             status = up_shipSelectEvent(&navigation,&selectedShip,shipButtonBlue,shipButtonRed,shipButtonBlack);
         }
         else if(navigation.state != keyBindings) {
-            status = up_menuEventHandler(&navigation, &user_data, sound);
+            status = up_menuEventHandler(&navigation, &user_data, sound,runlocal_button);
         }else
         {
             status = up_keyBindingEvent(&navigation, keymap, keybinding_buttonArray, numKeyBindings,&keybindState);
@@ -645,6 +648,7 @@ int up_menu(struct shader_module *shaderprog,
                 up_texture_bind(textureCogWheel, 3);
                 up_draw_mesh(cogWheel);
                 
+                up_drawbutton(shaderprog, runlocal_button, fonts, &keyButton_color);
                 
                 
                 break;
@@ -922,7 +926,7 @@ int up_menu(struct shader_module *shaderprog,
     }
     printf("exiting menu\n");
     up_generate_settings_freebuttons(keybinding_buttonArray);
-
+    up_button_free(runlocal_button);
     return status;
 }
 //walid
@@ -1029,7 +1033,7 @@ int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *key
 
 //Joakim
 int up_menuEventHandler(struct navigationState *navigation,
-                        struct userData *user_data, struct soundLib *sound)
+                        struct userData *user_data, struct soundLib *sound,struct up_menu_button *runlocal_button)
 {
     
     int flag = 1;
@@ -1213,14 +1217,11 @@ int up_menuEventHandler(struct navigationState *navigation,
                     //printf("X AND Y COORDINATES: %f %f , real x %d y %d\n", xf, yf,x,y); //test print
                     //INstead of checking the keypress first it should check the state of the navigation and then check the where the keypress where placed at
                     
-                    if (navigation->state == shipSelect) {
-                        
-                        
-                        
-                        
-                        
-                        
-                        
+                    if (navigation->state == mainMenu) {
+                        if (up_checkButtonClick(runlocal_button, x, y)) {
+                            flag = 2;
+                            return flag;
+                        }
                     }
                     
 
