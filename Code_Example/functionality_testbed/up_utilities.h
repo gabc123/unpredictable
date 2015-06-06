@@ -62,6 +62,8 @@ char *up_token_parser(char *srcString,char **nextString,char *delimiter,unsigned
  
  count: return the current size of the list
  
+ iteratorAccess: it will return a pointer to the first element, and change count to the current size,
+                WARNING!!: any call to add will invalidate the pointer, you must call interatorAccess agin after every call to add
  *****************************************************************/
 // magnus
 // forward decleration., this is implemented in the c file, we do not want to give access to the internal structure
@@ -89,6 +91,9 @@ int up_vec3_list_add(struct up_generic_list *list,struct up_vec3 *data);
 void up_vec3_list_getAtIndex(struct up_generic_list *list,struct up_vec3 *data,unsigned int atIndex);
 void up_vec3_list_setAtIndex(struct up_generic_list *list,struct up_vec3 *data,unsigned int atIndex);
 
+// iterators
+struct up_vec3 *up_vec3_list_iteratorAccess(struct up_generic_list *list,int *count);
+
 ///////////////////////////////////////////////
 /*
  wrapper function for up_vec2 specific types.
@@ -106,6 +111,9 @@ int up_vec2_list_add(struct up_generic_list *list,struct up_vec2 *data);
 void up_vec2_list_getAtIndex(struct up_generic_list *list,struct up_vec2 *data,unsigned int atIndex);
 void up_vec2_list_setAtIndex(struct up_generic_list *list,struct up_vec2 *data,unsigned int atIndex);
 
+// iterators
+struct up_vec2 *up_vec2_list_iteratorAccess(struct up_generic_list *list,int *count);
+
 ///////////////////////////////////////////////
 /*
  wrapper function for up_vertex specific types.
@@ -122,6 +130,9 @@ unsigned int up_vertex_list_count(struct up_generic_list *list);
 int up_vertex_list_add(struct up_generic_list *list,struct up_vertex *data);
 void up_vertex_list_getAtIndex(struct up_generic_list *list,struct up_vertex *data,unsigned int atIndex);
 void up_vertex_list_setAtIndex(struct up_generic_list *list,struct up_vertex *data,unsigned int atIndex);
+
+// iterators
+struct up_vertex *up_vertex_list_iteratorAccess(struct up_generic_list *list,int *count);
 
 ///////////////////////////////////////////////
 
@@ -142,6 +153,9 @@ int up_int_list_add(struct up_generic_list *list,int *data);
 void up_int_list_getAtIndex(struct up_generic_list *list,int *data,unsigned int atIndex);
 void up_int_list_setAtIndex(struct up_generic_list *list,int *data,unsigned int atIndex);
 
+// iterators
+int *up_int_list_iteratorAccess(struct up_generic_list *list,int *count);
+
 ///////////////////////////////////////////////
 /*
  wrapper function for unsiged int specific types.
@@ -158,6 +172,9 @@ unsigned int up_uint_list_count(struct up_generic_list *list);
 int up_uint_list_add(struct up_generic_list *list,unsigned int *data);
 void up_uint_list_getAtIndex(struct up_generic_list *list,unsigned int *data,unsigned int atIndex);
 void up_uint_list_setAtIndex(struct up_generic_list *list,unsigned int *data,unsigned int atIndex);
+
+// iterators
+unsigned int *up_uint_list_iteratorAccess(struct up_generic_list *list,int *count);
 
 ///////////////////////////////////////////////
 /*
@@ -176,6 +193,9 @@ int up_mesh_list_add(struct up_generic_list *list,struct up_mesh *data);
 void up_mesh_list_getAtIndex(struct up_generic_list *list,struct up_mesh *data,unsigned int atIndex);
 void up_mesh_list_setAtIndex(struct up_generic_list *list,struct up_mesh *data,unsigned int atIndex);
 
+// iterators
+struct up_mesh *up_mesh_list_iteratorAccess(struct up_generic_list *list,int *count);
+
 ///////////////////////////////////////////////
 /*
  wrapper function for up_texture specific types.
@@ -192,6 +212,9 @@ unsigned int up_texture_list_count(struct up_generic_list *list);
 int up_texture_list_add(struct up_generic_list *list,struct up_texture_data *data);
 void up_texture_list_getAtIndex(struct up_generic_list *list,struct up_texture_data *data,unsigned int atIndex);
 void up_texture_list_setAtIndex(struct up_generic_list *list,struct up_texture_data *data,unsigned int atIndex);
+
+// iterators
+struct up_texture_data *up_texture_list_iteratorAccess(struct up_generic_list *list,int *count);
 
 ///////////////////////////////////////////////
 

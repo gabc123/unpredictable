@@ -302,6 +302,18 @@ static void up_generic_list_setElement(struct up_generic_list *list,void *data,u
     generic_copyElement(list->element_size,destination,source);
 }
 
+
+/*
+    returns a pointer to the first element, and fills in count,
+    warning !!:  be aware any add operation invalidates the interator pointer
+    and this function must be called again !!!
+ */
+static void *up_generic_list_iteratorAccess(struct up_generic_list *list, int *count)
+{
+    *count = list->count;
+    return list->data;
+}
+
 /*****************************************************
 
     wrapper functions to hide the generic list
@@ -358,6 +370,14 @@ void up_vec3_list_setAtIndex(struct up_generic_list *list,struct up_vec3 *data,u
     up_generic_list_setElement(list,data,atIndex);
 }
 
+
+// iterators
+struct up_vec3 *up_vec3_list_iteratorAccess(struct up_generic_list *list,int *count)
+{
+    return up_generic_list_iteratorAccess(list, count);
+}
+
+
 /*
  wrapper function for up_vec2 specific types.
  */
@@ -402,6 +422,11 @@ void up_vec2_list_setAtIndex(struct up_generic_list *list,struct up_vec2 *data,u
     up_generic_list_setElement(list,data,atIndex);
 }
 
+// iterators
+struct up_vec2 *up_vec2_list_iteratorAccess(struct up_generic_list *list,int *count)
+{
+    return up_generic_list_iteratorAccess(list, count);
+}
 
 
 /*
@@ -445,6 +470,12 @@ void up_vertex_list_getAtIndex(struct up_generic_list *list,struct up_vertex *da
 void up_vertex_list_setAtIndex(struct up_generic_list *list,struct up_vertex *data,unsigned int atIndex)
 {
     up_generic_list_setElement(list,data,atIndex);
+}
+
+// iterators
+struct up_vertex *up_vertex_list_iteratorAccess(struct up_generic_list *list,int *count)
+{
+    return up_generic_list_iteratorAccess(list, count);
 }
 
 
@@ -492,6 +523,13 @@ void up_int_list_setAtIndex(struct up_generic_list *list,int *data,unsigned int 
     up_generic_list_setElement(list,data,atIndex);
 }
 
+// iterators
+int *up_int_list_iteratorAccess(struct up_generic_list *list,int *count)
+{
+    return up_generic_list_iteratorAccess(list, count);
+}
+
+
 /*
  wrapper function for unsigned int specific types.
  */
@@ -535,6 +573,13 @@ void up_uint_list_setAtIndex(struct up_generic_list *list,unsigned int *data,uns
 {
     up_generic_list_setElement(list,data,atIndex);
 }
+
+// iterators
+unsigned int *up_uint_list_iteratorAccess(struct up_generic_list *list,int *count)
+{
+    return up_generic_list_iteratorAccess(list, count);
+}
+
 
 /*
  wrapper function for up_mesh specific types.
@@ -580,6 +625,13 @@ void up_mesh_list_setAtIndex(struct up_generic_list *list,struct up_mesh *data,u
     up_generic_list_setElement(list,data,atIndex);
 }
 
+// iterators
+struct up_mesh *up_mesh_list_iteratorAccess(struct up_generic_list *list,int *count)
+{
+    return up_generic_list_iteratorAccess(list, count);
+}
+
+
 /*
  wrapper function for up_texture specific types.
  */
@@ -624,7 +676,11 @@ void up_texture_list_setAtIndex(struct up_generic_list *list,struct up_texture_d
     up_generic_list_setElement(list,data,atIndex);
 }
 
-
+// iterators
+struct up_texture_data *up_texture_list_iteratorAccess(struct up_generic_list *list,int *count)
+{
+    return up_generic_list_iteratorAccess(list, count);
+}
 
 
 
