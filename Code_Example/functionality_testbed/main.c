@@ -48,7 +48,7 @@ int main(int argc, char const *argv[])
     int max_projectile_count = 300;
     int max_enviroment_count = 500;
     int max_others_count = 200;
-    struct up_allCollisions allcollisions = {0};
+    //struct up_allCollisions allcollisions = {0};
 
     // loads the shaders for the rendering loop (location 1)
     struct shader_module *shaderprog;
@@ -98,9 +98,13 @@ int main(int argc, char const *argv[])
     // start the menu, and display it
     
     struct up_map_data mapData = {0};   // gets filled out from the login sequance in menu
+    mapData.mapSeed = 42;
+    mapData.numPlayersOnline = 4;
+    mapData.playeModel = 18;
     mapData.playerIndex = 1;
+    status = 2;
     status=up_menu(shader_menu, sound,keymap,font_assets,account_connection,&mapData);
-
+    
     
     up_network_shutdown_deinit(account_connection);
     
@@ -139,7 +143,9 @@ int main(int argc, char const *argv[])
     }
 
     up_generate_map(mapData.mapSeed);
-
+    
+    struct shader_module *sunShader = UP_Shader_new("shader_sun", 3);
+    struct up_sun theSun = up_sun_create(sunShader);
 
 
 
@@ -255,9 +261,11 @@ int main(int argc, char const *argv[])
         up_updateMovements();
         //up_checkCollision(&allcollisions);
         
-        up_update_playerStats(&allcollisions, &player_stats,&currentEvent.flags, shipIndex);
-        up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);
+        //up_update_playerStats(&allcollisions, &player_stats,&currentEvent.flags, shipIndex);
+        //up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);
 
+        up_update_sun(&theSun);
+        
         up_update_camera(&cam, ship);
         
         up_interface_update(&interface, &player_stats);
@@ -281,7 +289,12 @@ int main(int argc, char const *argv[])
 
         up_render_scene(transformationArray, objectArray, numObjects,&viewPerspectivMatrix, shaderprog, assets);
 
+        
         up_skybox_render(&skyBox,&cam,&viewPerspectivMatrix);
+        
+        up_render_sun(&theSun, &cam, &viewPerspectivMatrix, assets);
+        
+        
         up_interface_gamePlay(assets,font_assets,shader_menu,&interface);
 
 
