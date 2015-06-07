@@ -69,12 +69,14 @@ struct up_sun up_sun_create(struct shader_module *shader)
     
     //innerShell.ligthDropoff = up_set_vec3(0.8,0.8,0.5);
     innerShell.dropOff_dir = 1.0;
-    innerShell.ligthDropoff = up_set_vec3(0.5,0.5,0.0);
+    innerShell.ligthDropoff = up_set_vec3(0.9,0.9,0.0);
+    
     
     struct up_sun_shell outerShell = innerShell;
     
     // the outher shell of the sun need to be a little bit bigger
     float scaleFactor = 1.08;
+    outerShell.orentation.scale = sunTemplet.scale;
     outerShell.orentation.scale.x *= scaleFactor;
     outerShell.orentation.scale.y *= scaleFactor;
     outerShell.orentation.scale.z *= scaleFactor;
@@ -98,7 +100,10 @@ struct up_sun up_sun_create(struct shader_module *shader)
     
     //red sun
     //outerShell.sunColor  = up_set_vec3(0.9, 0.4, 0.0);
-    
+
+
+    //innerShell.orentation.scale = up_set_vec3(0.0, 0.0, 0.0);
+    //outerShell.orentation.scale = up_set_vec3(0.0, 0.0, 0.0);
     
     sun.shells[0] = innerShell;
     sun.shells[1] = outerShell;
