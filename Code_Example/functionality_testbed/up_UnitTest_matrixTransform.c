@@ -1,6 +1,9 @@
 
-#include "up_matrixTransforms.h"
-#include "up_vertex.h"
+#include "up_math.h"
+#include "up_assets.h"
+#include "up_graphics_setup.h"
+#include "up_graphics_update.h"
+
 #include <stdio.h>
 /*
 int unittest_matrixtransform(int argc, char const *argv[])

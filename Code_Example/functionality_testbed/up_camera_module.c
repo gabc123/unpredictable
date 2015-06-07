@@ -1,6 +1,6 @@
 #include "up_camera_module.h"
-#include "up_matrixTransforms.h"
-#include "up_objectReader.h"
+#include "up_math.h"
+
 #include <math.h>
 #include <stdio.h>
 // skapad av waleed hassan 2 maj 2015.

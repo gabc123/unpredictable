@@ -1,18 +1,38 @@
 #ifndef UP_MATRIXTRANSFORMS_H
 #define UP_MATRIXTRANSFORMS_H
+#include "up_opengl_redirect.h"
+struct up_vec3
+{
+    float x,y,z;
+};
 
-#include "up_vertex.h"
+struct up_vec2
+{
+    float x,y;
+};
+
+// vector operations
+struct up_vec3 up_set_vec3(float x, float y, float z);
 
 //distance between a and b in 3d space
 float up_distance(struct up_vec3 a,struct up_vec3 b);
 
+
+//matrix cross operation
+void up_cross(struct up_vec3 *result,struct up_vec3 *vec3A,struct up_vec3 *vec3B);
+
+//dot operation
+float up_dot(struct up_vec3 *vec3A, struct up_vec3 *vec3B);
+
+//the mathematic operation normalize
+void up_normalize(struct up_vec3 *result, struct up_vec3 *vec3A);
+
+// 4by4 matrix operations
 struct up_matrix4
 {
     float data[16];
 };
 typedef struct up_matrix4 up_matrix4_t;
-
-
 
 // his structure will hold the diffrent matrix transforms that are needed to
 // go from model space to screen space,
@@ -37,17 +57,16 @@ void up_matrix4Multiply(up_matrix4_t *result, up_matrix4_t *matA, up_matrix4_t *
 
 void dispMat(up_matrix4_t *mat);
 
-void up_normalize(struct up_vec3 *result, struct up_vec3 *vec3A);
 
-struct up_vec3 up_set_vec3(float x, float y, float z);
 
+// functions implemented in , up_math_transformations
 /*
     this function returns the model matrix transform for the given position , rotation and scaling 
  */
 void up_matrixModel(up_matrix4_t *modelMatrix, struct up_vec3 *pos,struct up_vec3 *rotation,struct up_vec3 *scale);
 void up_matrixView(up_matrix4_t *matrixView, struct up_vec3 *eye, struct up_vec3 *center,struct up_vec3 *UP);
 
-void up_matrixPerspective(up_matrix4_t *perspective, GLdouble fov,GLdouble aspectRatio,GLdouble zNear,GLdouble zFar);
+void up_matrixPerspective(up_matrix4_t *perspective, double fov,double aspectRatio,double zNear,double zFar);
 
 
 void up_getViewPerspective(up_matrix4_t *vp,

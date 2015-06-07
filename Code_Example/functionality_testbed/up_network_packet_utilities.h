@@ -9,9 +9,10 @@
 #ifndef UP_NETWORK_PACKET_UTILITIES_H
 #define UP_NETWORK_PACKET_UTILITIES_H
 
-#include "up_ship.h"
-#include "up_vertex.h"
+#include "up_math.h"
 #include "up_thread_utilities.h"
+
+#include "up_player.h"
 
 // comunication flags, to identify what msg is beeing sent,
 // do not change the numbers, this needs to match server side

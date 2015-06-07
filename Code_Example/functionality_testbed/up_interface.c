@@ -1,22 +1,7 @@
-#include "up_healthbar.h"
-#include "up_matrixTransforms.h"
-#include "up_ship.h"
-#include "up_menu.h"
-#include <stdio.h>
-#include "up_initGraphics.h"
-#include "up_utilities.h"
-#include "up_ship.h"
-#include "up_objectReader.h"
-#include "up_shader_module.h"
-#include "up_network_module.h"
-#include "testmodels.h"
-#include "up_modelRepresentation.h"
-#include "up_matrixTransforms.h"
-#include "up_assets.h"
-#include <math.h>
-#include <stdlib.h>
+#include "up_interface.h"
+#include "up_graphics_update.h"
+#include "up_render_engine.h"
 #include "up_error.h"
-
 
 // Callculate the colsiest ship around
 // Magnus
@@ -166,31 +151,16 @@ void up_interface_creation(struct up_interface_game *interface, struct up_player
     
 }
 
-// initialize the interface text
-void up_player_setup(struct up_player_stats *player, struct up_shootingFlag weapons){
-    player->health.current = 100;
-    player->health.full = 100;
-    player->armor.current = 100;
-    player->armor.full = 100;
-    
-    player->bullets.full = weapons.bulletFlag.ammunition;
-    player->bullets.current = weapons.bulletFlag.ammunition;
-    player->missile.full = weapons.missileFlag.ammunition;
-    player->missile.current = weapons.missileFlag.ammunition;
-    player->laser.full = weapons.laserFlag.ammunition;
-    player->laser.current = weapons.laserFlag.ammunition;
-    
-}
 
 // transform matrix for the model and texture. load it up to the GPU and render.
-void up_interface_healthBar(struct up_assets *assets, struct up_interface_bar *bar, struct shader_module *shader_prog){
+void up_interface_healthBar(struct up_assets *assets, struct up_interface_bar *bar, struct up_shader_module *shader_prog){
     
     up_matrix4_t fullTransform = up_matrix4identity();
     up_matrix4_t emptyTransform = up_matrix4identity();
     struct up_vec3 rot = {0};
     
     
-    UP_shader_bind(shader_prog);
+    up_shader_bind(shader_prog);
     
     int fullModelId = bar->emptyModelId;
     int emptyModelId = bar->fullModelId;
@@ -219,12 +189,12 @@ void up_interface_healthBar(struct up_assets *assets, struct up_interface_bar *b
     up_matrixModel(&emptyTransform, &pos, &rot, &bar->scale);
     
     up_texture_bind(emptyTexture, 0);
-    UP_shader_update(shader_prog,&emptyTransform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
-    up_draw_mesh(emptyMesh);
+    up_shader_update(shader_prog,&emptyTransform);    // this uploads the transform to the gpu, and will now be applayed to up_mesh_draw
+    up_mesh_draw(emptyMesh);
     
     up_texture_bind(fullTexture, 0);
-    UP_shader_update(shader_prog,&fullTransform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
-    up_draw_mesh(fullMesh);
+    up_shader_update(shader_prog,&fullTransform);    // this uploads the transform to the gpu, and will now be applayed to up_mesh_draw
+    up_mesh_draw(fullMesh);
 }
 
 //update the initialize values.
@@ -242,7 +212,7 @@ void up_interface_update(struct up_interface_game *inteface, struct up_player_st
 }
 
 // takes inventory current and full and puts it into text and sends it to display
-void up_inventory_text(struct up_interface_inventory *inventory,struct up_font_assets *font_assets,struct shader_module *shader_program){
+void up_inventory_text(struct up_interface_inventory *inventory,struct up_font_assets *font_assets,struct up_shader_module *shader_program){
     
     char text[50];
     
@@ -255,7 +225,7 @@ void up_inventory_text(struct up_interface_inventory *inventory,struct up_font_a
     
 }
 // uses the up_inventory funktion to show the stats on the interface.
-void up_interface_playerStats(struct up_interface_stats *stats,struct up_font_assets *font_assets,struct shader_module *shader_program){
+void up_interface_playerStats(struct up_interface_stats *stats,struct up_font_assets *font_assets,struct up_shader_module *shader_program){
     
     up_inventory_text(&stats->health, font_assets, shader_program);
     up_inventory_text(&stats->armor, font_assets, shader_program);
@@ -266,7 +236,7 @@ void up_interface_playerStats(struct up_interface_stats *stats,struct up_font_as
 }
 
 // Render the the existing model that is uploaded in the GPU. this funktion updates and send the treanformatrix for the symbols(interface).
-static void up_render_symbols(struct up_assets *assets,struct shader_module *shader_program,struct up_interface_symbols *symbolArray,int length){
+static void up_render_symbols(struct up_assets *assets,struct up_shader_module *shader_program,struct up_interface_symbols *symbolArray,int length){
     
     up_matrix4_t transform = up_matrix4identity();
     struct up_vec3 rot = {0};
@@ -274,7 +244,7 @@ static void up_render_symbols(struct up_assets *assets,struct shader_module *sha
     struct up_texture_data *texture = NULL;
     struct up_mesh *mesh;
     
-    UP_shader_bind(shader_program);
+    up_shader_bind(shader_program);
     int i=0;
     for(i=0; i<length; i++){
         
@@ -289,15 +259,15 @@ static void up_render_symbols(struct up_assets *assets,struct shader_module *sha
         
         up_texture_bind(texture, 0);
         
-        UP_shader_update(shader_program,&transform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
+        up_shader_update(shader_program,&transform);    // this uploads the transform to the gpu, and will now be applayed to up_mesh_draw
         
-        up_draw_mesh(mesh);
+        up_mesh_draw(mesh);
     }
     
     
 }
 //  Render the the existing model that is uploaded in the GPU. this funktion updates and send the treanformatrix for the radar.
-void up_interface_renderRadar(struct up_assets *assets ,struct up_interface_radar *radar,struct shader_module *shader_program)
+void up_interface_renderRadar(struct up_assets *assets ,struct up_interface_radar *radar,struct up_shader_module *shader_program)
 {
     up_matrix4_t transform = up_matrix4identity();
     struct up_vec3 rot = {0};
@@ -319,15 +289,15 @@ void up_interface_renderRadar(struct up_assets *assets ,struct up_interface_rada
     
     up_texture_bind(texture, 0);
     
-    UP_shader_update(shader_program,&transform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
+    up_shader_update(shader_program,&transform);    // this uploads the transform to the gpu, and will now be applayed to up_mesh_draw
     
-    up_draw_mesh(mesh);
+    up_mesh_draw(mesh);
     
 }
 
 // main module for up_healthbar.c. everyting in the funktion is linkt to this one that is linked to the game loop
 void up_interface_gamePlay(struct up_assets *assets ,struct up_font_assets *font_assets,
-                           struct shader_module *shader_program,struct up_interface_game *interface){
+                           struct up_shader_module *shader_program,struct up_interface_game *interface){
     
     
     up_render_symbols(assets,shader_program,interface->symbolArray,interface->countSymbol);

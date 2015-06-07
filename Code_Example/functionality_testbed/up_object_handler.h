@@ -9,22 +9,13 @@
 #ifndef UP_MODELREPRESENTATION_H
 #define UP_MODELREPRESENTATION_H
 
-#include "up_vertex.h"
+#include "up_math.h"
 #include "up_type.h"
 
 
 struct Hitbox{
     struct up_vec3 length;
 };
-
-struct shipMovement
-{
-    int up;
-    int down;
-    int left;
-    int right;
-};
-
 
 
 struct up_modelOrientation

@@ -8,16 +8,20 @@
 
 #include "up_menu.h"
 #include <stdio.h>
-#include "up_initGraphics.h"
 #include "up_utilities.h"
-#include "up_texture_module.h"
-#include "up_ship.h"
-#include "up_objectReader.h"
-#include "up_shader_module.h"
+
+#include "up_game_tools.h"
+
+#include "up_assets.h"
+#include "up_graphics_setup.h"
+#include "up_graphics_update.h"
+
+#include "up_render_engine.h"
+
 #include "up_network_module.h"
 #include "testmodels.h"
-#include "up_modelRepresentation.h"
-#include "up_matrixTransforms.h"
+#include "up_object_handler.h"
+#include "up_math.h"
 #include "up_music.h"
 #include "up_error.h"
 #include "up_network_packet_utilities.h"
@@ -145,7 +149,7 @@ void up_button_free(struct up_menu_button *button)
 
 
 // magnus
-void up_drawbutton(struct shader_module *shaderprog,struct up_menu_button *button,struct up_font_assets *fonts,struct up_vec3 *color)
+void up_drawbutton(struct up_shader_module *shaderprog,struct up_menu_button *button,struct up_font_assets *fonts,struct up_vec3 *color)
 {
     up_matrix4_t modelMatrix;
     struct up_vec3 rot = {0};
@@ -156,9 +160,9 @@ void up_drawbutton(struct shader_module *shaderprog,struct up_menu_button *butto
     
     up_matrixModel(&modelMatrix,&button->pos,&rot,&scale);
     
-    UP_shader_update(shaderprog,&modelMatrix);
+    up_shader_update(shaderprog,&modelMatrix);
     up_texture_bind(button->tex, 2);
-    up_draw_mesh(button->mesh);
+    up_mesh_draw(button->mesh);
     
     struct up_vec3 text_pos = button->pos;
     text_pos.z -= 0.01;
@@ -265,7 +269,7 @@ int up_menuEventHandler(struct navigationState *navigation,
 int up_shipSelectEvent(struct navigationState *navigation,int *selectedShip, struct up_menu_button *blueButton,
                        struct up_menu_button *redButton, struct up_menu_button *blackButton);
 
-int up_menu(struct shader_module *shaderprog,
+int up_menu(struct up_shader_module *shaderprog,
             struct soundLib *sound,
             struct up_key_map *keymap,
             struct up_font_assets *fonts,
@@ -601,7 +605,7 @@ int up_menu(struct shader_module *shaderprog,
         up_updateFrameTickRate();
 
         UP_renderBackground();                      //Clears the buffer and results an empty window.
-        UP_shader_bind(shaderprog);                 //
+        up_shader_bind(shaderprog);                 //
         if(navigation.state == shipSelect){
             status = up_shipSelectEvent(&navigation,&selectedShip,shipButtonBlue,shipButtonRed,shipButtonBlack);
         }
@@ -629,24 +633,24 @@ int up_menu(struct shader_module *shaderprog,
         
         
         //BACKGROUND
-        UP_shader_update(shaderprog,&transformBackground);
+        up_shader_update(shaderprog,&transformBackground);
         up_texture_bind(textureMenuBackground, 1);
-        up_draw_mesh(background);
+        up_mesh_draw(background);
         
 
         switch (navigation.state) {
             case mainMenu:
-                UP_shader_update(shaderprog,&transformLoginRegisterBottons);     //button1
+                up_shader_update(shaderprog,&transformLoginRegisterBottons);     //button1
                 up_texture_bind(textureBottonLogin, 2);
-                up_draw_mesh(bottonLogin1);
+                up_mesh_draw(bottonLogin1);
 
-                UP_shader_update(shaderprog,&transformLoginRegisterBottons);     //button2
+                up_shader_update(shaderprog,&transformLoginRegisterBottons);     //button2
                 up_texture_bind(textureBottonLogin, 2);
-                up_draw_mesh(bottonLogin2);
+                up_mesh_draw(bottonLogin2);
                 
-                UP_shader_update(shaderprog,&translationCogWheel);     //settings
+                up_shader_update(shaderprog,&translationCogWheel);     //settings
                 up_texture_bind(textureCogWheel, 3);
-                up_draw_mesh(cogWheel);
+                up_mesh_draw(cogWheel);
                 
                 up_drawbutton(shaderprog, runlocal_button, fonts, &keyButton_color);
                 
@@ -655,9 +659,9 @@ int up_menu(struct shader_module *shaderprog,
 
             case loginMenu:
 
-                UP_shader_update(shaderprog, &transformLoginOverlay);
+                up_shader_update(shaderprog, &transformLoginOverlay);
                 up_texture_bind(textureLoginOverlay, 3);
-                up_draw_mesh(overlay);
+                up_mesh_draw(overlay);
 
                 
                 up_displayText(user_data.username, user_data.keypressUsername, &textposusernameuse, &textscale, fonts, shaderprog,0,NULL);
@@ -672,9 +676,9 @@ int up_menu(struct shader_module *shaderprog,
                 
             case registerMenu:
                 
-                UP_shader_update(shaderprog, &transformRegisterOverlay);
+                up_shader_update(shaderprog, &transformRegisterOverlay);
                 up_texture_bind(textureLoginOverlay, 3);
-                up_draw_mesh(registerOverlay);
+                up_mesh_draw(registerOverlay);
                 
                 
                 up_displayText(user_data.username, user_data.keypressUsername, &textposusernamereg, &textscale, fonts, shaderprog,0,NULL);
@@ -770,9 +774,9 @@ int up_menu(struct shader_module *shaderprog,
                 
                 if (accountState == LOGINSUCESS) {
                     
-                    UP_shader_update(shaderprog, &transformConnectionSuccess);
+                    up_shader_update(shaderprog, &transformConnectionSuccess);
                     up_texture_bind(textureConnectionStatus, 3);
-                    up_draw_mesh(connectionSuccess);
+                    up_mesh_draw(connectionSuccess);
                     
                     if (SDL_GetTicks() - timer_conReg > 250) {
                         
@@ -786,9 +790,9 @@ int up_menu(struct shader_module *shaderprog,
                 }
                 if (accountState == REGSUCESSS){
                     
-                    UP_shader_update(shaderprog, &transformRegisterSuccess);
+                    up_shader_update(shaderprog, &transformRegisterSuccess);
                     up_texture_bind(textureRegisterStatus, 3);
-                    up_draw_mesh(registerSuccess);
+                    up_mesh_draw(registerSuccess);
                     
                     if (SDL_GetTicks() - timer_conReg > 1000) {
                         
@@ -810,9 +814,9 @@ int up_menu(struct shader_module *shaderprog,
                 if (accountState == LOGINFAILED) {
             
                     
-                    UP_shader_update(shaderprog, &transformConnectionFalied);
+                    up_shader_update(shaderprog, &transformConnectionFalied);
                     up_texture_bind(textureConnectionStatus, 3);
-                    up_draw_mesh(connectionFailed);
+                    up_mesh_draw(connectionFailed);
                     
                     
                     if (SDL_GetTicks() - timer_conReg > 1000) {
@@ -828,9 +832,9 @@ int up_menu(struct shader_module *shaderprog,
                 }
                 if (accountState == REGFAILED){
                     
-                    UP_shader_update(shaderprog, &transformRegisterFailed);
+                    up_shader_update(shaderprog, &transformRegisterFailed);
                     up_texture_bind(textureRegisterStatus, 3);
-                    up_draw_mesh(registerFailed);
+                    up_mesh_draw(registerFailed);
                     
                     if (SDL_GetTicks() - timer_conReg > 1000) {
                         
@@ -877,28 +881,28 @@ int up_menu(struct shader_module *shaderprog,
                 
             case quitWindow:
 
-                UP_shader_update(shaderprog, &transformQuiteWindow);
+                up_shader_update(shaderprog, &transformQuiteWindow);
                 up_texture_bind(textureQuiteWindow, 2);
-                up_draw_mesh(quiteWindow);
+                up_mesh_draw(quiteWindow);
 
                 break;
                 
             case settings:
                 
-                UP_shader_update(shaderprog,&translationCogWheel);     //settings
+                up_shader_update(shaderprog,&translationCogWheel);     //settings
                 up_texture_bind(textureCogWheel, 3);
-                up_draw_mesh(cogWheel);
+                up_mesh_draw(cogWheel);
                 
-                UP_shader_update(shaderprog, &translationSettingsOverlay);
+                up_shader_update(shaderprog, &translationSettingsOverlay);
                 up_texture_bind(textureSettingsOverlay, 3);
-                up_draw_mesh(settingsOverlay);
+                up_mesh_draw(settingsOverlay);
                 
                 break;
             case keyBindings:
                 
-                UP_shader_update(shaderprog, &translationKeybindingsOverlay);
+                up_shader_update(shaderprog, &translationKeybindingsOverlay);
                 up_texture_bind(textureKeybindingsOverlay, 4);
-                up_draw_mesh(keybindingsOverlay);
+                up_mesh_draw(keybindingsOverlay);
                 
                 for (i = 0; i < numKeyBindings; i++) {
                     up_drawbutton(shaderprog, &keybinding_buttonArray[i], fonts, &keyButton_color);
@@ -926,6 +930,9 @@ int up_menu(struct shader_module *shaderprog,
     }
     printf("exiting menu\n");
     up_generate_settings_freebuttons(keybinding_buttonArray);
+    up_button_free(shipButtonBlack);
+    up_button_free(shipButtonBlue);
+    up_button_free(shipButtonRed);
     up_button_free(runlocal_button);
     return status;
 }

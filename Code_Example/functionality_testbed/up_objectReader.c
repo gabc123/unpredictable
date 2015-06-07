@@ -8,7 +8,7 @@
 
 #include "up_error.h"
 #include "up_utilities.h"
-#include "up_objectReader.h"
+#include "up_assets.h"
 #include "up_filereader.h"
 
 void vertexPositionsData(char *rad, struct up_generic_list *vertexPosList);
@@ -106,7 +106,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
     if (count != 0) {
         finalList = malloc(sizeof(struct up_vertex) * count );
     }
-    finalList = malloc(sizeof(struct up_vertex) * count );
+
     if(finalList == NULL)
     {
            UP_ERROR_MSG("malloc failed");
@@ -154,6 +154,7 @@ struct up_objModel *up_loadObjModel(const char *filename)
     struct up_objModel *result = malloc(sizeof(struct up_objModel));
     if (result == NULL) {
         UP_ERROR_MSG("malloc fail");
+        free(finalList);
     }else
     {
         result->index_length = num_face;

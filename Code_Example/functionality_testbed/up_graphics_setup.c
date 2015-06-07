@@ -1,7 +1,7 @@
-#include "up_initGraphics.h"
+#include "up_graphics_setup.h"
 #include "up_sdl_redirect.h"
 #include "up_error.h"
-#include "up_texture_module.h"
+
 
 //the setup code in this c file is based on the tutorials from:
 // https://www.opengl.org/wiki/Tutorial1:_Creating_a_Cross_Platform_OpenGL_3.2_Context_in_SDL_(C_/_SDL)
@@ -34,15 +34,7 @@ void UP_sdlSetup()
 
 
 
-// magnus, used to give system informations,
-void up_system_check()
-{
 
-    printf("\nSize of char : %lu",sizeof(char));
-    printf("\nSize of int: %lu",sizeof(int));
-    printf("\nSize of long: %lu",sizeof(long));
-    printf("\nSize of float %lu\n",sizeof(float));
-}
 
 // magnus, sebastian error checking
 void UP_openGLwindowSetup(int width,int height, const char *title)

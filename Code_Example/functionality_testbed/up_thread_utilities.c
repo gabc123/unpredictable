@@ -306,6 +306,7 @@ struct up_thread_queue *up_concurrentQueue_new()
     struct up_concurrentQueue *queue = malloc(sizeof(struct up_concurrentQueue));
     if (queue == NULL) {
         UP_ERROR_MSG("malloc failed");
+        free(thread_queue);
         return 0;
     }
     
@@ -314,6 +315,8 @@ struct up_thread_queue *up_concurrentQueue_new()
     struct up_linkElement *link1 = linkElement_alloc();
     if (link1 == NULL) {
         UP_ERROR_MSG("malloc failed");
+        free(queue);
+        free(thread_queue);
         return NULL;
     }
     queue->first[UP_BUFFER_1] = link1;
@@ -323,6 +326,9 @@ struct up_thread_queue *up_concurrentQueue_new()
     struct up_linkElement *link2 = linkElement_alloc();
     if (link2 == NULL) {
         UP_ERROR_MSG("malloc failed");
+        free(link1);
+        free(queue);
+        free(thread_queue);
         return NULL;
     }
     queue->first[UP_BUFFER_2] = link2;
@@ -338,6 +344,10 @@ struct up_thread_queue *up_concurrentQueue_new()
     struct up_linkElement *garbage = linkElement_alloc();
     if (garbage == NULL) {
         UP_ERROR_MSG("malloc failed");
+        free(link1);
+        free(link2);
+        free(queue);
+        free(thread_queue);
         return 0;
     }
     thread_queue->garbage.start = garbage;

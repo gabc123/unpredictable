@@ -8,8 +8,7 @@
 #ifndef UP_UTILITIES_H
 #define UP_UTILITIES_H
 
-#include "up_vertex.h"
-#include "up_texture_module.h"
+#include "up_assets.h"
 
 /*
  this is the srand and rand function from:

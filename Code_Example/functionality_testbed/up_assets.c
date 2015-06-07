@@ -7,19 +7,91 @@
 //
 
 #include "up_assets.h"
-#include "up_vertex.h"
-#include "up_texture_module.h"
 #include "up_utilities.h"
-#include "up_objectReader.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "up_error.h"
 #include "testmodels.h"
 #include "up_filereader.h"
 #include "up_sdl_redirect.h"
-#include "up_modelRepresentation.h"
+#include "up_object_handler.h"
+#include "up_control_events.h"
+#define UP_NAMESIZE 100
+
+//Tobias 2015-05-05
+//magnus 2015-05-06
+//magnus 2015-05-21 bug fix
+void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
+{
+    char *lineReader = NULL;
+    char ammoName[UP_NAMESIZE]="\0";
+    char *newLineFinder = "\n";
+    char *textRead;
+    int cooldown = 0,speed = 0,ammo = 0,damage = 0;
+    
+    struct UP_textHandler cdText = up_loadWeaponStatsFile("CoolDown.weapon");
+    
+    if(cdText.text == NULL)
+    {
+        UP_ERROR_MSG("Failed to open the cooldown file.");
+        return;
+    }
+    textRead = cdText.text;
+    
+    
+    do
+    {
+        lineReader = up_token_parser(textRead,&textRead,newLineFinder,strlen(newLineFinder));
+        printf("\n");
+        if (lineReader == NULL) {
+            printf("File read wepeon");
+            break;
+        }
+        if (lineReader[0] == '#') {
+            continue;
+        }
+        
+        if(*lineReader==':')
+        {
+            printf("found :\n");
+            lineReader++;
+            sscanf(lineReader,"%d/%d/%d/%d/%s",&cooldown,&speed,&ammo,&damage,ammoName);
+        }
+        
+        printf("%d %d %d %d %s",cooldown,speed,ammo,damage,ammoName);
+        
+        if(strcmp(ammoName,"bullet")==0)
+        {
+            currentEvent->flags.bulletFlag.coolDown = cooldown;
+            currentEvent->flags.bulletFlag.ammunitionSpeed = speed;
+            currentEvent->flags.bulletFlag.ammunition = ammo;
+            currentEvent->flags.bulletFlag.damage = damage;
+        }
+        
+        else if(strcmp(ammoName,"missile")==0)
+        {
+            currentEvent->flags.missileFlag.coolDown = cooldown;
+            currentEvent->flags.missileFlag.ammunitionSpeed = speed;
+            currentEvent->flags.missileFlag.ammunition = ammo;
+            currentEvent->flags.missileFlag.damage = damage;
+        }
+        
+        else if(strcmp(ammoName,"lazer")==0)
+        {
+            currentEvent->flags.laserFlag.coolDown = cooldown;
+            currentEvent->flags.laserFlag.ammunitionSpeed = speed;
+            currentEvent->flags.laserFlag.ammunition = ammo;
+            currentEvent->flags.laserFlag.damage = damage;
+        }
+        
+    }while(textRead <= cdText.text + cdText.length - 1);
+    
+    up_textHandler_free(&cdText);
+}
 
 
+////////////// models loading, and objIndex parsing
 static struct up_assets *internal_assets=NULL;
 
 /*stores information of the object*/

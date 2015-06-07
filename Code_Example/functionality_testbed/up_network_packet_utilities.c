@@ -9,8 +9,7 @@
 #include "up_network_packet_utilities.h"
 
 #include "up_error.h"
-#include "up_ship.h"
-#include "up_vertex.h"
+
 //#include "up_server.h"
 #include "up_thread_utilities.h"
 

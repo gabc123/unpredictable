@@ -1,7 +1,7 @@
 #ifndef UP_CAMERA_MODULE_H
 #define UP_CAMERA_MODULE_H
-#include "up_vertex.h"
-#include "up_modelRepresentation.h"
+#include "up_math.h"
+#include "up_object_handler.h"
 
     struct up_camera {
         struct up_vec3 eye;

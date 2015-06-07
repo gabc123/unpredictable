@@ -8,7 +8,7 @@
 
 #include "up_network_module.h"
 #include "up_sdl_redirect.h"
-#include "up_modelRepresentation.h"
+#include "up_object_handler.h"
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +17,7 @@
 #include "up_error.h"
 #include "up_network_packet_utilities.h"
 #include "sha256.h"
+#include "up_assets.h"
 
 #define UP_NETWORK_SIZE 100
 
@@ -443,10 +444,15 @@ int up_network_account_recive(void *arg)
 {
     struct up_network_datapipe *p=(struct up_network_datapipe *)arg;
 
+    if (p == NULL) {
+        UP_ERROR_MSG("arg == NULL");
+        return 0;
+    }
     UDPsocket socket = p->udpSocket;
     UDPpacket *packet = SDLNet_AllocPacket(1024);
     if (!packet) {
         UP_ERROR_MSG_STR("Acount thread allocpacket error", SDLNet_GetError());
+        return 0;
     }
 
     struct objUpdateInformation local_data = {0};

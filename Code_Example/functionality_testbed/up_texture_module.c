@@ -1,4 +1,8 @@
-#include "up_texture_module.h"
+
+#include "up_assets.h"
+#include "up_graphics_setup.h"
+#include "up_graphics_update.h"
+
 #include "up_sdl_redirect.h"
 #include "up_opengl_redirect.h"
 #include "up_error.h"
@@ -142,6 +146,7 @@ static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
         if (texAlpha->format->BytesPerPixel != bytesPerPixel) {
             UP_ERROR_MSG_INT("Bytes per pixel mismatch ",texAlpha->format->BytesPerPixel);
             SDL_FreeSurface(texAlpha);
+            free(image.pixelData);
             return NULL;
         }
 
@@ -231,6 +236,7 @@ static struct up_texture_data *up_load_special_error_texture(const char  * filen
     if(image.pixelData == NULL)
     {
         UP_ERROR_MSG("malloc failure");
+        return texture; // should be initilized to zero, migth still save us
     }
     
     int i = 0;

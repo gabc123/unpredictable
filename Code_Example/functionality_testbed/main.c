@@ -1,22 +1,38 @@
 #include <stdio.h>
-#include "up_initGraphics.h"
+
+
 #include "up_utilities.h"
-#include "up_texture_module.h"
-#include "up_ship.h"
-#include "up_objectReader.h"
-#include "up_shader_module.h"
+
+
 #include "up_network_module.h"
 #include "up_menu.h"
 #include "up_camera_module.h"
-#include "up_assets.h"
+
 #include "up_camera_module.h"
-#include "up_updateObjectMatrix.h"
 #include "up_error.h"
 #include "up_render_engine.h"
 #include "up_star_system.h"
-#include "up_healthbar.h"
+
+#include "up_interface.h"
+
 #include "up_music.h"
-#include "up_skyBox.h"
+
+#include "up_game_tools.h"
+
+#include "up_assets.h"
+
+#include "up_graphics_setup.h"
+#include "up_graphics_update.h"
+
+#include "up_player.h"
+#include "up_control_events.h"
+#include "up_collisions.h"
+
+#include "up_object_actions.h"
+#include "up_object_handler.h"
+
+#include "up_updateObjectMatrix.h"
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -48,18 +64,18 @@ int main(int argc, char const *argv[])
     int max_projectile_count = 300;
     int max_enviroment_count = 500;
     int max_others_count = 200;
-    //struct up_allCollisions allcollisions = {0};
+    struct up_allCollisions allcollisions = {0};
 
     // loads the shaders for the rendering loop (location 1)
-    struct shader_module *shaderprog;
-    shaderprog = UP_Shader_new("shadertest",1);
+    struct up_shader_module *shaderprog;
+    shaderprog = up_shader_new("shadertest",1);
     printf("Shader finnished\n");
 
     // if we failed to load the primary shaders, there is no game to play
     // so do program cleanup and exit
     if (shaderprog == NULL) {
         UP_ERROR_MSG("Failed to load primary shader aborting program");
-        UP_Shader_delete();
+        up_shader_deinit();
         up_mesh_shutdown_deinit();
         up_texture_shutdown_deinit();
         UP_openGLwindowCleanup();
@@ -67,8 +83,8 @@ int main(int argc, char const *argv[])
         return 0;
     }
     // Load a shader just for the menu system (location 0)
-    struct shader_module *shader_menu;
-    shader_menu = UP_Shader_new("shader_menu",0);
+    struct up_shader_module *shader_menu;
+    shader_menu = up_shader_new("shader_menu",0);
     if (shader_menu == NULL) {
         // we use the primary shader as a fallback
         shader_menu = shaderprog;
@@ -144,7 +160,7 @@ int main(int argc, char const *argv[])
 
     up_generate_map(mapData.mapSeed);
     
-    struct shader_module *sunShader = UP_Shader_new("shader_sun", 3);
+    struct up_shader_module *sunShader = up_shader_new("shader_sun", 3);
     struct up_sun theSun = up_sun_create(sunShader);
 
 
@@ -183,8 +199,7 @@ int main(int argc, char const *argv[])
     dispMat(&perspectiveMatrix);
 
 
-    // the ship will stand stilll at the begining
-    //struct shipMovement movement = {0,0,0,0};
+
 
     //up_health_bar_t healthBar;
    // healthBar = healthbar_creation();
@@ -194,7 +209,7 @@ int main(int argc, char const *argv[])
     // loads skybox shaders and fill out the structure
     struct up_skyBox skyBox;
     skyBox.textureId = up_cubeMapTexture_load();
-    skyBox.skyBox = UP_Shader_new("skybox",2);
+    skyBox.skyBox = up_shader_new("skybox",2);
     skyBox.mesh = &assets->meshArray[3];
 
 
@@ -259,10 +274,10 @@ int main(int argc, char const *argv[])
         up_update_actions(&shipAction, network_states_data, map_maxPlayers,&currentEvent, sound);
         
         up_updateMovements();
-        //up_checkCollision(&allcollisions);
+        up_checkCollision(&allcollisions);
         
-        //up_update_playerStats(&allcollisions, &player_stats,&currentEvent.flags, shipIndex);
-        //up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);
+        up_update_playerStats(&allcollisions, &player_stats,&currentEvent.flags, shipIndex);
+        up_handleCollision(&allcollisions,&player_stats,&currentEvent.flags);
 
         up_update_sun(&theSun);
         
@@ -305,7 +320,7 @@ int main(int argc, char const *argv[])
     printf("Ended main loop\n");
     free(transformationArray);
     //cleanup and release all data (notice the reverse order of setup)
-    UP_Shader_delete();
+    up_shader_deinit();
     up_unit_shutdown_deinit();
     up_mesh_shutdown_deinit();
     up_freeSound(sound);

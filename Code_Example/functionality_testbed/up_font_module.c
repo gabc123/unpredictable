@@ -8,10 +8,11 @@
 
 #include "up_assets.h"
 #include "up_error.h"
-#include "up_texture_module.h"
-#include "up_shader_module.h"
-#include "up_matrixTransforms.h"
-#include "up_vertex.h"
+#include "up_assets.h"
+#include "up_graphics_setup.h"
+#include "up_graphics_update.h"
+#include "up_math.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -23,7 +24,7 @@
 // magnus
 void up_displayText(char *text_string,int length,struct up_vec3 *pos,
                     struct up_vec3 *scale,struct up_font_assets *fonts,
-                    struct shader_module *shaderprog, float step,struct up_vec3 *color)
+                    struct up_shader_module *shaderprog, float step,struct up_vec3 *color)
 {
     struct up_vec3 localpos = *pos;
     up_matrix4_t transform;
@@ -32,7 +33,7 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
     if (length < 1) {
         return;
     }
-    UP_shader_bind(shaderprog);
+    up_shader_bind(shaderprog);
     up_texture_bind(fonts->texture, 1);
     if (color != NULL) {
         up_shader_update_font_color(shaderprog,color);
@@ -46,10 +47,10 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
     for (i = 0; i< length; i++) {
     
         up_matrixModel(&transform,&localpos,&rot,scale);
-        UP_shader_update(shaderprog,&transform);
+        up_shader_update(shaderprog,&transform);
         index = text_string[i] - 22;
-        up_draw_mesh(&fonts->letters[index]);
-        //up_draw_mesh(fonts->); // skriver ut c
+        up_mesh_draw(&fonts->letters[index]);
+        //up_mesh_draw(fonts->); // skriver ut c
         localpos.x += 0.0225 + step;
     }
     

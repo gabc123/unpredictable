@@ -9,9 +9,10 @@
 #ifndef UP_NETWORK_MODULE_H
 #define UP_NETWORK_MODULE_H
 #include "up_sdl_redirect.h"
-#include "up_modelRepresentation.h"
-#include "up_ship.h"
+#include "up_object_handler.h"
 #include "up_thread_utilities.h"
+#include "up_object_actions.h"
+#include "up_player.h"
 
 #define UP_MAX_CLIENTS 20
 

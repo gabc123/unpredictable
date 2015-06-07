@@ -31,7 +31,7 @@ struct up_sun
     
 };
 
-struct up_sun up_sun_create(struct shader_module *shader);
+struct up_sun up_sun_create(struct up_shader_module *shader);
 void up_update_sun(struct up_sun *sun);
 
 void up_generate_map(int seed);

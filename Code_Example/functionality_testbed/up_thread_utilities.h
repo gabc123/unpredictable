@@ -8,20 +8,7 @@
 
 #ifndef UP_THREAD_UTILITIES_H
 #define UP_THREAD_UTILITIES_H
-#include "up_vertex.h"
-#include "up_ship.h"
 
-// not in use at the moment
-struct __attribute__((__packed__)) up_packed_data
-{
-    int timestamp;
-    struct up_actionState action;
-    struct up_vec3 pos;
-    float angle;
-    float bankAngle;
-    float turnSpeed;
-    float speed;
-};
 
 
 // all data sent over the thread_queue is containd in this structure

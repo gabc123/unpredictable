@@ -1,21 +1,152 @@
-#include "up_ship.h"
+#include "up_deprecated_ship.h"
 #include "up_error.h"
 #include "up_sdl_redirect.h"
 #include "up_utilities.h"
 #include "up_shader_module.h"
 #include "up_camera_module.h"
-#include "up_modelRepresentation.h"
+#include "up_object_handler.h"
 #include "up_render_engine.h"
 #include "up_filereader.h"
 #include "up_assets.h"
 #include "up_music.h"
 #include <math.h>
 #include "up_healthbar.h"
-#define NAMESIZE 100
+#define UP_NAMESIZE 100
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+struct up_container{
+    int current;
+    int full;
+};
+
+struct up_player_stats
+{
+    
+    struct up_container bullets;
+    struct up_container missile;
+    struct up_container laser;
+    struct up_container health;
+    struct up_container armor;
+};
+
+//Sebastian
+struct up_collision
+{
+    int object1;
+    int object2;
+};
+// Structure that contain every hit with every id of the objects
+//Sebastian
+#define UP_COLLISIONS_MAX 200
+struct up_allCollisions
+{
+    //type of collision
+    struct up_collision projectileEnviroment[UP_COLLISIONS_MAX];
+    struct up_collision projectileShip[UP_COLLISIONS_MAX];
+    struct up_collision shipEnviroment[UP_COLLISIONS_MAX];
+    struct up_collision enviromentEnviroment[UP_COLLISIONS_MAX];
+    struct up_collision shipShip[UP_COLLISIONS_MAX];
+    //current number of objects in each array
+    int nrProjectileEnviroment;
+    int nrProjectileShip;
+    int nrShipEnviroment;
+    int nrEnviromentEnviroment;
+    int nrShipShip;
+};
+
+//Magnus
+enum up_none
+{
+    none = 0
+};
+
+union up_shootingStates
+{
+    enum up_none none;
+    enum
+    {
+        fireMissile = 1,
+        fireBullet,
+        fireLaser
+    }state;
+};
+
+
+union up_movement
+{
+    enum up_none none;
+    enum
+    {
+        fwd = 1,
+        bwd
+    }state;
+};
+
+union up_turning
+{
+    enum up_none none;
+    enum
+    {
+        left = 1,
+        right,
+        bankLeft,
+        bankRight
+    }state;
+};
+
+//Sebastian
+enum collisionType
+{
+    shipEnviroment,
+    projectileShip,
+    projectileEnviroment,
+    enviromentEnviroment,
+    shipShip
+};
+//Tobias
+struct up_actionState
+{
+    union up_shootingStates fireWeapon;
+    union up_movement engine;
+    union up_turning maneuver;
+    struct up_objectID objectID;
+};
+//Tobias
+struct cooldownTimer
+{
+    unsigned int startTime;
+    unsigned int coolDown;
+    unsigned int ammunitionSpeed;
+    int ammunition;
+    int damage;
+};
+//Tobias
+struct up_shootingFlag
+{
+    struct cooldownTimer bulletFlag;
+    struct cooldownTimer missileFlag;
+    struct cooldownTimer laserFlag;
+    
+};
+//Tobias
+struct up_eventState
+{
+    struct up_shootingFlag flags;
+};
+
+//Magnus
+struct up_key_map
+{
+    char name[25];
+    SDL_Keycode key;
+    void (*keyDown_func)(struct up_eventState *currentEvent,struct up_actionState *objectAction);
+    void (*keyUp_func)(struct up_eventState *currentEvent,struct up_actionState *objectAction);
+};
+
+
 
 // magnus , up_updateMovements , 5 maj
 
@@ -835,7 +966,7 @@ void up_updatShipMatrixModel(up_matrix4_t *matrixModel,struct up_modelOrientatio
 void up_weaponCoolDown_start_setup(struct up_eventState *currentEvent)
 {
     char *lineReader = NULL;
-    char ammoName[NAMESIZE]="\0";
+    char ammoName[UP_NAMESIZE]="\0";
     char *newLineFinder = "\n";
     char *textRead;
     int cooldown = 0,speed = 0,ammo = 0,damage = 0;
@@ -1130,6 +1261,8 @@ void up_update_actions(struct up_actionState *playerShip, struct up_actionState 
 //
 //}
 //
+
+
 //walled
 // magnus included weapons so everything gets synced to the same state
 void up_update_playerStats(struct up_allCollisions *collision,struct up_player_stats *player,struct up_shootingFlag *weapons, int playerId)                         //"Den checkar :P "

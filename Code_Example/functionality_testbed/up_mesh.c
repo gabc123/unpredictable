@@ -1,4 +1,7 @@
-#include "up_vertex.h"
+#include "up_math.h"
+#include "up_assets.h"
+#include "up_graphics_setup.h"
+#include "up_graphics_update.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "up_error.h"
@@ -165,7 +168,7 @@ struct up_mesh *UP_mesh_new(struct up_vertex *vertex, int vertex_count,unsigned 
 
 // magnus
 // used to enable diffrent draw modes
-void up_draw_mesh_speciall(struct up_mesh *mesh,int drawMode)
+void up_mesh_draw_speciall(struct up_mesh *mesh,int drawMode)
 {
     glBindVertexArray(mesh->vertexArrayObj);
     
@@ -177,7 +180,7 @@ void up_draw_mesh_speciall(struct up_mesh *mesh,int drawMode)
 }
 //magnus
 
-void up_draw_mesh(struct up_mesh *mesh)
+void up_mesh_draw(struct up_mesh *mesh)
 {
 	glBindVertexArray(mesh->vertexArrayObj);
 

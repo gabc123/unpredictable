@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Zetterman. All rights reserved.
 //
 #include <stdlib.h>
-#include "up_modelRepresentation.h"
+#include "up_object_handler.h"
 #include "up_error.h"
 
 // In this c file all functions for tracking and storing all objects in the gameworld

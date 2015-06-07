@@ -10,11 +10,11 @@
 #include "up_assets.h"
 #include "up_utilities.h"
 #include "up_render_engine.h"
-#include "up_ship.h"
+#include "up_game_tools.h"
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "up_modelRepresentation.h"
+#include "up_object_handler.h"
 #include <math.h>
 #include "up_error.h"
 #define UP_RAND_FLOAT_PRECISION 8000
@@ -25,8 +25,7 @@
 //Waleed
 static void up_generate_sun()
 {
-    struct up_objectInfo sun = {0};
-    sun = up_asset_createObjFromId(0);
+    struct up_objectInfo sun = up_asset_createObjFromId(0);
     sun.pos.z = 40;
     sun.objectId.type = up_environment_type;
     if(up_unit_add(up_environment_type,sun)==0){
@@ -34,10 +33,9 @@ static void up_generate_sun()
     }
 }
 
-struct up_sun up_sun_create(struct shader_module *shader)
+struct up_sun up_sun_create(struct up_shader_module *shader)
 {
-    struct up_objectInfo sunTemplet = {0};
-    sunTemplet = up_asset_createObjFromId(3);
+    struct up_objectInfo sunTemplet = up_asset_createObjFromId(3);
     sunTemplet.pos.z = 40;
     struct up_sun sun = {0};
     

@@ -6,7 +6,11 @@
 //  Copyright (c) 2015 Waleed Hassan. All rights reserved.
 //
 
-#include "up_skyBox.h"
+#include "up_assets.h"
+#include "up_graphics_setup.h"
+#include "up_graphics_update.h"
+#include "up_math.h"
+#include "up_camera_module.h"
 
 
 /*
@@ -20,7 +24,7 @@
 
 void up_skybox_render(struct up_skyBox *skyBox,struct up_camera *cam,up_matrix4_t *viewPerspectivMatrix)
 {
-    UP_shader_bind(skyBox->skyBox);
+    up_shader_bind(skyBox->skyBox);
     
     // skybox is the backround therefor its always going to be farest away. we dont need any skybuffer.inspiration
     GLint previousFaceValue;
@@ -38,10 +42,10 @@ void up_skybox_render(struct up_skyBox *skyBox,struct up_camera *cam,up_matrix4_
     up_matrixModel(&model,&cam->eye,&rot,&scale);
     up_matrix4Multiply(&mvp,&model,viewPerspectivMatrix);
     
-    UP_shader_update(skyBox->skyBox, &mvp);
+    up_shader_update(skyBox->skyBox, &mvp);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyBox->textureId->textureId);
     
-    up_draw_mesh(skyBox->mesh);
+    up_mesh_draw(skyBox->mesh);
     glCullFace(previousFaceValue);
     glDepthFunc(previousDepthValue);
 }

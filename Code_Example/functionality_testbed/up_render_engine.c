@@ -9,8 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "up_render_engine.h"
-#include "up_initGraphics.h"
-#include "up_texture_module.h"
+
+#include "up_assets.h"
+#include "up_graphics_setup.h"
+#include "up_graphics_update.h"
+
 #include "up_camera_module.h"
 #include "up_star_system.h"
 
@@ -70,7 +73,7 @@ int up_allLigth_state()
 
 // magnus, this renders the scene
 void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArray,struct up_objectInfo *objectArray,int count,
-                     up_matrix4_t *viewPerspectivMatrix,struct shader_module *shaderprog,struct up_assets *assets)
+                     up_matrix4_t *viewPerspectivMatrix,struct up_shader_module *shaderprog,struct up_assets *assets)
 {
 
     struct up_mesh *mesh = NULL;//&assets->meshArray[1];
@@ -95,7 +98,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
     float lightIntensity_original = lightIntensity;
 #endif
 
-    UP_shader_bind(shaderprog);                 // tells the gpu what shader program to use
+    up_shader_bind(shaderprog);                 // tells the gpu what shader program to use
 
     int i = 0;
     int modelId = 0;
@@ -112,7 +115,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
         model = &modelViewPerspectiveArray[i].model;
         up_texture_bind(texture, 0);
 
-        UP_shader_update(shaderprog,transform);    // this uploads the transform to the gpu, and will now be applayed to up_draw_mesh
+        up_shader_update(shaderprog,transform);    // this uploads the transform to the gpu, and will now be applayed to up_mesh_draw
 
         up_shader_update_modelWorld(shaderprog, model);
 
@@ -151,13 +154,13 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
 
 #ifdef UP_PRESENTATION_MODE
         if (!up_wireframe_state()) {
-            up_draw_mesh(mesh); // this draws the model onto the screen , at the location transform, and with the sunlight modelMatrix
+            up_mesh_draw(mesh); // this draws the model onto the screen , at the location transform, and with the sunlight modelMatrix
         }else
         {
-            up_draw_mesh_speciall(mesh, GL_LINES);
+            up_mesh_draw_speciall(mesh, GL_LINES);
         }
 #else
-        up_draw_mesh(mesh);
+        up_mesh_draw(mesh);
 #endif
 
 
@@ -201,33 +204,33 @@ void up_render_sun(struct up_sun *sunData,struct up_camera *cam ,up_matrix4_t *v
     struct up_sun_shell *outerShell = &sunData->shells[1];
     
     
-    UP_shader_bind(sun->shader);
+    up_shader_bind(sun->shader);
     up_texture_bind(texture, 0);
     
     // creates the mvp transform for this shell
     up_matrix4Multiply(&sun->transform, &innerShell->modelTransforms, viewPerspectivMatrix);
     
     // transformation matrox. mvp and m
-    UP_shader_update(sun->shader, &sun->transform);
+    up_shader_update(sun->shader, &sun->transform);
     up_shader_update_modelWorld(sun->shader, &innerShell->modelTransforms);
 
     // how the sun fragment shader shpuld draw the shells
     up_shader_update_ambient(sun->shader, &innerShell->sunColor,&innerShell->dropOff_dir);
     up_shader_update_directional_light(sun->shader, &innerShell->ligthDropoff, &none, &cam_normalized);
     
-    up_draw_mesh(mesh);
+    up_mesh_draw(mesh);
     
     
     // creates the mvp transform for this shell
     up_matrix4Multiply(&sun->transform, &outerShell->modelTransforms, viewPerspectivMatrix);
     
     // transformation matrox. mvp and m
-    UP_shader_update(sun->shader, &sun->transform);
+    up_shader_update(sun->shader, &sun->transform);
     up_shader_update_modelWorld(sun->shader, &outerShell->modelTransforms);
     
     // how the sun fragment shader shpuld draw the shells
     up_shader_update_ambient(sun->shader, &outerShell->sunColor,&outerShell->dropOff_dir);
     up_shader_update_directional_light(sun->shader, &outerShell->ligthDropoff, &none, &cam_normalized);
     
-    up_draw_mesh(mesh);
+    up_mesh_draw(mesh);
 }

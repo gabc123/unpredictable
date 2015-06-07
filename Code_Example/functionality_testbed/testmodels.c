@@ -2,8 +2,8 @@
 #include "up_utilities.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "up_modelRepresentation.h"
-#include "up_matrixTransforms.h"
+#include "up_object_handler.h"
+#include "up_math.h"
 #include "up_error.h"
 
 /*fallback mesh*/

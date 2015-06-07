@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "up_matrixTransforms.h"
+#include "up_math.h"
 
 
 void up_updateMatrix(struct up_transformationContainer *modelReturnData, up_matrix4_t *viewPerspectivMatrix, struct up_objectInfo *objectArray, int count)
@@ -30,7 +30,5 @@ void up_updateMatrix(struct up_transformationContainer *modelReturnData, up_matr
         up_matrix4Multiply(&modelReturnData[i].mvp, &modelReturnData[i].model, viewPerspectivMatrix);
         
     }
-    
-    
     
 }

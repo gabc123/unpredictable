@@ -1,4 +1,7 @@
-#include "up_shader_module.h"
+#include "up_assets.h"
+#include "up_graphics_setup.h"
+#include "up_graphics_update.h"
+
 #include "up_filereader.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,7 +16,7 @@
 
 
 // have all the data nessesary for a complete shader  program
-static struct shader_module shader_program[UP_SHADER_MAX_COUNT];
+static struct up_shader_module shader_program[UP_SHADER_MAX_COUNT];
 
 
 static GLuint shaderCreate(const char * filename,GLenum type,int *err);
@@ -22,7 +25,7 @@ void Opengl_error_check(GLuint shader,GLuint flag,int isProgram,const char* str)
 static void Opengl_error_shader_check(GLuint shader,GLuint flag,const char* str);
 static void Opengl_error_program_check(GLuint shader,GLuint flag,const char* str);
 
-struct shader_module *UP_Shader_new(const char * filename,int location)
+struct up_shader_module *up_shader_new(const char * filename,int location)
 {
 	char vertexFilename[20];
 	char fragmentFilename[20];
@@ -106,31 +109,31 @@ static GLuint shaderCreate(const char * filename,GLenum type,int *err)
 }
 
 
-void UP_shader_bind(struct shader_module *prog)
+void up_shader_bind(struct up_shader_module *prog)
 {
 	glUseProgram(prog->program);
 }
 
 // this will bind the up_matrix transform to the right shader location
 // this is here for historic ressons, and will be depricated soono
-void UP_shader_update(struct shader_module *prog,up_matrix4_t *transform)
+void up_shader_update(struct up_shader_module *prog,up_matrix4_t *transform)
 {
     glUniformMatrix4fv(prog->uniforms[UNIFORM_TRANSFORM], 1, GL_FALSE, transform->data);
 }
 
 // this is to send the MVP or a generic transformation matric to modify model location data
-void up_shader_update_transform(struct shader_module *prog,up_matrix4_t *transform)
+void up_shader_update_transform(struct up_shader_module *prog,up_matrix4_t *transform)
 {
     glUniformMatrix4fv(prog->uniforms[UNIFORM_TRANSFORM], 1, GL_FALSE, transform->data);
 }
 
 
-void up_shader_update_modelWorld(struct shader_module *prog,up_matrix4_t *modelWorld)
+void up_shader_update_modelWorld(struct up_shader_module *prog,up_matrix4_t *modelWorld)
 {
     glUniformMatrix4fv(prog->uniforms[UNIFORM_MODEL_WORLD], 1, GL_FALSE, modelWorld->data);
 }
 
-void up_shader_update_ambient(struct shader_module *prog,struct up_vec3 *color,float *intensity)
+void up_shader_update_ambient(struct up_shader_module *prog,struct up_vec3 *color,float *intensity)
 {
     //float localColor[3] = {color.x , color.y , color.z};
     glUniform3fv(prog->uniforms[UNIFORM_AMBIENT_COLOR], 1, (float *)color);
@@ -146,13 +149,13 @@ void up_shader_update_ambient(struct shader_module *prog,struct up_vec3 *color,f
 
  */
 
-void up_shader_update_font_color(struct shader_module *prog,struct up_vec3 *color)
+void up_shader_update_font_color(struct up_shader_module *prog,struct up_vec3 *color)
 {
     //float localColor[3] = {color.x , color.y , color.z};
     glUniform3fv(prog->uniforms[UNIFORM_AMBIENT_COLOR], 1, (float *)color);
 }
 
-void up_shader_update_directional_light(struct shader_module *prog,struct up_vec3 *color,float *intensity,struct up_vec3 *dir)
+void up_shader_update_directional_light(struct up_shader_module *prog,struct up_vec3 *color,float *intensity,struct up_vec3 *dir)
 {
 
     glUniform3fv(prog->uniforms[UNIFORM_DIRECTIONAL_LIGHT_COLOR], 1, (float *)color);
@@ -161,12 +164,21 @@ void up_shader_update_directional_light(struct shader_module *prog,struct up_vec
 }
 
 
-void up_shader_update_sunligth(struct shader_module *prog,up_matrix4_t *transform)
+void up_shader_update_sunligth(struct up_shader_module *prog,up_matrix4_t *transform)
 {
     glUniformMatrix4fv(prog->uniforms[UNIFORM_LIGHT_SUN], 1, GL_FALSE, transform->data);
 }
 
-void UP_Shader_delete()
+void up_shader_setup()
+{
+    struct up_shader_module zero = {0};
+    int i = 0;
+    for (i = 0; i < UP_SHADER_MAX_COUNT; i++) {
+        shader_program[i] = zero;   // zero out all objects (linux runtime sometimes do not do this)
+    }
+}
+
+void up_shader_deinit()
 {
     int i = 0;
     for (i = 0; i< UP_SHADER_MAX_COUNT; i++) {
