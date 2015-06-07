@@ -21,16 +21,16 @@
  we needed a platform independet srand and rand.
  mac and linux seemed to have different implementations so we used the one from the standard
  */
-static unsigned long int next = 1;
+static unsigned long int up_rand_next = 1;
 void up_srand(unsigned int seed)   // from the standard
 {
-    next = seed;
+    up_rand_next = seed;
 }
 
 int up_rand(void)
 {
-    next = next * 1103515245 + 12345;
-    return (unsigned int)(next/65536) % 32768;
+    up_rand_next = up_rand_next * 1103515245 + 12345;
+    return (unsigned int)(up_rand_next/65536) % 32768;
 }
 
 
@@ -58,9 +58,11 @@ char *up_token_parser(char *srcString,char **nextString,char *delimiter,unsigned
 {
     if (srcString == NULL) {
         fprintf(stderr, "Error passed src == NULL to token_parser ");
+        return NULL;
     }
     if (delimiter == NULL) {
         fprintf(stderr, "Error passed delimiter == NULL to token_parser ");
+        return NULL;
     }
     char *start = srcString;
     char *ch = srcString;
@@ -305,7 +307,7 @@ static void up_generic_list_setElement(struct up_generic_list *list,void *data,u
 
 /*
     returns a pointer to the first element, and fills in count,
-    warning !!:  be aware any add operation invalidates the interator pointer
+    warning !!:  be aware any add operation invalidates the iterator pointer
     and this function must be called again !!!
  */
 static void *up_generic_list_iteratorAccess(struct up_generic_list *list, int *count)
