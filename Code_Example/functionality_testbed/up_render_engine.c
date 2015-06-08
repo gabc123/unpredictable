@@ -77,7 +77,7 @@ void up_render_scene(struct up_transformationContainer *modelViewPerspectiveArra
 {
 
     struct up_mesh *mesh = NULL;//&assets->meshArray[1];
-    struct up_texture_data *texture = NULL;// &assets->textureArray[1];
+    struct up_texture *texture = NULL;// &assets->textureArray[1];
     up_matrix4_t *transform = NULL;
     up_matrix4_t *model = NULL;
     //up_matrix4_t identity = up_matrix4identity();
@@ -197,7 +197,7 @@ void up_render_sun(struct up_sun *sunData,struct up_camera *cam ,up_matrix4_t *v
     
     // load models
     struct up_mesh *mesh = &assets->meshArray[modelId];
-    struct up_texture_data *texture = &assets->textureArray[modelId];
+    struct up_texture *texture = &assets->textureArray[modelId];
     
     // the diffrent shells of the sun
     struct up_sun_shell *innerShell = &sunData->shells[0];

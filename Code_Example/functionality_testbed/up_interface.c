@@ -172,8 +172,8 @@ void up_interface_healthBar(struct up_assets *assets, struct up_interface_bar *b
         emptyModelId = 0;
     }
     
-    struct up_texture_data *fullTexture = &assets->textureArray[fullModelId];
-    struct up_texture_data *emptyTexture = &assets->textureArray[emptyModelId];
+    struct up_texture *fullTexture = &assets->textureArray[fullModelId];
+    struct up_texture *emptyTexture = &assets->textureArray[emptyModelId];
     
     struct up_mesh *fullMesh = &assets->meshArray[fullModelId];
     struct up_mesh *emptyMesh = &assets->meshArray[emptyModelId];
@@ -241,7 +241,7 @@ static void up_render_symbols(struct up_assets *assets,struct up_shader_module *
     up_matrix4_t transform = up_matrix4identity();
     struct up_vec3 rot = {0};
     int modelId = 0;
-    struct up_texture_data *texture = NULL;
+    struct up_texture *texture = NULL;
     struct up_mesh *mesh;
     
     up_shader_bind(shader_program);
@@ -281,7 +281,7 @@ void up_interface_renderRadar(struct up_assets *assets ,struct up_interface_rada
         modelId = 0;
     }
     
-    struct up_texture_data *texture = &assets->textureArray[modelId];
+    struct up_texture *texture = &assets->textureArray[modelId];
     struct up_mesh *mesh = &assets->meshArray[modelId];
     struct up_vec3 *scale = &assets->scaleArray[modelId];
     

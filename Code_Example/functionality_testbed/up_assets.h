@@ -16,13 +16,13 @@
 
 struct up_skyBox {
     
-    struct up_texture_data *textureId;
+    struct up_texture *textureId;
     struct up_mesh *mesh;
     struct up_shader_module *skyBox;
     
 };
 
-struct up_texture_data
+struct up_texture
 {
     GLuint textureId;
 };
@@ -95,7 +95,7 @@ struct up_mesh
  */
 struct up_font_assets
 {
-    struct up_texture_data *texture;
+    struct up_texture *texture;
     int size;
     struct up_mesh letters[UP_NUMBER_LETTER];
     
@@ -133,7 +133,7 @@ struct up_assets
 {
     unsigned int numobjects;
     struct up_mesh *meshArray;
-    struct up_texture_data *textureArray;
+    struct up_texture *textureArray;
     struct up_vec3 *scaleArray;
     struct up_vec3 *hitboxLengthArray;
 };
@@ -155,10 +155,10 @@ struct up_objectInfo up_asset_createObjFromId(int modelId);
 // this loads a texture, from the game folder, with the filename
 // if there also is a file with the same name but ends in Alpha.png, it loads the
 // red channel as alpha and adds it to the texture
-struct up_texture_data *up_load_texture(const char  * filename);
+struct up_texture *up_load_texture(const char  * filename);
 
 // Load function for the cube map , used for the skybox
-struct up_texture_data *up_cubeMapTexture_load();
+struct up_texture *up_cubeMapTexture_load();
 
 
 /////// implemented in up_shader_module.c

@@ -14,7 +14,7 @@
 /////// implemented in up_texture_module.c
 
 // this tells the gpu what texture to use
-void up_texture_bind(struct up_texture_data *texture, unsigned int texUnit);
+void up_texture_bind(struct up_texture *texture, unsigned int texUnit);
 
 
 

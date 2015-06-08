@@ -164,11 +164,11 @@ int up_process_asset(struct up_generic_list *meshArray, struct up_generic_list *
     int returnCode = 1;
     struct up_objModel *testObj = NULL;
     struct up_mesh *mesh = NULL;
-    struct up_texture_data *texture = NULL;
+    struct up_texture *texture = NULL;
 
     // set up the dummyobjects to be used in case of failure
     struct up_mesh dummyMesh;
-    struct up_texture_data dummyTexture;
+    struct up_texture dummyTexture;
     up_mesh_list_getAtIndex(meshArray, &dummyMesh, 0);
     up_texture_list_getAtIndex(textureArray, &dummyTexture, 0);
 
@@ -272,7 +272,7 @@ struct up_assets *up_assets_start_setup()
     // the first model is always a default model that is used if
     // a missing obj file or texture is found
     struct up_mesh *mesh = dummyobj();
-    struct up_texture_data *texture = up_load_texture("lala.png");
+    struct up_texture *texture = up_load_texture("lala.png");
     if ((mesh == NULL) || (texture == NULL)) {
         UP_ERROR_MSG("Major problem , default texture or mesh failed to load, expect segfaults incoming");
     }

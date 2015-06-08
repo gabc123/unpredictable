@@ -16,7 +16,7 @@
 
 struct internal_texture_handler
 {
-    struct up_texture_data *texture;
+    struct up_texture *texture;
     int count;
     int size;
 };
@@ -26,7 +26,7 @@ static struct internal_texture_handler internal_texture;
 int up_texture_start_setup()
 {
     // set internal_texture to start value
-    internal_texture.texture = malloc(sizeof(struct up_texture_data)* UP_MAX_TEXTURE);
+    internal_texture.texture = malloc(sizeof(struct up_texture)* UP_MAX_TEXTURE);
     if (internal_texture.texture == NULL) {
         fprintf(stderr, "malloc fail: internal_texture ");
         return 0;
@@ -64,7 +64,7 @@ struct up_imageformat
 
 // loads a img with alpha channel
 // magnus
-static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
+static struct up_texture *up_loadImage_withAlpha(const char  * filename)
 {
     char rgb_imageFile[30];
     char alphaChannelFile[30];
@@ -76,7 +76,7 @@ static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
         return NULL;
     }
 
-    struct up_texture_data *tex_data = &(internal_texture.texture[internal_texture.count]);
+    struct up_texture *tex_data = &(internal_texture.texture[internal_texture.count]);
 
     strncat(rgb_imageFile,".png",5);
     strncat(alphaChannelFile,"Alpha.png",10);
@@ -201,10 +201,10 @@ static struct up_texture_data *up_loadImage_withAlpha(const char  * filename)
 
 
 // magnus
-static struct up_texture_data *up_load_special_error_texture(const char  * filename)
+static struct up_texture *up_load_special_error_texture(const char  * filename)
 {
     // we try to load lala.png with the normal loading functions first
-    struct up_texture_data *texture = up_loadImage_withAlpha(filename);
+    struct up_texture *texture = up_loadImage_withAlpha(filename);
     if ( texture != NULL) {
         return texture;
     }
@@ -292,7 +292,7 @@ static struct up_texture_data *up_load_special_error_texture(const char  * filen
 // loads a texture, always try to load a alpha channel to,
 // returns null on failure, can also load a special texture called lala
 // if this do not exist a img is generated programaticly
-struct up_texture_data *up_load_texture(const char  * filename)
+struct up_texture *up_load_texture(const char  * filename)
 {
     char newName[30];
     strcpy(newName,filename);
@@ -317,7 +317,7 @@ struct up_texture_data *up_load_texture(const char  * filename)
 }
 
 //tell the gpu what texture top use
-void up_texture_bind(struct up_texture_data *texture, unsigned int texUnit)
+void up_texture_bind(struct up_texture *texture, unsigned int texUnit)
 {
     //glActiveTexture(GL_TEXTURE0 + texUnit);
     glBindTexture(GL_TEXTURE_2D, texture->textureId);
@@ -326,9 +326,9 @@ void up_texture_bind(struct up_texture_data *texture, unsigned int texUnit)
 
 //  Created by Waleed Hassan on 2015-05-11.
 
-struct up_texture_data *up_cubeMapTexture_load(){
+struct up_texture *up_cubeMapTexture_load(){
 
-    struct up_texture_data *textureId;
+    struct up_texture *textureId;
 
     if (internal_texture.count >= internal_texture.size) {
         UP_ERROR_MSG("Error , tried to load too many textures");

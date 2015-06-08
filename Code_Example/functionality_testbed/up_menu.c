@@ -46,7 +46,7 @@ struct up_menu_button
     int text_len;
     struct up_vec3 textScale;
     struct up_mesh *mesh;
-    struct up_texture_data *tex;
+    struct up_texture *tex;
 };
 #define UP_SCREEN_WIDTH 1280
 #define UP_SCREEN_HIGHT 800
@@ -66,7 +66,7 @@ struct up_menu_button *up_create_button(struct up_vec3 pos,int hight,int width,c
     }
     struct up_mesh *mesh = up_mesh_menu_Botton();
     
-    struct up_texture_data *textureButton = up_load_texture(textureName);
+    struct up_texture *textureButton = up_load_texture(textureName);
     if(textureButton == NULL){
         textureButton = up_load_texture("lala.png");
     }
@@ -111,7 +111,7 @@ struct up_menu_button *up_generate_settings_button(int *numkey,struct up_key_map
     }
     struct up_mesh *mesh = up_mesh_menu_Botton();
     
-    struct up_texture_data *textureButton = up_load_texture("button_keybind");
+    struct up_texture *textureButton = up_load_texture("button_keybind");
     if(textureButton == NULL){
         textureButton = up_load_texture("lala.png");
     }
@@ -309,51 +309,51 @@ int up_menu(struct up_shader_module *shaderprog,
     
     //IMAGE LOADING
     up_matrix4_t identity = up_matrix4identity();
-    struct up_texture_data *textureMenuBackground = up_load_texture("1971687.png");
+    struct up_texture *textureMenuBackground = up_load_texture("1971687.png");
     if (textureMenuBackground==NULL) {
             textureMenuBackground = up_load_texture("lala.png");
     }
 
-    struct up_texture_data *textureBottonLogin = up_load_texture("menuBottons.png");
+    struct up_texture *textureBottonLogin = up_load_texture("menuBottons.png");
     if (textureBottonLogin==NULL) {
         textureBottonLogin = up_load_texture("lala.png");
     }
-    struct up_texture_data *textureLoginOverlay = up_load_texture("registerUser.png");
+    struct up_texture *textureLoginOverlay = up_load_texture("registerUser.png");
     if (textureLoginOverlay==NULL) {
         textureLoginOverlay = up_load_texture("lala.png");
     }
 
-    struct up_texture_data *textureQuiteWindow = up_load_texture("quitWindow.png");
+    struct up_texture *textureQuiteWindow = up_load_texture("quitWindow.png");
     if (textureQuiteWindow==NULL) {
         textureQuiteWindow = up_load_texture("lala.png");
     }
     
-    struct up_texture_data *textureCogWheel = up_load_texture("cogWheel.png");
+    struct up_texture *textureCogWheel = up_load_texture("cogWheel.png");
     if (textureCogWheel==NULL) {
         textureCogWheel = up_load_texture("lala.png");
     }
     
-    struct up_texture_data *textureSettingsOverlay = up_load_texture("settings.png");
+    struct up_texture *textureSettingsOverlay = up_load_texture("settings.png");
     if(textureSettingsOverlay == NULL){
         textureSettingsOverlay = up_load_texture("lala.png");
     }
     
-    struct up_texture_data *textureKeybindingsOverlay = up_load_texture("keybindingsOverlay.png");
+    struct up_texture *textureKeybindingsOverlay = up_load_texture("keybindingsOverlay.png");
     if(textureKeybindingsOverlay == NULL){
         textureKeybindingsOverlay = up_load_texture("lala.png");
     }
     
-    struct up_texture_data *textureConnectionStatus = up_load_texture("connecting.png");
+    struct up_texture *textureConnectionStatus = up_load_texture("connecting.png");
     if(textureConnectionStatus == NULL){
         textureConnectionStatus = up_load_texture("lala.png");
     }
     
-    struct up_texture_data *textureRegisterStatus = up_load_texture("register.png");
+    struct up_texture *textureRegisterStatus = up_load_texture("register.png");
     if(textureRegisterStatus == NULL){
         textureRegisterStatus = up_load_texture("lala.png");
     }
     
-    struct up_texture_data *textureShipSelection = up_load_texture("shipPic.png");
+    struct up_texture *textureShipSelection = up_load_texture("shipPic.png");
     if(textureShipSelection == NULL){
         textureShipSelection = up_load_texture("lala.png");
     }
