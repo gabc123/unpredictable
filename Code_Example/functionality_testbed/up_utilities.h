@@ -68,73 +68,10 @@ char *up_token_parser(char *srcString,char **nextString,char *delimiter,unsigned
 // forward decleration., this is implemented in the c file, we do not want to give access to the internal structure
 struct up_generic_list;
 
-/*
-    To prevent type mismatch when using the generic list , we will hide it behind wrapper functions
-    for most types
- */
 
-///////////////////////////////////////////////
-/*
-    wrapper function for up_vec3 specific types.
- */
-
-struct up_generic_list *up_vec3_list_new(unsigned int start_capacity);
-void up_vec3_list_delete(struct up_generic_list *list);
-struct up_vec3 *up_vec3_list_transferOwnership(struct up_generic_list **list);
-
-// information
-unsigned int up_vec3_list_count(struct up_generic_list *list);
-
-// add,set,get
-int up_vec3_list_add(struct up_generic_list *list,struct up_vec3 *data);
-void up_vec3_list_getAtIndex(struct up_generic_list *list,struct up_vec3 *data,unsigned int atIndex);
-void up_vec3_list_setAtIndex(struct up_generic_list *list,struct up_vec3 *data,unsigned int atIndex);
-
-// iterators
-struct up_vec3 *up_vec3_list_iteratorAccess(struct up_generic_list *list,int *count);
-
-///////////////////////////////////////////////
-/*
- wrapper function for up_vec2 specific types.
- */
-
-struct up_generic_list *up_vec2_list_new(unsigned int start_capacity);
-void up_vec2_list_delete(struct up_generic_list *list);
-struct up_vec2 *up_vec2_list_transferOwnership(struct up_generic_list **list);
-
-// information
-unsigned int up_vec2_list_count(struct up_generic_list *list);
-
-// add,set,get
-int up_vec2_list_add(struct up_generic_list *list,struct up_vec2 *data);
-void up_vec2_list_getAtIndex(struct up_generic_list *list,struct up_vec2 *data,unsigned int atIndex);
-void up_vec2_list_setAtIndex(struct up_generic_list *list,struct up_vec2 *data,unsigned int atIndex);
-
-// iterators
-struct up_vec2 *up_vec2_list_iteratorAccess(struct up_generic_list *list,int *count);
-
-///////////////////////////////////////////////
-/*
- wrapper function for up_vertex specific types.
- */
-
-struct up_generic_list *up_vertex_list_new(unsigned int start_capacity);
-void up_vertex_list_delete(struct up_generic_list *list);
-struct up_vertex *up_vertex_list_transferOwnership(struct up_generic_list **list);
-
-// information
-unsigned int up_vertex_list_count(struct up_generic_list *list);
-
-// add,set,get
-int up_vertex_list_add(struct up_generic_list *list,struct up_vertex *data);
-void up_vertex_list_getAtIndex(struct up_generic_list *list,struct up_vertex *data,unsigned int atIndex);
-void up_vertex_list_setAtIndex(struct up_generic_list *list,struct up_vertex *data,unsigned int atIndex);
-
-// iterators
-struct up_vertex *up_vertex_list_iteratorAccess(struct up_generic_list *list,int *count);
-
-///////////////////////////////////////////////
-
+// To use list for diffrent types, we provide wrapper functions, this is more safe then to use
+// the generic list directly, this is the wrapper functions for primitive types, int and unsigned int
+// below there is a macro to autogenerate this, for all structure that begins with up_
 ///////////////////////////////////////////////
 /*
  wrapper function for int specific types.
@@ -175,46 +112,171 @@ void up_uint_list_setAtIndex(struct up_generic_list *list,unsigned int *data,uns
 // iterators
 unsigned int *up_uint_list_iteratorAccess(struct up_generic_list *list,int *count);
 
+
+
+/*
+    A macro to auto generate function definitions for specific types
+    example, UP_LIST_NEW(mesh) will generate the function definition
+        struct up_generic_list *up_mesh_list_new(unsigned int start_capacity);
+    This is then used in the c file to auto generate a valid function body
+ 
+    The name is the name of the structur excluding the up_ prefix.
+    the following macros can be used:
+         
+        UP_LIST_NEW(name);
+        UP_LIST_DELETE(name);
+        UP_LIST_TRANSFER_OWNERSHIP(name);
+ 
+        // information
+        UP_LIST_COUNT(name);
+ 
+        // add,set,get
+        UP_LIST_ADD(name);
+        UP_LIST_GET(name);
+        UP_LIST_SET(name);
+        
+        // iterators
+        UP_LIST_ITERATORACCESS(name);
+ 
+ */
+
+
+// too help pased and join names to create the function name
+#define UP_JOIN_NAME(var1,var2) up_ ##var1 ##var2
+#define UP_STRUCT_NAME(var1) struct up_ ##var1
+
+// joins the name with the funciton type
+#define UP_LIST_NAME_NEW(var1) UP_JOIN_NAME(var1,_list_new)
+#define UP_LIST_NAME_DELETE(var1) UP_JOIN_NAME(var1,_list_delete)
+
+#define UP_LIST_NAME_TRANSFER(var1) UP_JOIN_NAME(var1,_list_transferOwnership)
+#define UP_LIST_NAME_COUNT(var1) UP_JOIN_NAME(var1,_list_count)
+
+#define UP_LIST_NAME_ADD(var1) UP_JOIN_NAME(var1,_list_add)
+#define UP_LIST_NAME_GET(var1) UP_JOIN_NAME(var1,_list_getAtIndex)
+#define UP_LIST_NAME_SET(var1) UP_JOIN_NAME(var1,_list_setAtIndex)
+
+#define UP_LIST_NAME_ITERATOR(var1) UP_JOIN_NAME(var1,_list_iteratorAccess)
+
+// the final macro to create the function
+#define UP_LIST_NEW(name)\
+struct up_generic_list *UP_LIST_NAME_NEW(name)(unsigned int start_capacity)
+
+#define UP_LIST_DELETE(name)\
+void UP_LIST_NAME_DELETE(name)(struct up_generic_list *list)
+
+#define UP_LIST_TRANSFER_OWNERSHIP(name)\
+UP_STRUCT_NAME(name) *UP_LIST_NAME_TRANSFER(name)(struct up_generic_list **list)
+
+// information
+#define UP_LIST_COUNT(name)\
+unsigned int UP_LIST_NAME_COUNT(name)(struct up_generic_list *list)
+
+// add,set,get
+#define UP_LIST_ADD(name)\
+int UP_LIST_NAME_ADD(name)(struct up_generic_list *list,UP_STRUCT_NAME(name) *data)
+
+#define UP_LIST_GET(name)\
+void UP_LIST_NAME_GET(name)(struct up_generic_list *list,UP_STRUCT_NAME(name) *data,unsigned int atIndex)
+
+#define UP_LIST_SET(name)\
+void UP_LIST_NAME_SET(name)(struct up_generic_list *list,UP_STRUCT_NAME(name) *data,unsigned int atIndex)
+
+// iterators
+#define UP_LIST_ITERATORACCESS(name)\
+UP_STRUCT_NAME(name) * UP_LIST_NAME_ITERATOR(name)(struct up_generic_list *list,int *count)
+
+
+
+/*
+    To prevent type mismatch when using the generic list , we will hide it behind wrapper functions
+    for most types
+ */
+
+///////////////////////////////////////////////
+/*
+    wrapper function for up_vec3 specific types.
+ */
+UP_LIST_NEW(vec3);
+UP_LIST_DELETE(vec3);
+UP_LIST_TRANSFER_OWNERSHIP(vec3);
+// information
+UP_LIST_COUNT(vec3);
+// add,set,get
+UP_LIST_ADD(vec3);
+UP_LIST_GET(vec3);
+UP_LIST_SET(vec3);
+// iterators
+UP_LIST_ITERATORACCESS(vec3);
+
+
+///////////////////////////////////////////////
+/*
+ wrapper function for up_vec2 specific types.
+ */
+UP_LIST_NEW(vec2);
+UP_LIST_DELETE(vec2);
+UP_LIST_TRANSFER_OWNERSHIP(vec2);
+// information
+UP_LIST_COUNT(vec2);
+// add,set,get
+UP_LIST_ADD(vec2);
+UP_LIST_GET(vec2);
+UP_LIST_SET(vec2);
+// iterators
+UP_LIST_ITERATORACCESS(vec2);
+
+
+///////////////////////////////////////////////
+/*
+ wrapper function for up_vertex specific types.
+ */
+///////////////////////////////////////////////
+UP_LIST_NEW(vertex);
+UP_LIST_DELETE(vertex);
+UP_LIST_TRANSFER_OWNERSHIP(vertex);
+// information
+UP_LIST_COUNT(vertex);
+// add,set,get
+UP_LIST_ADD(vertex);
+UP_LIST_GET(vertex);
+UP_LIST_SET(vertex);
+// iterators
+UP_LIST_ITERATORACCESS(vertex);
+
 ///////////////////////////////////////////////
 /*
  wrapper function for up_mesh specific types.
  */
-
-struct up_generic_list *up_mesh_list_new(unsigned int start_capacity);
-void up_mesh_list_delete(struct up_generic_list *list);
-struct up_mesh *up_mesh_list_transferOwnership(struct up_generic_list **list);
-
+UP_LIST_NEW(mesh);
+UP_LIST_DELETE(mesh);
+UP_LIST_TRANSFER_OWNERSHIP(mesh);
 // information
-unsigned int up_mesh_list_count(struct up_generic_list *list);
-
+UP_LIST_COUNT(mesh);
 // add,set,get
-int up_mesh_list_add(struct up_generic_list *list,struct up_mesh *data);
-void up_mesh_list_getAtIndex(struct up_generic_list *list,struct up_mesh *data,unsigned int atIndex);
-void up_mesh_list_setAtIndex(struct up_generic_list *list,struct up_mesh *data,unsigned int atIndex);
-
+UP_LIST_ADD(mesh);
+UP_LIST_GET(mesh);
+UP_LIST_SET(mesh);
 // iterators
-struct up_mesh *up_mesh_list_iteratorAccess(struct up_generic_list *list,int *count);
+UP_LIST_ITERATORACCESS(mesh);
 
 ///////////////////////////////////////////////
 /*
  wrapper function for up_texture specific types.
  */
 
-struct up_generic_list *up_texture_list_new(unsigned int start_capacity);
-void up_texture_list_delete(struct up_generic_list *list);
-struct up_texture_data *up_texture_list_transferOwnership(struct up_generic_list **list);
-
+UP_LIST_NEW(texture);
+UP_LIST_DELETE(texture);
+UP_LIST_TRANSFER_OWNERSHIP(texture);
 // information
-unsigned int up_texture_list_count(struct up_generic_list *list);
-
+UP_LIST_COUNT(texture);
 // add,set,get
-int up_texture_list_add(struct up_generic_list *list,struct up_texture_data *data);
-void up_texture_list_getAtIndex(struct up_generic_list *list,struct up_texture_data *data,unsigned int atIndex);
-void up_texture_list_setAtIndex(struct up_generic_list *list,struct up_texture_data *data,unsigned int atIndex);
-
+UP_LIST_ADD(texture);
+UP_LIST_GET(texture);
+UP_LIST_SET(texture);
 // iterators
-struct up_texture_data *up_texture_list_iteratorAccess(struct up_generic_list *list,int *count);
-
+UP_LIST_ITERATORACCESS(texture);
 ///////////////////////////////////////////////
+
 
 #endif /* UP_UTILITIES_H */
