@@ -66,6 +66,7 @@ int main(int argc, char const *argv[])
     int max_others_count = 200;
     struct up_allCollisions allcollisions = {0};
 
+    up_shader_setup();
     // loads the shaders for the rendering loop (location 1)
     struct up_shader_module *shaderprog;
     shaderprog = up_shader_new("shadertest",1);
