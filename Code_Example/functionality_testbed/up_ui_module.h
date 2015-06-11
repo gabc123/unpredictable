@@ -11,6 +11,7 @@
 
 #include "up_assets.h"
 #include "up_math.h"
+#include "up_sdl_redirect.h"
 
 // text containing all info needed to be display
 struct up_ui_text
@@ -20,6 +21,7 @@ struct up_ui_text
     int length;
     int max_size;
     int isPassword; // if set to 1, will only dusplay *** insead of text string
+    struct up_vec3 pos;
     struct up_vec3 color;
     struct up_vec3 scale;
     float stepSize; // the diff in step between letters from defualt
@@ -51,6 +53,45 @@ struct up_ui_textField
     struct up_ui_text *text;  // if the button should have any text, this us the text
 };
 
+// a rectangle that you can add a texture too
+struct up_ui_rect
+{
+    struct up_ui_clickArea area;
+    struct up_mesh *mesh;
+    struct up_texture *texture;
+};
+
+// makes it easier to make a array of diffrent textfields, and remove the needs for ** ptrs
+// ex: struct up_ui_textFieldArray array[10];
+// array[5].elm = up_ui_textField_new(pos,width,hight,"lala",text);
+
+struct up_ui_textArray
+{
+    struct up_ui_text *elm;
+};
+
+struct up_ui_buttonArray
+{
+    struct up_ui_button *elm;
+};
+
+struct up_ui_textFieldArray
+{
+    struct up_ui_textField *elm;
+};
+
+struct up_ui_rectArray
+{
+    struct up_ui_rect *elm;
+};
+
+
+//helper functions
+// creates a new string from str on the heap, so it can be used with ui_text
+// str must be null terminated
+char *up_str_new(const char *str);
+char *up_str_newSize(int size);
+
 
 /// functions to manage the ui elements
 
@@ -61,6 +102,7 @@ struct up_ui_textField
 // pass in the font assets that should be used by this text.
 struct up_ui_text *up_ui_text_new(char *text,int maxLength,
                                   int isPassword,
+                                  struct up_vec3 pos,
                                   struct up_vec3 color,
                                   struct up_vec3 scale,
                                   float stepSize,
@@ -77,7 +119,9 @@ void up_ui_text_free(struct up_ui_text *text,int freeTextBuffer);
 // pass in a ui_text that should be assosieted with this one,
 // input:   pos = location on screen, in opengl coordinates
 //          width,hight = given in pixels not screen coords
-//          text is a ui_text element, to handel the text
+//          text is a ui_text element, to handel the text, however text internal pos will be overriden
+//          textureName, if given NULL, it will be the users responsibility to set it,
+//              this option can be used to reuse a texture instead of reloading it to every textfield
 struct up_ui_textField *up_ui_textField_new(struct up_vec3 pos,int width,int hight,char *textureName,struct up_ui_text *text);
 
 
@@ -93,10 +137,19 @@ struct up_ui_button *up_ui_button_new(struct up_vec3 pos,int width,int hight,cha
 struct up_ui_text *up_ui_button_free(struct up_ui_button *button);
 
 
+//////////////////////////////
+// creates a rect to use, pass in the texture name, used the same way ui_textField_new works
+struct up_ui_rect *up_ui_rect_new(struct up_vec3 pos,int width,int hight,char *textureName);
+
+// returns the text that was inside button incase you need to handel it diffrently
+void up_ui_rect_free(struct up_ui_rect *rect);
+
+
+
 ////////////////////////////////////////////
 
 //renders a ui_text on screen, at pos, (you do not need to call this for a button or textField)
-void up_ui_text_render(struct up_vec3 pos,struct up_ui_text *text,struct up_shader_module *shaderprog);
+void up_ui_text_render(struct up_ui_text *text,struct up_shader_module *shaderprog);
 
 // renders a textField including its text and all relevent stuff
 void up_ui_textField_render(struct up_ui_textField *textField,struct up_shader_module *shaderprog);
@@ -120,12 +173,25 @@ int up_ui_check_clickArea(struct up_ui_clickArea clickAreaa,int mouse_x, int mou
 struct up_ui_controller_glue
 {
     struct up_ui_clickArea *clickArea;  // the area the can be clicked and activate the function
-    int (*func)(void *data);    // function pointer to the action if clickarea is clicked
+    int (*func)(int idx,void *data);    // function pointer to the action if clickarea is clicked,idx is the index in the click array this was.
     void *data; // data that should be passed to the function
 };
 
 // call this with the current controlArray containing all clickable areas in the screen
-void up_ui_controller_update(struct up_ui_controller_glue *controlArray,int mouse_x,int mouse_y);
+void up_ui_controller_updateClick(struct up_ui_controller_glue *controlArray,int mouse_x,int mouse_y);
+
+
+///////////////////// same concept as above
+// set what key shold be binded to what function, and a pointer to the data
+struct up_ui_controller_keyInput
+{
+    SDL_Keycode key;
+    int (*func)(void *data);
+    void *data;
+};
+
+void up_ui_controller_updateKeyAction(struct up_ui_controller_keyInput *controllArray,SDL_Keycode key);
+
 
 /*
  A example use of the controller , you create a array with all your clickable areas
@@ -142,7 +208,7 @@ void up_ui_controller_update(struct up_ui_controller_glue *controlArray,int mous
  // this is some controll glue code, to bind the controller to the model
  // this is just an example, you dont need to do it this way,
  // but to keep a mvc designe this is probably a ok begining
- int demoGlue(void *data)
+ int demoGlue(int idx,void *data)
  {
  struct demoData *myData = (struct demoData *)data;
  int ret = 0;
@@ -159,6 +225,7 @@ void up_ui_controller_update(struct up_ui_controller_glue *controlArray,int mous
  ...
  
  // fill out the controller with all your clickable areas,functions and the data they should be connected too
+ // the location in this array is equal to idx that the function recives
  struct up_ui_controller_glue glueArray[] = {
  {&dummyDemoClick,&demoGlue,&dummyDemoData},
  {&dummyDemoClick,&demoGlue,&dummyDemoData},
@@ -169,7 +236,7 @@ void up_ui_controller_update(struct up_ui_controller_glue *controlArray,int mous
  };
  
  then you use it by calling the controller update
- up_ui_controller_update(glueArray,mouse_x,mouse_y);
+ up_ui_controller_updateClick(glueArray,mouse_x,mouse_y);
  
  */
 

@@ -184,7 +184,11 @@ struct up_mesh *up_meshBotton(float imageX, float imageY, float screenPosX, floa
 // magnus test
 struct up_mesh *up_mesh_menu_Botton()
 {
-
+    // becouse we are actully using the same mesh for every button, we only need to load it once
+    static struct up_mesh *cached_mesh = NULL;
+    if (cached_mesh != NULL) {
+        return cached_mesh;
+    }
 
     struct up_vec2 tex[] = {
         {0.0f, 0.0f},
@@ -218,6 +222,9 @@ struct up_mesh *up_mesh_menu_Botton()
     printf("vertex start: ");
     struct up_mesh *mesh = UP_mesh_new(vertex, sizeof(vertex)/sizeof(vertex[0]),indexArray, sizeof(indexArray)/sizeof(indexArray[0]));
     //printf("Mesh finnished\n");
+    
+    // cache the mesh for reuse
+    cached_mesh = mesh;
     return mesh;
 }
 

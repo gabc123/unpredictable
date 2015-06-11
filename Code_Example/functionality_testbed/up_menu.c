@@ -30,6 +30,218 @@
 
 
 #include "up_sdl_redirect.h"  //mouse event handlingr
+#include "up_ui_module.h"
+
+struct up_menu_interface
+{
+    struct up_ui_buttonArray *buttonArray;
+    struct up_ui_textArray *textArray;
+    struct up_ui_textFieldArray *textFieldArray;
+    
+    int numButtons;
+    int numText;
+    int numTextField;
+    
+    struct up_ui_controller_glue *controller_glue;
+    struct up_ui_controller_keyInput *controller_keyInput;
+};
+
+
+
+static struct up_menu_interface *up_menu_interface_newStorage(struct up_menu_interface *interface,int numButtons,int numText,int numTextFields)
+{
+    if (interface == NULL) {
+        UP_ERROR_MSG("Passed in interface == NULL");
+        return NULL;
+    }
+    
+    interface->controller_glue = NULL;
+    interface->controller_keyInput = NULL;
+    
+    struct up_ui_buttonArray *buttonArray = NULL;
+    if (numButtons > 0) {
+        buttonArray = malloc(sizeof(struct up_ui_buttonArray)*numButtons);
+        if (buttonArray == NULL)
+        {
+            UP_ERROR_MSG("malloc failed");
+            return NULL;
+        }
+    }
+    interface->buttonArray = buttonArray;
+    interface->numButtons = numButtons;
+    
+    struct up_ui_textArray *textArray = NULL;
+    if (numText > 0) {
+        textArray = malloc(sizeof(struct up_ui_textArray)*numText);
+        if (textArray == NULL)
+        {
+            UP_ERROR_MSG("malloc failed");
+            return NULL;
+        }
+    }
+    interface->textArray = textArray;
+    interface->numText = numText;
+    
+    struct up_ui_textFieldArray *textFieldArray = NULL;
+    if (numTextFields > 0) {
+        textFieldArray = malloc(sizeof(struct up_ui_textFieldArray)*numTextFields);
+        if (textFieldArray == NULL)
+        {
+            UP_ERROR_MSG("malloc failed");
+            return NULL;
+        }
+    }
+    interface->textFieldArray = textFieldArray;
+    interface->numTextField = numTextFields;
+    return interface;
+}
+
+static void up_menu_interface_freeStorage(struct up_menu_interface *interface)
+{
+    free(interface->buttonArray);
+    free(interface->textArray);
+    free(interface->textFieldArray);
+    interface->buttonArray = NULL;
+    interface->textArray = NULL;
+    interface->textFieldArray = NULL;
+    //this is importent, simplefies deallocation gaurds, and prevents programmer errors hopfully
+    interface->numButtons = 0;
+    interface->numText = 0;
+    interface->numTextField = 0;
+}
+
+#define UP_BUTTON_KEYNAME_MAX 20
+
+struct keybinding_state
+{
+    int change_key;
+    int bind_key;
+};
+
+int up_buttonPressed_keybind(int idx,void *data)
+{
+    struct keybinding_state *state = (struct keybinding_state*)data;
+    if (state != NULL) {
+        state->bind_key = idx;  //what key that should be changed
+        state->change_key = 1;  // that a key has been selected
+    }
+    return 0;
+}
+
+void up_bindKey(struct up_key_map *keymap,struct up_ui_buttonArray *buttonArray,struct keybinding_state *bindstate,SDL_Keycode key)
+{
+    int idx = bindstate->bind_key;
+    char *str = NULL;
+    struct up_ui_text *text = NULL;
+    if (bindstate->change_key == 1) {
+        
+        
+        keymap[idx].key = key;
+        // get the ui text element of the button
+        text = buttonArray[idx].elm->text;
+
+        // change the button text to the new key
+        str = text->text;
+        strncpy(str, SDL_GetKeyName(key), UP_BUTTON_KEYNAME_MAX);
+        text->length = (int)strlen(str);
+        bindstate->change_key = 0; // key set
+    }
+}
+
+
+static struct up_menu_interface *up_menu_interface_keyBinding_new(struct up_menu_interface *interface,
+                                                              struct up_key_map *keymap,
+                                                    struct up_vec3 pos,
+                                                    int hight,int width,
+                                                    struct up_vec3 textScale,float step,
+                                                    struct keybinding_state *state_data,
+                                                              struct up_font_assets *fonts)
+{
+    int count = 0;
+    int i = 0;
+    while(keymap[count].key != 0)
+    {
+        count++;
+    }
+    if (count <=0) {
+        return NULL;
+    }
+    
+    interface = up_menu_interface_newStorage(interface,count, count, 0);
+    if (interface == NULL) {
+        return NULL;
+    }
+    
+    struct up_texture *textureButton = up_load_texture("button_keybind");
+    if(textureButton == NULL){
+        textureButton = up_load_texture("lala.png");
+    }
+    
+    // the controller binds a action and a data ptr to the button,
+    struct up_ui_controller_glue *controller = malloc(sizeof(struct up_ui_controller_glue)*(count + 1));
+    if (controller == NULL) {
+        UP_ERROR_MSG("controller failed, malloc fualt");
+        return interface;
+    }
+    
+    char *str_tmp = NULL;
+    struct up_ui_text *text_tmp = NULL;
+    struct up_ui_button *button_tmp = NULL;
+    struct up_vec3 textPos = {0};
+    
+    struct up_vec3 white_color = {1.0, 1.0, 1.0};
+    struct up_vec3 black_color = {0.0, 0.0, 0.0};
+    
+    for (i = 0; i < count; i++) {
+        
+        textPos = pos;
+        textPos.x += -0.5;
+        str_tmp = keymap[i].name;
+        interface->textArray[i].elm = up_ui_text_new(str_tmp, (int)strlen(str_tmp), 0, textPos, white_color, textScale, 0, fonts);
+        // this is done, becouse the str length varies between keys, ex 'k' abd space_bar big diff in length
+        str_tmp = up_str_newSize(UP_BUTTON_KEYNAME_MAX);
+        strncpy(str_tmp, SDL_GetKeyName(keymap[i].key), UP_BUTTON_KEYNAME_MAX);
+        text_tmp = up_ui_text_new(str_tmp, UP_BUTTON_KEYNAME_MAX, 0, pos, black_color, textScale, 0, fonts);
+        
+        button_tmp = up_ui_button_new(pos, width, hight, NULL, text_tmp);
+        button_tmp->texture = textureButton; // this reuses the same texture for all buttons
+        
+        controller[i].clickArea = &button_tmp->area;    // the area that can be clicked on
+        controller[i].func = up_buttonPressed_keybind;  // function that is called when this button is prest
+        controller[i].data = state_data;    // when the button is pressed this data is passed to func, along with idx
+        
+        interface->buttonArray[i].elm = button_tmp;
+        
+        pos.y -= step;
+    }
+    //last element of the controller needs to be NULL
+    controller[count].clickArea = NULL;
+    controller[count].func = NULL;
+    controller[count].data = NULL;
+    interface->controller_glue = controller;
+    return interface;
+}
+
+static void up_menu_interface_keyBinding_free(struct up_menu_interface *interface)
+{
+    struct up_ui_textArray *textArray = interface->textArray;
+    int numText = interface->numText;
+    int i = 0;
+    for (i = 0; i < numText; i++) {
+        up_ui_text_free(textArray[i].elm, 0);   // we do not want to free the textBuffer its in keymapp!!
+    }
+    
+    struct up_ui_text *text_tmp = NULL;
+    struct up_ui_buttonArray *buttonArray = interface->buttonArray;
+    int numButtons = interface->numButtons;
+    
+    for (i = 0; i < numButtons; i++) {
+        text_tmp = up_ui_button_free(buttonArray[i].elm);   // returns the text in button
+        up_ui_text_free(text_tmp, 1);   // this time we want to free the textbuffer also
+    }
+    
+    up_menu_interface_freeStorage(interface);
+}
 
 
 
@@ -253,11 +465,7 @@ struct userData{
     int keypressPassword;
 };
 
-struct keybinding_state
-{
-    int change_key;
-    int bind_key;
-};
+
 
 int up_keyBindingEvent(struct navigationState *navigation,struct up_key_map *keymap,struct up_menu_button *buttonArray,int numButtons,struct keybinding_state *bindstate);
 

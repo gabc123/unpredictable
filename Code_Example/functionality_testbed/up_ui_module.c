@@ -16,12 +16,42 @@
 #include <stdlib.h>
 
 
+
 // move somewhere else, this is the window resulution
 #define UP_SCREEN_WIDTH 1280
 #define UP_SCREEN_HIGHT 800
 
+char *up_str_new(const char *str)
+{
+    if (str == NULL) {
+        return NULL;
+    }
+    int len = (int)strlen(str) + 1;
+    
+    char *text = malloc(sizeof(char) * len);
+    if (text == NULL) {
+        UP_ERROR_MSG("malloc failed");
+        return NULL;
+    }
+    strncpy(text, str, len);
+    
+    return text;
+}
+
+char *up_str_newSize(int size)
+{
+    char *text = malloc(sizeof(char) * size);
+    if (text == NULL) {
+        UP_ERROR_MSG("malloc failed");
+        return NULL;
+    }
+    return text;
+}
+
+
 struct up_ui_text *up_ui_text_new(char *text,int maxLength,
                                   int isPassword,
+                                  struct up_vec3 pos,
                                   struct up_vec3 color,
                                   struct up_vec3 scale,
                                   float stepSize,
@@ -44,6 +74,7 @@ struct up_ui_text *up_ui_text_new(char *text,int maxLength,
     uiText->max_size = maxLength;
     uiText->text = text;
     
+    uiText->pos = pos;
     uiText->color = color;
     uiText->scale = scale;
     uiText->stepSize = stepSize;
@@ -67,13 +98,26 @@ struct up_ui_textField *up_ui_textField_new(struct up_vec3 pos,int width,int hig
     
     struct up_mesh *mesh = up_mesh_menu_Botton();
     
-    struct up_texture *texture = up_load_texture(textureName);
-    if(texture == NULL){
-        texture = up_load_texture("lala.png");
+    // incase you want to reuse the same texture, you dont want to reload it every time
+    textField->texture = NULL;
+    struct up_texture *texture = NULL;
+    if (textureName != NULL) {
+        texture = up_load_texture(textureName);
+        if(texture == NULL){
+            texture = up_load_texture("lala.png");
+        }
     }
+   
     
     textField->mesh = mesh;
     textField->texture = texture;
+    
+    
+    struct up_vec3 textPos = textField->area.pos;
+    textPos.z -= 0.01;  //text need to be infront of the textfield model
+    text->pos = textPos;
+    
+    
     textField->text = text;
     return textField;
 }
@@ -91,17 +135,63 @@ struct up_ui_button *up_ui_button_new(struct up_vec3 pos,int width,int hight,cha
     
     struct up_mesh *mesh = up_mesh_menu_Botton();
     
-    struct up_texture *texture = up_load_texture(textureName);
-    if(texture == NULL){
-        texture = up_load_texture("lala.png");
+    // incase you want to reuse the same texture, you dont want to reload it every time
+    button->texture = NULL;
+    struct up_texture *texture = NULL;
+    if (textureName != NULL) {
+        texture = up_load_texture(textureName);
+        if(texture == NULL){
+            texture = up_load_texture("lala.png");
+        }
     }
     
     button->mesh = mesh;
     button->texture = texture;
+    
+    
+    struct up_vec3 textPos = button->area.pos;
+    textPos.z -= 0.01;  //text need to be infront of the textfield model
+    text->pos = textPos;
+    
     button->text = text;
     return button;
 }
 
+//////////////////////////////
+// creates a rect to use, pass in the texture name, used the same way ui_textField_new works
+struct up_ui_rect *up_ui_rect_new(struct up_vec3 pos,int width,int hight,char *textureName)
+{
+    struct up_ui_rect *rect = malloc(sizeof(struct up_ui_button));
+    if (rect == NULL) {
+        UP_ERROR_MSG("malloc failure");
+        return NULL;
+    }
+    rect->area.pos = pos;
+    rect->area.width = width;
+    rect->area.hight = hight;
+    
+    struct up_mesh *mesh = up_mesh_menu_Botton();
+    
+    // incase you want to reuse the same texture, you dont want to reload it every time
+    rect->texture = NULL;
+    struct up_texture *texture = NULL;
+    if (textureName != NULL) {
+        texture = up_load_texture(textureName);
+        if(texture == NULL){
+            texture = up_load_texture("lala.png");
+        }
+    }
+    
+    rect->mesh = mesh;
+    rect->texture = texture;
+
+    return rect;
+}
+
+
+
+
+//////
 
 void up_ui_text_free(struct up_ui_text *text,int freeTextBuffer)
 {
@@ -141,9 +231,21 @@ struct up_ui_text *up_ui_textField_free(struct up_ui_textField *textField)
     return tmp_text;
 }
 
+
+// returns the text that was inside button incase you need to handel it diffrently
+void up_ui_rect_free(struct up_ui_rect *rect)
+{
+    // prevent it to be renderd on screen, just incase
+    rect->area.width = 0;
+    rect->area.hight = 0;
+    rect->area.pos.x = -123;
+    free(rect);
+}
+
+
 ////////////////////////////////////////////
 
-void up_ui_text_render(struct up_vec3 pos,struct up_ui_text *text,struct up_shader_module *shaderprog)
+void up_ui_text_render(struct up_ui_text *text,struct up_shader_module *shaderprog)
 {
     if (text == NULL) {
         return; // sometimes we dont need text, so the programmer dont need the think about it
@@ -162,7 +264,7 @@ void up_ui_text_render(struct up_vec3 pos,struct up_ui_text *text,struct up_shad
     }
     
     // this renders the text to the display, yay ...
-    up_displayText(tmp_text, length, &pos, &text->scale, text->fonts, shaderprog, text->stepSize, &text->color);
+    up_displayText(tmp_text, length, &text->pos, &text->scale, text->fonts, shaderprog, text->stepSize, &text->color);
 }
 
 void up_ui_textField_render(struct up_ui_textField *textField,struct up_shader_module *shaderprog)
@@ -187,9 +289,7 @@ void up_ui_textField_render(struct up_ui_textField *textField,struct up_shader_m
     up_texture_bind(textField->texture, 0);
     up_mesh_draw(textField->mesh);
     
-    struct up_vec3 textPos = textField->area.pos;
-    textPos.z -= 0.01;  //text need to be infront of the textfield model
-    up_ui_text_render(textPos, textField->text, shaderprog);
+    up_ui_text_render(textField->text, shaderprog);
 }
 
 void up_ui_button_render(struct up_ui_button *button,struct up_shader_module *shaderprog)
@@ -216,7 +316,7 @@ void up_ui_button_render(struct up_ui_button *button,struct up_shader_module *sh
     
     struct up_vec3 textPos = button->area.pos;
     textPos.z -= 0.01;  //text need to be infront of the textfield model
-    up_ui_text_render(textPos, button->text, shaderprog);
+    up_ui_text_render(button->text, shaderprog);
 }
 
 
@@ -237,7 +337,7 @@ int up_ui_check_clickArea(struct up_ui_clickArea clickAreaa,int mouse_x, int mou
 
 ////////////////////////////
 
-void up_ui_controller_update(struct up_ui_controller_glue *controlArray,int mouse_x,int mouse_y)
+void up_ui_controller_updateClick(struct up_ui_controller_glue *controlArray,int mouse_x,int mouse_y)
 {
     if (controlArray == NULL) {
         return;
@@ -247,9 +347,28 @@ void up_ui_controller_update(struct up_ui_controller_glue *controlArray,int mous
     for (i = 0; controlArray[i].clickArea != NULL; i++) {
         if (up_ui_check_clickArea(*controlArray[i].clickArea, mouse_x, mouse_y)) {
             data = controlArray[i].data;
-            controlArray[i].func(data); // currently we are not using the return value
+            controlArray[i].func(i,data); // currently we are not using the return value
         }
     }
     
 }
+
+
+void up_ui_controller_updateKeyAction(struct up_ui_controller_keyInput *controllArray,SDL_Keycode key)
+{
+    if (controllArray == NULL || key == 0) {
+        return;
+    }
+    
+    int i = 0;
+    void *data = controllArray[i].data;
+    for (i =0; controllArray[i].key != 0; i++) {
+        if (controllArray[i].key == key) {
+            data = controllArray[i].data;
+            controllArray[i].func(data);
+        }
+    }
+    
+}
+
 
