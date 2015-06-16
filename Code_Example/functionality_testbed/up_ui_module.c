@@ -16,9 +16,6 @@
 #include <stdlib.h>
 
 
-
-
-
 char *up_str_new(const char *str)
 {
     if (str == NULL) {
@@ -158,10 +155,8 @@ struct up_ui_button *up_ui_button_new(struct up_vec3 pos,int width,int hight,cha
     
     button->mesh = mesh;
     button->texture = texture;
-
     
     struct up_vec3 textPos = button->area.pos;
-    
     textPos.x -= ((float)width/UP_SCREEN_WIDTH)/1.2;
     //textPos.y = ((float)hight/UP_SCREEN_HIGHT)/2;
     textPos.z -= 0.01;  //text need to be infront of the textfield model
@@ -195,17 +190,10 @@ struct up_ui_rect *up_ui_rect_new(struct up_vec3 pos,int width,int hight,char *t
             texture = up_load_texture("lala.png");
         }
     }
-    
     rect->mesh = mesh;
     rect->texture = texture;
-
     return rect;
 }
-
-
-
-
-//////
 
 void up_ui_text_free(struct up_ui_text *text,int freeTextBuffer)
 {
@@ -216,7 +204,6 @@ void up_ui_text_free(struct up_ui_text *text,int freeTextBuffer)
     if (freeTextBuffer == 1) {
         free(text->text);
     }
-    
     text->text = NULL;
     free(text);
 }
@@ -255,7 +242,6 @@ void up_ui_rect_free(struct up_ui_rect *rect)
     rect->area.pos.x = -123;
     free(rect);
 }
-
 
 ////////////////////////////////////////////
 
@@ -321,7 +307,6 @@ void up_ui_button_render(struct up_ui_button *button,struct up_shader_module *sh
     scale.z = 1;
     
     up_matrix4_t transform = {0};  //used by the shader to transforme the mesh to the correct loc on scrren
-    
     up_matrixModel(&transform, &button->area.pos, &rot, &scale);
     
     up_shader_update(shaderprog, &transform);
@@ -346,15 +331,14 @@ void up_ui_rect_render(struct up_ui_rect *rect,struct up_shader_module *shaderpr
     scale.z = 1;
     
     up_matrix4_t transform = {0};  //used by the shader to transforme the mesh to the correct loc on scrren
-    
     up_matrixModel(&transform, &rect->area.pos, &rot, &scale);
     
     up_shader_update(shaderprog, &transform);
     up_texture_bind(rect->texture, 0);
     up_mesh_draw(rect->mesh);
 }
-/// array renders
 
+/// array renders
 void up_ui_textArray_render(struct up_ui_textArray *textArray,int num,struct up_shader_module *shaderprog)
 {
     if (textArray == NULL) {
@@ -399,8 +383,6 @@ void up_ui_rectArray_render(struct up_ui_rectArray *rectArray,int num,struct up_
     }
 }
 
-
-
 ////////////////////////
 struct up_ui_controller_glue up_ui_controller_setGlue(struct up_ui_clickArea *clickArea,int (*func)(int idx,void *data),void *data)
 {
@@ -425,9 +407,7 @@ int up_ui_check_clickArea(struct up_ui_clickArea clickAreaa,int mouse_x, int mou
     return ((x <= mouse_x) && ( mouse_x <= x + width) && (y <= mouse_y) && ( mouse_y <= y + hight));
 }
 
-
 ////////////////////////////
-
 void up_ui_controller_updateClick(struct up_ui_controller_glue *controlArray,int mouse_x,int mouse_y)
 {
     if (controlArray == NULL) {
@@ -441,16 +421,13 @@ void up_ui_controller_updateClick(struct up_ui_controller_glue *controlArray,int
             controlArray[i].func(i,data); // currently we are not using the return value
         }
     }
-    
 }
-
 
 void up_ui_controller_updateKeyAction(struct up_ui_controller_keyInput *controllArray,SDL_Keycode key)
 {
     if (controllArray == NULL || key == 0) {
         return;
     }
-    
     int i = 0;
     void *data = controllArray[i].data;
     for (i =0; controllArray[i].key != 0; i++) {
@@ -459,7 +436,5 @@ void up_ui_controller_updateKeyAction(struct up_ui_controller_keyInput *controll
             controllArray[i].func(data);
         }
     }
-    
 }
-
 
