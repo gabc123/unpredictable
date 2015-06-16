@@ -5,7 +5,8 @@
 
 
 #include "up_network_module.h"
-#include "up_menu.h"
+
+
 #include "up_camera_module.h"
 
 #include "up_camera_module.h"
@@ -32,6 +33,12 @@
 #include "up_object_handler.h"
 
 #include "up_updateObjectMatrix.h"
+#include "up_startmenu.h"
+
+#include "up_deprecated_menu.h"
+
+
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -120,8 +127,10 @@ int main(int argc, char const *argv[])
     mapData.playeModel = 18;
     mapData.playerIndex = 1;
     status = 2;
-    status=up_menu(shader_menu, sound,keymap,font_assets,account_connection,&mapData);
     
+    //status = up_deprecated_menu(shader_menu, sound,keymap,font_assets,account_connection,&mapData);
+    
+    status = up_startmenu(&mapData, keymap, account_connection, sound, font_assets, shader_menu);
     
     up_network_shutdown_deinit(account_connection);
     
@@ -264,7 +273,7 @@ int main(int argc, char const *argv[])
         ship = &tmp_ship;
     }
     
-    while(status)
+    while(status > 0)
     {
         up_updateFrameTickRate();
         status = UP_eventHandler(&currentEvent,&shipAction,keymap);

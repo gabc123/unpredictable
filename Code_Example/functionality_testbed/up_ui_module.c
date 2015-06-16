@@ -17,9 +17,7 @@
 
 
 
-// move somewhere else, this is the window resulution
-#define UP_SCREEN_WIDTH 1280
-#define UP_SCREEN_HIGHT 800
+
 
 char *up_str_new(const char *str)
 {
@@ -126,6 +124,7 @@ struct up_ui_textField *up_ui_textField_new(struct up_vec3 pos,int width,int hig
     
     
     struct up_vec3 textPos = textField->area.pos;
+    textPos.x -= ((float)width/UP_SCREEN_WIDTH)/1.2;
     textPos.z -= 0.01;  //text need to be infront of the textfield model
     text->pos = textPos;
     
@@ -159,9 +158,12 @@ struct up_ui_button *up_ui_button_new(struct up_vec3 pos,int width,int hight,cha
     
     button->mesh = mesh;
     button->texture = texture;
-    
+
     
     struct up_vec3 textPos = button->area.pos;
+    
+    textPos.x -= ((float)width/UP_SCREEN_WIDTH)/1.2;
+    //textPos.y = ((float)hight/UP_SCREEN_HIGHT)/2;
     textPos.z -= 0.01;  //text need to be infront of the textfield model
     text->pos = textPos;
     
@@ -328,6 +330,77 @@ void up_ui_button_render(struct up_ui_button *button,struct up_shader_module *sh
     
     up_ui_text_render(button->text, shaderprog);
 }
+
+void up_ui_rect_render(struct up_ui_rect *rect,struct up_shader_module *shaderprog)
+{
+    if (rect == NULL) {
+        return;
+    }
+    
+    struct up_vec3 rot = {0};
+    
+    // becouse the area is given in pixels and not screen size, we need to convert it to screen pos
+    struct up_vec3 scale = {0};
+    scale.x = (float)rect->area.width/UP_SCREEN_WIDTH;
+    scale.y = (float)rect->area.hight/UP_SCREEN_HIGHT;
+    scale.z = 1;
+    
+    up_matrix4_t transform = {0};  //used by the shader to transforme the mesh to the correct loc on scrren
+    
+    up_matrixModel(&transform, &rect->area.pos, &rot, &scale);
+    
+    up_shader_update(shaderprog, &transform);
+    up_texture_bind(rect->texture, 0);
+    up_mesh_draw(rect->mesh);
+}
+/// array renders
+
+void up_ui_textArray_render(struct up_ui_textArray *textArray,int num,struct up_shader_module *shaderprog)
+{
+    if (textArray == NULL) {
+        return; // sometimes we dont need text, so the programmer dont need the think about it
+    }
+    int i = 0;
+    for (i = 0; i < num; i++) {
+        up_ui_text_render(textArray[i].elm, shaderprog);
+    }
+}
+
+void up_ui_textFieldArray_render(struct up_ui_textFieldArray *textFieldArray,int num,struct up_shader_module *shaderprog)
+{
+    if (textFieldArray == NULL) {
+        return; // sometimes we dont need text, so the programmer dont need the think about it
+    }
+    int i = 0;
+    for (i = 0; i < num; i++) {
+        up_ui_textField_render(textFieldArray[i].elm, shaderprog);
+    }
+}
+
+void up_ui_buttonArray_render(struct up_ui_buttonArray *buttonArray,int num,struct up_shader_module *shaderprog)
+{
+    if (buttonArray == NULL) {
+        return; // sometimes we dont need text, so the programmer dont need the think about it
+    }
+    int i = 0;
+    for (i = 0; i < num; i++) {
+        up_ui_button_render(buttonArray[i].elm, shaderprog);
+    }
+}
+
+void up_ui_rectArray_render(struct up_ui_rectArray *rectArray,int num,struct up_shader_module *shaderprog)
+{
+    if (rectArray == NULL) {
+        return; // sometimes we dont need text, so the programmer dont need the think about it
+    }
+    int i = 0;
+    for (i = 0; i < num; i++) {
+        up_ui_rect_render(rectArray[i].elm, shaderprog);
+    }
+}
+
+
+
 ////////////////////////
 struct up_ui_controller_glue up_ui_controller_setGlue(struct up_ui_clickArea *clickArea,int (*func)(int idx,void *data),void *data)
 {

@@ -26,6 +26,7 @@ void up_displayText(char *text_string,int length,struct up_vec3 *pos,
                     struct up_vec3 *scale,struct up_font_assets *fonts,
                     struct up_shader_module *shaderprog, float step,struct up_vec3 *color)
 {
+    
     struct up_vec3 localpos = *pos;
     up_matrix4_t transform;
     struct up_vec3 rot = {0};

@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Zetterman. All rights reserved.
 //  NOTERA, allt som inte står specifierat att det är gjort av någon annan är gjort av Joachim
 
-#include "up_menu.h"
+#include "up_deprecated_menu.h"
 #include <stdio.h>
 #include "up_utilities.h"
 
@@ -279,7 +279,7 @@ int up_menuEventHandler(struct navigationState *navigation,
 int up_shipSelectEvent(struct navigationState *navigation,int *selectedShip, struct up_menu_button *blueButton,
                        struct up_menu_button *redButton, struct up_menu_button *blackButton);
 
-int up_menu(struct up_shader_module *shaderprog,
+int up_deprecated_menu(struct up_shader_module *shaderprog,
             struct soundLib *sound,
             struct up_key_map *keymap,
             struct up_font_assets *fonts,

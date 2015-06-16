@@ -13,6 +13,10 @@
 #include "up_math.h"
 #include "up_sdl_redirect.h"
 
+// move somewhere else, this is the window resulution
+#define UP_SCREEN_WIDTH 1280
+#define UP_SCREEN_HIGHT 800
+
 // text containing all info needed to be display
 struct up_ui_text
 {
@@ -149,14 +153,18 @@ void up_ui_rect_free(struct up_ui_rect *rect);
 
 ////////////////////////////////////////////
 
-//renders a ui_text on screen, at pos, (you do not need to call this for a button or textField)
+// renders one text, or textfield or button, or rect, with shader
 void up_ui_text_render(struct up_ui_text *text,struct up_shader_module *shaderprog);
-
-// renders a textField including its text and all relevent stuff
 void up_ui_textField_render(struct up_ui_textField *textField,struct up_shader_module *shaderprog);
-
-// renders a button including its text and all relevent stuff
 void up_ui_button_render(struct up_ui_button *button,struct up_shader_module *shaderprog);
+void up_ui_rect_render(struct up_ui_rect *rect,struct up_shader_module *shaderprog);
+
+/// array renders, renders a whole array of elements
+
+void up_ui_textArray_render(struct up_ui_textArray *textArray,int num,struct up_shader_module *shaderprog);
+void up_ui_textFieldArray_render(struct up_ui_textFieldArray *textFieldArray,int num,struct up_shader_module *shaderprog);
+void up_ui_buttonArray_render(struct up_ui_buttonArray *buttonArray,int num,struct up_shader_module *shaderprog);
+void up_ui_rectArray_render(struct up_ui_rectArray *rectArray,int num,struct up_shader_module *shaderprog);
 
 /////////////////////////////
 // check a clickable area if some one has clicked on it,

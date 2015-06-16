@@ -16,7 +16,7 @@
 #include "up_assets.h"
 #include "up_network_module.h"
 
-int up_menu(struct up_shader_module *shaderprog,
+int up_deprecated_menu(struct up_shader_module *shaderprog,
             struct soundLib *sound,
             struct up_key_map *keymap,
             struct up_font_assets *fonts,
