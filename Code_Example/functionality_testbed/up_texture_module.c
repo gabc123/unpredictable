@@ -311,9 +311,12 @@ struct up_texture *up_load_texture(const char  * filename)
         
     }
     
-    
-
-    return up_loadImage_withAlpha(newName);
+    struct up_texture *texture = up_loadImage_withAlpha(newName);
+    if (texture != NULL) {
+        return texture;
+    }
+    char *fallback = "lala";
+    return up_load_special_error_texture(fallback);
 }
 
 //tell the gpu what texture top use
