@@ -33,8 +33,9 @@ char *up_str_new(const char *str)
         UP_ERROR_MSG("malloc failed");
         return NULL;
     }
-    strncpy(text, str, len);
-    
+    //strncpy(text, str, len);
+    text[0] = '\0';
+    strncat(text, str, len -1);//always null terminate, instead of strncpy that is not requierd to do it
     return text;
 }
 
@@ -48,6 +49,12 @@ char *up_str_newSize(int size)
     return text;
 }
 
+// safer then strncpy,
+void up_str_copy(char *dst,char*src,unsigned int size)
+{
+    dst[0] = '\0';
+    strncat(dst, src, size);
+}
 
 struct up_ui_text *up_ui_text_new(char *text,int maxLength,
                                   int isPassword,
@@ -60,6 +67,11 @@ struct up_ui_text *up_ui_text_new(char *text,int maxLength,
     if (text == NULL) {
         UP_ERROR_MSG("passed null to ui_text_new");
         maxLength = 0;
+    }
+    
+    if (maxLength == 0) {
+        text = up_str_new(text);
+        maxLength = (int)strlen(text);
     }
     
     struct up_ui_text *uiText = malloc(sizeof(struct up_ui_text));
@@ -314,11 +326,17 @@ void up_ui_button_render(struct up_ui_button *button,struct up_shader_module *sh
     up_texture_bind(button->texture, 0);
     up_mesh_draw(button->mesh);
     
-    struct up_vec3 textPos = button->area.pos;
-    textPos.z -= 0.01;  //text need to be infront of the textfield model
     up_ui_text_render(button->text, shaderprog);
 }
-
+////////////////////////
+struct up_ui_controller_glue up_ui_controller_setGlue(struct up_ui_clickArea *clickArea,int (*func)(int idx,void *data),void *data)
+{
+    struct up_ui_controller_glue controller = {0};
+    controller.clickArea = clickArea;
+    controller.func = func;
+    controller.data = data;
+    return controller;
+}
 
 /////////////////////////////
 int up_ui_check_clickArea(struct up_ui_clickArea clickAreaa,int mouse_x, int mouse_y)

@@ -91,12 +91,13 @@ struct up_ui_rectArray
 // str must be null terminated
 char *up_str_new(const char *str);
 char *up_str_newSize(int size);
-
+void up_str_copy(char *dst,char*src,unsigned int size); //safer then strncpy (size < maxsize(dst))
 
 /// functions to manage the ui elements
 
 
 // pass a ptr to a sting that should be displayed, its length
+// if maxLengt == 0, then the text will be copyied into a new allocated memory!,
 // if isPassword == 1 then all text will be displayed with '*' instead
 // stepSize is the space between letters, this is added to the defualt step length
 // pass in the font assets that should be used by this text.
@@ -176,6 +177,9 @@ struct up_ui_controller_glue
     int (*func)(int idx,void *data);    // function pointer to the action if clickarea is clicked,idx is the index in the click array this was.
     void *data; // data that should be passed to the function
 };
+
+struct up_ui_controller_glue up_ui_controller_setGlue(struct up_ui_clickArea *clickArea,int (*func)(int idx,void *data),void *data);
+
 
 // call this with the current controlArray containing all clickable areas in the screen
 void up_ui_controller_updateClick(struct up_ui_controller_glue *controlArray,int mouse_x,int mouse_y);
