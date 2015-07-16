@@ -15,9 +15,57 @@
 #include "up_control_events.h"
 #include "up_error.h"
 #include "up_network_module.h"
+#include "up_network_packet_utilities.h"
 #include "up_menu_viewController.h"
 #include "up_graphics_update.h"
 #include "testmodels.h"
+
+// adds next to the navigation stack and change the active menu
+int navigation_nextMenu(struct up_menu_data *menu_data,enum up_menu_navigation next)
+{
+    if (menu_data->nav_stack_top > UP_MENU_NAVIGATION_MAXDEPTH - 1) {
+        return 0;
+    }
+    *menu_data->activeInterface = next;
+    menu_data->nav_stack_top++;
+    menu_data->nav_stack[menu_data->nav_stack_top] = next;
+    return 0;
+}
+
+// change the menu to the menu below in the nagvigation stac, if already at root then nothing
+int navigation_prevMenu(struct up_menu_data *menu_data)
+{
+    int tmp_top = menu_data->nav_stack_top;
+    menu_data->nav_stack_top = (tmp_top > 0) ? tmp_top - 1 : 0;
+    *menu_data->activeInterface = menu_data->nav_stack[menu_data->nav_stack_top];
+    return 0;
+}
+
+// replace the current menu without effecting the navigation stack
+int navigation_replaceMenu(struct up_menu_data *menu_data,enum up_menu_navigation nav_menu)
+{
+    menu_data->nav_stack[menu_data->nav_stack_top] = nav_menu;
+    *menu_data->activeInterface = nav_menu;
+    return 0;
+}
+
+// clears all navigation locations, and set a new root menu
+int navigation_resetMenu(struct up_menu_data *menu_data,enum up_menu_navigation nav_menu)
+{
+    menu_data->nav_stack_top = 0;
+    menu_data->nav_stack[menu_data->nav_stack_top] = nav_menu;
+    *menu_data->activeInterface = nav_menu;
+    return 0;
+}
+
+// returns the navigation type of the menu below current
+enum up_menu_navigation navigation_checkPrevMenu(struct up_menu_data *menu_data)
+{
+    int tmp_loc = (menu_data->nav_stack_top > 0) ? menu_data->nav_stack_top - 1 : 0;
+    return menu_data->nav_stack[tmp_loc];
+    
+}
+
 
 ////// general navigation funcitons
 int navigation_escapeKey(void *data)
@@ -26,13 +74,18 @@ int navigation_escapeKey(void *data)
     if (state == NULL) {
         return 0;
     }
-    
-    switch (*state->activeInterface) {
-        case startMenu: *state->activeInterface = quitMenu; break;
-        case keyBindMenu: *state->activeInterface = settingsMenu; break;
-        default:*state->activeInterface = startMenu; break;
+
+    if (*state->activeInterface == startMenu) {
+        navigation_nextMenu(state, quitMenu);
+        return 0;
+    }
+    if (*state->activeInterface == connectingMenu) {
+        state->netInfo.isActive = 0;
+        state->netInfo.isSent = 0;
+        state->netInfo.timeout = 0;
     }
     
+    navigation_prevMenu(state);
     return 0;
 }
 
@@ -55,6 +108,29 @@ int navigation_tabKey(void *data)
         case passwordActive_menu: interface->active_textfield = usernameActive_menu; break;
         default:interface->active_textfield = noActiveTextField_menu; break;
     }
+    return 0;
+}
+
+///// enter key
+
+int navigation_enterKey(void *data)
+{
+    struct up_menu_data *menu_data = (struct up_menu_data *)data;
+    if (menu_data == NULL)  {
+        return 0;
+        
+    }
+    enum up_menu_navigation nav = *menu_data->activeInterface;
+    if ((nav != loginMenu) && (nav != registrateMenu)) {
+        return 0;
+    }
+    
+    //menu_data->
+    menu_data->netInfo.isActive = 1;
+    menu_data->netInfo.isSent = 0;
+    menu_data->netInfo.timeout = SDL_GetTicks() + 10000;//10 seconds timeout
+    navigation_nextMenu(menu_data, connectingMenu);
+    
     return 0;
 }
 
@@ -198,7 +274,7 @@ int up_buttonPressed_keySettings(int idx,void *data)
 {
     struct up_menu_data *state = (struct up_menu_data *)data;
     if (state != NULL) {
-        *state->activeInterface = keyBindMenu;
+        navigation_nextMenu(state, keyBindMenu);
     }
     
     return 0;
@@ -253,9 +329,9 @@ int up_menu_mainNavigation(int idx,void *data)
     if (menu_data != NULL) {
         switch (idx) {
             case 0: *menu_data->menuExitFlags = 2; break;
-            case 1: *menu_data->activeInterface = loginMenu; break;
-            case 2: *menu_data->activeInterface = registrateMenu; break;
-            case 3: *menu_data->activeInterface = settingsMenu; break;
+            case 1: navigation_nextMenu(menu_data, loginMenu); break;
+            case 2: navigation_nextMenu(menu_data, registrateMenu); break;
+            case 3: navigation_nextMenu(menu_data, settingsMenu); break;
             default:
                 return 0;
                 break;
@@ -282,6 +358,13 @@ int up_menu_event(struct up_menu_interface *interface,struct up_menu_data *menu_
             flag = 0;
             *menu_data->menuExitFlags = -1;
         }
+        // faster response time if we write on down, instead of up
+        if (event.type == SDL_KEYDOWN) {
+            key = event.key.keysym.sym;
+            if (interface->active_textfield != noActiveTextField_menu) {
+                writeAccountInfo(menu_data->user_data, interface, key);
+            }
+        }
         
         if(event.type == SDL_KEYUP)
         {
@@ -289,9 +372,6 @@ int up_menu_event(struct up_menu_interface *interface,struct up_menu_data *menu_
             up_ui_controller_updateKeyAction(interface->controller_keyInput, key);
             if (bindstate->change_key == 1) {
                 up_bindKey(keymap, interface->buttonArray, bindstate, key);
-            }
-            if (interface->active_textfield != noActiveTextField_menu) {
-                writeAccountInfo(menu_data->user_data, interface, key);
             }
             
         }
@@ -305,6 +385,76 @@ int up_menu_event(struct up_menu_interface *interface,struct up_menu_data *menu_
     return flag;
 }
 
+static int up_menu_network_sendAccountRequset(struct up_menu_data *menu_data)
+{
+    enum up_menu_navigation connection_type = navigation_checkPrevMenu(menu_data);
+    struct up_userLogin_data *user_data = menu_data->user_data;
+    switch (connection_type) {
+        case loginMenu:
+            up_network_loginAccount(user_data->name, user_data->password, user_data->writePos_pass, menu_data->network_connection);
+            break;
+        case registrateMenu:
+            up_network_registerAccount(user_data->name, user_data->password, user_data->writePos_pass, menu_data->network_connection);
+            break;
+        default:
+            break;
+    }
+    return 0;
+}
+
+int up_menu_network_toServer(struct up_menu_data *menu_data)
+{
+    if (*menu_data->activeInterface != connectingMenu) {return 0;}
+    if (menu_data->netInfo.isActive == 0) {return 0;}
+    struct up_menu_network_info *netinfo = &menu_data->netInfo;
+    unsigned int currentTick = SDL_GetTicks();
+    unsigned int elapsed_time = currentTick - netinfo->send_timestamp;
+    if (netinfo->isSent && elapsed_time < 1000 ) {
+        return 0;
+    }
+    
+    if (currentTick > netinfo->timeout) {
+        netinfo->isActive = 0;
+        netinfo->isSent = 0;
+        navigation_prevMenu(menu_data);
+    }
+    
+    netinfo->send_timestamp = currentTick;
+    up_menu_network_sendAccountRequset(menu_data);
+    netinfo->isSent = 1;
+    return 0;
+}
+
+int up_menu_network_fromServer(struct up_menu_data *menu_data)
+{
+    if (*menu_data->activeInterface != connectingMenu) {return 0;}
+    if (menu_data->netInfo.isActive == 0) {return 0;}
+    up_network_getAccountData(menu_data->accountData, 1, menu_data->network_connection);
+    menu_data->netInfo.response = menu_data->accountData->serverResponse;
+    switch (menu_data->netInfo.response) {
+        case REGSUCESSS :
+            navigation_resetMenu(menu_data, startMenu);
+            break;
+        case LOGINSUCESS :
+            navigation_resetMenu(menu_data, startMenu);
+            *menu_data->menuExitFlags = 2;
+            break;
+        case REGFAILED :
+            navigation_prevMenu(menu_data);
+            break;
+        case LOGINFAILED :
+            navigation_prevMenu(menu_data);
+            break;
+            
+        default:
+            return 0;
+            break;
+    }
+    menu_data->netInfo.isActive = 0;
+    menu_data->netInfo.isSent = 0;
+    menu_data->netInfo.timeout = 0;
+    return 0;
+}
 
 // render menu
 
@@ -329,16 +479,22 @@ int up_startmenu(struct up_map_data *mapData,struct up_key_map *keymap,struct up
     enum up_menu_navigation navigation = startMenu;;
     struct up_userLogin_data userData = {0};
     
+    struct up_network_account_data accountData[1] = {0};
+    
     int exitFlag = 0;
     menu_data.menuExitFlags = &exitFlag;
     
     menu_data.activeInterface = &navigation;
+    // sets the navigation stack
+    navigation_resetMenu(&menu_data, navigation);
+    
     menu_data.interfaceArray = &interfaceArray[0];
     menu_data.numInterface = navigationMenu_count;
     
     menu_data.user_data = &userData;
     menu_data.mapData = mapData;
     menu_data.sound = sound;
+    menu_data.accountData = accountData;
     menu_data.network_connection = connection;
     
     struct up_keybinding_state keybind_state = {0};
@@ -350,25 +506,37 @@ int up_startmenu(struct up_map_data *mapData,struct up_key_map *keymap,struct up
     area.width = 250;
     area.pos = pos;
     
+
     up_menu_interface_main_new(&interfaceArray[startMenu], &menu_data, area, textScale, fonts);
     up_menu_interface_settings_new(&interfaceArray[settingsMenu], &menu_data, area, textScale, fonts);
     up_menu_interface_account_new(&interfaceArray[registrateMenu], "Registrate", &menu_data, area, textScale, fonts);
     up_menu_interface_account_new(&interfaceArray[loginMenu], "Login", &menu_data, area, textScale, fonts);
+    up_menu_interface_connecting_new(&interfaceArray[connectingMenu], &menu_data, area, textScale, fonts);
     area.pos.y = 0.5;
     up_menu_interface_keyBinding_new(&interfaceArray[keyBindMenu], keymap, area, textScale, 0.1, &keybind_state, fonts);
     
-    struct up_ui_controller_keyInput keyInput[] = {
-        {SDLK_BACKSPACE,navigation_backspaceKey,&menu_data},
+    // bind key to action
+    struct up_ui_controller_keyInput nav_keyInput[] = {
     {SDLK_ESCAPE,navigation_escapeKey,&menu_data},
-        {SDLK_TAB,navigation_tabKey,&menu_data},
     0,NULL,NULL};
+    interfaceArray[startMenu].controller_keyInput = nav_keyInput;
+    interfaceArray[quitMenu].controller_keyInput = nav_keyInput;
+    interfaceArray[settingsMenu].controller_keyInput = nav_keyInput;
+    interfaceArray[keyBindMenu].controller_keyInput = nav_keyInput;
+    interfaceArray[connectingMenu].controller_keyInput = nav_keyInput;
     
-    interfaceArray[startMenu].controller_keyInput = keyInput;
-    interfaceArray[settingsMenu].controller_keyInput = keyInput;
-    interfaceArray[keyBindMenu].controller_keyInput = keyInput;
-    interfaceArray[registrateMenu].controller_keyInput = keyInput;
-    interfaceArray[loginMenu].controller_keyInput = keyInput;
+    // bind key to action
+    struct up_ui_controller_keyInput nav_account_keyInput[] = {
+        {SDLK_BACKSPACE,navigation_backspaceKey,&menu_data},
+        {SDLK_ESCAPE,navigation_escapeKey,&menu_data},
+        {SDLK_TAB,navigation_tabKey,&menu_data},
+        {SDLK_RETURN,navigation_enterKey,&menu_data},
+        0,NULL,NULL};
     
+    interfaceArray[registrateMenu].controller_keyInput = nav_account_keyInput;
+    interfaceArray[loginMenu].controller_keyInput = nav_account_keyInput;
+
+
     struct up_texture *backgroundTexture = up_load_texture("1971687");
     struct up_mesh *background = up_mesh_menu_Botton();
     up_matrix4_t identity = up_matrix4identity();
@@ -383,6 +551,11 @@ int up_startmenu(struct up_map_data *mapData,struct up_key_map *keymap,struct up
         
         up_menu_event(&interfaceArray[navigation], &menu_data, keymap, &keybind_state);
         
+        // network comunications
+        up_menu_network_toServer(&menu_data);
+        up_menu_network_fromServer(&menu_data);
+        
+        // background rendering
         up_texture_bind(backgroundTexture, 0);
         up_shader_update(shader, &backgroundModel);
         up_mesh_draw(background);

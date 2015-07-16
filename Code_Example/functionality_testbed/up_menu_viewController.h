@@ -56,19 +56,40 @@ enum up_menu_navigation
     keyBindMenu,
     registrateMenu,
     loginMenu,
+    connectingMenu,
     quitMenu,
     navigationMenu_count
+};
+
+
+#define UP_MENU_NAVIGATION_MAXDEPTH 5
+
+struct up_menu_network_info
+{
+    int isActive;
+    int isSent;
+    int response;
+    unsigned int send_timestamp;
+    unsigned int timeout;
+    
 };
 
 struct up_menu_data
 {
     int *menuExitFlags;
     enum up_menu_navigation *activeInterface;
+    //to keep track of how we have moved acrosse the menu
+    int nav_stack_top;
+    enum up_menu_navigation nav_stack[UP_MENU_NAVIGATION_MAXDEPTH];
+    
     struct up_menu_interface *interfaceArray;
     int numInterface;
     struct soundLib *sound;
     struct up_userLogin_data *user_data;
     struct up_map_data *mapData;
+    
+    struct up_menu_network_info netInfo;
+    struct up_network_account_data *accountData;
     struct up_network_datapipe *network_connection;
 };
 
@@ -149,7 +170,12 @@ struct up_menu_interface *up_menu_interface_main_new(struct up_menu_interface *i
 void up_menu_interface_main_free(struct up_menu_interface *interface);
 
 
-
+struct up_menu_interface *up_menu_interface_connecting_new(struct up_menu_interface *interface,
+                                                           struct up_menu_data *menu_data,
+                                                           struct up_ui_clickArea clickArea,
+                                                           struct up_vec3 textScale,
+                                                           struct up_font_assets *fonts);
+void up_menu_interface_connecting_free(struct up_menu_interface *interface);
 
 
 

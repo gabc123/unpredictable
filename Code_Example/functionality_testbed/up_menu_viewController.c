@@ -411,3 +411,37 @@ void up_menu_interface_main_free(struct up_menu_interface *interface)
 
 
 
+struct up_menu_interface *up_menu_interface_connecting_new(struct up_menu_interface *interface,
+                                                     struct up_menu_data *menu_data,
+                                                     struct up_ui_clickArea clickArea,
+                                                     struct up_vec3 textScale,
+                                                     struct up_font_assets *fonts)
+{
+    int numButtons = 1;
+    interface = up_menu_interface_newStorage(interface, numButtons, 0, 0, 0);
+    if (interface == NULL) {
+        return NULL;
+    }
+    struct up_vec3 white_color = {1.0, 1.0, 1.0};
+    struct up_ui_textArray textArray[1] = {0};
+    textArray[0].elm = up_ui_text_new("Connecting...", 0, 0, clickArea.pos, white_color, textScale, 0, fonts);
+    interface->buttonArray[0].elm = up_ui_button_new(clickArea.pos, clickArea.width, clickArea.hight, "menu_black_square", textArray[0].elm);
+
+    return interface;
+}
+
+void up_menu_interface_connecting_free(struct up_menu_interface *interface)
+{
+    int i = 0;
+    struct up_ui_text *text_tmp = NULL;
+    struct up_ui_buttonArray *buttonArray = interface->buttonArray;
+    int numButtons = interface->numButtons;
+    
+    for (i = 0; i < numButtons; i++) {
+        text_tmp = up_ui_button_free(buttonArray[i].elm);   // returns the text in button
+        up_ui_text_free(text_tmp, 1);   // this time we want to free the textbuffer also
+    }
+    up_menu_interface_freeStorage(interface);
+}
+
+
